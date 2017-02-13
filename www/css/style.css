@@ -23,7 +23,7 @@ Accent Darker color: Orange 800: #EF6C00
 
 .loginPageDiv {
     position: absolute;
-    top: 10%;
+    top: 32px;
     left: 16px;
     right: 16px;
     z-index: 2;

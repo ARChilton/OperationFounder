@@ -23,24 +23,25 @@
   <!-- Navigation between pages -->
   <!-- To add new pages to the menu use menu.html but do not add the main map screen to the menu as leaflet does not re-run -->
   <ons-splitter>
-    <ons-splitter-side id="menu" side="left" page="menu.html" swipe-target-width="20%" collapse swipeable>
+    <ons-splitter-side id="menu" side="left" page="menu.html" swipe-target-width="1px" collapse swipeable>
     </ons-splitter-side>
     <ons-splitter-content id="content"></ons-splitter-content>
-    <ons-navigator id="navi" page="loginPage.html"></ons-navigator>
+    <ons-navigator id="navi" page="page1.html"></ons-navigator>
   </ons-splitter>
   <!-- End of page navigation -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">
       <div class="loginPageDiv">
         <img src="img/opperationFounder.png" id="loginLogo">
-        <p>Welcome to the Operation Founder app, please enter your name and base code below</p>
+        <p>Welcome to the Operation Founder app, please enter your name and base code below:</p>
         <p>
           <ons-input id="userName" modifier="underbar" placeholder="Name" float class="loginInput marginTop"></ons-input>
         </p>
-        <p>This is the short code provided to you by the Operation Founder organisers. Each code is individual to each base.</p>
+        <p>This is the short code provided to you by the Operation Founder organisers.</p>
         <p>
-          <ons-input id="baseCode" modifier="underbar" placeholder="baseCode" float class="loginInput marginTop"></ons-input>
+          <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="loginInput marginTop"></ons-input>
         </p>
+        <p class="caption">Each code is individual to each base</p>
         <p class="txtCenter marginTop">
           <ons-button class="loginButton">Login</ons-button>
         </p>
