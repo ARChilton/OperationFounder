@@ -6,6 +6,7 @@ This is the javascript for the operationFounder app
 var baseCodes = ['opFounder123', 'adam', 'martin'];
 var base;
 var appdb;
+var name;
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -55,12 +56,15 @@ ons.ready(function () {
 
     // login function
     appdb = new PouchDB('opFounderAppDb');
-    appdb.get('login')
+    appdb.get('login').then(function () {
+            base = doc.base;
+            $('.pageTitle').append('Base ' + base);
+        })
         .catch(function (err) {
             navi.bringPageTop('loginPage.html', {
                 animation: 'none'
             });
-            base = false;
+
         });
 
 
@@ -79,7 +83,7 @@ ons.ready(function () {
             $('.loginButton').on('click', function () {
                 if ($('#baseCode').val != '' && $('#userName').val() != '') {
                     var baseCodeInput = $('#baseCode').val();
-                    var name = $('#userName').val();
+                    name = $('#userName').val();
                     base = baseCodes.indexOf(baseCodeInput);
 
                     if (base > -1) {
@@ -170,6 +174,9 @@ ons.ready(function () {
                 }
             });
         } // end of loginPage.html
+        if ($('#page1').length) {
+            $('.pageTitle').html('Base ' + base);
+        }
 
     });
 
