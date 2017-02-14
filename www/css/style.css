@@ -52,15 +52,34 @@ Accent Darker color: Orange 800: #EF6C00
 /*Page 1*/
 
 .topHalf {
-    height: 50%;
+    /*height: 50%;*/
     width: 100%;
-    background-color: #FFB74D;
 }
 
 .bottomHalf {
-    height: 50%;
     width: 100%;
-    background-color: #ccc;
+}
+
+.quickAddInput {
+    width: 100%;
+}
+
+#fullEditFab {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+}
+
+#submitQuick {
+    margin-right: 16px;
+}
+
+.txtRight {
+    text-align: right;
+}
+
+.logTable {
+    width: 100%;
 }
 
 

@@ -4,9 +4,17 @@ This is the javascript for the operationFounder app
 
 // global variables
 var baseCodes = ['opFounder123', 'adam', 'martin'];
-var base;
 var appdb;
+// login variables
+var base;
 var name;
+// Quick submit variables
+var sqPatrol;
+var sqTimeIn;
+var sqTimeOut;
+var sqWait;
+var sqOffRoute;
+var sqTotalScore;
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -39,6 +47,25 @@ function onResume() {
 
 ons.ready(function () {
     console.log('ons-ready function fired');
+    //make every device and webpage android styled for familiarity
+    ons.forcePlatformStyling('android');
+    // if the user has their phone set landscape on starting
+    if (ons.orientation.isLandscape()) {
+        $('.landscapeHide').addClass('hide');
+        $('.landscapeShow').removeClass('hide');
+    }
+    // orientation event listener
+    ons.orientation.on('change', function () {
+        if (ons.orientation.isLandscape()) {
+
+            $('.landscapeHide').addClass('hide');
+            $('.landscapeShow').removeClass('hide');
+        } else {
+            $('.landscapeShow').addClass('hide');
+            $('.landscapeHide').removeClass('hide');
+        }
+    });
+
 
     // --- MENU CONTROLS ---
     // Opens the menu and adds the shadow on the right edge
@@ -56,11 +83,13 @@ ons.ready(function () {
 
     // login function
     appdb = new PouchDB('opFounderAppDb');
-    appdb.get('login').then(function () {
+    appdb.get('login').then(function (doc) {
             base = doc.base;
             $('.pageTitle').append('Base ' + base);
+            $('.quickAddTitle').append(base);
         })
         .catch(function (err) {
+            console.log(err);
             navi.bringPageTop('loginPage.html', {
                 animation: 'none'
             });
@@ -75,7 +104,28 @@ ons.ready(function () {
         $('#menu').removeClass('menuShadow');
     });
 
+    // QuickAdd
+    $('.checkbox').on('click', '.checkbox__input', function () {
 
+        if ($(this).is('.checkbox__input:checked')) {
+            $('#total').prop('disabled', true);
+        } else {
+            $('#total').prop('disabled', false);
+        }
+    });
+
+    // Quick submit code
+    $('#submitQuick').on('click', function () {
+        // set variables to the input values
+        sqPatrol = $('#patrolNo').val();
+        sqTimeIn = $('#timeIn').val();
+        sqTimeOut = $('#timeOut').val();
+        sqWait = $('#wait').val();
+        sqOffRoute = $('#offRoute').val();
+        sqTotalScore = $('#total').val();
+    });
+
+    // page change code
     document.addEventListener('postpush', function (event) {
         console.log('page pushed');
         if ($('#loginPage').length) {
@@ -176,6 +226,7 @@ ons.ready(function () {
         } // end of loginPage.html
         if ($('#page1').length) {
             $('.pageTitle').html('Base ' + base);
+            $('.quickAddTitle').html('Add record from base ' + base);
         }
 
     });

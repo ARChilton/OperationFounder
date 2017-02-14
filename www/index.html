@@ -8,10 +8,13 @@
   <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
   <script src="components/loader.js"></script>
   <script src="lib/onsenui/js/onsenui.min.js"></script>
+  <!--<script src="js/mdl/material.js"></script>-->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
   <link rel="stylesheet" href="components/loader.css">
   <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="js/mdl/material.css">
+  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
   <!--<link rel="stylesheet" href="js/leaflet/leaflet.css">
   <link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
@@ -63,17 +66,105 @@
         <div class="center pageTitle">
         </div>
       </ons-toolbar>
+      <!--FAB-->
+      <ons-fab class="fab" id="fullEditFab" href="#">
+        <ons-icon icon="md-plus" class="fabIcon" id="fullEditIcon"></ons-icon>
+      </ons-fab>
       <!--Top half of screen-->
-      <div class="topHalf">
+      <div class="topHalf landscapeHide">
+        <ons-list>
+          <ons-list-header class="quickAddTitle">Add record from base </ons-list-header>
+          <ons-list-item>
+            <div class="left">
+              Patrol Number
+            </div>
+            <div class="right">
+              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Patrol" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item tappable class="checkbox">
+            <label class="right">
+              <ons-input type="checkbox" input-id="offRoute" value="offRoute"></ons-input>
+              </label>
+            <label for="offRoute" class="center">Off route</label>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">
+              Time in
+            </div>
+            <div class="right">
+              <ons-input id="timeIn" type="time" modifier="underbar" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">Wait time</div>
+            <div class="right">
+              <ons-input id="wait" type="number" modifier="underbar" placeholder="minutes" value="0" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">
+              Time out
+            </div>
+            <div class="right">
+              <ons-input id="timeOut" type="time" modifier="underbar" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">Total score</div>
+            <div class="right">
+              <ons-input id="total" type="number" modifier="underbar" placeholder="Total score" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+        </ons-list>
+        <p class="txtRight">
+          <ons-button class="" id="submitQuick">Submit</ons-button>
+        </p>
       </div>
       <!--Bottom Half-->
       <div class="bottomHalf">
-        <ons-row>
-          <ons-col width="50px">
-            <ons-icon icon="fa-twitter"></ons-icon>
-          </ons-col>
-          <ons-col>Text</ons-col>
-        </ons-row>
+        <ons-list>
+          <ons-list-header>Previous logs</ons-list-header>
+        </ons-list>
+        <table class="mdl-data-table mdl-js-data-table logTable">
+          <thead>
+            <tr>
+              <th class="">Patrol</th>
+              <th class="">Time out</th>
+              <th>Time out</th>
+              <th class="hide landscapeShow">Wait</th>
+              <th class="hide landscapeShow">Off route</th>
+              <th>Total score</th>
+              <th class="hide landscapeShow">edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="">1</td>
+              <td>12:15</td>
+              <td>13:00</td>
+              <td>25</td>
+              <td>56</td>
+            </tr>
+            <tr>
+              <td class="">2</td>
+              <td>50</td>
+              <td>$1.25</td>
+              <td>25</td>
+            </tr>
+            <tr>
+              <td class="">3</td>
+              <td>10</td>
+              <td>$2.35</td>
+              <td>25</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </ons-page>
   </ons-template>
@@ -95,12 +186,6 @@
       </div>
       <!--Bottom Half-->
       <div class="bottomHalf">
-        <ons-row>
-          <ons-col width="50px">
-            <ons-icon icon="fa-twitter"></ons-icon>
-          </ons-col>
-          <ons-col>Text</ons-col>
-        </ons-row>
       </div>
     </ons-page>
   </ons-template>
