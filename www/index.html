@@ -36,7 +36,7 @@
     <ons-page id="loginPage">
       <div class="loginPageDiv">
         <img src="img/opperationFounder.png" id="loginLogo">
-        <p>Welcome to the Operation Founder app, please enter your name and base code below:</p>
+        <p class="marginTop">Welcome to the Operation Founder app, please enter your name and base code below:</p>
         <p>
           <ons-input id="userName" modifier="underbar" placeholder="Name" float class="loginInput marginTop"></ons-input>
         </p>
@@ -67,9 +67,9 @@
         </div>
       </ons-toolbar>
       <!--FAB-->
-      <ons-fab class="fab" id="fullEditFab" href="#">
+      <!--<ons-fab class="fab" id="fullEditFab" href="#">
         <ons-icon icon="md-plus" class="fabIcon" id="fullEditIcon"></ons-icon>
-      </ons-fab>
+      </ons-fab>-->
       <!--Top half of screen-->
       <div class="topHalf landscapeHide">
         <ons-list>
@@ -122,7 +122,7 @@
             </div>
           </ons-list-item>
         </ons-list>
-        <p class="txtRight">
+        <p class="txtRight marginTop">
           <ons-button class="" id="submitQuick">Submit</ons-button>
         </p>
       </div>
@@ -135,34 +135,15 @@
           <thead>
             <tr>
               <th class="">Patrol</th>
-              <th class="">Time out</th>
+              <th class="">Time in</th>
               <th>Time out</th>
               <th class="hide landscapeShow">Wait</th>
-              <th class="hide landscapeShow">Off route</th>
+              <th class="hide landscapeShow mdl-data-table__cell--non-numeric">Off route</th>
               <th>Total score</th>
               <th class="hide landscapeShow">edit</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="">1</td>
-              <td>12:15</td>
-              <td>13:00</td>
-              <td>25</td>
-              <td>56</td>
-            </tr>
-            <tr>
-              <td class="">2</td>
-              <td>50</td>
-              <td>$1.25</td>
-              <td>25</td>
-            </tr>
-            <tr>
-              <td class="">3</td>
-              <td>10</td>
-              <td>$2.35</td>
-              <td>25</td>
-            </tr>
+          <tbody id="logsTable">
           </tbody>
         </table>
       </div>
