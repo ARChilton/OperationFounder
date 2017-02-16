@@ -73,7 +73,7 @@
       <!--Top half of screen-->
       <div class="topHalf landscapeHide">
         <ons-list>
-          <ons-list-header class="quickAddTitle">Add record from base </ons-list-header>
+          <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
           <ons-list-item>
             <div class="left">
               Patrol Number
@@ -123,13 +123,14 @@
           </ons-list-item>
         </ons-list>
         <p class="txtRight marginTop">
+          <ons-button modifier="" class="" id="cancelSubmitQuick">clear</ons-button>
           <ons-button class="" id="submitQuick">Submit</ons-button>
         </p>
       </div>
       <!--Bottom Half-->
       <div class="bottomHalf">
         <ons-list>
-          <ons-list-header>Previous logs</ons-list-header>
+          <ons-list-header>Previous logs from this base</ons-list-header>
         </ons-list>
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
@@ -163,11 +164,36 @@
         </div>
       </ons-toolbar>
       <!--Top half of screen-->
-      <div class="topHalf">
-      </div>
-      <!--Bottom Half-->
-      <div class="bottomHalf">
-      </div>
+      <table class="mdl-data-table mdl-js-data-table logTable">
+        <thead>
+          <tr>
+            <th class="">Patrol</th>
+            <th class="">Time in</th>
+            <th>Time out</th>
+            <th class="hide landscapeShow">Wait</th>
+            <th class="hide landscapeShow mdl-data-table__cell--non-numeric">Off route</th>
+            <th>Total score</th>
+            <th class="hide landscapeShow">edit</th>
+          </tr>
+        </thead>
+        <tbody id="logsTable">
+        </tbody>
+      </table>
+  </ons-template>
+  <ons-template id="roaming.html">
+    <ons-page id="roamingPage">
+      <!--Toolbar-->
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center">
+          Roaming Updates
+        </div>
+      </ons-toolbar>
+      <!--Top half of screen-->
     </ons-page>
   </ons-template>
 </body>
@@ -193,9 +219,11 @@
 <!-- Leaflet JS and Leaflet WMS extension -->
 <!--<script src="js/leaflet/leaflet.js"></script>-->
 <!-- JavaScript database  -->
-<script src="js/pouchdb/pouchdb-6.1.1.min.js"></script>
+<script src="js/pouchdb/pouchdb-6.1.2.min.js"></script>
+<script src="js/pouchdb/pouchdb.find.min.js"></script>
 <!-- Leaflet plugins -->
-<!--<script src="js/leaflet/wmsleaflet.js"></script>-->
+<!--<script src="js/leaflet/wmsleaflet.js">
+</script>-->
 <!--<script src="js/leaflet/leaflet-routing-machine.js"></script>-->
 <!--<script src="js/leaflet/lrm-mapzen.js "></script>-->
 <!--<script src="js/leaflet/Control.Geocoder.js"></script>-->

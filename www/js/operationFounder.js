@@ -3,7 +3,7 @@ This is the javascript for the operationFounder app
 */
 
 // global variables
-var baseCodes = ['opFounder123', 'adam', 'martin'];
+var baseCodes = ['opFounder123', 'adam', 'martin', '3', '4', '5', '6', 'roaming'];
 var appdb;
 var basedb;
 var remotedb;
@@ -17,6 +17,7 @@ var sqTimeOut;
 var sqWait;
 var sqOffRoute;
 var sqTotalScore;
+var patrolRecord = [];
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -46,20 +47,58 @@ function onResume() {
 
 }
 
+function patrolRecordUpdate(patrol) {
+
+    var index = patrolRecord.indexOf(patrol);
+    if (index > -1) {
+        return true;
+    } else {
+        patrolRecord.push(patrol);
+        return false;
+    }
+
+}
+
+function destroyBasedb() {
+    var x = new PouchDB('basedb').destroy();
+    var y = new PouchDB('opFounderAppDb').destroy();
+}
+
 function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable) {
-    $('#log-' + patrolNo).html("<td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td>");
+    $('#log-' + patrolNo).html("<td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td><td>" + editable + "</td>");
 }
 
 function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable) {
-    $('#logsTable').append("<tr id='log-" + patrolNo + "'><td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td></tr>");
+    $('#logsTable').append("<tr id='log-" + patrolNo + "'><td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td><td>" + editable + "</td></tr>");
 }
 
-function updateTableFromDb(doc) {
+function updateTableFromAllDocs(doc) {
     for (var i = 0, l = doc.total_rows; i < l; i++) {
         console.log(doc.rows[i].doc.patrol);
         var path = doc.rows[i].doc;
-        updateTable(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable);
+        if (patrolRecordUpdate(path.patrol)) {
+            updateExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable);
+        } else {
+            updateTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable);
+        }
         orientationLandscapeUpdate();
+    }
+}
+
+function updateTableFromFindQuery(doc) {
+    console.log('updating from find query');
+    for (var i = 0, l = doc.docs.length; i < l; i++) {
+
+        if (doc.docs[i].patrol.length > 0) {
+            console.log(doc.docs[i].patrol);
+            var path = doc.docs[i];
+            if (patrolRecordUpdate(path.patrol)) {
+                updateExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable);
+            } else {
+                updateTable(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable);
+            }
+            orientationLandscapeUpdate();
+        }
     }
 }
 
@@ -80,7 +119,51 @@ function orientationUpdates() {
     }
 }
 
+function clearQuickAddInputs() {
+    $('.quickAddInput').val('');
+    $('#wait').val('0');
+    $('#offRoute').removeProp('checked');
+}
+
+function loginPut(doc) {
+    appdb.put({
+        _id: doc._id,
+        _rev: doc._rev,
+        base: base,
+        name: name
+    });
+}
+
+function logOutPageChange() {
+    navi.bringPageTop('loginPage.html', {
+        animation: 'none'
+    });
+    $('#userName').val(name);
+    closeMenu();
+}
+
+function logOut() {
+    logOutPageChange();
+    appdb.get('login')
+        .then(function (doc) {
+            base = 999;
+
+            appdb.put({
+                _id: doc._id,
+                _rev: doc._rev,
+                base: base,
+                name: name
+            });
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+}
+
+// Start of script here:
+
 ons.ready(function () {
+
     console.log('ons-ready function fired');
     //make every device and webpage android styled for familiarity
     ons.forcePlatformStyling('android');
@@ -108,10 +191,29 @@ ons.ready(function () {
 
     // login function
     appdb = new PouchDB('opFounderAppDb');
-    appdb.get('login').then(function (doc) {
+    appdb.get('login').then(function (doc) { //this part next
             base = doc.base;
-            $('.pageTitle').append('Base ' + base);
-            $('.quickAddTitle').append(base);
+            name = doc.name;
+            switch (base) {
+                case 999:
+                    logOutPageChange();
+                    break;
+                case 0:
+                    navi.bringPageTop('admin.html', {
+                        animation: 'none'
+                    });
+                    break;
+                case 7:
+                    navi.bringPageTop('roaming.html', {
+                        animation: 'none'
+                    });
+                    break;
+                default:
+                    $('.pageTitle').append('Base ' + base);
+                    $('.quickAddTitle').append(base);
+                    break;
+            }
+
         })
         .catch(function (err) {
             console.log(err);
@@ -122,13 +224,96 @@ ons.ready(function () {
         });
 
     basedb = new PouchDB('basedb');
-    remotedb = new PouchDB('http://ARChilton:2326@192.168.1.10:5984/founderhq');
-    basedb.sync(remotedb, {
+    // basedb.createIndex({
+    //     index: {
+    //         fields: ['timeOut'],
+    //         name: 'timeOutIndex',
+    //         ddoc: 'timeOutdesigndoc',
+    //         type: 'json'
+    //     }
+    // }).then(function (result) {
+    //     // yo, a result
+    //     console.log('index:');
+    //     console.log(result);
+    // }).catch(function (err) {
+    //     // ouch, an error
+    //     console.log('index:');
+    //     console.log(err);
+    // });
+    // basedb.createIndex({
+    //     index: {
+    //         fields: ['base'],
+    //         name: 'baseIndex',
+    //         ddoc: 'basedesigndoc',
+    //         type: 'json'
+    //     }
+    // }).then(function (result) {
+    //     // yo, a result
+    //     console.log('index:');
+    //     console.log(result);
+    // }).catch(function (err) {
+    //     // ouch, an error
+    //     console.log('index:');
+    //     console.log(err);
+    // });
+    // basedb.get('_design/basefilter').catch(function (err) {
+    //     if (err.status == 404) {
+    //         console.log('no base filter found, putting in db');
+    //         basedb.put({
+    //             _id: '_design/basefilter',
+    //             filters: {
+    //                 myfilter: function (doc, req) {
+    //                     return doc.base === req.query.base;
+    //                 }.toString()
+    //             }
+
+    //         }).then(function (response) {
+    //             console.log(response);
+    //         }).catch(function (err) {
+    //             console.log(err);
+    //         });
+    //     }
+    // });
+
+
+    // // initial load of the table
+    // basedb.find({
+    //         selector: {
+    //             timeOut: {
+    //                 $gt: null
+    //             }
+    //         },
+    //         sort: ['timeOut']
+    //     })
+    //     .then(function (doc) {
+    //         console.log(doc);
+    //         updateTableFromFindQuery(doc);
+    //     })
+    //     .catch(function (err) {
+    //         console.log(err);
+    //     });
+    basedb.allDocs({
+            include_docs: true
+        })
+        .then(function (doc) {
+            console.log(doc);
+            updateTableFromAllDocs(doc);
+
+        })
+        .catch();
+
+    //remotedb = new PouchDB('http://admin:f80caba00b47@couchdb-335dec.smileupps.com/founderhq');
+    //remotedb = new PouchDB('http://localhost:5984/founderhq');
+    remotedb = new PouchDB('http://vps358200.ovh.net:5984/founderhq');
+
+
+    /*basedb.replicate.to(remotedb, {
         live: true,
         retry: true
     }).on('change', function (change) {
         // yo, something changed!
-        console.log(change);
+        console.log('change occured updating remotedb');
+        console.log(change.docs);
     }).on('paused', function (info) {
         // replication was paused, usually because of a lost connection
     }).on('active', function (info) {
@@ -137,13 +322,54 @@ ons.ready(function () {
         // totally unhandled error (shouldn't happen)
         console.log(err);
     });
-    basedb.allDocs({
-            include_docs: true
-        })
-        .then(function (doc) {
-            updateTableFromDb(doc);
-        })
-        .catch();
+    remotedb.replicate.to(basedb, {
+        live: true,
+        retry: true,
+        filter: 'basefilter/myfilter',
+        query_params: {
+            base: base
+        }
+    }).on('change', function (change) {
+        // yo, something changed!
+        console.log('change occured in remote updating basedb');
+        console.log(change.docs);
+        updateTableFromFindQuery(doc);
+    }).on('paused', function (info) {
+        // replication was paused, usually because of a lost connection
+    }).on('active', function (info) {
+        // replication was resumed
+    }).on('error', function (err) {
+        // totally unhandled error (shouldn't happen)
+        console.log(err);
+    });*/
+
+    basedb.sync(remotedb, {
+        live: true,
+        retry: true
+        // filter: 'basefilter/myfilter',
+        // query_params: {
+        //     base: base
+        // }
+    }).on('change', function (doc) {
+        // yo, something changed!
+
+        console.log(doc);
+        if (doc.direction == 'pull') {
+            console.log('change occured in remote updating basedb');
+            var change = doc.change;
+            updateTableFromFindQuery(change);
+        } else {
+            console.log('updating remotedb');
+        }
+    }).on('paused', function (info) {
+        // replication was paused, usually because of a lost connection
+    }).on('active', function (info) {
+        // replication was resumed
+    }).on('error', function (err) {
+        // totally unhandled error (shouldn't happen)
+        console.log(err);
+    });
+
 
     //listens to onsenui event for the splitter menu closing line 22815 of onsenui.js
     //removes the shadow when the menu closes
@@ -161,7 +387,17 @@ ons.ready(function () {
             $('#total').prop('disabled', false);
         }
     });
-
+    // Clear quick submit entries
+    $('#cancelSubmitQuick').on('click', function () {
+        ons.notification.confirm({
+            message: 'Are you sure you want to clear this entry?',
+            cancelable: true
+        }).then(function (input) {
+            if (input == 1) {
+                clearQuickAddInputs();
+            }
+        });
+    });
     // Quick submit code
     $('#submitQuick').on('click', function () {
         // set variables to the input values
@@ -181,10 +417,24 @@ ons.ready(function () {
         if (missingInformationMessage != "") {
             ons.notification.alert({
                 title: 'Missing fields',
-                messageHTML: '<p>Please fill in the following fields:</p>' + missingInformationMessage,
+                messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
                 cancelable: true
             });
-        } else {
+        } else if (sqTotalScore > 25) {
+            ons.notification.alert({
+                title: 'Total score',
+                message: 'the total score entered is greater than the maximum points available at a base',
+                cancelable: true
+            });
+        }
+        //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
+        //     ons.notification.alert({
+        //         title: 'Incorrect times',
+        //         message: 'this log entry has the patrol leaving before they arrived',
+        //         cancelable: true
+        //     });
+        // } 
+        else {
             if (sqTimeIn == "") {
                 var date = new Date();
                 sqTimeIn = date.toLocaleTimeString();
@@ -203,6 +453,7 @@ ons.ready(function () {
                 _id: sqPatrol + ' base ' + base,
                 patrol: sqPatrol,
                 base: base,
+                username: name,
                 timeIn: sqTimeIn,
                 timeOut: sqTimeOut,
                 timeWait: sqWait,
@@ -220,11 +471,13 @@ ons.ready(function () {
                                 cancelable: true
                             }).then(function (input) {
                                 if (input == 1) {
+                                    clearQuickAddInputs();
                                     basedb.put({
                                         _id: doc._id,
                                         _rev: doc._rev,
                                         patrol: sqPatrol,
                                         base: base,
+                                        username: name,
                                         timeIn: sqTimeIn,
                                         timeOut: sqTimeOut,
                                         timeWait: sqWait,
@@ -245,20 +498,24 @@ ons.ready(function () {
                                 message: 'This record has been updated by HQ and cannot be edited',
                                 cancelable: true
                             });
+                            clearQuickAddInputs();
                             break;
                     }
 
 
                 }).catch(function (err) {
+
                     if (err.status == 404) {
                         console.log('404 no prior record putting a new record');
                         updateTable(sqPatrol, sqTimeIn, sqTimeOut, sqWait, sqOffRoute, sqTotalScore, true);
+                        clearQuickAddInputs();
                         return basedb.put(patrolRecord);
 
                     } else if (err.status == 409) {
                         switch (doc.editable) {
                             case true:
                                 console.log('409 putting anyway');
+                                clearQuickAddInputs();
                                 basedb.put({
                                     _id: doc._id,
                                     _rev: doc._rev,
@@ -278,10 +535,12 @@ ons.ready(function () {
                                     message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
                                     cancelable: true
                                 });
+                                clearQuickAddInputs();
                                 break;
                         }
                     }
                 });
+
 
         }
     });
@@ -332,18 +591,15 @@ ons.ready(function () {
 
 
                                 });
+                        } else if (base == 7) {
+                            // roaming page 
                         } else {
                             console.log('pass your base is ' + base);
                             navi.bringPageTop('page1.html', {
                                 animation: 'fade'
                             });
                             appdb.get('login').then(function (doc) {
-                                    appdb.put({
-                                        _id: doc._id,
-                                        _rev: doc._rev,
-                                        base: base,
-                                        name: name
-                                    })
+                                    loginPut(doc);
                                 })
                                 .catch(function () {
                                     appdb.put({
@@ -356,7 +612,8 @@ ons.ready(function () {
                                             message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too.',
                                             cancelable: true
                                         });
-                                    }).catch(function () {
+                                    }).catch(function (err) {
+                                        console.log(err);
                                         ons.notification.alert({
                                             title: 'Error saving user',
                                             message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
@@ -387,7 +644,7 @@ ons.ready(function () {
         } // end of loginPage.html
         if ($('#page1').length) {
             $('.pageTitle').html('Base ' + base);
-            $('.quickAddTitle').html('Add record from base ' + base);
+            $('.quickAddTitle').html('Add new log from base ' + base);
         }
 
     });
