@@ -3,7 +3,7 @@ This is the javascript for the operationFounder app
 */
 
 // global variables
-var baseCodes = ['opFounder123', 'adam', 'martin', '3', '4', '5', '6', 'roaming'];
+var baseCodes = ['opfounder123', 'adam', 'martin', '3', '4', '5', '6', 'roaming']; // MUST BE LOWER CASE
 var appdb;
 var basedb;
 var remotedb;
@@ -69,7 +69,7 @@ function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, e
 }
 
 function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable) {
-    $('#logsTable').append("<tr id='log-" + patrolNo + "'><td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td><td>" + editable + "</td></tr>");
+    $('#logsTable').prepend("<tr id='log-" + patrolNo + "'><td>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow mdl-data-table__cell--non-numeric'>" + offRoute + "</td><td>" + totalScore + "</td><td>" + editable + "</td></tr>");
 }
 
 function updateTableFromAllDocs(doc) {
@@ -139,11 +139,12 @@ function logOutPageChange() {
         animation: 'none'
     });
     $('#userName').val(name);
-    closeMenu();
+
 }
 
 function logOut() {
     logOutPageChange();
+    document.getElementById('menu').toggle();
     appdb.get('login')
         .then(function (doc) {
             base = 999;
@@ -188,189 +189,6 @@ ons.ready(function () {
     $('.menuButton').on("click", function () {
         openMenu();
     })
-
-    // login function
-    appdb = new PouchDB('opFounderAppDb');
-    appdb.get('login').then(function (doc) { //this part next
-            base = doc.base;
-            name = doc.name;
-            switch (base) {
-                case 999:
-                    logOutPageChange();
-                    break;
-                case 0:
-                    navi.bringPageTop('admin.html', {
-                        animation: 'none'
-                    });
-                    break;
-                case 7:
-                    navi.bringPageTop('roaming.html', {
-                        animation: 'none'
-                    });
-                    break;
-                default:
-                    $('.pageTitle').append('Base ' + base);
-                    $('.quickAddTitle').append(base);
-                    break;
-            }
-
-        })
-        .catch(function (err) {
-            console.log(err);
-            navi.bringPageTop('loginPage.html', {
-                animation: 'none'
-            });
-
-        });
-
-    basedb = new PouchDB('basedb');
-    // basedb.createIndex({
-    //     index: {
-    //         fields: ['timeOut'],
-    //         name: 'timeOutIndex',
-    //         ddoc: 'timeOutdesigndoc',
-    //         type: 'json'
-    //     }
-    // }).then(function (result) {
-    //     // yo, a result
-    //     console.log('index:');
-    //     console.log(result);
-    // }).catch(function (err) {
-    //     // ouch, an error
-    //     console.log('index:');
-    //     console.log(err);
-    // });
-    // basedb.createIndex({
-    //     index: {
-    //         fields: ['base'],
-    //         name: 'baseIndex',
-    //         ddoc: 'basedesigndoc',
-    //         type: 'json'
-    //     }
-    // }).then(function (result) {
-    //     // yo, a result
-    //     console.log('index:');
-    //     console.log(result);
-    // }).catch(function (err) {
-    //     // ouch, an error
-    //     console.log('index:');
-    //     console.log(err);
-    // });
-    // basedb.get('_design/basefilter').catch(function (err) {
-    //     if (err.status == 404) {
-    //         console.log('no base filter found, putting in db');
-    //         basedb.put({
-    //             _id: '_design/basefilter',
-    //             filters: {
-    //                 myfilter: function (doc, req) {
-    //                     return doc.base === req.query.base;
-    //                 }.toString()
-    //             }
-
-    //         }).then(function (response) {
-    //             console.log(response);
-    //         }).catch(function (err) {
-    //             console.log(err);
-    //         });
-    //     }
-    // });
-
-
-    // // initial load of the table
-    // basedb.find({
-    //         selector: {
-    //             timeOut: {
-    //                 $gt: null
-    //             }
-    //         },
-    //         sort: ['timeOut']
-    //     })
-    //     .then(function (doc) {
-    //         console.log(doc);
-    //         updateTableFromFindQuery(doc);
-    //     })
-    //     .catch(function (err) {
-    //         console.log(err);
-    //     });
-    basedb.allDocs({
-            include_docs: true
-        })
-        .then(function (doc) {
-            console.log(doc);
-            updateTableFromAllDocs(doc);
-
-        })
-        .catch();
-
-    //remotedb = new PouchDB('http://admin:f80caba00b47@couchdb-335dec.smileupps.com/founderhq');
-    //remotedb = new PouchDB('http://localhost:5984/founderhq');
-    remotedb = new PouchDB('http://vps358200.ovh.net:5984/founderhq');
-
-
-    /*basedb.replicate.to(remotedb, {
-        live: true,
-        retry: true
-    }).on('change', function (change) {
-        // yo, something changed!
-        console.log('change occured updating remotedb');
-        console.log(change.docs);
-    }).on('paused', function (info) {
-        // replication was paused, usually because of a lost connection
-    }).on('active', function (info) {
-        // replication was resumed
-    }).on('error', function (err) {
-        // totally unhandled error (shouldn't happen)
-        console.log(err);
-    });
-    remotedb.replicate.to(basedb, {
-        live: true,
-        retry: true,
-        filter: 'basefilter/myfilter',
-        query_params: {
-            base: base
-        }
-    }).on('change', function (change) {
-        // yo, something changed!
-        console.log('change occured in remote updating basedb');
-        console.log(change.docs);
-        updateTableFromFindQuery(doc);
-    }).on('paused', function (info) {
-        // replication was paused, usually because of a lost connection
-    }).on('active', function (info) {
-        // replication was resumed
-    }).on('error', function (err) {
-        // totally unhandled error (shouldn't happen)
-        console.log(err);
-    });*/
-
-    basedb.sync(remotedb, {
-        live: true,
-        retry: true
-        // filter: 'basefilter/myfilter',
-        // query_params: {
-        //     base: base
-        // }
-    }).on('change', function (doc) {
-        // yo, something changed!
-
-        console.log(doc);
-        if (doc.direction == 'pull') {
-            console.log('change occured in remote updating basedb');
-            var change = doc.change;
-            updateTableFromFindQuery(change);
-        } else {
-            console.log('updating remotedb');
-        }
-    }).on('paused', function (info) {
-        // replication was paused, usually because of a lost connection
-    }).on('active', function (info) {
-        // replication was resumed
-    }).on('error', function (err) {
-        // totally unhandled error (shouldn't happen)
-        console.log(err);
-    });
-
-
     //listens to onsenui event for the splitter menu closing line 22815 of onsenui.js
     //removes the shadow when the menu closes
     $('#menu').on('postclose', function () {
@@ -378,186 +196,408 @@ ons.ready(function () {
         $('#menu').removeClass('menuShadow');
     });
 
-    // QuickAdd
-    $('.checkbox').on('click', '.checkbox__input', function () {
+    // --- login function ---
+    appdb = new PouchDB('opFounderAppDb');
+    appdb.get('login').then(function (doc) { //this part next
+            base = doc.base;
+            name = doc.name;
+            switch (base) {
+                case 999:
+                    //-- logged out user --
+                    logOutPageChange();
+                    break; // end of logged out user code
+                case 0:
+                    // -- admin user --
+                    navi.bringPageTop('admin.html', {
+                        animation: 'none'
+                    });
+                    break; // end of admin user code
+                case 7:
+                    // -- roaming user --
+                    navi.bringPageTop('roaming.html', {
+                        animation: 'none'
+                    });
+                    break; // end of roaming user code
 
-        if ($(this).is('.checkbox__input:checked')) {
-            $('#total').prop('disabled', true);
-        } else {
-            $('#total').prop('disabled', false);
-        }
-    });
-    // Clear quick submit entries
-    $('#cancelSubmitQuick').on('click', function () {
-        ons.notification.confirm({
-            message: 'Are you sure you want to clear this entry?',
-            cancelable: true
-        }).then(function (input) {
-            if (input == 1) {
-                clearQuickAddInputs();
-            }
-        });
-    });
-    // Quick submit code
-    $('#submitQuick').on('click', function () {
-        // set variables to the input values
-        sqPatrol = $('#patrolNo').val();
-        sqTimeIn = $('#timeIn').val();
-        sqTimeOut = $('#timeOut').val();
-        sqWait = $('#wait').val();
-        sqOffRoute = $('#offRoute').prop('checked');
-        sqTotalScore = $('#total').val();
-        var missingInformationMessage = "";
-        if (sqPatrol == "") {
-            missingInformationMessage = '<p>Patrol number</p>';
-        }
-        if (sqTotalScore == "" && sqOffRoute == false) {
-            missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
-        }
-        if (missingInformationMessage != "") {
-            ons.notification.alert({
-                title: 'Missing fields',
-                messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
-                cancelable: true
-            });
-        } else if (sqTotalScore > 25) {
-            ons.notification.alert({
-                title: 'Total score',
-                message: 'the total score entered is greater than the maximum points available at a base',
-                cancelable: true
-            });
-        }
-        //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
-        //     ons.notification.alert({
-        //         title: 'Incorrect times',
-        //         message: 'this log entry has the patrol leaving before they arrived',
-        //         cancelable: true
-        //     });
-        // } 
-        else {
-            if (sqTimeIn == "") {
-                var date = new Date();
-                sqTimeIn = date.toLocaleTimeString();
-            }
-            if (sqTimeOut == "") {
-                var date = new Date();
-                sqTimeOut = date.toLocaleTimeString();
-            }
-            if (sqWait == "") {
-                sqWait = 0;
-            }
-            if (sqTotalScore != "" && sqOffRoute) {
-                sqTotalScore = '';
-            }
-            var patrolRecord = {
-                _id: sqPatrol + ' base ' + base,
-                patrol: sqPatrol,
-                base: base,
-                username: name,
-                timeIn: sqTimeIn,
-                timeOut: sqTimeOut,
-                timeWait: sqWait,
-                offRoute: sqOffRoute,
-                totalScore: sqTotalScore,
-                editable: true
-            }
-            basedb.get(patrolRecord._id)
-                .then(function (doc) {
-                    switch (doc.editable) {
-                        case true:
-                            ons.notification.confirm({
-                                title: 'Update',
-                                message: 'Are you sure you want to update patrol number ' + sqPatrol,
-                                cancelable: true
-                            }).then(function (input) {
-                                if (input == 1) {
-                                    clearQuickAddInputs();
-                                    basedb.put({
-                                        _id: doc._id,
-                                        _rev: doc._rev,
-                                        patrol: sqPatrol,
-                                        base: base,
-                                        username: name,
-                                        timeIn: sqTimeIn,
-                                        timeOut: sqTimeOut,
-                                        timeWait: sqWait,
-                                        offRoute: sqOffRoute,
-                                        totalScore: sqTotalScore,
-                                        editable: true
-                                    }).then(function () {
-                                        updateExisting(sqPatrol, sqTimeIn, sqTimeOut, sqWait, sqOffRoute, sqTotalScore, true);
-                                    });
-                                }
-                            }).catch(function (err) {
-                                console.log(err);
-                            });
-                            break;
-                        case false:
-                            ons.notification.alert({
-                                title: 'No longer editable',
-                                message: 'This record has been updated by HQ and cannot be edited',
-                                cancelable: true
-                            });
-                            clearQuickAddInputs();
-                            break;
-                    }
+                case 1: // -- base user --
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+
+                    $('.pageTitle').html('Base ' + base);
+                    $('.quickAddTitle').html('Add new log from base ' + base);
+
+                    basedb = new PouchDB('basedb');
+                    // basedb.createIndex({
+                    //     index: {
+                    //         fields: ['timeOut'],
+                    //         name: 'timeOutIndex',
+                    //         ddoc: 'timeOutdesigndoc',
+                    //         type: 'json'
+                    //     }
+                    // }).then(function (result) {
+                    //     // yo, a result
+                    //     console.log('index:');
+                    //     console.log(result);
+                    // }).catch(function (err) {
+                    //     // ouch, an error
+                    //     console.log('index:');
+                    //     console.log(err);
+                    // });
+                    // basedb.createIndex({
+                    //     index: {
+                    //         fields: ['base'],
+                    //         name: 'baseIndex',
+                    //         ddoc: 'basedesigndoc',
+                    //         type: 'json'
+                    //     }
+                    // }).then(function (result) {
+                    //     // yo, a result
+                    //     console.log('index:');
+                    //     console.log(result);
+                    // }).catch(function (err) {
+                    //     // ouch, an error
+                    //     console.log('index:');
+                    //     console.log(err);
+                    // });
+                    // basedb.get('_design/basefilter').catch(function (err) {
+                    //     if (err.status == 404) {
+                    //         console.log('no base filter found, putting in db');
+                    //         basedb.put({
+                    //             _id: '_design/basefilter',
+                    //             filters: {
+                    //                 myfilter: function (doc, req) {
+                    //                     return doc.base === req.query.base;
+                    //                 }.toString()
+                    //             }
+
+                    //         }).then(function (response) {
+                    //             console.log(response);
+                    //         }).catch(function (err) {
+                    //             console.log(err);
+                    //         });
+                    //     }
+                    // });
 
 
-                }).catch(function (err) {
+                    // // initial load of the table
+                    // basedb.find({
+                    //         selector: {
+                    //             timeOut: {
+                    //                 $gt: null
+                    //             }
+                    //         },
+                    //         sort: ['timeOut']
+                    //     })
+                    //     .then(function (doc) {
+                    //         console.log(doc);
+                    //         updateTableFromFindQuery(doc);
+                    //     })
+                    //     .catch(function (err) {
+                    //         console.log(err);
+                    //     });
+                    basedb.allDocs({
+                            include_docs: true
+                        })
+                        .then(function (doc) {
+                            console.log(doc);
+                            updateTableFromAllDocs(doc);
 
-                    if (err.status == 404) {
-                        console.log('404 no prior record putting a new record');
-                        updateTable(sqPatrol, sqTimeIn, sqTimeOut, sqWait, sqOffRoute, sqTotalScore, true);
-                        clearQuickAddInputs();
-                        return basedb.put(patrolRecord);
+                        })
+                        .catch();
 
-                    } else if (err.status == 409) {
-                        switch (doc.editable) {
-                            case true:
-                                console.log('409 putting anyway');
-                                clearQuickAddInputs();
-                                basedb.put({
-                                    _id: doc._id,
-                                    _rev: doc._rev,
-                                    base: base,
-                                    timeIn: sqTimeIn,
-                                    timeOut: sqTimeOut,
-                                    timeWait: sqWait,
-                                    offRoute: sqOffRoute,
-                                    totalScore: sqTotalScore,
-                                    editable: true
-                                });
-                                break;
-                            case false:
-                                console.log('409 alert message');
-                                ons.notification.alert({
-                                    title: 'No longer editable',
-                                    message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
-                                    cancelable: true
-                                });
-                                clearQuickAddInputs();
-                                break;
+                    //remotedb = new PouchDB('http://admin:f80caba00b47@couchdb-335dec.smileupps.com/founderhq');
+                    //remotedb = new PouchDB('http://localhost:5984/founderhq');
+                    remotedb = new PouchDB('http://central:vikings@vps358200.ovh.net:5984/founderhq');
+
+
+                    /*basedb.replicate.to(remotedb, {
+                        live: true,
+                        retry: true
+                    }).on('change', function (change) {
+                        // yo, something changed!
+                        console.log('change occured updating remotedb');
+                        console.log(change.docs);
+                    }).on('paused', function (info) {
+                        // replication was paused, usually because of a lost connection
+                    }).on('active', function (info) {
+                        // replication was resumed
+                    }).on('error', function (err) {
+                        // totally unhandled error (shouldn't happen)
+                        console.log(err);
+                    });
+                    remotedb.replicate.to(basedb, {
+                        live: true,
+                        retry: true,
+                        filter: 'basefilter/myfilter',
+                        query_params: {
+                            base: base
                         }
+                    }).on('change', function (change) {
+                        // yo, something changed!
+                        console.log('change occured in remote updating basedb');
+                        console.log(change.docs);
+                        updateTableFromFindQuery(doc);
+                    }).on('paused', function (info) {
+                        // replication was paused, usually because of a lost connection
+                    }).on('active', function (info) {
+                        // replication was resumed
+                    }).on('error', function (err) {
+                        // totally unhandled error (shouldn't happen)
+                        console.log(err);
+                    });*/
+
+
+                    var syncOptions = {
+                        live: true,
+                        retry: true
                     }
-                });
+                    basedb.sync(remotedb, syncOptions)
+                        .on('change', function (doc) {
+                            // yo, something changed!
+
+                            console.log(doc);
+                            if (doc.direction == 'pull') {
+                                console.log('change occured in remote updating basedb');
+                                var change = doc.change;
+                                updateTableFromFindQuery(change);
+                            } else {
+                                console.log('updating remotedb');
+                            }
+                        }).on('paused', function (info) {
+                            // replication was paused, usually because of a lost connection
+                        }).on('active', function (info) {
+                            // replication was resumed
+                        }).on('error', function (err) {
+                            // totally unhandled error (shouldn't happen)
+                            console.log(err);
+                        });
 
 
-        }
-    });
 
-    // page change code
+
+                    // -- QuickAdd --
+
+                    // Control for the on or off route button
+                    $('.checkbox').on('click', '.checkbox__input', function () {
+
+                        if ($(this).is('.checkbox__input:checked')) {
+                            $('#total').prop('disabled', true);
+                        } else {
+                            $('#total').prop('disabled', false);
+                        }
+                    });
+
+                    // Clear quick submit entries
+                    $('#cancelSubmitQuick').on('click', function () {
+                        ons.notification.confirm({
+                            message: 'Are you sure you want to clear this entry?',
+                            cancelable: true
+                        }).then(function (input) {
+                            if (input == 1) {
+                                clearQuickAddInputs();
+                            }
+                        });
+                    });
+
+                    // Quick submit code
+                    $('#submitQuick').on('click', function () {
+                        // set variables to the input values
+                        sqPatrol = $('#patrolNo').val();
+                        sqTimeIn = $('#timeIn').val();
+                        sqTimeOut = $('#timeOut').val();
+                        sqWait = $('#wait').val();
+                        sqOffRoute = $('#offRoute').prop('checked');
+                        sqTotalScore = $('#total').val();
+                        var missingInformationMessage = "";
+                        if (sqPatrol == "") {
+                            missingInformationMessage = '<p>Patrol number</p>';
+                        }
+                        if (sqTotalScore == "" && sqOffRoute == false) {
+                            missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
+                        }
+                        if (missingInformationMessage != "") {
+                            ons.notification.alert({
+                                title: 'Missing fields',
+                                messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
+                                cancelable: true
+                            });
+                        } else if (sqTotalScore > 25) {
+                            ons.notification.alert({
+                                title: 'Total score',
+                                message: 'the total score entered is greater than the maximum points available at a base',
+                                cancelable: true
+                            });
+                        }
+                        //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
+                        //     ons.notification.alert({
+                        //         title: 'Incorrect times',
+                        //         message: 'this log entry has the patrol leaving before they arrived',
+                        //         cancelable: true
+                        //     });
+                        // } 
+                        else {
+                            if (sqTimeIn == "") {
+                                var date = new Date();
+                                sqTimeIn = date.toLocaleTimeString();
+                            } else {
+                                sqTimeIn = sqTimeIn + ':00';
+                            }
+                            if (sqTimeOut == "") {
+                                var date = new Date();
+                                sqTimeOut = date.toLocaleTimeString();
+                            } else {
+                                sqTimeOut = sqTimeOut + ':00';
+                            }
+                            if (sqWait == "") {
+                                sqWait = 0;
+                            }
+                            if (sqTotalScore != "" && sqOffRoute) {
+                                sqTotalScore = '';
+                            }
+                            var patrolLog = {
+                                _id: sqPatrol + ' base ' + base,
+                                patrol: sqPatrol,
+                                base: base,
+                                username: name,
+                                timeIn: sqTimeIn,
+                                timeOut: sqTimeOut,
+                                timeWait: sqWait,
+                                offRoute: sqOffRoute,
+                                totalScore: sqTotalScore,
+                                editable: true
+                            }
+                            basedb.get(patrolLog._id)
+                                .then(function (doc) {
+                                    switch (doc.editable) {
+                                        case true:
+                                            ons.notification.confirm({
+                                                title: 'Update',
+                                                message: 'Are you sure you want to update patrol number ' + sqPatrol,
+                                                cancelable: true
+                                            }).then(function (input) {
+                                                if (input == 1) {
+                                                    clearQuickAddInputs();
+                                                    basedb.put({
+                                                        _id: doc._id,
+                                                        _rev: doc._rev,
+                                                        patrol: sqPatrol,
+                                                        base: base,
+                                                        username: name,
+                                                        timeIn: sqTimeIn,
+                                                        timeOut: sqTimeOut,
+                                                        timeWait: sqWait,
+                                                        offRoute: sqOffRoute,
+                                                        totalScore: sqTotalScore,
+                                                        editable: true
+                                                    }).then(function () {
+                                                        updateExisting(sqPatrol, sqTimeIn, sqTimeOut, sqWait, sqOffRoute, sqTotalScore, true);
+                                                    });
+                                                }
+                                            }).catch(function (err) {
+                                                console.log(err);
+                                            });
+                                            break;
+                                        case false:
+                                            ons.notification.alert({
+                                                title: 'No longer editable',
+                                                message: 'This record has been updated by HQ and cannot be edited',
+                                                cancelable: true
+                                            });
+                                            clearQuickAddInputs();
+                                            break;
+                                    }
+
+
+                                }).catch(function (err) {
+
+                                    if (err.status == 404) {
+                                        console.log('404 no prior record putting a new record');
+                                        updateTable(sqPatrol, sqTimeIn, sqTimeOut, sqWait, sqOffRoute, sqTotalScore, true);
+                                        clearQuickAddInputs();
+                                        return basedb.put(patrolLog);
+
+                                    } else if (err.status == 409) {
+                                        switch (doc.editable) {
+                                            case true:
+                                                console.log('409 putting anyway');
+                                                clearQuickAddInputs();
+                                                basedb.put({
+                                                    _id: doc._id,
+                                                    _rev: doc._rev,
+                                                    base: base,
+                                                    name: name,
+                                                    timeIn: sqTimeIn,
+                                                    timeOut: sqTimeOut,
+                                                    timeWait: sqWait,
+                                                    offRoute: sqOffRoute,
+                                                    totalScore: sqTotalScore,
+                                                    editable: true
+                                                });
+                                                break;
+                                            case false:
+                                                console.log('409 alert message');
+                                                ons.notification.alert({
+                                                    title: 'No longer editable',
+                                                    message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
+                                                    cancelable: true
+                                                });
+                                                clearQuickAddInputs();
+                                                break;
+                                        }
+                                    }
+                                });
+
+
+                        }
+                    });
+                    break; // end of page 1 for bases code
+
+                default:
+                    // --- incorrect login information
+                    alert('incorrect login information saved, please log in again');
+                    console.log(err);
+                    navi.bringPageTop('loginPage.html', {
+                        animation: 'none'
+                    });
+                    break;
+            }
+
+
+        })
+        .catch(function (err) {
+            // no log in info at all.. show log in screen
+            console.log('no log in info at all.. show log in screen');
+            console.log(err);
+            navi.bringPageTop('loginPage.html', {
+                animation: 'none'
+            });
+
+        });
+
+
+
+    // ---  page change code ---
+
     document.addEventListener('postpush', function (event) {
         console.log('page pushed');
+
+        // --- Log in Page ---
+
         if ($('#loginPage').length) {
             //loginPage.html
+            ons.disableDeviceBackButtonHandler();
             $('.loginButton').on('click', function () {
                 if ($('#baseCode').val != '' && $('#userName').val() != '') {
-                    var baseCodeInput = $('#baseCode').val();
+                    var baseCodeInput = $('#baseCode').val().toLowerCase();
                     name = $('#userName').val();
                     base = baseCodes.indexOf(baseCodeInput);
 
                     if (base > -1) {
                         //  good
+                        ons.enableDeviceBackButtonHandler();
                         if (base == 0) {
                             navi.bringPageTop('admin.html', {
                                 animation: 'fade'
@@ -642,6 +682,8 @@ ons.ready(function () {
                 }
             });
         } // end of loginPage.html
+
+        // --- Page 1 for normal bases ---
         if ($('#page1').length) {
             $('.pageTitle').html('Base ' + base);
             $('.quickAddTitle').html('Add new log from base ' + base);
