@@ -94,9 +94,14 @@ Accent Darker color: Orange 800: #EF6C00
     background: rgba(255, 183, 77, 0.25);
 }
 
+
+/* -- Admin Page -- */
+
 .tableSelected {
     background-color: #bbb;
 }
+
+
 
 
 /* Text styles */
@@ -371,7 +376,8 @@ ons-splitter-mask {
 
 /* The fab settings define the fab button's location */
 
-.fab {
+
+/*.fab {
     right: 16px;
     top: auto;
     left: auto;
@@ -391,7 +397,7 @@ ons-splitter-mask {
 
 #fabPark {
     bottom: 16px;
-}
+}*/
 
 
 /* These settings define the fab icon's locations to align them centrally*/

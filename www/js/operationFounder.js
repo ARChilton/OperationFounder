@@ -4,6 +4,7 @@ This is the javascript for the operationFounder app
 
 // global variables
 var baseCodes = ['opfounder123', 'adam', 'martin', '3', '4', '5', '6', 'roaming']; // MUST BE LOWER CASE
+var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm']
 var appdb;
 var appdbConnected = false;
 var basedb;
@@ -142,8 +143,10 @@ function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, e
 }
 
 function updateAdminExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
-
+    //without checkboxes
     $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    //with checkboxes
+    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
 }
 
 function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
@@ -153,8 +156,10 @@ function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, edit
 }
 
 function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
-    // console.log(tableId + ' ' + tableLogId);
+    // without checkboxes
     $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    //with checkboxes
+    // $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
 }
 
 function tableUpdateFunction(path, admin) {
@@ -291,6 +296,7 @@ function loginAndRunFunction(base) {
             navi.bringPageTop('admin.html', {
                 animation: 'none'
             });
+
             var admin = true;
             if (admindbConnected == false) {
                 admindb = new PouchDB('admindb');
@@ -363,18 +369,6 @@ function loginAndRunFunction(base) {
                 }
             });
 
-            // -- table selection and actions --
-            // try {
-            //     if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-
-            //         $('#adminLogsTable').addClass('evtHandler');
-            //         $('#adminLogsTable').on('click', function () {
-            //             console.log('hello');
-            //         });
-            //     }
-            // } catch (err) {
-            //     console.log(err);
-            // }
             break; // end of admin user code
         case 7:
             // -- roaming user --
@@ -393,7 +387,7 @@ function loginAndRunFunction(base) {
                 animation: 'fade'
             });
 
-            $('.pageTitle').html('Base ' + base);
+            $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
             $('.quickAddTitle').html('Add new log from base ' + base);
             $('#logsTable').empty();
             baseNumber = base;
@@ -895,14 +889,35 @@ ons.ready(function () {
 
         // --- Page 1 for normal bases ---
         if ($('#page1').length) {
-            $('.pageTitle').html('Base ' + base);
+            $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
             $('.quickAddTitle').html('Add new log from base ' + base);
 
         }
         if ($('#adminPage').length) {
 
             // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
-
+            // -- table selection and actions --
+            /*var adminSpeedDial = document.getElementById('adminSpeedDial');
+            adminSpeedDial.hide();
+            $('#adminSpeedDial').removeClass('hide');
+            if (!($('#adminLogsTable').hasClass('evtHandler'))) {
+                $('#adminLogsTable').addClass('evtHandler');
+                $('#adminLogsTable').on('click', 'tr', function (e) {
+                    if ($(this).hasClass('tableSelected')) {
+                        $(this).removeClass('tableSelected');
+                        adminSpeedDial.hide();
+                    } else if (e.shiftKey == true) {
+                        $(this).addClass('tableSelected');
+                        // $('#adminSpeedDial').removeClass('hide');
+                        adminSpeedDial.show();
+                    } else {
+                        $('tr').removeClass('tableSelected');
+                        $(this).addClass('tableSelected');
+                        // $('#adminSpeedDial').removeClass('hide');
+                        adminSpeedDial.show();
+                    }
+                });
+            }*/
 
         }
 

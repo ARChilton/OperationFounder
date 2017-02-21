@@ -32,6 +32,26 @@
     <ons-navigator id="navi" page="page1.html"></ons-navigator>
   </ons-splitter>
   <!-- End of page navigation -->
+  <!-- Menu page -->
+  <ons-template id="menu.html">
+    <ons-page id="sideMenu">
+      <div class="">
+        <img src="img/operationFounder-compass-logo.jpg" class="menuTopBoxContent">
+      </div>
+      <ons-list id="opFounderMenu">
+        <ons-list-item onclick="logOut()" tappable>
+          Log out
+        </ons-list-item>
+        <ons-list-item onclick="destroyBasedb()" tappable>
+          Destroy Db
+        </ons-list-item>
+        <ons-list-item id="about" tappable>
+          About
+        </ons-list-item>
+      </ons-list>
+    </ons-page>
+  </ons-template>
+  <!-- End of Menu Page -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">
       <div class="loginPageDiv">
@@ -167,6 +187,9 @@
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
+            <!--<th class="hide landscapeShow">
+              <ons-input type='checkbox' id="selectAll"></ons-input>
+            </th>-->
             <th class="">Patrol</th>
             <th>Base</th>
             <th class="">Time in</th>
@@ -181,6 +204,20 @@
         <tbody id="adminLogsTable">
         </tbody>
       </table>
+      <!--<ons-speed-dial position="bottom right" direction="up" id="adminSpeedDial" class="hide">
+        <ons-fab>
+          <ons-icon icon="md-edit"></ons-icon>
+        </ons-fab>
+        <ons-speed-dial-item id="adminLock">
+          <ons-icon icon="md-lock"></ons-icon>
+        </ons-speed-dial-item>
+        <ons-speed-dial-item id="adminDelete">
+          <ons-icon icon="md-delete"></ons-icon>
+        </ons-speed-dial-item>
+        <ons-speed-dial-item id="adminShowMap">
+          <ons-icon icon="md-map"></ons-icon>
+        </ons-speed-dial-item>
+      </ons-speed-dial>-->
   </ons-template>
   <ons-template id="roaming.html">
     <ons-page id="roamingPage">
