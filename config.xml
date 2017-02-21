@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" id="com.operationFounderBases" version="1.0.0"><name>operationFounderBases</name><description>Input the scores of teams on operation founder to sync up with HQ</description><author/>&gt;
+<widget xmlns="http://www.w3.org/ns/widgets" id="com.operationFounderBases" version="1.0.0"><name>operationFounderBases</name>
+<description>Input the scores of teams on operation founder to sync up with HQ</description><author/>&gt;
   <content src="index.html"/>
   <access origin="*"/>
   <allow-navigation href="*"/>

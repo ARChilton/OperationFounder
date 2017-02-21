@@ -76,14 +76,14 @@
           <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
           <ons-list-item>
             <div class="left">
-              Patrol Number
+              Patrol No.
             </div>
             <div class="right">
               <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Patrol" float class="quickAddInput">
               </ons-input>
             </div>
           </ons-list-item>
-          <ons-list-item tappable class="checkbox">
+          <ons-list-item tappable class="checkbox" id="offRouteCheckbox">
             <label class="right">
               <ons-input type="checkbox" input-id="offRoute" value="offRoute"></ons-input>
               </label>
@@ -117,7 +117,7 @@
           <ons-list-item>
             <div class="left">Total score</div>
             <div class="right">
-              <ons-input id="total" type="number" modifier="underbar" placeholder="Total score" float class="quickAddInput">
+              <ons-input id="total" type="number" modifier="underbar" placeholder="Total score (max 25)" float class="quickAddInput">
               </ons-input>
             </div>
           </ons-list-item>
@@ -168,15 +168,17 @@
         <thead>
           <tr>
             <th class="">Patrol</th>
+            <th>Base</th>
             <th class="">Time in</th>
             <th>Time out</th>
             <th class="hide landscapeShow">Wait</th>
-            <th class="hide landscapeShow mdl-data-table__cell--non-numeric">Off route</th>
-            <th>Total score</th>
+            <th class="hide landscapeShow">Off route</th>
+            <th class="hide landscapeShow">Total score</th>
+            <th class="hide landscapeShow">Recorded by</th>
             <th class="hide landscapeShow">edit</th>
           </tr>
         </thead>
-        <tbody id="logsTable">
+        <tbody id="adminLogsTable">
         </tbody>
       </table>
   </ons-template>

@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <title>Operation Founder</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <script src="components/loader.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+  <!--<script src="js/mdl/material.js"></script>-->
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
+  <link rel="stylesheet" href="components/loader.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="js/mdl/material.css">
+  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+  <!--<link rel="stylesheet" href="js/leaflet/leaflet.css">
+  <link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
+  <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
+  <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Navigation between pages -->
+  <!-- To add new pages to the menu use menu.html but do not add the main map screen to the menu as leaflet does not re-run -->
+  <ons-splitter>
+    <ons-splitter-side id="menu" side="left" page="menu.html" swipe-target-width="1px" collapse swipeable>
+    </ons-splitter-side>
+    <ons-splitter-content id="content"></ons-splitter-content>
+    <ons-navigator id="navi" page="page1.html"></ons-navigator>
+  </ons-splitter>
+  <!-- End of page navigation -->
+  <ons-template id="loginPage.html">
+    <ons-page id="loginPage">
+      <div class="loginPageDiv">
+        <img src="img/operationFounder.png" id="loginLogo">
+        <p class="marginTop">Welcome to the Operation Founder app, please enter your name and base code below:</p>
+        <p>
+          <ons-input id="userName" modifier="underbar" placeholder="Name" float class="loginInput marginTop"></ons-input>
+        </p>
+        <p>This is the short code provided to you by the Operation Founder organisers.</p>
+        <p>
+          <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="loginInput marginTop"></ons-input>
+        </p>
+        <p class="caption">(Each code is individual to each base)</p>
+        <p class="txtCenter marginTop">
+          <ons-button class="loginButton">Login</ons-button>
+        </p>
+      </div>
+      <!--<div id="compassDiv">
+        <img src="img/compass.png" id="compass">
+      </div>-->
+    </ons-page>
+  </ons-template>
+  <ons-template id="page1.html">
+    <ons-page id="page1">
+      <!--Toolbar-->
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center pageTitle">
+        </div>
+      </ons-toolbar>
+      <!--FAB-->
+      <!--<ons-fab class="fab" id="fullEditFab" href="#">
+        <ons-icon icon="md-plus" class="fabIcon" id="fullEditIcon"></ons-icon>
+      </ons-fab>-->
+      <!--Top half of screen-->
+      <div class="topHalf landscapeHide">
+        <ons-list>
+          <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
+          <ons-list-item>
+            <div class="left">
+              Patrol No.
+            </div>
+            <div class="right">
+              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Patrol" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item tappable class="checkbox">
+            <label class="right">
+              <ons-input type="checkbox" input-id="offRoute" value="offRoute"></ons-input>
+              </label>
+            <label for="offRoute" class="center">Off route</label>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">
+              Time in
+            </div>
+            <div class="right">
+              <ons-input id="timeIn" type="time" modifier="underbar" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">Wait time</div>
+            <div class="right">
+              <ons-input id="wait" type="number" modifier="underbar" placeholder="minutes" value="0" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">
+              Time out
+            </div>
+            <div class="right">
+              <ons-input id="timeOut" type="time" modifier="underbar" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+          <ons-list-item>
+            <div class="left">Total score</div>
+            <div class="right">
+              <ons-input id="total" type="number" modifier="underbar" placeholder="Total score (max 25)" float class="quickAddInput">
+              </ons-input>
+            </div>
+          </ons-list-item>
+        </ons-list>
+        <p class="txtRight marginTop">
+          <ons-button modifier="" class="" id="cancelSubmitQuick">clear</ons-button>
+          <ons-button class="" id="submitQuick">Submit</ons-button>
+        </p>
+      </div>
+      <!--Bottom Half-->
+      <div class="bottomHalf">
+        <ons-list>
+          <ons-list-header>Previous logs from this base</ons-list-header>
+        </ons-list>
+        <table class="mdl-data-table mdl-js-data-table logTable">
+          <thead>
+            <tr>
+              <th class="">Patrol</th>
+              <th class="">Time in</th>
+              <th>Time out</th>
+              <th class="hide landscapeShow">Wait</th>
+              <th class="hide landscapeShow">Off route</th>
+              <th>Total score</th>
+              <th class="hide landscapeShow">edit</th>
+            </tr>
+          </thead>
+          <tbody id="logsTable">
+          </tbody>
+        </table>
+      </div>
+    </ons-page>
+  </ons-template>
+  <ons-template id="admin.html">
+    <ons-page id="adminPage">
+      <!--Toolbar-->
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center">
+          Admin
+        </div>
+      </ons-toolbar>
+      <!--Top half of screen-->
+      <table class="mdl-data-table mdl-js-data-table logTable">
+        <thead>
+          <tr>
+            <th class="">Patrol</th>
+            <th>Base</th>
+            <th class="">Time in</th>
+            <th>Time out</th>
+            <th class="hide landscapeShow">Wait</th>
+            <th class="hide landscapeShow">Off route</th>
+            <th class="hide landscapeShow">Total score</th>
+            <th class="hide landscapeShow">Recorded by</th>
+            <th class="hide landscapeShow">edit</th>
+          </tr>
+        </thead>
+        <tbody id="adminLogsTable">
+        </tbody>
+      </table>
+  </ons-template>
+  <ons-template id="roaming.html">
+    <ons-page id="roamingPage">
+      <!--Toolbar-->
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center">
+          Roaming Updates
+        </div>
+      </ons-toolbar>
+      <!--Top half of screen-->
+    </ons-page>
+  </ons-template>
+</body>
+<!-- JQuery -->
+<!--<script src="js/JQuery/jquery-3.1.1.min.js "></script>-->
+<!--<script src="https://code.jquery.com/jquery-1.11.3.min.js "></script>-->
+<script src="js/JQuery/jquery-1.12.4.min.js"></script>
+<!-- Script to stop JQuery mobile editing styling -->
+<script type="text/javascript">
+  $(document).bind("mobileinit", function () {
+    $.extend($.mobile, {
+      autoInitializePage: false
+    })
+  });
+</script>
+<!-- JQuery mobile -->
+<script src="js/JQuery/jquery.mobile-1.4.5.min.js"></script>>
+<!--<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js "></script>-->
+<!-- Script for autocompleting search boxes -->
+<!--<script src="js/autocomplete-search-bar/jquery.autocomplete.js"></script>-->
+<!-- JQuery cookie plugin to manage cookies -->
+<!--<script src="js/JQuery/js.cookie.js"></script>-->
+<!-- Leaflet JS and Leaflet WMS extension -->
+<!--<script src="js/leaflet/leaflet.js"></script>-->
+<!-- JavaScript database  -->
+<script src="js/pouchdb/pouchdb-6.1.2.min.js"></script>
+<script src="js/pouchdb/pouchdb.find.min.js"></script>
+<!-- Leaflet plugins -->
+<!--<script src="js/leaflet/wmsleaflet.js">
+</script>-->
+<!--<script src="js/leaflet/leaflet-routing-machine.js"></script>-->
+<!--<script src="js/leaflet/lrm-mapzen.js "></script>-->
+<!--<script src="js/leaflet/Control.Geocoder.js"></script>-->
+<!--<script src="js/leaflet/leaflet-bing-layer.js"></script>-->
+<!--<script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script>-->
+<!--<script src="js/leaflet/leaflet.edgebuffer.js"></script>-->
+<!-- Error tracking -->
+<!--<script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>-->
+<!-- My leaflet control file -->
+<!--<script src="js/leaflet-control.js"></script>-->
+<!-- JQuery Control -->
+<!--<script src="js/tracking.js"></script>-->
+<script src="js/operationFounder.js"></script>
+
+</html>

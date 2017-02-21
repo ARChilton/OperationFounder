@@ -1,0 +1,171 @@
+<ons-page id="sideMenu">
+  <div class="">
+  <img src="img/operationFounder-compass-logo.jpg" class="menuTopBoxContent">
+  </div>
+<!--
+  <ons-list id="menuHolder">
+    <ons-list-header id="backgroundMapList">Background Map</ons-list-header>
+    <ons-list-item tappable id="streets">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-1" checked></ons-input>
+      </label>
+      <label for="radio-1" class="center">
+        Streets
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="outdoor">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-2"></ons-input>
+      </label>
+      <label for="radio-2" class="center">
+        Outdoor
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="dark">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-3"></ons-input>
+      </label>
+      <label for="radio-3" class="center">
+        Dark
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="greyscale">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-4"></ons-input>
+      </label>
+      <label for="radio-4" class="center">
+        Greyscale
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="satellite">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-5"></ons-input>
+      </label>
+      <label for="radio-5" class="center">
+        Satellite
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="hybrid">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-6"></ons-input>
+      </label>
+      <label for="radio-6" class="center">
+        Satellite hybrid
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="bingOS">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-7"></ons-input>
+      </label>
+      <label for="radio-7" class="center">
+        Ordnance Survey (UK Only)
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="bingRoads">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-8"></ons-input>
+      </label>
+      <label for="radio-8" class="center">
+        Bing Roads
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="bingCollins">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-9"></ons-input>
+      </label>
+      <label for="radio-9" class="center">
+        Collins (London UK Only)
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="bingSatellite">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-10"></ons-input>
+      </label>
+      <label for="radio-10" class="center">
+        Bing Aerial
+      </label>
+    </ons-list-item>
+    <ons-list-item tappable id="bingSatLabel">
+      <label class="left">
+        <ons-input name="color" type="radio" input-id="radio-11"></ons-input>
+      </label>
+      <label for="radio-11" class="center">
+        Bing Aerial With Labels
+      </label>
+    </ons-list-item>
+  </ons-list>
+-->
+  <ons-list>
+<!--
+    <ons-list-item onclick="fn.load('tracking-settings.html')" tappable>
+      Tracking settings
+    </ons-list-item>
+    <ons-list-item onclick="fn.load('settings.html')" tappable>
+      Settings
+    </ons-list-item>
+-->
+    <ons-list-item onclick="logOut()" tappable>
+      Log out
+    </ons-list-item>
+    <ons-list-item onclick="destroyBasedb()" tappable>
+      Destroy Db
+    </ons-list-item>
+    <ons-list-item id="about" tappable>
+      About
+    </ons-list-item>
+  </ons-list>
+  <!--<ons-list>
+    <ons-list-header>Default</ons-list-header>
+    <ons-list-item>Item A</ons-list-item>
+    <ons-list-item>Item B</ons-list-item>
+    <ons-list-header>Tappable / Ripple</ons-list-header>
+    <ons-list-item tappable>Tap me</ons-list-item>
+    <ons-list-header>Chevron</ons-list-header>
+    <ons-list-item modifier="chevron" tappable>Chevron</ons-list-item>
+    <ons-list-header>Thumbnails and titles</ons-list-header>
+    <ons-list-item>
+      <div class="left">
+        <img class="list__item__thumbnail" src="http://placekitten.com/g/40/40">
+      </div>
+      <div class="center">
+        <span class="list__item__title">Cutest kitty</span><span class="list__item__subtitle">On the Internet</span>
+      </div>
+    </ons-list-item>
+    <ons-list-header>Icons</ons-list-header>
+    <ons-list-item>
+      <div class="left">
+        <ons-icon icon="md-face" class="list__item__icon"></ons-icon>
+      </div>
+      <div class="center">
+        Icon
+      </div>
+    </ons-list-item>
+    <ons-list-header>Switch</ons-list-header>
+    <ons-list-item>
+      <div class="center">
+        Turn it on
+      </div>
+      <div class="right">
+        <ons-switch></ons-switch>
+      </div>
+    </ons-list-item>
+    <ons-list-header>Switch and icon</ons-list-header>
+    <ons-list-item>
+      <div class="left">
+        <ons-icon icon="md-face" class="list__item__icon"></ons-icon>
+      </div>
+      <div class="center">
+        Icon and switch
+      </div>
+      <div class="right">
+        <ons-switch></ons-switch>
+      </div>
+    </ons-list-item>
+    <ons-list-header>No divider</ons-list-header>
+    <ons-list-item modifier="nodivider">Item A</ons-list-item>
+    <ons-list-item modifier="nodivider">Item B</ons-list-item>
+    <ons-list-header>Long divider</ons-list-header>
+    <ons-list-item modifier="longdivider">Item A</ons-list-item>
+    <ons-list-item modifier="longdivider">Item B</ons-list-item>
+  </ons-list>-->
+</ons-page>
