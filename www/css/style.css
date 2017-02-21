@@ -89,9 +89,13 @@ Accent Darker color: Orange 800: #EF6C00
 .logTable {
     width: 100%;
 }
-.ad-log--or{
+
+.ad-log--or {
     background: rgba(255, 183, 77, 0.25);
-    
+}
+
+.tableSelected {
+    background-color: #bbb;
 }
 
 

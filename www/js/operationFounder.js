@@ -9,6 +9,7 @@ var appdbConnected = false;
 var basedb;
 var basedbConnected = false;
 var remotedb;
+var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_debug';
 var remotedbConnected = false;
 var admindb;
 var admindbConnected = false;
@@ -136,24 +137,24 @@ function cleanAll() {
 
 function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
 
-    $(tableLogId + patrolNo + base).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td>");
 
 }
 
 function updateAdminExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
 
-    $(tableLogId + patrolNo + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
 }
 
 function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
-    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + base + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
 
 }
 
 function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
-    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
 }
 
 function tableUpdateFunction(path, admin) {
@@ -161,10 +162,10 @@ function tableUpdateFunction(path, admin) {
     console.log(path.patrol + ' ' + path.base);
     if (admin == true) {
         // tableId = '#adminLogsTable';
-        tableLogId = '#ad-log-';
+        tableLogId = 'ad-log-';
     } else {
         //tableId = '#logsTable'
-        tableLogId = '#log-';
+        tableLogId = 'log-';
     }
     if (path.offRoute) { // stops off route logs being updated automatically
         tableLogId = tableLogId + '-or';
@@ -192,39 +193,12 @@ function updateTableFromAllDocs(doc, admin) {
 
         var path = doc.rows[i].doc;
         tableUpdateFunction(path, admin);
-        /*console.log(path.patrol + ' ' + path.base);
-        if (admin == true) {
-            // tableId = '#adminLogsTable';
-            tableLogId = '#ad-log-';
-        } else {
-            //tableId = '#logsTable'
-            tableLogId = '#log-';
-        }
-        if (path.offRoute) { // stops off route logs being updated automatically
-            tableLogId = tableLogId + '-or';
-        }
-        if (admin) {
-            if (patrolRecordUpdate(path.patrol, path.offRoute, true)) {
-                updateAdminExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
-            } else {
-                updateAdminTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
-            }
-
-        } else {
-            if (patrolRecordUpdate(path.patrol, path.offRoute, false)) {
-                updateExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
-            } else {
-                updateTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
-            }
-
-        }*/
     }
     orientationLandscapeUpdate();
 }
 
 function updateTableFromFindQuery(doc, admin) {
 
-    console.log(tableId + ' ' + tableLogId);
     console.log('updating from find query');
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
@@ -232,33 +206,6 @@ function updateTableFromFindQuery(doc, admin) {
 
             var path = doc.docs[i];
             tableUpdateFunction(path, admin);
-            /*console.log(path.patrol + ' ' + path.base);
-            if (admin || path.base === baseNumber) {
-                if (admin == true) {
-                    // tableId = '#adminLogsTable';
-                    tableLogId = '#ad-log-';
-                } else {
-                    // tableId = '#logsTable'
-                    tableLogId = '#log-';
-                }
-                if (path.offRoute) { // stops off route logs being updated automatically
-                    tableLogId = tableLogId + '-or';
-                }
-                if (admin) {
-                    if (patrolRecordUpdate(path.patrol, path.offRoute, true)) {
-                        updateAdminExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
-                    } else {
-                        updateAdminTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
-                    }
-                    orientationLandscapeUpdate();
-                } else {
-                    if (patrolRecordUpdate(path.patrol, path.offRoute, false)) {
-                        updateExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
-                    } else {
-                        updateTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
-                    }
-                }
-            }*/
         }
     }
     orientationLandscapeUpdate();
@@ -333,72 +280,6 @@ function logOut() {
         });
 }
 
-/*function createIndex(db, index) {
-    console.log('creating index');
-    return db.createIndex({
-        index: {
-            fields: [index],
-            name: index + 'Index',
-            ddoc: index + 'designdoc',
-            type: 'json'
-        }
-    }).then(function (result) {
-        // yo, a result
-        console.log('index:');
-        console.log(result);
-    }).catch(function (err) {
-        // ouch, an error
-        console.log('index:');
-        console.log(err);
-    });
-
-
-
-}
-
-function createBaseFilter(db) {
-    // filter for bases
-    console.log('creating base filter');
-    return db.get('_design/basefilter').catch(function (err) {
-        if (err.status == 404) {
-            console.log('no base filter found, putting in db');
-            basedb.put({
-                _id: '_design/basefilter',
-                filters: {
-                    myfilter: function (doc, req) {
-                        return doc.base === req.query.base || doc._id === '_design/basefilter' || doc._id === '_design/basedesigndoc';
-                    }.toString()
-                }
-
-            }).then(function (response) {
-                console.log(response);
-            }).catch(function (err) {
-                console.log(err);
-            });
-        }
-    });
-}
-
-function dbFind(db, queryField, queryType, value, sortedBy) {
-    console.log('trying to find');
-    return db.find({
-            selector: {
-                query: {
-                    queryType: value
-                }
-            },
-            sort: [sortedBy]
-        })
-        .then(function (doc) {
-            console.log(doc);
-            updateTableFromFindQuery(doc);
-        })
-        .catch(function (err) {
-            console.log(err);
-        });
-}*/
-
-// Start of script here:
 function loginAndRunFunction(base) {
     switch (base) {
         case 999:
@@ -415,44 +296,12 @@ function loginAndRunFunction(base) {
                 admindb = new PouchDB('admindb');
                 admindbConnected = true;
             }
-            if (remotedbConnected == false) {
-                remotedb = new PouchDB('http://central:vikings@vps358200.ovh.net:5984/founderhq_debug');
-                remotedbConnected = true;
-            }
-            if (adminSyncInProgress == false) {
-                var syncOptions = {
-                    live: true,
-                    retry: true
-                }
-                syncInProgress = true;
-                admindb.sync(remotedb, syncOptions)
-                    .on('change', function (doc) {
-                        // yo, something changed!
 
-                        console.log(doc);
-                        if (doc.direction == 'pull') {
-                            console.log('change occured in remote updating basedb');
-                            var change = doc.change;
-                            updateTableFromFindQuery(change, true);
-                        } else {
-                            console.log('updating remotedb'); //fixme needs to do something with pushes
-                        }
-                    }).on('paused', function (info) {
-                        // replication was paused, usually because of a lost connection
-                        console.log(info);
-                    }).on('active', function (info) {
-                        // replication was resumed
-                        console.log(info);
-                    }).on('error', function (err) {
-                        // totally unhandled error (shouldn't happen)
-                        console.log(err);
-                    });
-            }
             admindb.createIndex({
                 index: {
                     fields: ['timeOut'],
-                    name: 'timeOutIndex',
-                    ddoc: 'timeOutIndexDDoc',
+                    name: 'admintimeOutIndex',
+                    ddoc: 'admintimeOutIndexDDoc',
                     type: 'json',
                 }
             }).then(function (doc) {
@@ -460,8 +309,8 @@ function loginAndRunFunction(base) {
                 admindb.createIndex({
                     index: {
                         fields: ['base', 'timeOut'],
-                        name: 'baseTimeOutIndex',
-                        ddoc: 'baseTimeOutIndexDDoc',
+                        name: 'adminbaseTimeOutIndex',
+                        ddoc: 'adminbaseTimeOutIndexDDoc',
                         type: 'json',
                     }
                 }).then(function () {
@@ -478,8 +327,54 @@ function loginAndRunFunction(base) {
                     console.log(doc);
                     updateTableFromFindQuery(doc, true);
                 });;
+            }).then(function () {
+                if (remotedbConnected == false) {
+                    remotedb = new PouchDB(remotedbURL);
+                    remotedbConnected = true;
+                }
+                if (adminSyncInProgress == false) {
+                    var syncOptions = {
+                        live: true,
+                        retry: true
+                    }
+                    syncInProgress = true;
+                    admindb.sync(remotedb, syncOptions)
+                        .on('change', function (doc) {
+                            // yo, something changed!
+
+                            console.log(doc);
+                            if (doc.direction == 'pull') {
+                                console.log('change occured in remote updating basedb');
+                                var change = doc.change;
+                                updateTableFromFindQuery(change, true);
+                            } else {
+                                console.log('updating remotedb'); //fixme needs to do something with pushes
+                            }
+                        }).on('paused', function (info) {
+                            // replication was paused, usually because of a lost connection
+                            console.log(info);
+                        }).on('active', function (info) {
+                            // replication was resumed
+                            console.log(info);
+                        }).on('error', function (err) {
+                            // totally unhandled error (shouldn't happen)
+                            console.log(err);
+                        });
+                }
             });
 
+            // -- table selection and actions --
+            // try {
+            //     if (!($('#adminLogsTable').hasClass('evtHandler'))) {
+
+            //         $('#adminLogsTable').addClass('evtHandler');
+            //         $('#adminLogsTable').on('click', function () {
+            //             console.log('hello');
+            //         });
+            //     }
+            // } catch (err) {
+            //     console.log(err);
+            // }
             break; // end of admin user code
         case 7:
             // -- roaming user --
@@ -547,86 +442,50 @@ function loginAndRunFunction(base) {
                         }
                     });
                 });
-            });
-            // basedb.createIndex({
-            //     index: {
-            //         fields: ['base']
-            //     }
-            // }).then(function () {
-            //     basedb.get('_design/baseFilter' + base)
-            //         .catch(function (err) {
-            //             if (err == 404) {
-            //                 basedb.put({
-            //                     "_id": "_design/baseFilter" + base,
-            //                     "filters": {
-            //                         "by_base": function (doc) {
-            //                             return doc.base === base;
-            //                         }
-            //                     }.toString()
-            //                 });
-            //             }
-            //         });
-
-            // });
-
-
-            // find all docs sorted by timeOut
-
-            // createIndex(basedb, timeOut);
-            // dbFind(basedb, timeOut, $gt, null, timeOut);
-
-            // basedb.allDocs({
-            //         include_docs: true
-            //     })
-            //     .then(function (doc) {
-            //         console.log(doc);
-            //         updateTableFromAllDocs(doc, false);
-
-            //     })
-            //     .catch();
-            if (remotedbConnected == false) {
-                //remotedb = new PouchDB('http://admin:f80caba00b47@couchdb-335dec.smileupps.com/founderhq');
-                //     remotedbConnected = true;
-                //remotedb = new PouchDB('http://localhost:5984/founderhq');
-                remotedb = new PouchDB('http://central:vikings@vps358200.ovh.net:5984/founderhq');
-                remotedbConnected = true;
-            }
-
-            // var syncOptions = {
-            //     live: true,
-            //     retry: true,
-            //     filter: 'baseFilter1/by_base'
-
-            // }
-            if (baseSyncInProgress == false) {
-                var syncOptions = {
-                    live: true,
-                    retry: true
+            }).then(function () {
+                if (remotedbConnected == false) {
+                    remotedb = new PouchDB(remotedbURL);
+                    remotedbConnected = true;
                 }
-                basedb.sync(remotedb, syncOptions)
-                    .on('change', function (doc) {
-                        // yo, something changed!
 
-                        console.log(doc);
-                        if (doc.direction == 'pull') {
-                            console.log('change occured in remote updating basedb');
-                            var change = doc.change;
-                            updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
-                        } else {
-                            console.log('updating remotedb');
-                            //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
-                            // var change = doc.change;
-                            // updateTableFromFindQuery(change, false);
-                        }
-                    }).on('paused', function (info) {
-                        // replication was paused, usually because of a lost connection
-                    }).on('active', function (info) {
-                        // replication was resumed
-                    }).on('error', function (err) {
-                        // totally unhandled error (shouldn't happen)
-                        console.log(err);
-                    });
-            }
+                // var syncOptions = {
+                //     live: true,
+                //     retry: true,
+                //     filter: 'baseFilter1/by_base'
+
+                // }
+                if (baseSyncInProgress == false) {
+                    var syncOptions = {
+                        live: true,
+                        retry: true
+                    }
+                    basedb.sync(remotedb, syncOptions)
+                        .on('change', function (doc) {
+                            // yo, something changed!
+
+                            console.log(doc);
+                            if (doc.direction == 'pull') {
+                                console.log('change occured in remote updating basedb');
+                                var change = doc.change;
+                                updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
+                            } else {
+                                console.log('updating remotedb');
+                                //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
+                                // var change = doc.change;
+                                // updateTableFromFindQuery(change, false);
+                            }
+                        }).on('paused', function (info) {
+                            // replication was paused, usually because of a lost connection
+                        }).on('active', function (info) {
+                            // replication was resumed
+                        }).on('error', function (err) {
+                            // totally unhandled error (shouldn't happen)
+                            console.log(err);
+                        });
+                }
+            });
+
+
 
 
 
