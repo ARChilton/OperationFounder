@@ -63,27 +63,9 @@ function onResume() {
 
 }
 
-function patrolRecordUpdate(patrol, offRoute, admin) {
-    if (admin) {
-        var index = patrolRecordAdmin.indexOf(patrol);
-    } else {
-        var index = patrolRecord.indexOf(patrol);
-    }
-    if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
-        if (index > -1) {
-            return true;
-        } else {
-            patrolRecord.push(patrol);
-            return false;
-        }
-    } else {
-        return false; // returns without adding to the overwrite table list
-    }
 
 
-}
-
-
+// destroys basedb and opFounderAppDb
 function destroyBasedb() {
     var x = new PouchDB('basedb').destroy().then(function () {
         ons.notification.alert('basedb database destroyed');
@@ -93,7 +75,7 @@ function destroyBasedb() {
     });
 
 }
-
+// a clear all function which is not currently available from the GUI
 function cleanAll() {
     ons.notification.prompt({
         title: 'Clean all databases',
@@ -134,19 +116,38 @@ function cleanAll() {
 
     });
 }
+// keeps track of which patrol entries have already been input
+function patrolRecordUpdate(patrol, offRoute, admin) {
+    if (admin) {
+        var index = patrolRecordAdmin.indexOf(patrol);
+    } else {
+        var index = patrolRecord.indexOf(patrol);
+    }
+    if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
+        if (index > -1) {
+            return true;
+        } else {
+            patrolRecord.push(patrol);
+            return false;
+        }
+    } else {
+        return false; // returns without adding to the overwrite table list
+    }
 
 
+}
+// functions to update the table or row according to the update table function
 function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
 
     $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td>");
 
 }
 
-function updateAdminExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+function updateAdminExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, dbId) {
     //without checkboxes
-    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
     //with checkboxes
-    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
 }
 
 function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
@@ -155,16 +156,17 @@ function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, edit
 
 }
 
-function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, dbId) {
     // without checkboxes
-    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    // $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
     //with checkboxes
-    // $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $('#' + tableLogId + patrolNo + '-' + base).data('dbId', dbId);
 }
-
+//standard update table or update exisiting row calling function
 function tableUpdateFunction(path, admin) {
 
-    console.log(path.patrol + ' ' + path.base);
+    console.log(path.patrol + ' ' + path.base + ' ' + path._id);
     if (admin == true) {
         // tableId = '#adminLogsTable';
         tableLogId = 'ad-log-';
@@ -177,9 +179,9 @@ function tableUpdateFunction(path, admin) {
     }
     if (admin) {
         if (patrolRecordUpdate(path.patrol, path.offRoute, true)) {
-            updateAdminExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            updateAdminExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path._id);
         } else {
-            updateAdminTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            updateAdminTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path._id);
         }
 
     } else {
@@ -191,7 +193,7 @@ function tableUpdateFunction(path, admin) {
 
     }
 }
-
+// updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.rows
 function updateTableFromAllDocs(doc, admin) {
 
     for (var i = 0, l = doc.total_rows; i < l; i++) {
@@ -201,7 +203,7 @@ function updateTableFromAllDocs(doc, admin) {
     }
     orientationLandscapeUpdate();
 }
-
+// updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.docs
 function updateTableFromFindQuery(doc, admin) {
 
     console.log('updating from find query');
@@ -216,14 +218,14 @@ function updateTableFromFindQuery(doc, admin) {
     orientationLandscapeUpdate();
 
 }
-
+//checks the orientation and updates the GUI accordingly, landscape only
 function orientationLandscapeUpdate() {
     if (ons.orientation.isLandscape()) {
         $('.landscapeHide').addClass('hide');
         $('.landscapeShow').removeClass('hide');
     }
 }
-
+//for an orientation change this picks up both portrait and landscape
 function orientationUpdates() {
     if (ons.orientation.isLandscape()) {
         $('.landscapeHide').addClass('hide');
@@ -233,7 +235,7 @@ function orientationUpdates() {
         $('.landscapeHide').removeClass('hide');
     }
 }
-
+// clear inputs on page1.html
 function clearQuickAddInputs() {
     $('.quickAddInput').val('');
     $('#wait').val('0');
@@ -242,6 +244,15 @@ function clearQuickAddInputs() {
 
 }
 
+//--Admin functions
+
+//Delete function
+
+//Lock from editing any further function
+
+//Show on Map function
+
+//-- log in and out functions
 function loginPut(doc) {
     var timestamp = new Date().toISOString();
     appdb.put({
@@ -553,6 +564,9 @@ function loginAndRunFunction(base) {
                     //     });
                     // } 
                     else {
+                        if (sqPatrol < 10) {
+                            sqPatrol = '0' + sqPatrol;
+                        }
                         if (sqTimeIn == "") {
                             var date = new Date();
                             sqTimeIn = date.toLocaleTimeString();
@@ -572,7 +586,7 @@ function loginAndRunFunction(base) {
                             sqTotalScore = '';
                         }
                         var patrolLog = {
-                            _id: sqPatrol + ' base ' + base,
+                            _id: sqPatrol + '_base_' + base,
                             patrol: sqPatrol,
                             base: base,
                             username: name,
@@ -591,7 +605,7 @@ function loginAndRunFunction(base) {
                             case true:
 
                                 var offRoutePatrolLog = {
-                                    _id: sqPatrol + ' base ' + base + ' offRoute@ ' + sqTimeOut,
+                                    _id: sqPatrol + '_base_' + base + '_offRoute@' + timestamp,
                                     patrol: sqPatrol,
                                     base: base,
                                     username: name,
@@ -897,27 +911,47 @@ ons.ready(function () {
 
             // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
             // -- table selection and actions --
-            /*var adminSpeedDial = document.getElementById('adminSpeedDial');
+            var adminSpeedDial = document.getElementById('adminSpeedDial');
             adminSpeedDial.hide();
+            var adminCurrentlySelected = [];
             $('#adminSpeedDial').removeClass('hide');
             if (!($('#adminLogsTable').hasClass('evtHandler'))) {
                 $('#adminLogsTable').addClass('evtHandler');
                 $('#adminLogsTable').on('click', 'tr', function (e) {
                     if ($(this).hasClass('tableSelected')) {
                         $(this).removeClass('tableSelected');
-                        adminSpeedDial.hide();
+
+                        var dataInfo = $(this).data('dbId');
+                        var index = adminCurrentlySelected.indexOf(dataInfo);
+                        if (index > -1) {
+                            adminCurrentlySelected.splice(index, 1);
+                        }
+                        console.log(adminCurrentlySelected);
+                        if (!($('tr').hasClass('tableSelected'))) {
+                            adminSpeedDial.hide();
+                        }
                     } else if (e.shiftKey == true) {
                         $(this).addClass('tableSelected');
                         // $('#adminSpeedDial').removeClass('hide');
                         adminSpeedDial.show();
+                        var dataInfo = $(this).data('dbId');
+                        adminCurrentlySelected.push(dataInfo);
+                        console.log(adminCurrentlySelected);
+
                     } else {
                         $('tr').removeClass('tableSelected');
                         $(this).addClass('tableSelected');
                         // $('#adminSpeedDial').removeClass('hide');
                         adminSpeedDial.show();
+                        //clear all previously selected items from the array
+                        adminCurrentlySelected = [];
+                        // to get the dbId's off the element
+                        var dataInfo = $(this).data('dbId');
+                        adminCurrentlySelected.push(dataInfo);
+                        console.log(adminCurrentlySelected);
                     }
                 });
-            }*/
+            }
 
         }
 
