@@ -32,7 +32,6 @@ var sqOffRoute;
 var sqTotalScore;
 var patrolRecord = [];
 var patrolRecordAdmin = [];
-var offRoutePatrolLog;
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
