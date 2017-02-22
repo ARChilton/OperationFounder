@@ -257,7 +257,7 @@ function deleteRecords(deleteDocs) {
     //deleteDocs should be an array of database _id values for updating to status deleted = true
     for (var i = 0, l = deletedDocsLength; i < l; i++) {
         var id = deleteDocs[i].dbId;
-        var trId = deleteDocs[i].trId
+        var trId = deleteDocs[i].trId;
         var options = {
             _deleted: true
         }
@@ -299,6 +299,52 @@ function deleteRecords(deleteDocs) {
 
 
 //Lock from editing any further function
+function lockOrUnlockLogFromEdits(lockDocs, lock) {
+    //lockDocs is an array of db Ids and ids from the table
+    // lock defines if the log is locked or unlocked
+    var lockDocsLength = lockDocs.length;
+    var timestamp = new Date().toISOString();
+
+    switch (lock) {
+        case true:
+            var message = 'unlocked';
+            var message2 = 'allow';
+            break;
+        case false:
+            var message = 'locked';
+            var message2 = 'stop';
+            break;
+    }
+    for (var i = 0, l = lockDocsLength; i < l; i++) {
+        var id = lockDocs[i].dbId;
+        var trId = lockDocs[i].trId;
+        admindb.get(id)
+            .then(function (doc) {
+                console.log(doc);
+                switch (lock) {
+                    case true:
+                        doc.editable = false;
+                        break;
+                    case false:
+                        doc.editable = true;
+                        break;
+                }
+                doc.timestamp = timestamp;
+
+                return admindb.put(doc)
+            })
+            .catch(function (err) {
+                console.log(err);
+            })
+    }
+    ons.notification.alert({
+        title: lockDocsLength + ' logs ' + message,
+        message: 'You have set ' + lockDocsLength + ' to ' + message + '. This will propagate to other users to ' + message2 + ' them the ability to update the log.',
+        cancelable: true
+    });
+}
+
+
 
 //Show on Map function
 
@@ -1002,7 +1048,8 @@ ons.ready(function () {
                     }
                 });
             }
-            if (!($('#adminDelete').hasClass('evtHandler'))) { //fixme did not work when clicked
+            // button for deleting logs
+            if (!($('#adminDelete').hasClass('evtHandler'))) {
                 $('#adminDelete').addClass('evtHandler');
                 $('#adminDelete').on('click', function () {
                     ons.notification.confirm({
@@ -1016,6 +1063,21 @@ ons.ready(function () {
                     })
                 });
             }
+            //button for locking logs as no longer editable
+            if (!($('#adminLock').hasClass('evtHandler'))) {
+                $('#adminLock').addClass('evtHandler');
+                $('#adminLock').on('click', function () {
+                    lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
+                });
+            }
+            if (!($('#adminUnlock').hasClass('evtHandler'))) {
+                $('#adminUnlock').addClass('evtHandler');
+                $('#adminUnlock').on('click', function () {
+                    lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
+                });
+            }
+
+
 
         }
 
