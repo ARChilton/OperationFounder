@@ -160,8 +160,12 @@ function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore,
     // without checkboxes
     // $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
     //with checkboxes
-    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
-    $('#' + tableLogId + patrolNo + '-' + base).data('dbId', dbId);
+    var trId = tableLogId + patrolNo + '-' + base;
+    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $('#' + tableLogId + patrolNo + '-' + base).data('databaseInfo', {
+        dbId: dbId,
+        trId: trId
+    });
 }
 //standard update table or update exisiting row calling function
 function tableUpdateFunction(path, admin) {
@@ -246,7 +250,53 @@ function clearQuickAddInputs() {
 
 //--Admin functions
 
-//Delete function
+//Delete function ONLY FOR ADMINs as it only works on admindb
+function deleteRecords(deleteDocs) {
+    var deletedDocsLength = deleteDocs.length;
+    var timestamp = new Date().toISOString();
+    //deleteDocs should be an array of database _id values for updating to status deleted = true
+    for (var i = 0, l = deletedDocsLength; i < l; i++) {
+        var id = deleteDocs[i].dbId;
+        var trId = deleteDocs[i].trId
+        var options = {
+            _deleted: true
+        }
+        admindb.get(id)
+            .then(function (doc) {
+                admindb.put({
+                    _id: id,
+                    _rev: doc._rev,
+                    username: name,
+                    timestamp: timestamp
+                }, options)
+            }).catch(function (err) {
+                if (err.status != 404) {
+                    admindb.put({
+                        _id: id,
+                        _rev: doc._rev,
+                        username: name,
+                        timestamp: timestamp
+                    }, options);
+                }
+                //else if (err.status == 404) {
+                //     ons.notification.alert({
+                //         title: '404 not found',
+                //         message: 'The record you are trying to delete was not found, this might be because someone else has just deleted it.'
+                //     })
+            });
+        $('#' + trId).remove();
+    }
+
+    ons.notification.alert({
+        title: deletedDocsLength + ' logs deleted',
+        message: 'You have set ' + deletedDocsLength + ' to deleted. This has updated the record to deleted but has not removed all previous records from the database. To undo the deletion will require database admin privaledges.',
+        cancelable: true
+    });
+
+}
+
+
+
 
 //Lock from editing any further function
 
@@ -921,7 +971,7 @@ ons.ready(function () {
                     if ($(this).hasClass('tableSelected')) {
                         $(this).removeClass('tableSelected');
 
-                        var dataInfo = $(this).data('dbId');
+                        var dataInfo = $(this).data('databaseInfo');
                         var index = adminCurrentlySelected.indexOf(dataInfo);
                         if (index > -1) {
                             adminCurrentlySelected.splice(index, 1);
@@ -934,7 +984,7 @@ ons.ready(function () {
                         $(this).addClass('tableSelected');
                         // $('#adminSpeedDial').removeClass('hide');
                         adminSpeedDial.show();
-                        var dataInfo = $(this).data('dbId');
+                        var dataInfo = $(this).data('databaseInfo');
                         adminCurrentlySelected.push(dataInfo);
                         console.log(adminCurrentlySelected);
 
@@ -946,10 +996,24 @@ ons.ready(function () {
                         //clear all previously selected items from the array
                         adminCurrentlySelected = [];
                         // to get the dbId's off the element
-                        var dataInfo = $(this).data('dbId');
+                        var dataInfo = $(this).data('databaseInfo');
                         adminCurrentlySelected.push(dataInfo);
                         console.log(adminCurrentlySelected);
                     }
+                });
+            }
+            if (!($('#adminDelete').hasClass('evtHandler'))) { //fixme did not work when clicked
+                $('#adminDelete').addClass('evtHandler');
+                $('#adminDelete').on('click', function () {
+                    ons.notification.confirm({
+                        title: 'Are you sure?',
+                        message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
+                        cancelable: true
+                    }).then(function (input) {
+                        if (input == 1) {
+                            deleteRecords(adminCurrentlySelected);
+                        }
+                    })
                 });
             }
 
