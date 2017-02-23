@@ -15,8 +15,8 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="js/mdl/material.css">
   <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
-  <!--<link rel="stylesheet" href="js/leaflet/leaflet.css">
-  <link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
+  <link rel="stylesheet" href="js/leaflet/leaflet.css">
+  <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->-->
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
   <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
   <link rel="stylesheet" href="css/style.css">
@@ -42,12 +42,15 @@
         <ons-list-item onclick="logOut()" tappable>
           Log out
         </ons-list-item>
-        <ons-list-item onclick="destroyBasedb()" tappable>
+        <ons-list-item onclick="goToMap()" tappable>
+          Local Map
+        </ons-list-item>
+        <!--<ons-list-item onclick="destroyBasedb()" tappable>
           Destroy Db
-        </ons-list-item>
-        <ons-list-item id="about" tappable>
+        </ons-list-item>-->
+        <!--<ons-list-item id="about" tappable>
           About
-        </ons-list-item>
+        </ons-list-item>-->
       </ons-list>
     </ons-page>
   </ons-template>
@@ -109,7 +112,7 @@
               </label>
             <label for="offRoute" class="center">Off route</label>
           </ons-list-item>
-          <ons-list-item>
+          <ons-list-item class="">
             <div class="left">
               Time in
             </div>
@@ -118,14 +121,14 @@
               </ons-input>
             </div>
           </ons-list-item>
-          <ons-list-item>
+          <ons-list-item class="">
             <div class="left">Wait time</div>
             <div class="right">
               <ons-input id="wait" type="number" modifier="underbar" placeholder="minutes" value="0" float class="quickAddInput">
               </ons-input>
             </div>
           </ons-list-item>
-          <ons-list-item>
+          <ons-list-item class="">
             <div class="left">
               Time out
             </div>
@@ -134,7 +137,7 @@
               </ons-input>
             </div>
           </ons-list-item>
-          <ons-list-item>
+          <ons-list-item class="">
             <div class="left">Total score</div>
             <div class="right">
               <ons-input id="total" type="number" modifier="underbar" placeholder="Total score (max 25)" float class="quickAddInput">
@@ -150,18 +153,18 @@
       <!--Bottom Half-->
       <div class="bottomHalf">
         <ons-list>
-          <ons-list-header>Previous logs from this base</ons-list-header>
+          <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
         </ons-list>
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
             <tr>
-              <th class="">Patrol</th>
-              <th class="">Time in</th>
-              <th>Time out</th>
-              <th class="hide landscapeShow">Wait</th>
-              <th class="hide landscapeShow">Off route</th>
-              <th>Total score</th>
-              <th class="hide landscapeShow">edit</th>
+              <th id="thPatrol">Patrol</th>
+              <th id="thTimeIn">Time in</th>
+              <th id="thTimeOut">Time out</th>
+              <th id="thWait" class="hide landscapeShow">Wait</th>
+              <th id="thOffRoute" class="hide landscapeShow">Off route</th>
+              <th id="thTotalScore">Total score</th>
+              <th id="thEdit" class="hide landscapeShow">edit</th>
             </tr>
           </thead>
           <tbody id="logsTable">
@@ -182,14 +185,19 @@
         <div class="center">
           Admin
         </div>
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon icon="md-search" id="patrolSearch"></ons-icon>
+          </ons-toolbar-button>
+        </div>
       </ons-toolbar>
       <!--Top half of screen-->
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
-            <th class="hide landscapeShow">
+            <!--<th class="hide landscapeShow">
               <ons-input type='checkbox' id="selectAll"></ons-input>
-            </th>
+            </th>-->
             <th class="">Patrol</th>
             <th>Base</th>
             <th class="">Time in</th>
@@ -217,25 +225,28 @@
         <ons-speed-dial-item id="adminDelete">
           <ons-icon icon="md-delete"></ons-icon>
         </ons-speed-dial-item>
-        <ons-speed-dial-item id="adminShowMap">
+        <!--<ons-speed-dial-item id="adminShowMap">
           <ons-icon icon="md-map"></ons-icon>
-        </ons-speed-dial-item>
+        </ons-speed-dial-item>-->
       </ons-speed-dial>
   </ons-template>
-  <ons-template id="roaming.html">
-    <ons-page id="roamingPage">
-      <!--Toolbar-->
-      <ons-toolbar>
-        <div class="left">
-          <ons-toolbar-button class="menuButton">
-            <ons-icon icon="md-menu"></ons-icon>
-          </ons-toolbar-button>
-        </div>
-        <div class="center">
-          Roaming Updates
-        </div>
-      </ons-toolbar>
-      <!--Top half of screen-->
+  <ons-template id="map.html">
+    <ons-page id="mapPage">
+      <ons-fab class="fab locOn" id="fabLocate" href="#" position="bottom right">
+        <ons-icon icon="md-gps" class="locateNotSelected fabIcon" id="fabLocateIcon"></ons-icon>
+      </ons-fab>
+      <div class="leaflet-container leaflet-touch leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom"
+        id="map" href='#'>
+        <ons-toolbar>
+          <div class="left">
+            <ons-toolbar-button onclick="mapBackButton()">
+              <ons-icon icon="md-arrow-left"></ons-icon>
+            </ons-toolbar-button>
+          </div>
+          <div class="center">Local Map</div>
+        </ons-toolbar>
+      </div>
+      <img src="./img/bingLogo/bing_maps_logo_gray.png" class="bingLogo" id="bingGrey">
     </ons-page>
   </ons-template>
 </body>
@@ -252,14 +263,14 @@
   });
 </script>
 <!-- JQuery mobile -->
-<script src="js/JQuery/jquery.mobile-1.4.5.min.js"></script>>
+<script src="js/JQuery/jquery.mobile-1.4.5.min.js"></script>
 <!--<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js "></script>-->
 <!-- Script for autocompleting search boxes -->
 <!--<script src="js/autocomplete-search-bar/jquery.autocomplete.js"></script>-->
 <!-- JQuery cookie plugin to manage cookies -->
 <!--<script src="js/JQuery/js.cookie.js"></script>-->
 <!-- Leaflet JS and Leaflet WMS extension -->
-<!--<script src="js/leaflet/leaflet.js"></script>-->
+<script src="js/leaflet/leaflet.js"></script>
 <!-- JavaScript database  -->
 <script src="js/pouchdb/pouchdb-6.1.2.min.js"></script>
 <script src="js/pouchdb/pouchdb.find.min.js"></script>
@@ -269,9 +280,9 @@
 <!--<script src="js/leaflet/leaflet-routing-machine.js"></script>-->
 <!--<script src="js/leaflet/lrm-mapzen.js "></script>-->
 <!--<script src="js/leaflet/Control.Geocoder.js"></script>-->
-<!--<script src="js/leaflet/leaflet-bing-layer.js"></script>-->
-<!--<script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script>-->
-<!--<script src="js/leaflet/leaflet.edgebuffer.js"></script>-->
+<script src="js/leaflet/leaflet-bing-layer.js"></script>
+<script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script>
+<script src="js/leaflet/leaflet.edgebuffer.js"></script>
 <!-- Error tracking -->
 <!--<script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>-->
 <!-- My leaflet control file -->

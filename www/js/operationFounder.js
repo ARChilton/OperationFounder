@@ -3,21 +3,57 @@ This is the javascript for the operationFounder app
 */
 
 // global variables
-var baseCodes = ['opfounder123', 'adam', 'martin', '3', '4', '5', '6', 'roaming']; // MUST BE LOWER CASE
-var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm']
+var baseCodes = ['vikings', 'petal', 'peter', 'witch', 'homes', 'trees', 'horse', 'roaming']; // MUST BE LOWER CASE
+var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm', 'Roaming/Check Point']
 var appdb;
 var appdbConnected = false;
 var basedb;
 var basedbConnected = false;
 var remotedb;
-var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_debug';
 var remotedbConnected = false;
 var admindb;
 var admindbConnected = false;
 var adminSyncInProgress = false;
 var baseSyncInProgress = false;
+var adminCurrentlySelected;
+var offRouteCounter = 1;
 
 
+//database names
+var adminDatabaseName = 'adminDB';
+var baseDatabaseName = 'baseDB';
+var appDatabaseName = 'oppFounderLoginDb';
+var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_debug_1';
+
+// map variables
+var followGPS;
+var mapMarkers = L.featureGroup()
+L.LayerGroup.include({
+    customGetLayer: function (id) {
+        for (var i in this._layers) {
+            if (this._layers[i].id == id) {
+                return this._layers[i];
+            }
+        }
+    }
+});
+var mapMade = false;
+var map;
+var BING_KEY = 'AqVat8HR9TsQF1uwWckLU_1Dv_wrrDR3ThriJUmZyDhPcHRGwpeTDA9NVhKaS5RX';
+var turnCachingOn = true;
+var reCacheAfter = 30 * 24 * 3600 * 1000;
+var bingOS = L.tileLayer.bing({
+    bingMapsKey: BING_KEY,
+    imagerySet: 'ordnanceSurvey',
+    maxNativeZoom: 17,
+    maxZoom: 17,
+    minZoom: 10,
+    useCache: turnCachingOn,
+    crossOrigin: true,
+    cacheMaxAge: reCacheAfter
+})
+// var currentLocation;
+// var location;
 // login variables
 var base;
 var name;
@@ -34,6 +70,8 @@ var sqOffRoute;
 var sqTotalScore;
 var patrolRecord = [];
 var patrolRecordAdmin = [];
+var offRouteIndex = [];
+var offRouteIndexAdmin = [];
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -67,11 +105,14 @@ function onResume() {
 
 // destroys basedb and opFounderAppDb
 function destroyBasedb() {
-    var x = new PouchDB('basedb').destroy().then(function () {
-        ons.notification.alert('basedb database destroyed');
+    var x = new PouchDB(baseDatabaseName).destroy().then(function () {
+        ons.notification.alert(baseDatabaseName + '/basedb database destroyed');
     });
-    var y = new PouchDB('opFounderAppDb').destroy().then(function () {
-        ons.notification.alert('opFounderAppDb database destroyed');
+    var y = new PouchDB(appDatabaseName).destroy().then(function () {
+        ons.notification.alert(appDatabaseName + '/opFounderAppDb database destroyed');
+    });
+    var y = new PouchDB(adminDatabaseName).destroy().then(function () {
+        ons.notification.alert(adminDatabaseName + '/admindb database destroyed');
     });
 
 }
@@ -89,21 +130,24 @@ function cleanAll() {
                 for (var i = 0, l = doc.total_rows; i < l; i++) {
 
                     var path = doc.rows[i];
+                    var testForDesignDocs = '_design'
                     console.log(path.id + ' ' + path.value.rev);
-                    var deletedRecord = {
-                        _id: path.id,
-                        _rev: path.value.rev
-                    }
-                    var options = {
-                        _deleted: true
-                    }
-                    admindb.put(
-                        deletedRecord,
-                        options
-                    ).catch(function (err) {
-                        console.log(err);
-                    });
+                    if (testForDesignDocs.test(path.id)) {
+                        var deletedRecord = {
+                            _id: path.id,
+                            _rev: path.value.rev
+                        }
+                        var options = {
+                            _deleted: true
+                        }
+                        admindb.put(
+                            deletedRecord,
+                            options
+                        ).catch(function (err) {
+                            console.log(err);
+                        });
 
+                    }
                 }
             }).then(function () {
                 admindb.compact().then(function (doc) {
@@ -116,56 +160,316 @@ function cleanAll() {
 
     });
 }
-// keeps track of which patrol entries have already been input
-function patrolRecordUpdate(patrol, offRoute, admin) {
-    if (admin) {
-        var index = patrolRecordAdmin.indexOf(patrol);
-    } else {
-        var index = patrolRecord.indexOf(patrol);
+
+//show map page
+function goToMap() {
+    navi.bringPageTop('map.html', {
+        animation: 'none'
+    }).then(function () {
+        map.invalidateSize();
+    });
+    // setTimeout(function () {
+    //     map.invalidateSize()
+    // }, 200);
+
+    document.getElementById('menu').toggle();
+    map.locate({
+        setView: false,
+        // maxZoom: map.getZoom(),
+        watch: true,
+        enableHighAccuracy: true
+    });
+
+}
+
+function mapBackButton() {
+    map.stopLocate();
+
+    switch (getBaseNumber()) {
+        case 0:
+            navi.bringPageTop('admin.html', {
+                animation: 'fade'
+            });
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            navi.bringPageTop('page1.html', {
+                animation: 'fade'
+            });
+            break;
+        default:
+
+            navi.bringPageTop('loginPage.html', {
+                animation: 'fade'
+            });
+            ons.notification.alert({
+                title: 'error',
+                message: 'An error has occured and have returned to the login screen, please log again',
+                cancelable: true
+            });
     }
-    if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
-        if (index > -1) {
-            return true;
+}
+
+function createMap() {
+    if (!(mapMade)) {
+        //map centred on Hadlow // pick up here   
+        // setTimeout(function () {
+        map = L.map('map', {
+            center: [
+                51.22435656415686, 0.3305253983853618
+            ],
+            zoom: 16,
+            layers: [bingOS],
+            zoomControl: false
+        });
+        // Adds a marker to the centre of the map before the GPS changes it's location
+        var currentLatLon = map.getCenter();
+        var currentLat = currentLatLon.lat;
+        var currentLng = currentLatLon.lng;
+        var startRadius = 3;
+        var accuracyCircle = L.circle(currentLatLon, {
+            radius: startRadius,
+            fillColor: '#aaf29f',
+            fillOpacity: 0.4,
+            stroke: true,
+            color: '#37e21d',
+            weight: 1
+
+        }).addTo(map);
+        marker = L.circleMarker(currentLatLon, {
+            radius: 8,
+            fill: true,
+            fillOpacity: 1,
+            fillColor: '#009688',
+            stroke: true,
+            color: '#ffffff',
+            weight: 3
+        }).addTo(map);
+        var followGPS = false;
+
+
+
+        // This will locate you on the map and add a marker to show where you are
+        function onLocationFound(e) {
+            accRadius = e.accuracy / 2;
+
+            //L.marker(e.latlng).addTo(map)
+            //.bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+            marker.setLatLng(e.latlng);
+            accuracyCircle.setLatLng(e.latlng);
+            accuracyCircle.setRadius(accRadius);
+
+            // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+            //console.log('followGPS = ' + followGPS);
+            currentLatLon = e.latlng;
+
+            if (followGPS) {
+                //map.setView(marker.getLatLng(),map.getZoom());
+                map.flyTo(marker.getLatLng(), map.getZoom());
+                console.log('I have moved because followGPS = ' + followGPS);
+            }
+        }
+
+        function onLocationError(e) {
+            alert(e.message);
+            Raven.captureException(e);
+        }
+
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+
+        /*This function controls the locate button's abilit to follow the GPS marker or not - 2 = off 1 = on*/
+        function locateButton(press) {
+            switch (press) {
+                case 1:
+
+                    /*This updates the map to the current GPS location*/
+                    map.setView(marker.getLatLng(), map.getZoom());
+                    /* This will update the variable which defines if the map follows the GPS marker */
+                    followGPS = true;
+                    /* This will change the styling of the fabLocate button */
+                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                    /*For testing*/
+                    console.log('following marker');
+
+                    break;
+
+                case 2:
+
+                    /* This updates whether the map follows the marker's GPS movements */
+                    followGPS = false;
+                    /*This will change the styling of the fabLocate button*/
+                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                    /* For testing */
+                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
+
+                    break;
+            }
+        }
+
+
+        /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
+        $('.locOn').on("click", function (e) {
+
+            /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
+            if (followGPS) {
+                locateButton(2);
+            } else {
+                locateButton(1);
+            }
+
+        })
+
+        /*On any movement of the map:
+        - the follow GPS setting and locate button is turned off
+        - the autocomplete options are updated*/
+        function mapMove() {
+            /*This updates the fab icon*/
+            if (followGPS) {
+                /*This updates the locate button by passing in the second switch option that turns the button off*/
+                locateButton(2);
+                /*For testing*/
+                // console.log('toggling locate button');
+            }
+        }
+
+        $('#map').on("swipe tap click taphold", function () {
+            //console.log('map touched in some way');
+            mapMove();
+        })
+        //This does the same but when the map is scrolled
+        map.on('dragstart', function () {
+            // console.log('map dragged');
+            mapMove();
+
+        });
+
+
+        // }, 1000);
+
+        mapMade = true;
+
+    }
+}
+// GPS location
+// function getGeolocation() {
+//     var geolocationOptions = {
+//         enableHighAccuracy: true,
+//         maximumAge: 1000 * 20
+//     }
+//     navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError, geolocationOptions);
+// }
+
+// function geolocationSuccess(position) {
+//     console.log('geolocationSuccess');
+//     console.log(position);
+//     console.log(position.coords.latitude)
+//     location = {
+//         lat: position.coords.latitude,
+//         lon: position.coords.longitude
+//         //acc: position.coords.accuracy
+//     };
+//     console.log(location);
+
+// }
+
+// function geolocationError(err) {
+//     console.log('geolocationError');
+//     console.log(err);
+// }
+
+// keeps track of which patrol entries have already been input
+function patrolRecordUpdate(id, offRoute, admin) {
+    if (admin) {
+        if (!(offRoute)) {
+            var index = patrolRecordAdmin.indexOf(id);
+            //checks that it isn't an off route entry in which case we are happy to duplicate in the table
+            if (index > -1) {
+                console.log('record already exists')
+                return true;
+            } else {
+                patrolRecordAdmin.push(id);
+                return false;
+            }
         } else {
-            patrolRecord.push(patrol);
-            return false;
+            var index = offRouteIndexAdmin.indexOf(id);
+            if (index > -1) {
+                console.log('record already exists')
+                return true;
+            } else {
+                offRouteIndexAdmin.push(id);
+                return false;
+            }
+            return false; // returns without adding to the overwrite table list
         }
     } else {
-        return false; // returns without adding to the overwrite table list
+        if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
+            var index = patrolRecord.indexOf(id);
+            if (index > -1) {
+                return true;
+            } else {
+                patrolRecord.push(id);
+                return false;
+            }
+        } else {
+            var index = offRouteIndex.indexOf(id);
+            if (index > -1) {
+                console.log(id + 'record already exists')
+                return true;
+            } else {
+                offRouteIndex.push(id);
+                return false;
+            }
+            return false; // returns without adding to the overwrite table list
+        }
     }
+
 
 
 }
 // functions to update the table or row according to the update table function
-function updateExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
-
-    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td>");
-
+function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
+    var trId = dbId;
+    $('#' + trId).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 }
 
-function updateAdminExisting(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, dbId) {
+function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+    var trId = dbId;
     //without checkboxes
-    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    $('#' + trId).html("<td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
     //with checkboxes
-    $('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td>");
+    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+
 }
 
-function updateTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
+function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
-    $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    var trId = dbId;
+    $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
 
 }
 
-function updateAdminTable(patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, dbId) {
+function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, location) {
+    console.log(dbId);
+    var trId = dbId;
     // without checkboxes
-    // $(tableId).prepend("<tr id='" + tableLogId + patrolNo + '-' + base + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
     //with checkboxes
-    var trId = tableLogId + patrolNo + '-' + base;
-    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow'>" + editable + "</td></tr>");
-    $('#' + tableLogId + patrolNo + '-' + base).data('databaseInfo', {
+
+    // $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    $('#' + trId).data('databaseInfo', {
         dbId: dbId,
-        trId: trId
+        trId: trId,
+        location: location
     });
+
 }
 //standard update table or update exisiting row calling function
 function tableUpdateFunction(path, admin) {
@@ -182,17 +486,17 @@ function tableUpdateFunction(path, admin) {
         tableLogId = tableLogId + '-or';
     }
     if (admin) {
-        if (patrolRecordUpdate(path.patrol, path.offRoute, true)) {
-            updateAdminExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path._id);
+        if (patrolRecordUpdate(path._id, path.offRoute, true)) {
+            updateAdminExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         } else {
-            updateAdminTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path._id);
+            updateAdminTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path.location);
         }
 
     } else {
-        if (patrolRecordUpdate(path.patrol, path.offRoute, false)) {
-            updateExisting(path.patrol, path.timeIn, path.timeOut, path.wait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+        if (patrolRecordUpdate(path._id, path.offRoute, false)) {
+            updateExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         } else {
-            updateTable(path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+            updateTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         }
 
     }
@@ -302,15 +606,16 @@ function deleteRecords(deleteDocs) {
 function lockOrUnlockLogFromEdits(lockDocs, lock) {
     //lockDocs is an array of db Ids and ids from the table
     // lock defines if the log is locked or unlocked
+
     var lockDocsLength = lockDocs.length;
     var timestamp = new Date().toISOString();
 
     switch (lock) {
-        case true:
+        case false:
             var message = 'unlocked';
             var message2 = 'allow';
             break;
-        case false:
+        case true:
             var message = 'locked';
             var message2 = 'stop';
             break;
@@ -330,13 +635,27 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                         break;
                 }
                 doc.timestamp = timestamp;
+                tableUpdateFunction(doc, true)
+                switch (lock) {
+                    case true:
+                        $('#' + trId).addClass('lockedLog');
+                        break;
+                    case false:
+                        $('#' + trId).removeClass('lockedLog');
+                        break;
+                }
 
                 return admindb.put(doc)
+            }).then(function () {
+                orientationLandscapeUpdate();
             })
             .catch(function (err) {
                 console.log(err);
             })
+
     }
+
+    //orientationUpdates();
     ons.notification.alert({
         title: lockDocsLength + ' logs ' + message,
         message: 'You have set ' + lockDocsLength + ' to ' + message + '. This will propagate to other users to ' + message2 + ' them the ability to update the log.',
@@ -346,8 +665,24 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 
 
 
-//Show on Map function
+//Show on Map function //unfinished!!
+function showOnMap(locations) {
+    var locationsLength = locations.length;
+    for (var i = 0, l = locationsLength; i < l; i++) {
+        var id = lockDocs[i].dbId;
 
+    }
+
+}
+
+//show locked logs
+
+//network connection
+function checkConnection() {
+    var networkState = navigator.connection.type;
+    return networkState;
+
+}
 //-- log in and out functions
 function loginPut(doc) {
     var timestamp = new Date().toISOString();
@@ -374,6 +709,10 @@ function logOut() {
     $('#logsTable').empty();
     logOutPageChange();
     document.getElementById('menu').toggle();
+    offRouteIndex = [];
+    offRouteIndexAdmin = [];
+    patrolRecord = [];
+    patrolRecordAdmin = [];
 
     appdb.get('login')
         .then(function (doc) {
@@ -392,6 +731,10 @@ function logOut() {
         });
 }
 
+function getBaseNumber() {
+    return base;
+}
+
 function loginAndRunFunction(base) {
     switch (base) {
         case 999:
@@ -404,9 +747,10 @@ function loginAndRunFunction(base) {
                 animation: 'none'
             });
 
+
             var admin = true;
             if (admindbConnected == false) {
-                admindb = new PouchDB('admindb');
+                admindb = new PouchDB(adminDatabaseName);
                 admindbConnected = true;
             }
 
@@ -415,7 +759,7 @@ function loginAndRunFunction(base) {
                     fields: ['timeOut'],
                     name: 'admintimeOutIndex',
                     ddoc: 'admintimeOutIndexDDoc',
-                    type: 'json',
+                    type: 'json'
                 }
             }).then(function (doc) {
                 console.log(doc);
@@ -424,7 +768,7 @@ function loginAndRunFunction(base) {
                         fields: ['base', 'timeOut'],
                         name: 'adminbaseTimeOutIndex',
                         ddoc: 'adminbaseTimeOutIndexDDoc',
-                        type: 'json',
+                        type: 'json'
                     }
                 }).then(function () {
                     return admindb.find({
@@ -474,15 +818,12 @@ function loginAndRunFunction(base) {
                             console.log(err);
                         });
                 }
+            }).catch(function (err) {
+                console.log(err);
             });
 
             break; // end of admin user code
-        case 7:
-            // -- roaming user --
-            navi.bringPageTop('roaming.html', {
-                animation: 'none'
-            });
-            break; // end of roaming user code
+
 
         case 1: // -- base user --
         case 2:
@@ -490,16 +831,25 @@ function loginAndRunFunction(base) {
         case 4:
         case 5:
         case 6:
+        case 7:
             navi.bringPageTop('page1.html', {
                 animation: 'fade'
             });
 
-            $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
-            $('.quickAddTitle').html('Add new log from base ' + base);
+            if (!(base == 7)) {
+                $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
+                $('.quickAddTitle').html('Add new log from base ' + base);
+
+            } else {
+                $('.pageTitle').html(baseNames[base]);
+                $('.quickAddTitle').html('Record the teams you see');
+                $('#tableTitle').html('Teams seen')
+
+            }
             $('#logsTable').empty();
-            baseNumber = base;
+
             if (basedbConnected == false) {
-                basedb = new PouchDB('basedb');
+                basedb = new PouchDB(baseDatabaseName);
                 basedbConnected = true;
             }
             //create timeOut index
@@ -508,7 +858,7 @@ function loginAndRunFunction(base) {
                     fields: ['timeOut'],
                     name: 'timeOutIndex',
                     ddoc: 'timeOutIndexDDoc',
-                    type: 'json',
+                    type: 'json'
                 }
             }).then(function (doc) {
                 console.log(doc);
@@ -517,32 +867,43 @@ function loginAndRunFunction(base) {
                         fields: ['base', 'timeOut'],
                         name: 'baseTimeOutIndex',
                         ddoc: 'baseTimeOutIndexDDoc',
-                        type: 'json',
+                        type: 'json'
                     }
-                }).then(function (doc) {
-                    console.log(doc);
-                    return basedb.find({
-                        selector: {
-                            timeOut: {
-                                $gt: null
-                            },
-                            base: {
-                                $eq: base
-                            }
-                        },
-
-                        sort: ['timeOut']
-                    });
-                }).then(function (doc) {
-                    console.log(doc);
-                    updateTableFromFindQuery(doc, false);
-                }).then(function () {
-                    basedb.createIndex({
-                        index: {
-                            fields: ['base']
-                        }
-                    });
+                })
+            }).then(function (doc) {
+                basedb.createIndex({
+                    index: {
+                        fields: ['patrol'],
+                        name: 'patrolIndex',
+                        ddoc: 'patrolIndexDDoc',
+                        type: 'json'
+                    }
                 });
+
+            }).then(function (doc) {
+                console.log(doc);
+                return basedb.find({
+                    selector: {
+                        timeOut: {
+                            $gt: null
+                        },
+                        base: {
+                            $eq: base
+                        }
+                    },
+
+                    sort: ['timeOut']
+                });
+            }).then(function (doc) {
+                console.log(doc);
+                updateTableFromFindQuery(doc, false);
+            }).then(function () {
+                basedb.createIndex({
+                    index: {
+                        fields: ['base']
+                    }
+                });
+
             }).then(function () {
                 if (remotedbConnected == false) {
                     remotedb = new PouchDB(remotedbURL);
@@ -584,6 +945,8 @@ function loginAndRunFunction(base) {
                             console.log(err);
                         });
                 }
+            }).catch(function (err) {
+                console.log(err);
             });
 
 
@@ -624,6 +987,8 @@ function loginAndRunFunction(base) {
                 // Add the event handler only once when the page is first loaded.
                 $('#submitQuick').addClass('evtHandler');
                 $('#submitQuick').on('click', function () {
+                    base = getBaseNumber();
+                    //currentLocation = getGeolocation();
                     // set variables to the input values
                     sqPatrol = $('#patrolNo').val();
                     sqTimeIn = $('#timeIn').val();
@@ -636,7 +1001,7 @@ function loginAndRunFunction(base) {
                     if (sqPatrol == "") {
                         missingInformationMessage = '<p>Patrol number</p>';
                     }
-                    if (sqTotalScore == "" && sqOffRoute == false) {
+                    if (sqTotalScore == "" && sqOffRoute == false && base != 7) {
                         missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
                     }
                     if (missingInformationMessage != "") {
@@ -678,9 +1043,10 @@ function loginAndRunFunction(base) {
                         if (sqWait == "") {
                             sqWait = 0;
                         }
-                        if (sqTotalScore != "" && sqOffRoute) {
+                        if (sqTotalScore != "" && sqOffRoute || base == 7) {
                             sqTotalScore = '';
                         }
+
                         var patrolLog = {
                             _id: sqPatrol + '_base_' + base,
                             patrol: sqPatrol,
@@ -699,9 +1065,9 @@ function loginAndRunFunction(base) {
 
                         switch (sqOffRoute) {
                             case true:
-
+                                console.log(base);
                                 var offRoutePatrolLog = {
-                                    _id: sqPatrol + '_base_' + base + '_offRoute@' + timestamp,
+                                    _id: sqPatrol + '_base_' + base + '_offRoute_' + offRouteCounter,
                                     patrol: sqPatrol,
                                     base: base,
                                     username: name,
@@ -713,6 +1079,7 @@ function loginAndRunFunction(base) {
                                     editable: true,
                                     timestamp: timestamp
                                 }
+                                offRouteCounter++;
 
                                 tableUpdateFunction(offRoutePatrolLog, false);
                                 clearQuickAddInputs();
@@ -862,7 +1229,7 @@ ons.ready(function () {
 
     // --- login function ---
     if (appdbConnected == false) {
-        appdb = new PouchDB('opFounderAppDb');
+        appdb = new PouchDB(appDatabaseName);
         appdbConnected = true;
     }
     appdb.get('login').then(function (doc) { //this part next
@@ -880,6 +1247,30 @@ ons.ready(function () {
             });
 
         });
+
+    if (ons.platform.isWebView()) {
+
+
+        document.addEventListener("offline", onOffline, false);
+
+        function onOffline() {
+            // Handle the offline event
+            $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+        }
+
+        document.addEventListener("online", onOnline, false);
+
+        function onOnline() {
+            // Handle the online event
+            $('.offlineMessage').remove();
+
+            //alert('congrats you are online, connected via: ' + checkConnection());
+
+        }
+    }
+    navi.insertPage(0, 'map.html').then(function () {
+        createMap();
+    });
 
 
 
@@ -928,7 +1319,7 @@ ons.ready(function () {
                                         }).then(function () {
                                             ons.notification.alert({
                                                 title: 'Welcome ' + name,
-                                                message: 'Welcome to the Operation Founder admin app, here you can view all team scores as they come in.',
+                                                message: 'Welcome to the Operation Founder admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.',
                                                 cancelable: true
                                             });
                                         }).catch(function () {
@@ -942,8 +1333,8 @@ ons.ready(function () {
 
                                     });
                                 loginAndRunFunction(base);
-                            } else if (base == 7) {
-                                // roaming page 
+                                // } else if (base == 7) {
+                                //     // roaming page 
                             } else {
                                 console.log('pass your base is ' + base);
                                 // navi.bringPageTop('page1.html', {
@@ -961,7 +1352,7 @@ ons.ready(function () {
                                         }).then(function () {
                                             ons.notification.alert({
                                                 title: 'Welcome ' + name,
-                                                message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too.',
+                                                message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.',
                                                 cancelable: true
                                             });
                                         }).catch(function (err) {
@@ -1009,7 +1400,7 @@ ons.ready(function () {
             // -- table selection and actions --
             var adminSpeedDial = document.getElementById('adminSpeedDial');
             adminSpeedDial.hide();
-            var adminCurrentlySelected = [];
+            adminCurrentlySelected = [];
             $('#adminSpeedDial').removeClass('hide');
             if (!($('#adminLogsTable').hasClass('evtHandler'))) {
                 $('#adminLogsTable').addClass('evtHandler');
@@ -1074,6 +1465,69 @@ ons.ready(function () {
                 $('#adminUnlock').addClass('evtHandler');
                 $('#adminUnlock').on('click', function () {
                     lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
+                });
+            }
+            if (!($('#patrolSearch').hasClass('evtHandler'))) {
+                $('#patrolSearch').addClass('evtHandler');
+                var appended = false;
+                var hidden = false;
+                $('#patrolSearch').on('click', function () {
+                    if (!(appended)) {
+                        $(this).append('<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                        appended = true;
+                        $(document).ready(function () {
+                            $('#patrolSearchInput').focus();
+                            $('#patrolSearchInput').blur(function () {
+                                if ($(this).val() == '') {
+                                    $(this).toggleClass('hide');
+                                    hidden = true;
+                                    admindb.find({
+                                        selector: {
+                                            timeOut: {
+                                                $gt: null
+                                            }
+
+                                        },
+
+                                        sort: ['timeOut']
+                                    }).then(function (doc) {
+                                        console.log(doc);
+                                        $('#adminLogsTable').empty();
+                                        patrolRecordAdmin = [];
+                                        offRouteIndexAdmin = [];
+                                        updateTableFromFindQuery(doc, true);
+                                    });
+
+                                }
+                            });
+                        });
+
+                        $('#patrolSearchInput').on('keydown', function (e) {
+                            if (e.which == 13) {
+                                var patrolToSearch = $(this).val();
+                                admindb.find({
+                                    selector: {
+                                        timeOut: {
+                                            $gt: null
+                                        },
+                                        patrol: {
+                                            $eq: patrolToSearch
+                                        }
+                                    },
+
+                                    sort: ['timeOut']
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    $('#adminLogsTable').empty();
+                                    patrolRecordAdmin = [];
+                                    offRouteIndexAdmin = [];
+                                    updateTableFromFindQuery(doc, true);
+                                });
+                            }
+                        });
+                    } else if (hidden) {
+                        $('#patrolSearchInput').removeClass('hide');
+                    }
                 });
             }
 

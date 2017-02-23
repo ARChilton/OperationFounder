@@ -32,6 +32,9 @@ Accent Darker color: Orange 800: #EF6C00
 
 #loginLogo {
     width: 100%;
+    max-width: 800px;
+    display: block;
+    margin: auto;
 }
 
 #compassDiv {
@@ -94,14 +97,43 @@ Accent Darker color: Orange 800: #EF6C00
     background: rgba(255, 183, 77, 0.25);
 }
 
+.offlineMessage {
+    color: #a30d0d;
+    text-align: center;
+}
+
 
 /* -- Admin Page -- */
 
 .tableSelected {
-    background-color: #bbb;
+    background-color: #3F51B5;
+    /*background-color: #FFB74D;*/
 }
 
+.mdl-data-table tbody tr:hover {
+    background-color: #7986CB
+}
 
+#patrolSearchInput {
+    width: 100%;
+    max-width: 85%;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+#patrolSearchInput .text-input--material {
+    color: #fff;
+    background-image: linear-gradient(to top, transparent 1px, rgba(255, 255, 255, 0.5) 1px);
+}
+
+#patrolSearchInput .text-input--material__label {
+    color: rgb(255, 255, 255);
+}
+
+.lockedLog {
+    background-color: #0da324;
+    opacity: 0.7;
+}
 
 
 /* Text styles */
@@ -373,8 +405,14 @@ ons-splitter-mask {
 
 /* --- FAB BUTTONS --- */
 
+#fabLocate {
+    background-color: #fff;
+    border: 0px solid currentColor;
+    z-index: 99999;
+}
 
-/* The fab settings define the fab button's location */
+
+/*The fab settings define the fab button's location */
 
 
 /*.fab {
