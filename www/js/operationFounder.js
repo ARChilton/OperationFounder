@@ -21,10 +21,10 @@ var userCurrentlySelected;
 
 
 //database names
-var adminDatabaseName = 'adminDB';
-var baseDatabaseName = 'baseDB';
+var adminDatabaseName = 'adminDB1';
+var baseDatabaseName = 'baseDB1';
 var appDatabaseName = 'oppFounderLoginDb';
-var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_debug_1';
+var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_LIVE';
 
 // map variables
 var followGPS;
