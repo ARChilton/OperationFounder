@@ -16,7 +16,8 @@ var admindbConnected = false;
 var adminSyncInProgress = false;
 var baseSyncInProgress = false;
 var adminCurrentlySelected;
-var offRouteCounter = 1;
+var userCurrentlySelected;
+
 
 
 //database names
@@ -104,7 +105,7 @@ function onResume() {
 
 
 // destroys basedb and opFounderAppDb
-function destroyBasedb() {
+function destroyPouchDBs() {
     var x = new PouchDB(baseDatabaseName).destroy().then(function () {
         ons.notification.alert(baseDatabaseName + '/basedb database destroyed');
     });
@@ -453,10 +454,13 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
     $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
-
+    $('#' + trId).data('databaseInfo', {
+        dbId: dbId,
+        trId: trId,
+    });
 }
 
-function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId, location) {
+function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     console.log(dbId);
     var trId = dbId;
     // without checkboxes
@@ -467,7 +471,6 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
     $('#' + trId).data('databaseInfo', {
         dbId: dbId,
         trId: trId,
-        location: location
     });
 
 }
@@ -489,7 +492,7 @@ function tableUpdateFunction(path, admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
             updateAdminExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         } else {
-            updateAdminTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId, path.location);
+            updateAdminTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         }
 
     } else {
@@ -549,6 +552,44 @@ function clearQuickAddInputs() {
     $('#wait').val('0');
     $('#offRoute').removeProp('checked');
     $('#total').prop('disabled', false);
+
+}
+// User Edit function
+function editLog(logs) {
+    var logsLength = logs.length;
+    var timestamp = new Date().toISOString();
+
+    for (var i = 0, l = logsLength; i < l; i++) {
+        var id = logs[i].dbId;
+        var trId = logs[i].trId;
+        basedb.get(id)
+            .then(function (doc) {
+                switch (doc.editable) {
+                    case false:
+                        ons.notification.alert({
+                            title: 'No longer editable',
+                            message: 'This record has been updated by HQ and cannot be edited',
+                            cancelable: true
+                        });
+                        break;
+                    case true:
+                        $('#patrolNo').val(doc.patrol);
+                        $('#timeIn').val(doc.timeIn);
+                        $('#timeOut').val(doc.timeOut);
+                        $('#wait').val(doc.timeWait);
+                        $('#total').val(doc.totalScore);
+                        switch (doc.offRoute) {
+                            case true:
+                                console.log('should be checked');
+                                $('#offRoute').prop('checked', true);
+                                break;
+                            case false:
+                                $('#offRoute').prop('checked', false);
+                        }
+                        break;
+                }
+            });
+    }
 
 }
 
@@ -967,6 +1008,53 @@ function loginAndRunFunction(base) {
                     }
                 });
             }
+            var editFab = document.getElementById('fullEditFab');
+            editFab.hide();
+            userCurrentlySelected = [];
+            $('#fullEditFab').removeClass('hide');
+            if (!($('#logsTable').hasClass('evtHandler'))) {
+                $('#logsTable').addClass('evtHandler');
+                $('#logsTable').on('click', 'tr', function (e) {
+                    if ($(this).hasClass('tableSelected')) {
+                        $(this).removeClass('tableSelected');
+
+                        var dataInfo = $(this).data('databaseInfo');
+                        var index = userCurrentlySelected.indexOf(dataInfo);
+                        if (index > -1) {
+                            userCurrentlySelected.splice(index, 1);
+                        }
+                        console.log(userCurrentlySelected);
+                        if (!($('tr').hasClass('tableSelected'))) {
+                            editFab.hide();
+                        }
+                        // } else if (e.shiftKey == true) {
+                        //     $(this).addClass('tableSelected');
+                        //     // $('#adminSpeedDial').removeClass('hide');
+                        //     editFab.show();
+                        //     var dataInfo = $(this).data('databaseInfo');
+                        //     userCurrentlySelected.push(dataInfo);
+                        //     console.log(userCurrentlySelected);
+
+                    } else {
+                        $('tr').removeClass('tableSelected');
+                        $(this).addClass('tableSelected');
+                        // $('#adminSpeedDial').removeClass('hide');
+                        editFab.show();
+                        //clear all previously selected items from the array
+                        adminCurrentlySelected = [];
+                        // to get the dbId's off the element
+                        var dataInfo = $(this).data('databaseInfo');
+                        userCurrentlySelected.push(dataInfo);
+                        console.log(userCurrentlySelected);
+                    }
+                });
+            }
+            if (!($('#fullEditFab').hasClass('evtHandler'))) {
+                $('#fullEditFab').addClass('evtHandler');
+                $('#fullEditFab').on('click', function () {
+                    editLog(userCurrentlySelected);
+                });
+            }
             // Clear quick submit entries
             if (!($('#cancelSubmitQuick').hasClass('evtHandler'))) {
                 // Add the event handler only once when the page is first loaded.
@@ -997,7 +1085,10 @@ function loginAndRunFunction(base) {
                     sqOffRoute = $('#offRoute').prop('checked');
                     sqTotalScore = $('#total').val();
                     var missingInformationMessage = "";
-                    var timestamp = new Date().toISOString();
+                    var now = Date.now();
+                    var time = new Date();
+                    var timestamp = time.toISOString();
+
                     if (sqPatrol == "") {
                         missingInformationMessage = '<p>Patrol number</p>';
                     }
@@ -1025,19 +1116,19 @@ function loginAndRunFunction(base) {
                     //     });
                     // } 
                     else {
-                        if (sqPatrol < 10) {
-                            sqPatrol = '0' + sqPatrol;
-                        }
+                        // if (sqPatrol < 10) {
+                        //     sqPatrol = '0' + sqPatrol;
+                        // }
                         if (sqTimeIn == "") {
                             var date = new Date();
                             sqTimeIn = date.toLocaleTimeString();
-                        } else {
+                        } else if (sqTimeIn.length == 5) {
                             sqTimeIn = sqTimeIn + ':00';
                         }
                         if (sqTimeOut == "") {
                             var date = new Date();
                             sqTimeOut = date.toLocaleTimeString();
-                        } else {
+                        } else if (sqTimeOut.length == 5) {
                             sqTimeOut = sqTimeOut + ':00';
                         }
                         if (sqWait == "") {
@@ -1067,7 +1158,7 @@ function loginAndRunFunction(base) {
                             case true:
                                 console.log(base);
                                 var offRoutePatrolLog = {
-                                    _id: sqPatrol + '_base_' + base + '_offRoute_' + offRouteCounter,
+                                    _id: sqPatrol + '_base_' + base + '_offRoute_' + now,
                                     patrol: sqPatrol,
                                     base: base,
                                     username: name,
@@ -1079,7 +1170,7 @@ function loginAndRunFunction(base) {
                                     editable: true,
                                     timestamp: timestamp
                                 }
-                                offRouteCounter++;
+
 
                                 tableUpdateFunction(offRoutePatrolLog, false);
                                 clearQuickAddInputs();
@@ -1393,7 +1484,11 @@ ons.ready(function () {
             $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
             $('.quickAddTitle').html('Add new log from base ' + base);
 
+
+
         }
+
+        // these look similar but are seperate for admin and base users
         if ($('#adminPage').length) {
 
             // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
