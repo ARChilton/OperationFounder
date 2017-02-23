@@ -603,25 +603,25 @@ function deleteRecords(deleteDocs) {
     for (var i = 0, l = deletedDocsLength; i < l; i++) {
         var id = deleteDocs[i].dbId;
         var trId = deleteDocs[i].trId;
-        var options = {
-            _deleted: true
-        }
+
         admindb.get(id)
             .then(function (doc) {
                 admindb.put({
                     _id: id,
                     _rev: doc._rev,
                     username: name,
-                    timestamp: timestamp
-                }, options)
+                    timestamp: timestamp,
+                    _deleted: true
+                })
             }).catch(function (err) {
                 if (err.status != 404) {
                     admindb.put({
                         _id: id,
                         _rev: doc._rev,
                         username: name,
-                        timestamp: timestamp
-                    }, options);
+                        timestamp: timestamp,
+                        _deleted: true
+                    });
                 }
                 //else if (err.status == 404) {
                 //     ons.notification.alert({

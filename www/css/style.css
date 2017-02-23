@@ -134,8 +134,16 @@ Accent Darker color: Orange 800: #EF6C00
     background-color: #0da324;
     opacity: 0.7;
 }
-.mdl-data-table th:first-of-type {
-    padding-left: 16px;
+.mdl-data-table th:first-of-type, .mdl-data-table td:first-of-type {
+    padding-left: 5px;
+}
+.mdl-data-table td, .mdl-data-table th {
+    padding-left:16px;
+    padding-right:16px;
+    text-align: right;
+}
+.mdl-data-table th:last-of-type,.mdl-data-table td:last-of-type{
+    padding-right:16px;
 }
 
 
