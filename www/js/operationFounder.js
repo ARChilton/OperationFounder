@@ -78,7 +78,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
     // Now safe to use device APIs
-    console.log('deviceready');
+    //console.log('deviceready');
     if (cordova.platformId == 'android') {
         StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
 
@@ -89,7 +89,7 @@ document.addEventListener("pause", onPause, false);
 
 function onPause() {
     // Handle the pause event
-    console.log('devicePaused');
+    //console.log('devicePaused');
 
 
 }
@@ -97,7 +97,7 @@ document.addEventListener("resume", onResume, false);
 
 function onResume() {
     // Handle the resume event
-    console.log('deviceResume');
+    //console.log('deviceResume');
 
 
 }
@@ -126,13 +126,13 @@ function cleanAll() {
         placeholder: 'Enter admin code here',
     }).then(function (input) {
         if (input.toLowerCase() == baseCodes[0]) {
-            console.log('you have ended the world');
+            //console.log('you have ended the world');
             admindb.allDocs().then(function (doc) {
                 for (var i = 0, l = doc.total_rows; i < l; i++) {
 
                     var path = doc.rows[i];
                     var testForDesignDocs = '_design'
-                    console.log(path.id + ' ' + path.value.rev);
+                    //console.log(path.id + ' ' + path.value.rev);
                     if (testForDesignDocs.test(path.id)) {
                         var deletedRecord = {
                             _id: path.id,
@@ -145,16 +145,16 @@ function cleanAll() {
                             deletedRecord,
                             options
                         ).catch(function (err) {
-                            console.log(err);
+                            //console.log(err);
                         });
 
                     }
                 }
             }).then(function () {
                 admindb.compact().then(function (doc) {
-                    console.log(doc);
+                    //console.log(doc);
                 }).catch(function (err) {
-                    console.log(err);
+                    //console.log(err);
                 });
             });
         }
@@ -266,14 +266,14 @@ function createMap() {
             accuracyCircle.setLatLng(e.latlng);
             accuracyCircle.setRadius(accRadius);
 
-            // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
-            //console.log('followGPS = ' + followGPS);
+            // //console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+            ////console.log('followGPS = ' + followGPS);
             currentLatLon = e.latlng;
 
             if (followGPS) {
                 //map.setView(marker.getLatLng(),map.getZoom());
                 map.flyTo(marker.getLatLng(), map.getZoom());
-                console.log('I have moved because followGPS = ' + followGPS);
+                //console.log('I have moved because followGPS = ' + followGPS);
             }
         }
 
@@ -298,7 +298,7 @@ function createMap() {
                     /* This will change the styling of the fabLocate button */
                     $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
                     /*For testing*/
-                    console.log('following marker');
+                    //console.log('following marker');
 
                     break;
 
@@ -309,7 +309,7 @@ function createMap() {
                     /*This will change the styling of the fabLocate button*/
                     $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
                     /* For testing */
-                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
+                    //console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
 
                     break;
             }
@@ -337,17 +337,17 @@ function createMap() {
                 /*This updates the locate button by passing in the second switch option that turns the button off*/
                 locateButton(2);
                 /*For testing*/
-                // console.log('toggling locate button');
+                // //console.log('toggling locate button');
             }
         }
 
         $('#map').on("swipe tap click taphold", function () {
-            //console.log('map touched in some way');
+            ////console.log('map touched in some way');
             mapMove();
         })
         //This does the same but when the map is scrolled
         map.on('dragstart', function () {
-            // console.log('map dragged');
+            // //console.log('map dragged');
             mapMove();
 
         });
@@ -369,21 +369,21 @@ function createMap() {
 // }
 
 // function geolocationSuccess(position) {
-//     console.log('geolocationSuccess');
-//     console.log(position);
-//     console.log(position.coords.latitude)
+//     //console.log('geolocationSuccess');
+//     //console.log(position);
+//     //console.log(position.coords.latitude)
 //     location = {
 //         lat: position.coords.latitude,
 //         lon: position.coords.longitude
 //         //acc: position.coords.accuracy
 //     };
-//     console.log(location);
+//     //console.log(location);
 
 // }
 
 // function geolocationError(err) {
-//     console.log('geolocationError');
-//     console.log(err);
+//     //console.log('geolocationError');
+//     //console.log(err);
 // }
 
 // keeps track of which patrol entries have already been input
@@ -393,7 +393,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
             var index = patrolRecordAdmin.indexOf(id);
             //checks that it isn't an off route entry in which case we are happy to duplicate in the table
             if (index > -1) {
-                console.log('record already exists')
+                //console.log('record already exists')
                 return true;
             } else {
                 patrolRecordAdmin.push(id);
@@ -402,7 +402,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         } else {
             var index = offRouteIndexAdmin.indexOf(id);
             if (index > -1) {
-                console.log('record already exists')
+                //console.log('record already exists')
                 return true;
             } else {
                 offRouteIndexAdmin.push(id);
@@ -422,7 +422,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         } else {
             var index = offRouteIndex.indexOf(id);
             if (index > -1) {
-                console.log(id + 'record already exists')
+                //console.log(id + 'record already exists')
                 return true;
             } else {
                 offRouteIndex.push(id);
@@ -451,7 +451,7 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
 }
 
 function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
-    // console.log(tableId + ' ' + tableLogId);
+    // //console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
     $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
     $('#' + trId).data('databaseInfo', {
@@ -461,7 +461,7 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
 }
 
 function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
-    console.log(dbId);
+    //console.log(dbId);
     var trId = dbId;
     // without checkboxes
     $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
@@ -477,7 +477,7 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
 //standard update table or update exisiting row calling function
 function tableUpdateFunction(path, admin) {
 
-    console.log(path.patrol + ' ' + path.base + ' ' + path._id);
+    //console.log(path.patrol + ' ' + path.base + ' ' + path._id);
     if (admin == true) {
         // tableId = '#adminLogsTable';
         tableLogId = 'ad-log-';
@@ -517,7 +517,7 @@ function updateTableFromAllDocs(doc, admin) {
 // updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.docs
 function updateTableFromFindQuery(doc, admin) {
 
-    console.log('updating from find query');
+    //console.log('updating from find query');
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
         if (doc.docs[i].patrol.length > 0) {
@@ -580,7 +580,7 @@ function editLog(logs) {
                         $('#total').val(doc.totalScore);
                         switch (doc.offRoute) {
                             case true:
-                                console.log('should be checked');
+                                //console.log('should be checked');
                                 $('#offRoute').prop('checked', true);
                                 break;
                             case false:
@@ -666,7 +666,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
         var trId = lockDocs[i].trId;
         admindb.get(id)
             .then(function (doc) {
-                console.log(doc);
+                //console.log(doc);
                 switch (lock) {
                     case true:
                         doc.editable = false;
@@ -691,7 +691,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                 orientationLandscapeUpdate();
             })
             .catch(function (err) {
-                console.log(err);
+                //console.log(err);
             })
 
     }
@@ -768,7 +768,7 @@ function logOut() {
             });
         })
         .catch(function (err) {
-            console.log(err);
+            //console.log(err);
         });
 }
 
@@ -803,7 +803,7 @@ function loginAndRunFunction(base) {
                     type: 'json'
                 }
             }).then(function (doc) {
-                console.log(doc);
+                //console.log(doc);
                 admindb.createIndex({
                     index: {
                         fields: ['base', 'timeOut'],
@@ -822,7 +822,7 @@ function loginAndRunFunction(base) {
                         sort: ['timeOut']
                     });
                 }).then(function (doc) {
-                    console.log(doc);
+                    //console.log(doc);
                     updateTableFromFindQuery(doc, true);
                 });;
             }).then(function () {
@@ -840,27 +840,27 @@ function loginAndRunFunction(base) {
                         .on('change', function (doc) {
                             // yo, something changed!
 
-                            console.log(doc);
+                            //console.log(doc);
                             if (doc.direction == 'pull') {
-                                console.log('change occured in remote updating basedb');
+                                //console.log('change occured in remote updating basedb');
                                 var change = doc.change;
                                 updateTableFromFindQuery(change, true);
                             } else {
-                                console.log('updating remotedb'); //fixme needs to do something with pushes
+                                //console.log('updating remotedb'); //fixme needs to do something with pushes
                             }
                         }).on('paused', function (info) {
                             // replication was paused, usually because of a lost connection
-                            console.log(info);
+                            //console.log(info);
                         }).on('active', function (info) {
                             // replication was resumed
-                            console.log(info);
+                            //console.log(info);
                         }).on('error', function (err) {
                             // totally unhandled error (shouldn't happen)
-                            console.log(err);
+                            //console.log(err);
                         });
                 }
             }).catch(function (err) {
-                console.log(err);
+                //console.log(err);
             });
 
             break; // end of admin user code
@@ -902,7 +902,7 @@ function loginAndRunFunction(base) {
                     type: 'json'
                 }
             }).then(function (doc) {
-                console.log(doc);
+                //console.log(doc);
                 basedb.createIndex({
                     index: {
                         fields: ['base', 'timeOut'],
@@ -922,7 +922,7 @@ function loginAndRunFunction(base) {
                 });
 
             }).then(function (doc) {
-                console.log(doc);
+                //console.log(doc);
                 return basedb.find({
                     selector: {
                         timeOut: {
@@ -936,7 +936,7 @@ function loginAndRunFunction(base) {
                     sort: ['timeOut']
                 });
             }).then(function (doc) {
-                console.log(doc);
+                //console.log(doc);
                 updateTableFromFindQuery(doc, false);
             }).then(function () {
                 basedb.createIndex({
@@ -966,13 +966,13 @@ function loginAndRunFunction(base) {
                         .on('change', function (doc) {
                             // yo, something changed!
 
-                            console.log(doc);
+                            //console.log(doc);
                             if (doc.direction == 'pull') {
-                                console.log('change occured in remote updating basedb');
+                                //console.log('change occured in remote updating basedb');
                                 var change = doc.change;
                                 updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
                             } else {
-                                console.log('updating remotedb');
+                                //console.log('updating remotedb');
                                 //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
                                 // var change = doc.change;
                                 // updateTableFromFindQuery(change, false);
@@ -983,11 +983,11 @@ function loginAndRunFunction(base) {
                             // replication was resumed
                         }).on('error', function (err) {
                             // totally unhandled error (shouldn't happen)
-                            console.log(err);
+                            //console.log(err);
                         });
                 }
             }).catch(function (err) {
-                console.log(err);
+                //console.log(err);
             });
 
 
@@ -1023,7 +1023,7 @@ function loginAndRunFunction(base) {
                         if (index > -1) {
                             userCurrentlySelected.splice(index, 1);
                         }
-                        console.log(userCurrentlySelected);
+                        //console.log(userCurrentlySelected);
                         if (!($('tr').hasClass('tableSelected'))) {
                             editFab.hide();
                         }
@@ -1033,7 +1033,7 @@ function loginAndRunFunction(base) {
                         //     editFab.show();
                         //     var dataInfo = $(this).data('databaseInfo');
                         //     userCurrentlySelected.push(dataInfo);
-                        //     console.log(userCurrentlySelected);
+                        //     //console.log(userCurrentlySelected);
 
                     } else {
                         $('tr').removeClass('tableSelected');
@@ -1045,7 +1045,7 @@ function loginAndRunFunction(base) {
                         // to get the dbId's off the element
                         var dataInfo = $(this).data('databaseInfo');
                         userCurrentlySelected.push(dataInfo);
-                        console.log(userCurrentlySelected);
+                        //console.log(userCurrentlySelected);
                     }
                 });
             }
@@ -1156,7 +1156,7 @@ function loginAndRunFunction(base) {
 
                         switch (sqOffRoute) {
                             case true:
-                                console.log(base);
+                                //console.log(base);
                                 var offRoutePatrolLog = {
                                     _id: sqPatrol + '_base_' + base + '_offRoute_' + now,
                                     patrol: sqPatrol,
@@ -1207,7 +1207,7 @@ function loginAndRunFunction(base) {
                                                         });
                                                     }
                                                 }).catch(function (err) {
-                                                    console.log(err);
+                                                    //console.log(err);
                                                 });
                                                 break;
                                             case false:
@@ -1224,7 +1224,7 @@ function loginAndRunFunction(base) {
                                     }).catch(function (err) {
 
                                         if (err.status == 404) {
-                                            console.log('404 no prior record putting a new record');
+                                            //console.log('404 no prior record putting a new record');
                                             tableUpdateFunction(patrolLog, false);
                                             clearQuickAddInputs();
                                             return basedb.put(patrolLog);
@@ -1232,7 +1232,7 @@ function loginAndRunFunction(base) {
                                         } else if (err.status == 409) {
                                             switch (doc.editable) {
                                                 case true:
-                                                    console.log('409 putting anyway');
+                                                    //console.log('409 putting anyway');
                                                     clearQuickAddInputs();
                                                     var patrolLogUpdate = {
                                                         _id: doc._id,
@@ -1253,7 +1253,7 @@ function loginAndRunFunction(base) {
                                                     });
                                                     break;
                                                 case false:
-                                                    console.log('409 alert message');
+                                                    //console.log('409 alert message');
                                                     ons.notification.alert({
                                                         title: 'No longer editable',
                                                         message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
@@ -1277,7 +1277,7 @@ function loginAndRunFunction(base) {
         default:
             // --- incorrect login information
             alert('incorrect login information saved, please log in again');
-            console.log(err);
+            //console.log(err);
             navi.bringPageTop('loginPage.html', {
                 animation: 'none'
             });
@@ -1287,7 +1287,7 @@ function loginAndRunFunction(base) {
 }
 ons.ready(function () {
 
-    console.log('ons-ready function fired');
+    //console.log('ons-ready function fired');
     //make every device and webpage android styled for familiarity
     ons.forcePlatformStyling('android');
     // if the user has their phone set landscape on starting
@@ -1314,7 +1314,7 @@ ons.ready(function () {
     //listens to onsenui event for the splitter menu closing line 22815 of onsenui.js
     //removes the shadow when the menu closes
     $('#menu').on('postclose', function () {
-        console.log('menu closed');
+        //console.log('menu closed');
         $('#menu').removeClass('menuShadow');
     });
 
@@ -1331,8 +1331,8 @@ ons.ready(function () {
         })
         .catch(function (err) {
             // no log in info at all.. show log in screen
-            console.log('no log in info at all.. show log in screen');
-            console.log(err);
+            //console.log('no log in info at all.. show log in screen');
+            //console.log(err);
             navi.bringPageTop('loginPage.html', {
                 animation: 'none'
             });
@@ -1368,7 +1368,7 @@ ons.ready(function () {
     // ---  page change code ---
 
     document.addEventListener('postpush', function (event) {
-        console.log('page pushed');
+        //console.log('page pushed');
 
         // --- Log in Page ---
 
@@ -1427,7 +1427,7 @@ ons.ready(function () {
                                 // } else if (base == 7) {
                                 //     // roaming page 
                             } else {
-                                console.log('pass your base is ' + base);
+                                //console.log('pass your base is ' + base);
                                 // navi.bringPageTop('page1.html', {
                                 //     animation: 'fade'
                                 // });
@@ -1447,7 +1447,7 @@ ons.ready(function () {
                                                 cancelable: true
                                             });
                                         }).catch(function (err) {
-                                            console.log(err);
+                                            //console.log(err);
                                             ons.notification.alert({
                                                 title: 'Error saving user',
                                                 message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
@@ -1508,7 +1508,7 @@ ons.ready(function () {
                         if (index > -1) {
                             adminCurrentlySelected.splice(index, 1);
                         }
-                        console.log(adminCurrentlySelected);
+                        //console.log(adminCurrentlySelected);
                         if (!($('tr').hasClass('tableSelected'))) {
                             adminSpeedDial.hide();
                         }
@@ -1518,7 +1518,7 @@ ons.ready(function () {
                         adminSpeedDial.show();
                         var dataInfo = $(this).data('databaseInfo');
                         adminCurrentlySelected.push(dataInfo);
-                        console.log(adminCurrentlySelected);
+                        //console.log(adminCurrentlySelected);
 
                     } else {
                         $('tr').removeClass('tableSelected');
@@ -1530,7 +1530,7 @@ ons.ready(function () {
                         // to get the dbId's off the element
                         var dataInfo = $(this).data('databaseInfo');
                         adminCurrentlySelected.push(dataInfo);
-                        console.log(adminCurrentlySelected);
+                        //console.log(adminCurrentlySelected);
                     }
                 });
             }
@@ -1586,7 +1586,7 @@ ons.ready(function () {
 
                                         sort: ['timeOut']
                                     }).then(function (doc) {
-                                        console.log(doc);
+                                        //console.log(doc);
                                         $('#adminLogsTable').empty();
                                         patrolRecordAdmin = [];
                                         offRouteIndexAdmin = [];
@@ -1612,7 +1612,7 @@ ons.ready(function () {
 
                                     sort: ['timeOut']
                                 }).then(function (doc) {
-                                    console.log(doc);
+                                    //console.log(doc);
                                     $('#adminLogsTable').empty();
                                     patrolRecordAdmin = [];
                                     offRouteIndexAdmin = [];
