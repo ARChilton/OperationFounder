@@ -24,7 +24,7 @@ var userCurrentlySelected;
 var adminDatabaseName = 'adminDB1';
 var baseDatabaseName = 'baseDB1';
 var appDatabaseName = 'oppFounderLoginDb';
-var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_LIVE';
+var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_live';
 
 // map variables
 var followGPS;
@@ -169,9 +169,9 @@ function goToMap() {
     }).then(function () {
         map.invalidateSize();
     });
-    // setTimeout(function () {
-    //     map.invalidateSize()
-    // }, 200);
+    setTimeout(function () {
+        map.invalidateSize()
+    }, 3000);
 
     document.getElementById('menu').toggle();
     map.locate({
