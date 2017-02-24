@@ -17,6 +17,8 @@ var adminSyncInProgress = false;
 var baseSyncInProgress = false;
 var adminCurrentlySelected;
 var userCurrentlySelected;
+var deletedCount = 0
+var deleteNotificationCleared = true;
 
 //database names
 var adminDatabaseName = 'adminDB1';
@@ -593,7 +595,7 @@ function updateTableFromAllDocs(doc, admin) {
 function updateTableFromFindQuery(doc, admin) {
 
     console.log('updating from find query');
-    var deletedCount = 0
+
 
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
@@ -622,15 +624,21 @@ function updateTableFromFindQuery(doc, admin) {
     }
     if (deletedCount > 0) {
         if (deletedCount == 1) {
-            var logOrLogs = 'log';
+            var logOrLogs = 'a log';
         } else {
-            var logOrLogs = 'logs';
+            var logOrLogs = 'some logs';
         }
-        ons.notification.alert({
-            title: deletedCount + ' ' + logOrLogs,
-            messageHTML: 'HQ have deleted ' + deletedCount + ' ' + logOrLogs,
-            cancelable: true
-        });
+        if (deleteNotificationCleared) {
+            deleteNotificationCleared = false;
+            ons.notification.alert({
+                title: 'HQ deleted some logs',
+                messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
+                cancelable: true
+            }).then(function (input) {
+                deleteNotificationCleared = true;
+                deletedCount = 0;
+            });
+        }
     }
     orientationLandscapeUpdate();
 
@@ -1729,7 +1737,7 @@ ons.ready(function () {
                 var hidden = false;
                 $('#patrolSearch').on('click', function () {
                     if (!(appended)) {
-                        $(this).append('<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                        $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
                         appended = true;
                         $(document).ready(function () {
                             $('#patrolSearchInput').focus();
