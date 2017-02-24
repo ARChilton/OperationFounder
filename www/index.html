@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="js/mdl/material.css">
   <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
   <link rel="stylesheet" href="js/leaflet/leaflet.css">
-  <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->-->
+  <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
   <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
   <link rel="stylesheet" href="css/style.css">
@@ -192,26 +192,28 @@
         </div>
       </ons-toolbar>
       <!--Top half of screen-->
-      <table class="mdl-data-table mdl-js-data-table logTable">
-        <thead>
-          <tr>
-            <!--<th class="hide landscapeShow">
+      <div class="copyMe">
+        <table class="mdl-data-table mdl-js-data-table logTable">
+          <thead>
+            <tr>
+              <!--<th class="hide landscapeShow">
               <ons-input type='checkbox' id="selectAll"></ons-input>
             </th>-->
-            <th class="">Patrol</th>
-            <th>Base</th>
-            <th class="">Time in</th>
-            <th>Time out</th>
-            <th class="hide landscapeShow">Wait</th>
-            <th class="hide landscapeShow">Off route</th>
-            <th class="hide landscapeShow">Total score</th>
-            <th class="hide landscapeShow">Recorded by</th>
-            <th class="hide landscapeShow">edit</th>
-          </tr>
-        </thead>
-        <tbody id="adminLogsTable">
-        </tbody>
-      </table>
+              <th>Base</th>
+              <th class="">Patrol</th>
+              <th class="">Time in</th>
+              <th>Time out</th>
+              <th class="hide landscapeShow">Wait</th>
+              <th class="hide landscapeShow">Off route</th>
+              <th class="hide landscapeShow">Total score</th>
+              <th class="hide landscapeShow">Recorded by</th>
+              <th class="hide landscapeShow">edit</th>
+            </tr>
+          </thead>
+          <tbody id="adminLogsTable">
+          </tbody>
+        </table>
+      </div>
       <ons-speed-dial position="bottom right" direction="up" id="adminSpeedDial" class="hide">
         <ons-fab>
           <ons-icon icon="md-edit"></ons-icon>
@@ -224,6 +226,9 @@
         </ons-speed-dial-item>
         <ons-speed-dial-item id="adminDelete">
           <ons-icon icon="md-delete"></ons-icon>
+        </ons-speed-dial-item>
+        <ons-speed-dial-item id="adminCopyTable" class="clipBtn">
+          <ons-icon icon="md-copy"></ons-icon>
         </ons-speed-dial-item>
         <!--<ons-speed-dial-item id="adminShowMap">
           <ons-icon icon="md-map"></ons-icon>
@@ -239,7 +244,7 @@
         id="map" href='#'>
         <ons-toolbar>
           <div class="left">
-            <ons-toolbar-button onclick="mapBackButton()">
+            <ons-toolbar-button id="mapBackButton">
               <ons-icon icon="md-arrow-left"></ons-icon>
             </ons-toolbar-button>
           </div>
