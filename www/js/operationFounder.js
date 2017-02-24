@@ -18,9 +18,6 @@ var baseSyncInProgress = false;
 var adminCurrentlySelected;
 var userCurrentlySelected;
 
-
-
-
 //database names
 var adminDatabaseName = 'adminDB1';
 var baseDatabaseName = 'baseDB1';
@@ -140,11 +137,10 @@ function cleanAll() {
                     if (testForDesignDocs.test(path.id)) {
                         var deletedRecord = {
                             _id: path.id,
-                            _rev: path.value.rev
-                        }
-                        var options = {
+                            _rev: path.value.rev,
                             _deleted: true
                         }
+
                         admindb.put(
                             deletedRecord,
                             options
@@ -451,40 +447,97 @@ function patrolRecordUpdate(id, offRoute, admin) {
             return false; // returns without adding to the overwrite table list
         }
     }
+}
 
+// A function to remove a record from the patrol records list
+function removePatrolRecord(id, admin) {
 
+    switch (admin) {
+        case true:
+            var deleteIndex = patrolRecordAdmin.indexOf(id);
+            var offRouteDeleteIndex = offRouteIndexAdmin.indexOf(id);
+            if (deleteIndex > -1) {
+                patrolRecordAdmin.splice(deleteIndex, 1);
+                return true;
+            } else if (offRouteDeleteIndex > -1) {
+                offRouteIndexAdmin.splice(offRouteDeleteIndex, 1);
+                return true;
+            } else {
+                console.log('record isnt in the admin array of logs');
+                return false;
+            }
+            break;
+        case false:
+            var deleteIndex = patrolRecord.indexOf(id);
+            var offRouteDeleteIndex = offRouteIndex.indexOf(id);
+            if (deleteIndex > -1) {
+                patrolRecord.splice(deleteIndex, 1);
+                return true;
+            } else if (offRouteDeleteIndex > -1) {
+                offRouteIndex.splice(offRouteDeleteIndex, 1);
+                return true;
+            } else {
+                console.log('record isnt in the base logs');
+                return false;
+            }
+            break;
+    }
 
+}
+
+function editableStyling(editable, trId) {
+    if (!(editable)) {
+        $('#' + trId).addClass('lockedLog');
+        $('#' + trId + ' > .lockImage').addClass('padlockLocked');
+
+    } else {
+        $('#' + trId).removeClass('lockedLog');
+        $('#' + trId + ' > .lockImage').removeClass('padlockLocked');
+    }
+}
+
+// a function to remove an exisiting record from a base
+function removeExisiting(id, admin) {
+    $('#' + id).remove();
 }
 // functions to update the table or row according to the update table function
 function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     var trId = dbId;
-    $('#' + trId).html("<td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+    $('#' + trId).html("<td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+
+    //add editable styling
+    editableStyling(editable, trId);
 }
 
 function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     var trId = dbId;
     //without checkboxes
-    $('#' + trId).html("<td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+    $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
     //with checkboxes
     //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 
+    //add editable styling
+    editableStyling(editable, trId);
 }
 
 function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
-    $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold '>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
     $('#' + trId).data('databaseInfo', {
         dbId: dbId,
         trId: trId,
     });
+    //add editable styling
+    editableStyling(editable, trId);
+
 }
 
 function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     console.log(dbId);
     var trId = dbId;
     // without checkboxes
-    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
     //with checkboxes
 
     // $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
@@ -493,6 +546,8 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
         trId: trId,
     });
 
+    //add editable styling
+    editableStyling(editable, trId);
 }
 //standard update table or update exisiting row calling function
 function tableUpdateFunction(path, admin) {
@@ -526,7 +581,7 @@ function tableUpdateFunction(path, admin) {
 }
 // updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.rows
 function updateTableFromAllDocs(doc, admin) {
-
+    console.log('updating from all docs on local db');
     for (var i = 0, l = doc.total_rows; i < l; i++) {
 
         var path = doc.rows[i].doc;
@@ -538,22 +593,59 @@ function updateTableFromAllDocs(doc, admin) {
 function updateTableFromFindQuery(doc, admin) {
 
     console.log('updating from find query');
+    var deletedCount = 0
+
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
-        if (doc.docs[i].patrol.length > 0) {
+        var path = doc.docs[i];
+        if (path._deleted > 0) {
 
-            var path = doc.docs[i];
+
+            console.log(path._id + ' has been set to deleted in remotedb');
+            //if the record is the array of IDs in the table
+            if (removePatrolRecord(path._id, admin)) {
+                //remove the row # + ID 
+                $('#' + path._id).remove();
+                console.log(path._id + ' removed');
+
+                deletedCount++
+
+
+            }
+
+
+        } else if (path.patrol.length > 0) {
+
+
             tableUpdateFunction(path, admin);
         }
+    }
+    if (deletedCount > 0) {
+        if (deletedCount == 1) {
+            var logOrLogs = 'log';
+        } else {
+            var logOrLogs = 'logs';
+        }
+        ons.notification.alert({
+            title: deletedCount + ' ' + logOrLogs,
+            messageHTML: 'HQ have deleted ' + deletedCount + ' ' + logOrLogs,
+            cancelable: true
+        });
     }
     orientationLandscapeUpdate();
 
 }
+
+//delete from table function
+
+
 //checks the orientation and updates the GUI accordingly, landscape only
 function orientationLandscapeUpdate() {
     if (ons.orientation.isLandscape()) {
         $('.landscapeHide').addClass('hide');
         $('.landscapeShow').removeClass('hide');
+    } else {
+        console.log('portrait screen orientation');
     }
 }
 //for an orientation change this picks up both portrait and landscape
@@ -588,7 +680,7 @@ function editLog(logs) {
                     case false:
                         ons.notification.alert({
                             title: 'No longer editable',
-                            message: 'This record has been updated by HQ and cannot be edited',
+                            message: 'This record has been locked by HQ and cannot be edited',
                             cancelable: true
                         });
                         break;
@@ -867,6 +959,7 @@ function loginAndRunFunction(base) {
                             if (doc.direction == 'pull') {
                                 console.log('change occured in remote updating admindb');
                                 var change = doc.change;
+
                                 updateTableFromFindQuery(change, true);
                             } else {
                                 console.log('updating remotedb'); //fixme needs to do something with pushes
@@ -1040,37 +1133,45 @@ function loginAndRunFunction(base) {
             if (!($('#logsTable').hasClass('evtHandler'))) {
                 $('#logsTable').addClass('evtHandler');
                 $('#logsTable').on('click', 'tr', function (e) {
-                    if ($(this).hasClass('tableSelected')) {
-                        $(this).removeClass('tableSelected');
+                    if (!($(this).hasClass('lockedLog'))) {
+                        if ($(this).hasClass('tableSelected')) {
+                            $(this).removeClass('tableSelected');
 
-                        var dataInfo = $(this).data('databaseInfo');
-                        var index = userCurrentlySelected.indexOf(dataInfo);
-                        if (index > -1) {
-                            userCurrentlySelected.splice(index, 1);
-                        }
-                        console.log(userCurrentlySelected);
-                        if (!($('tr').hasClass('tableSelected'))) {
-                            editFab.hide();
-                        }
-                        // } else if (e.shiftKey == true) {
-                        //     $(this).addClass('tableSelected');
-                        //     // $('#adminSpeedDial').removeClass('hide');
-                        //     editFab.show();
-                        //     var dataInfo = $(this).data('databaseInfo');
-                        //     userCurrentlySelected.push(dataInfo);
-                        //     console.log(userCurrentlySelected);
+                            var dataInfo = $(this).data('databaseInfo');
+                            var index = userCurrentlySelected.indexOf(dataInfo);
+                            if (index > -1) {
+                                userCurrentlySelected.splice(index, 1);
+                            }
+                            console.log(userCurrentlySelected);
+                            if (!($('tr').hasClass('tableSelected'))) {
+                                editFab.hide();
+                            }
+                            // } else if (e.shiftKey == true) {
+                            //     $(this).addClass('tableSelected');
+                            //     // $('#adminSpeedDial').removeClass('hide');
+                            //     editFab.show();
+                            //     var dataInfo = $(this).data('databaseInfo');
+                            //     userCurrentlySelected.push(dataInfo);
+                            //     console.log(userCurrentlySelected);
 
+                        } else {
+                            $('tr').removeClass('tableSelected');
+                            $(this).addClass('tableSelected');
+                            // $('#adminSpeedDial').removeClass('hide');
+                            editFab.show();
+                            //clear all previously selected items from the array
+                            userCurrentlySelected = [];
+                            // to get the dbId's off the element
+                            var dataInfo = $(this).data('databaseInfo');
+                            userCurrentlySelected.push(dataInfo);
+                            console.log(userCurrentlySelected);
+                        }
                     } else {
-                        $('tr').removeClass('tableSelected');
-                        $(this).addClass('tableSelected');
-                        // $('#adminSpeedDial').removeClass('hide');
-                        editFab.show();
-                        //clear all previously selected items from the array
-                        adminCurrentlySelected = [];
-                        // to get the dbId's off the element
-                        var dataInfo = $(this).data('databaseInfo');
-                        userCurrentlySelected.push(dataInfo);
-                        console.log(userCurrentlySelected);
+                        ons.notification.alert({
+                            title: 'No longer editable',
+                            message: 'This record has been locked by HQ and cannot be edited',
+                            cancelable: true
+                        });
                     }
                 });
             }
@@ -1372,6 +1473,7 @@ ons.ready(function () {
         function onOffline() {
             // Handle the offline event
             $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+            $('.offlineMap').html('Local Map - Offline');
         }
 
         document.addEventListener("online", onOnline, false);
@@ -1379,6 +1481,8 @@ ons.ready(function () {
         function onOnline() {
             // Handle the online event
             $('.offlineMessage').remove();
+            $('.offlineMap').html('Local Map');
+
 
             //alert('congrats you are online, connected via: ' + checkConnection());
 

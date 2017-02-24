@@ -101,17 +101,47 @@ Accent Darker color: Orange 800: #EF6C00
     color: #a30d0d;
     text-align: center;
 }
+.offlineMessageMap{
+    color: #a30d0d;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index:999999;
+    
+    
+}
 
 
 /* -- Admin Page -- */
 
+.lockedLog {
+/*
+    background-color: #000;
+    opacity: 0.26;
+*/
+    color:rgba(0, 0, 0, 0.26);
+/*
+    background-image: url(../img/hq-lock_white.png);
+    background-repeat: no-repeat;
+    background-position: left;
+*/
+}
+.padlockLocked{
+    width:16px;
+   background-image: url(../img/hq-lock.png);
+    
+    background-repeat: no-repeat;
+    background-position: left;
+
+}
+
 .tableSelected {
     background-color: #3F51B5;
+    color: #fff;
     /*background-color: #FFB74D;*/
 }
 
 .mdl-data-table tbody tr:hover {
-    background-color: #7986CB
+    background-color: #7986CB;
+    color: #fff;
 }
 
 #patrolSearchInput {
@@ -130,20 +160,21 @@ Accent Darker color: Orange 800: #EF6C00
     color: rgb(255, 255, 255);
 }
 
-.lockedLog {
-    background-color: #0da324;
-    opacity: 0.7;
+.mdl-data-table th:first-of-type,
+.mdl-data-table td:first-of-type {
+/*    padding-left: px;*/
 }
-.mdl-data-table th:first-of-type, .mdl-data-table td:first-of-type {
-    padding-left: 5px;
-}
-.mdl-data-table td, .mdl-data-table th {
-    padding-left:16px;
-    padding-right:16px;
+
+.mdl-data-table td,
+.mdl-data-table th {
+    padding-left: 16px;
+    padding-right: 16px;
     text-align: right;
 }
-.mdl-data-table th:last-of-type,.mdl-data-table td:last-of-type{
-    padding-right:16px;
+
+.mdl-data-table th:last-of-type,
+.mdl-data-table td:last-of-type {
+    padding-right: 16px;
 }
 
 
