@@ -769,6 +769,7 @@ function logOutPageChange() {
 
 function logOut() {
     // $('#logsTable').empty();
+    //sync
     $('tbody').empty();
     logOutPageChange();
     document.getElementById('menu').toggle();
@@ -1609,6 +1610,12 @@ ons.ready(function () {
                         $temp.remove();
                     }
                     copyToClipboard();
+                    ons.notification.alert({
+                        title: 'Admin logs table added to clipboard',
+                        message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
+                        cancelable: true
+                    })
+
                 });
 
             }
