@@ -17,7 +17,6 @@ var adminSyncInProgress = false;
 var baseSyncInProgress = false;
 var adminCurrentlySelected;
 var userCurrentlySelected;
-var deletedCount = 0
 var deleteNotificationCleared = true;
 var attemptCount = 0;
 
@@ -611,28 +610,20 @@ function updateTableFromFindQuery(doc, admin) {
                 $('#' + path._id).remove();
                 console.log(path._id + ' removed');
 
-                deletedCount++
-                if (deletedCount > 0) {
-                    if (deletedCount == 1) {
-                        var logOrLogs = 'a log';
-                    } else {
-                        var logOrLogs = 'some logs';
-                    }
-                    if (deleteNotificationCleared) {
-                        deleteNotificationCleared = false;
-                        ons.notification.alert({
-                            title: 'HQ deleted some logs',
-                            messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
-                            cancelable: true
-                        }).then(function (input) {
-                            deleteNotificationCleared = true;
-                            deletedCount = 0;
-                        });
-                    }
+
+
+                if (deleteNotificationCleared) {
+                    deleteNotificationCleared = false;
+                    ons.notification.alert({
+                        title: 'HQ deleted some logs',
+                        messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
+                        cancelable: true
+                    }).then(function (input) {
+                        deleteNotificationCleared = true;
+
+                    });
                 }
-
             }
-
 
         } else if (path.patrol.length > 0) {
 
