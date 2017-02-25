@@ -19,6 +19,7 @@ var adminCurrentlySelected;
 var userCurrentlySelected;
 var deletedCount = 0
 var deleteNotificationCleared = true;
+var attemptCount = 0;
 
 //database names
 var adminDatabaseName = 'adminDB1';
@@ -611,7 +612,24 @@ function updateTableFromFindQuery(doc, admin) {
                 console.log(path._id + ' removed');
 
                 deletedCount++
-
+                if (deletedCount > 0) {
+                    if (deletedCount == 1) {
+                        var logOrLogs = 'a log';
+                    } else {
+                        var logOrLogs = 'some logs';
+                    }
+                    if (deleteNotificationCleared) {
+                        deleteNotificationCleared = false;
+                        ons.notification.alert({
+                            title: 'HQ deleted some logs',
+                            messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
+                            cancelable: true
+                        }).then(function (input) {
+                            deleteNotificationCleared = true;
+                            deletedCount = 0;
+                        });
+                    }
+                }
 
             }
 
@@ -622,24 +640,7 @@ function updateTableFromFindQuery(doc, admin) {
             tableUpdateFunction(path, admin);
         }
     }
-    if (deletedCount > 0) {
-        if (deletedCount == 1) {
-            var logOrLogs = 'a log';
-        } else {
-            var logOrLogs = 'some logs';
-        }
-        if (deleteNotificationCleared) {
-            deleteNotificationCleared = false;
-            ons.notification.alert({
-                title: 'HQ deleted some logs',
-                messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
-                cancelable: true
-            }).then(function (input) {
-                deleteNotificationCleared = true;
-                deletedCount = 0;
-            });
-        }
-    }
+
     orientationLandscapeUpdate();
 
 }
@@ -724,31 +725,48 @@ function deleteRecords(deleteDocs) {
         var id = deleteDocs[i].dbId;
         var trId = deleteDocs[i].trId;
 
-        admindb.get(id)
-            .then(function (doc) {
-                admindb.put({
-                    _id: id,
-                    _rev: doc._rev,
-                    username: name,
-                    timestamp: timestamp,
-                    _deleted: true
-                })
-            }).catch(function (err) {
-                if (err.status != 404) {
+
+        function writeUntilWritten(id) {
+
+            admindb.get(id)
+
+                .then(function (doc) {
+                    var origRev = doc._rev;
                     admindb.put({
                         _id: id,
-                        _rev: doc._rev,
+                        _rev: origRev,
                         username: name,
                         timestamp: timestamp,
                         _deleted: true
-                    });
-                }
-                //else if (err.status == 404) {
-                //     ons.notification.alert({
-                //         title: '404 not found',
-                //         message: 'The record you are trying to delete was not found, this might be because someone else has just deleted it.'
-                //     })
-            });
+                    })
+                }).catch(function (err) {
+                    if (err.status === 404) {
+                        admindb.put({
+                            _id: id,
+                            _rev: origRev,
+                            username: name,
+                            timestamp: timestamp,
+                            _deleted: true
+                        });
+                    }
+                    if (err.status === 409) {
+
+                        if (attemptCount < 5) {
+                            attemptCount++
+                            return writeUntilWritten(id);
+                        } else {
+                            console.log('409 could not be written');
+                        }
+                    }
+
+                    //else if (err.status == 404) {
+                    //     ons.notification.alert({
+                    //         title: '404 not found',
+                    //         message: 'The record you are trying to delete was not found, this might be because someone else has just deleted it.'
+                    //     })
+                });
+        }
+        writeUntilWritten(id);
         $('#' + trId).remove();
     }
 
@@ -877,7 +895,6 @@ function logOut() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
-
     appdb.get('login')
         .then(function (doc) {
             base = 999;
@@ -959,7 +976,7 @@ function loginAndRunFunction(base) {
                         retry: true
                     }
                     adminSyncInProgress = true;
-                    admindb.sync(remotedb, syncOptions)
+                    var adminSync = admindb.sync(remotedb, syncOptions)
                         .on('change', function (doc) {
                             // yo, something changed!
 
@@ -1088,7 +1105,7 @@ function loginAndRunFunction(base) {
                         live: true,
                         retry: true
                     }
-                    basedb.sync(remotedb, syncOptions)
+                    var syncBasedb = basedb.sync(remotedb, syncOptions)
                         .on('change', function (doc) {
                             // yo, something changed!
 
