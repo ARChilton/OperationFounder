@@ -24,7 +24,8 @@ var attemptCount = 0;
 var adminDatabaseName = 'adminDB1';
 var baseDatabaseName = 'baseDB1';
 var appDatabaseName = 'oppFounderLoginDb';
-var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_live';
+//var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/founderhq_live';
+var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
 
 // map variables
 var marker;
