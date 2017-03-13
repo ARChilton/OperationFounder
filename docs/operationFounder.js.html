@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: operationFounder.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: operationFounder.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Javascript for OperationFounder app
  * @copyright Adam Chilton 2017
  */
@@ -169,14 +197,14 @@ function destroyPouchDBs() {
 function cleanAll() {
     ons.notification.prompt({
         title: 'Clean all databases',
-        messageHTML: '<p>You are about to delete all items from the central database, this will propagate out to all other devices, are you sure you want to do this?</p><p>If yes please enter the admin passcode used to access the admin portion of the app</p>',
+        messageHTML: '&lt;p>You are about to delete all items from the central database, this will propagate out to all other devices, are you sure you want to do this?&lt;/p>&lt;p>If yes please enter the admin passcode used to access the admin portion of the app&lt;/p>',
         cancelable: true,
         placeholder: 'Enter admin code here',
     }).then(function (input) {
         if (input.toLowerCase() == baseCodes[0]) {
             console.log('you have ended the world');
             admindb.allDocs().then(function (doc) {
-                for (var i = 0, l = doc.total_rows; i < l; i++) {
+                for (var i = 0, l = doc.total_rows; i &lt; l; i++) {
 
                     var path = doc.rows[i];
                     var testForDesignDocs = '_design'
@@ -370,7 +398,7 @@ function createMap() {
                             /* This will update the variable which defines if the map follows the GPS marker */
                             followGPS = true;
                             /* This will change the styling of the fabLocate button */
-                            $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                            $('#fabLocateIcon').replaceWith("&lt;ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\">&lt;\/ons-icon>");
                             /*For testing*/
                             console.log('following marker');
 
@@ -381,7 +409,7 @@ function createMap() {
                             /* This updates whether the map follows the marker's GPS movements */
                             followGPS = false;
                             /*This will change the styling of the fabLocate button*/
-                            $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                            $('#fabLocateIcon').replaceWith("&lt;ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\">&lt;\/ons-icon>");
                             /* For testing */
                             console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
 
@@ -603,7 +631,7 @@ function removeExisiting(id, admin) {
  */
 function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     var trId = dbId;
-    $('#' + trId).html("<td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+    $('#' + trId).html("&lt;td class='bold lockImage'>" + patrolNo + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>");
 
     //add editable styling
     editableStyling(editable, trId);
@@ -624,9 +652,9 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
 function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     var trId = dbId;
     //without checkboxes
-    $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+    $('#' + trId).html("&lt;td class='lockImage'>" + base + "&lt;/td>&lt;td class='bold'>" + patrolNo + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td class='hide landscapeShow'>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow'>" + recordedBy + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>");
     //with checkboxes
-    //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
+    //$('#' + tableLogId + patrolNo + '-' + base).html("&lt;td class='hide landscapeShow'>&lt;ons-input type='checkbox'>&lt;/ons-input>&lt;/td>&lt;td class='bold'>" + patrolNo + "&lt;/td>&lt;td>" + base + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td class='hide landscapeShow'>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow'>" + recordedBy + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>");
 
     //add editable styling
     editableStyling(editable, trId);
@@ -648,7 +676,7 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
 function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
-    $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    $(tableId).prepend("&lt;tr id='" + trId + "'class=" + tableLogId + "'>&lt;td class='bold lockImage'>" + patrolNo + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>&lt;/tr>");
     $('#' + trId).data('databaseInfo', {
         dbId: dbId,
         trId: trId,
@@ -674,10 +702,10 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
     console.log(dbId);
     var trId = dbId;
     // without checkboxes
-    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    $(tableId).prepend("&lt;tr id='" + trId + "' class='" + tableLogId + "'>&lt;td class='lockImage'>" + base + "&lt;/td>&lt;td class='bold'>" + patrolNo + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td class='hide landscapeShow'>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow'>" + recordedBy + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>&lt;/tr>");
     //with checkboxes
 
-    // $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    // $(tableId).prepend("&lt;tr id='" + trId + "' class='" + tableLogId + "'>&lt;td class='hide landscapeShow'>&lt;ons-input type='checkbox'>&lt;/ons-input>&lt;/td>&lt;td class='bold'>" + patrolNo + "&lt;/td>&lt;td>" + base + "&lt;/td>&lt;td>" + timeIn + "&lt;/td>&lt;td>" + timeOut + "&lt;/td>&lt;td class='hide landscapeShow'>" + wait + "&lt;/td>&lt;td class='hide landscapeShow'>" + offRoute + "&lt;/td>&lt;td class='hide landscapeShow'>" + totalScore + "&lt;/td>&lt;td class='hide landscapeShow'>" + recordedBy + "&lt;/td>&lt;td class='hide landscapeShow editable'>" + editable + "&lt;/td>&lt;/tr>");
     $('#' + trId).data('databaseInfo', {
         dbId: dbId,
         trId: trId,
@@ -727,7 +755,7 @@ function tableUpdateFunction(path, admin) {
  */
 function updateTableFromAllDocs(doc, admin) {
     console.log('updating from all docs on local db');
-    for (var i = 0, l = doc.total_rows; i < l; i++) {
+    for (var i = 0, l = doc.total_rows; i &lt; l; i++) {
 
         var path = doc.rows[i].doc;
         tableUpdateFunction(path, admin);
@@ -744,7 +772,7 @@ function updateTableFromFindQuery(doc, admin) {
     console.log('updating from find query');
 
 
-    for (var i = 0, l = doc.docs.length; i < l; i++) {
+    for (var i = 0, l = doc.docs.length; i &lt; l; i++) {
 
         var path = doc.docs[i];
         if (path._deleted > 0) {
@@ -802,7 +830,7 @@ function editLog(logs) {
     var logsLength = logs.length;
     var timestamp = new Date().toISOString();
 
-    for (var i = 0, l = logsLength; i < l; i++) {
+    for (var i = 0, l = logsLength; i &lt; l; i++) {
         var id = logs[i].dbId;
         var trId = logs[i].trId;
         basedb.get(id)
@@ -846,7 +874,7 @@ function deleteRecords(deleteDocs) {
     var deletedDocsLength = deleteDocs.length;
     var timestamp = new Date().toISOString();
     //deleteDocs should be an array of database _id values for updating to status deleted = true
-    for (var i = 0, l = deletedDocsLength; i < l; i++) {
+    for (var i = 0, l = deletedDocsLength; i &lt; l; i++) {
         var id = deleteDocs[i].dbId;
         var trId = deleteDocs[i].trId;
 
@@ -879,7 +907,7 @@ function deleteRecords(deleteDocs) {
                     }
                     if (err.status === 409) {
 
-                        if (attemptCount < 5) {
+                        if (attemptCount &lt; 5) {
                             attemptCount++
                             return writeUntilWritten(id);
                         } else {
@@ -931,7 +959,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
             var message2 = 'stop';
             break;
     }
-    for (var i = 0, l = lockDocsLength; i < l; i++) {
+    for (var i = 0, l = lockDocsLength; i &lt; l; i++) {
         var id = lockDocs[i].dbId;
         var trId = lockDocs[i].trId;
         admindb.get(id)
@@ -983,7 +1011,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
  */
 function showOnMap(locations) {
     var locationsLength = locations.length;
-    for (var i = 0, l = locationsLength; i < l; i++) {
+    for (var i = 0, l = locationsLength; i &lt; l; i++) {
         var id = locations[i].dbId;
 
     }
@@ -1004,7 +1032,7 @@ function checkConnection() {
 //-- log in and out functions
 /**
  * Adds the current log in session to the appdb pouch database, utilises the base and name variables established via the log in process
- * @param {*} doc - the document previouts got via the db.get(<_id>) functionality
+ * @param {*} doc - the document previouts got via the db.get(&lt;_id>) functionality
  */
 function loginPut(doc) {
     var timestamp = new Date().toISOString();
@@ -1394,15 +1422,15 @@ function loginAndRunFunction(base) {
                     var timestamp = time.toISOString();
 
                     if (sqPatrol == "") {
-                        missingInformationMessage = '<p>Patrol number</p>';
+                        missingInformationMessage = '&lt;p>Patrol number&lt;/p>';
                     }
-                    if (sqTotalScore == "" && sqOffRoute == false && base != 7) {
-                        missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
+                    if (sqTotalScore == "" &amp;&amp; sqOffRoute == false &amp;&amp; base != 7) {
+                        missingInformationMessage = missingInformationMessage + '&lt;p>Total score for the patrol&lt;/p>';
                     }
                     if (missingInformationMessage != "") {
                         ons.notification.alert({
                             title: 'Missing fields',
-                            messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
+                            messageHTML: '&lt;p>This log entry is missing the following fields:&lt;/p>' + missingInformationMessage,
                             cancelable: true
                         });
                     } else if (sqTotalScore > 25) {
@@ -1420,7 +1448,7 @@ function loginAndRunFunction(base) {
                     //     });
                     // } 
                     else {
-                        // if (sqPatrol < 10) {
+                        // if (sqPatrol &lt; 10) {
                         //     sqPatrol = '0' + sqPatrol;
                         // }
                         if (sqTimeIn == "") {
@@ -1438,7 +1466,7 @@ function loginAndRunFunction(base) {
                         if (sqWait == "") {
                             sqWait = 0;
                         }
-                        if (sqTotalScore != "" && sqOffRoute || base == 7) {
+                        if (sqTotalScore != "" &amp;&amp; sqOffRoute || base == 7) {
                             sqTotalScore = '';
                         }
 
@@ -1663,7 +1691,7 @@ ons.ready(function () {
          */
         function onOffline() {
             // Handle the offline event
-            $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+            $('.logTable').before('&lt;div class="offlineMessage">&lt;ons-icon icon="md-refresh-sync-alert">&lt;/ons-icon> Offline - sync to HQ will resume when online&lt;div>');
             $('.offlineMap').html('Local Map - Offline');
         }
         /**
@@ -1706,7 +1734,7 @@ ons.ready(function () {
             if (!($('.loginButton').hasClass('evtHandler'))) {
                 $('.loginButton').addClass('evtHandler');
                 $('.loginButton').on('click', function () {
-                    if ($('#baseCode').val != '' && $('#userName').val() != '') {
+                    if ($('#baseCode').val != '' &amp;&amp; $('#userName').val() != '') {
                         var baseCodeInput = $('#baseCode').val().toLowerCase();
                         name = $('#userName').val();
                         base = baseCodes.indexOf(baseCodeInput);
@@ -1828,7 +1856,7 @@ ons.ready(function () {
         // these look similar but are seperate for admin and base users
         if ($('#adminPage').length) {
             ons.disableDeviceBackButtonHandler();
-            // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
+            // $('#opFounderMenu').append('&lt;ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases&lt;/ons-list-item>');
             // -- table selection and actions --
             var adminSpeedDial = document.getElementById('adminSpeedDial');
             adminSpeedDial.hide();
@@ -1918,7 +1946,7 @@ ons.ready(function () {
                 $('#adminCopyTable').on('click', function () {
                     //console.log($('#adminLogsTable').html());
                     function copyToClipboard(element) {
-                        var $temp = $("<input>");
+                        var $temp = $("&lt;input>");
                         $("body").append($temp);
                         $temp.val($('.copyMe').html()).select();
                         document.execCommand("copy");
@@ -1944,7 +1972,7 @@ ons.ready(function () {
                  */
                 $('#patrolSearch').on('click', function () {
                     if (!(appended)) {
-                        $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                        $(this).append('&lt;ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
                         appended = true;
                         $(document).ready(function () {
                             $('#patrolSearchInput').focus();
@@ -2010,4 +2038,26 @@ ons.ready(function () {
 
     });
 
-});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Events</h3><ul><li><a href="global.html#event:adminCopyTableclicked">adminCopyTable clicked</a></li><li><a href="global.html#event:adminDeleteclicked">adminDelete clicked</a></li><li><a href="global.html#event:adminLockclicked">adminLock clicked</a></li><li><a href="global.html#event:deviceReady-thedeviceisdeemedreadyinthecordovalifecycle">deviceReady - the device is deemed ready in the cordova lifecycle</a></li><li><a href="global.html#event:onsenuiisready">onsenui is ready</a></li><li><a href="global.html#event:patrolSearchclicked">patrolSearch clicked</a></li><li><a href="global.html#event:pause-theapphasbeensettopauseinthelifecycle">pause - the app has been set to pause in the lifecycle</a></li><li><a href="global.html#event:postpush-whenapageischangedorpushed">postpush - when a page is changed or pushed</a></li><li><a href="global.html#event:resume-theapphasbeenresumedinthelifecycle">resume - the app has been resumed in the lifecycle</a></li><li><a href="global.html#event:offline-whenthedevicetogoofflinewebViewonly">offline - when the device to go offline </a></li><li><a href="global.html#event:online-thedevicegoesonlinewebViewonly">online - the device goes online </a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkConnection">checkConnection</a></li><li><a href="global.html#cleanAll">cleanAll</a></li><li><a href="global.html#clearQuickAddInputs">clearQuickAddInputs</a></li><li><a href="global.html#createMap">createMap</a></li><li><a href="global.html#deleteRecords">deleteRecords</a></li><li><a href="global.html#destroyPouchDBs">destroyPouchDBs</a></li><li><a href="global.html#editableStyling">editableStyling</a></li><li><a href="global.html#editLog">editLog</a></li><li><a href="global.html#getBaseNumber">getBaseNumber</a></li><li><a href="global.html#goToMap">goToMap</a></li><li><a href="global.html#lockOrUnlockLogFromEdits">lockOrUnlockLogFromEdits</a></li><li><a href="global.html#loginAndRunFunction">loginAndRunFunction</a></li><li><a href="global.html#loginPut">loginPut</a></li><li><a href="global.html#logOut">logOut</a></li><li><a href="global.html#logOutPageChange">logOutPageChange</a></li><li><a href="global.html#mapBackButton">mapBackButton</a></li><li><a href="global.html#onDeviceReady">onDeviceReady</a></li><li><a href="global.html#onPause">onPause</a></li><li><a href="global.html#onResume">onResume</a></li><li><a href="global.html#orientationLandscapeUpdate">orientationLandscapeUpdate</a></li><li><a href="global.html#orientationUpdates">orientationUpdates</a></li><li><a href="global.html#patrolRecordUpdate">patrolRecordUpdate</a></li><li><a href="global.html#removeExisiting">removeExisiting</a></li><li><a href="global.html#removePatrolRecord">removePatrolRecord</a></li><li><a href="global.html#showOnMap">showOnMap</a></li><li><a href="global.html#tableUpdateFunction">tableUpdateFunction</a></li><li><a href="global.html#updateAdminExisting">updateAdminExisting</a></li><li><a href="global.html#updateAdminTable">updateAdminTable</a></li><li><a href="global.html#updateExisting">updateExisting</a></li><li><a href="global.html#updateTable">updateTable</a></li><li><a href="global.html#updateTableFromAllDocs">updateTableFromAllDocs</a></li><li><a href="global.html#updateTableFromFindQuery">updateTableFromFindQuery</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Mar 13 2017 23:10:01 GMT+0000 (GMT Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
