@@ -25,8 +25,9 @@ var attemptCount = 0;
 var adminDatabaseName = 'adminDB1';
 var baseDatabaseName = 'baseDB1';
 var appDatabaseName = 'oppFounderLoginDb';
-//var remotedbURL = 'http://central:vikings@vps358200.ovh.net:5984/adam_test_ssl';
-var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
+//var remotedbURL = 'http://@vps358200.ovh.net:5984/adam_test_ssl';
+//var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
+var remotedbURL = 'http://adam123:adam123@127.0.0.1:5984/adam123';
 
 // map variables
 var marker;
@@ -1687,6 +1688,9 @@ ons.ready(function () {
     navi.insertPage(0, 'map.html').then(function () {
         createMap();
     });
+    
+    //for dev purposes
+    navi.bringPageTop('createEventPage.html');
 
 
 

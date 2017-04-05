@@ -1,3 +1,4 @@
+
 /* App colours */
 
 
@@ -17,20 +18,20 @@ Accent Darker color: Orange 800: #EF6C00
 
 /*LoginPage*/
 
-.loginInput {
+.fullWidthInput {
     width: 100%;
 }
 
-.loginPageDiv {
+.pageDiv {
     position: absolute;
-    top: 32px;
+/*    top: 32px;*/
     left: 16px;
     right: 16px;
     z-index: 2;
     /*background: #ccc;*/
 }
 
-#loginLogo {
+.loginLogo {
     width: 100%;
     max-width: 800px;
     display: block;
@@ -51,6 +52,61 @@ Accent Darker color: Orange 800: #EF6C00
     margin: auto;
 }
 
+
+/*create Event page*/
+
+.flex{
+    display: flex;
+}
+.flexRow{
+    flex-direction: row;
+}
+.flexWrap{
+    flex-wrap: wrap;
+}
+.flexAlignFlexStart{
+    align-items: flex-start;
+}
+.flexAlignCenter{
+    align-items: center;
+}
+.flexSpaceBetween{
+    justify-content: space-between;
+}
+.eventItemTitle{
+    flex:auto;
+    
+    text-align: left;
+}
+.eventItemCaption{
+    align-self: flex-end;
+    text-align: left;
+/*    flex:0, auto;*/
+}
+.eventItemSwitch{
+    flex:1,1,auto;
+   
+    text-align: right; 
+}
+.eventItemSpacer{
+    width:90px;
+    flex:auto;
+    height:100%
+}
+.ripple{
+    z-index: -10;
+}
+.maxScore{
+    flex:auto;
+}
+.maxScoreInput{
+    flex:auto;
+    
+    text-align: right;
+}
+.addBaseButton{
+    background-color: #FF9100;
+}
 
 /*Page 1*/
 
@@ -85,10 +141,6 @@ Accent Darker color: Orange 800: #EF6C00
     margin-right: 16px;
 }
 
-.txtRight {
-    text-align: right;
-}
-
 .logTable {
     width: 100%;
 }
@@ -101,36 +153,34 @@ Accent Darker color: Orange 800: #EF6C00
     color: #a30d0d;
     text-align: center;
 }
-.offlineMessageMap{
+
+.offlineMessageMap {
     color: #a30d0d;
     background-color: rgba(255, 255, 255, 0.5);
-    z-index:999999;
-    
-    
+    z-index: 999999;
 }
 
 
 /* -- Admin Page -- */
 
 .lockedLog {
-/*
+    /*
     background-color: #000;
     opacity: 0.26;
 */
-    color:rgba(0, 0, 0, 0.26);
-/*
+    color: rgba(0, 0, 0, 0.26);
+    /*
     background-image: url(../img/hq-lock_white.png);
     background-repeat: no-repeat;
     background-position: left;
 */
 }
-.padlockLocked{
-    width:16px;
-   background-image: url(../img/hq-lock.png);
-    
+
+.padlockLocked {
+    width: 16px;
+    background-image: url(../img/hq-lock.png);
     background-repeat: no-repeat;
     background-position: left;
-
 }
 
 .tableSelected {
@@ -160,10 +210,11 @@ Accent Darker color: Orange 800: #EF6C00
     color: rgb(255, 255, 255);
 }
 
-.mdl-data-table th:first-of-type,
+
+/*.mdl-data-table th:first-of-type,
 .mdl-data-table td:first-of-type {
-/*    padding-left: px;*/
-}
+        padding-left: px;
+}*/
 
 .mdl-data-table td,
 .mdl-data-table th {
@@ -201,9 +252,21 @@ p {
 .caption {
     font-size: 12px;
 }
+.h3NoStyling{
+    font-size: 14px;
+    font-weight: 400;
+}
 
 .txtCenter {
     text-align: center;
+}
+
+.txtRight {
+    text-align: right;
+}
+
+.txtLeft {
+    text-align: left;
 }
 
 .relative {
@@ -213,6 +276,41 @@ p {
 .bold {
     font-weight: bold !important;
 }
+.borderBottom{
+    
+    border-bottom: thin solid #ccc;
+    
+    
+}
+
+/*element styles*/
+
+.marginRight {
+    margin-right: 16px;
+}
+
+.marginLeft {
+    margin-left: 16px;
+}
+
+.marginTop {
+    margin-top: 16px;
+}
+.marginTop32px{
+    margin-top:32px;
+}
+.marginBottom{
+    margin-bottom: 16px;
+}
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
+    float: right;
+}
+
+
 
 
 /* page indicators */
@@ -252,26 +350,12 @@ p {
 
 /* General OnsenUI CSS */
 
+
+
 .text-page {
     position: absolute;
-    left: 10px;
-    right: 10px;
-}
-
-.marginRight {
-    margin-right: 16px;
-}
-
-.marginTop {
-    margin-top: 16px;
-}
-
-.floatLeft {
-    float: left;
-}
-
-.floatRight {
-    float: right;
+    left: 16px;
+    right: 16px;
 }
 
 
@@ -368,81 +452,7 @@ ons-splitter-mask {
 }
 
 
-/*Flex box for the search bar*/
 
-.flexible {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.flexNone {
-    flex: 0 1 auto;
-    /* NEW, Spec - Opera 12.1, Firefox 20+ */
-}
-
-.flexGrow {
-    flex: 10 3;
-    /* NEW, Spec - Opera 12.1, Firefox 20+ */
-}
-
-
-/*Autocomplete styling*/
-
-#autocomplete-response-container {
-    position: absolute;
-    top: 74px;
-    z-index: 0;
-}
-
-.autocomplete-suggestions {
-    border: none;
-    overflow: auto;
-}
-
-.autocomplete-suggestion {
-    white-space: nowrap;
-    overflow: hidden;
-    margin: 0px;
-}
-
-.autocomplete-selected {
-    background: #F0F0F0;
-}
-
-.autocomplete-suggestions strong {
-    font-weight: normal;
-    color: #009688;
-}
-
-.autocomplete-group {
-    /*    padding: 2px 5px;*/
-    border: 0px;
-    border-bottom: 1px solid #009688;
-    color: #009688;
-    font-weight: 700;
-}
-
-
-/* Search page generic styling */
-
-.searchTopBG {
-    height: 86px;
-    z-index: 1 !important;
-    top: 0px;
-    bottom: auto;
-    left: 0px;
-    right: 0px;
-}
-
-.searchTopBG-ios-other {
-    height: 74px;
-    z-index: 1 !important;
-    top: 0px;
-    bottom: auto;
-    left: 0px;
-    right: 0px;
-}
 
 
 /* --- FAB BUTTONS --- */
@@ -482,9 +492,7 @@ ons-splitter-mask {
 
 /* These settings define the fab icon's locations to align them centrally*/
 
-.carVAlign.ons-icon--ion {
-    vertical-align: 0%;
-}
+
 
 .locateNotSelected {
     color: #000;
@@ -609,3 +617,4 @@ ons-splitter-mask {
     width: auto;
     min-width: 50px;
 }
+

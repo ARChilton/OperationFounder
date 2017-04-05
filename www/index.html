@@ -59,17 +59,154 @@
     </ons-page>
   </ons-template>
   <!-- End of Menu Page -->
+  <!-- Start of Sign In page -->
+  <ons-template id="signInPage.html">
+    <ons-page id="signInPage">
+      <div class="pageDiv">
+        <img src="img/operationFounder.png" class="loginLogo">
+        <form id="signInForm">
+          <ons-input id="signInUserName" modifier="underbar" placeholder="Username" float class="fullWidthInput marginTop"></ons-input>
+          <ons-input id="signInPassword" modifier="underbar" placeholder="Password" float type="password" class="fullWidthInput marginTop"></ons-input>
+          <ons-button class="signUpButton">Sign Up</ons-button>
+          <ons-button class="signInButton">Login</ons-button>
+        </form>
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of signInPage -->
+  <!-- Start of signUpPage -->
+  <ons-template id="signUpPage.html">
+    <ons-page id="signUpPage">
+      <div class="pageDiv txtCenter">
+        <h1>The first step towards managing your event..</h1>
+        <form>
+          <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop"></ons-input>
+          <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop" required></ons-input>
+          <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
+          <p>
+            <ons-button modifier="large" class="signUpInputButton">Create My Account</ons-button>
+          </p>
+        </form>
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of sign up page -->
+  <!-- Start of Create Event page -->
+  <ons-template id="createEventPage.html">
+    <ons-page id="createEventPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Create Event
+        </div>
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon icon="md-check" id="saveEvent"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+      </ons-toolbar>
+      <div class="pageDiv txtCenter">
+
+        <form class="marginTop">
+          <ons-input id="eventName" modifier="underbar" placeholder="Event name" float type="text" class="fullWidthInput marginTop"
+            autofocus></ons-input>
+          <textarea class="textarea marginTop" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
+          <p class="txtLeft bold marginTop">Event date</p>
+          <div class="flex flexRow flexSpaceBetween flexWrap">
+            <div class="bold caption">Start
+              <ons-input type="date" class="marginLeft marginRight" required></ons-input>
+            </div>
+            <div class="bold caption txtRight">End
+              <ons-input type="date" class="marginLeft" required></ons-input>
+            </div>
+
+          </div>
+          <h1>placeholder for image upload</h1>
+          <div>
+            <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
+            <div class="flex flexRow flexAlignFlexStart">
+
+              <div class="eventItemTitle bold h3NoStyling">
+                Password protect base logs
+              </div>
+
+              <div class="eventItemSwitch">
+                <ons-switch checked></ons-switch>
+              </div>
+
+            </div>
+            <div class="flex flexRow flexAlignFlexStart">
+              <div class="eventItemCaption">
+                <p class="caption">
+                  This will require those using the app/website to add an additional unique passcode in order to read or enter log entries.
+                  If this option is turned off all users with the event log-in will be able to select the base they are logging
+                  visits for from a drop down list.
+                </p>
+
+              </div>
+              <div class="eventItemSpacer"></div>
+            </div>
+          </div>
+          <div>
+            <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
+            <div class="flex flexRow flexAlignFlexStart">
+
+              <div class="eventItemTitle bold h3NoStyling">
+                Log off route entries
+              </div>
+
+              <div class="eventItemSwitch">
+                <ons-switch checked></ons-switch>
+              </div>
+
+            </div>
+            <div class="flex flexRow flexAlignFlexStart">
+              <div class="eventItemCaption">
+                <p class="caption">
+                  This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
+                  is useful from a safety perspective as every team sighting is recorded.
+                </p>
+
+              </div>
+              <div class="eventItemSpacer"></div>
+            </div>
+          </div>
+          <h2 class="txtLeft bold borderBottom">Bases</h2>
+          <div>
+            <p class="txtLeft bold">Base 1</p>
+            <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+            <div class="flex flexRow flexSpaceBetween marginTop">
+              <div class="caption bold">Maximum Score Available</div>
+              <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max Score" float type="number" class="baseMaxScore" required></ons-input>
+            </div>
+            <div class="flex flexRow flexSpaceBetween marginTop">
+              <div class="caption bold">Base password</div>
+              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="number" class="basePassword" required></ons-input>
+            </div>
+            <textarea class="textarea marginTop" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+          </div>
+
+          <ons-button modifier="large" class="addBaseButton marginTop marginBottom">Add Base</ons-button>
+
+        </form>
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of createEventPage page -->
+  <!-- Start of loginPage -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">
-      <div class="loginPageDiv">
-        <img src="img/operationFounder.png" id="loginLogo">
+      <div class="pageDiv marginTop32px">
+        <img src="img/operationFounder.png" class="loginLogo">
         <p class="marginTop">Welcome to the Operation Founder app, please enter your name and base code below:</p>
         <p>
-          <ons-input id="userName" modifier="underbar" placeholder="Name" float class="loginInput marginTop"></ons-input>
+          <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput marginTop"></ons-input>
         </p>
         <p>This is the short code provided to you by the Operation Founder organisers.</p>
         <p>
-          <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="loginInput marginTop"></ons-input>
+          <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="fullWidthInput marginTop"></ons-input>
         </p>
         <p class="caption">(Each code is individual to each base)</p>
         <p class="txtCenter marginTop">
@@ -238,6 +375,7 @@
           <ons-icon icon="md-map"></ons-icon>
         </ons-speed-dial-item>-->
       </ons-speed-dial>
+    </ons-page>
   </ons-template>
   <ons-template id="map.html">
     <ons-page id="mapPage">
