@@ -1,4 +1,3 @@
-
 /* App colours */
 
 
@@ -15,6 +14,71 @@ Accent Darker color: Orange 800: #EF6C00
 
 /*Operation Founder CSS*/
 
+.secondaryColorButton {
+    background-color: #FF9100;
+}
+
+.secondaryColorButton:active {
+    background-color: #FF9100;
+}
+
+.primaryColor {
+    color: #3F51B5;
+}
+
+
+/*signIn page*/
+
+.input70perWidth {
+    width: 70%;
+    max-width: 300px;
+}
+
+.bottomDiv {
+    background-color: #283593;
+    color: #fff;
+    padding-right: 16px;
+}
+
+.maxWidth {
+    max-width: 400px;
+}
+
+.asUsedByLogo {
+    width: 100%;
+    max-width: 300px;
+    display: block;
+    margin: auto;
+}
+
+.logoBackground {
+    padding: 32px 16px 0px
+}
+
+@media screen and (min-width: 650px) {
+    .logoBackground {
+        width: 100%;
+        background-image: url(../img/background.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        padding: 32px 0px 32px;
+    }
+    .signInFormDiv {
+        min-width: 300px;
+        width: 40%;
+        max-width: 400px;
+        float: right;
+        background-color: #fff;
+        padding: 0px 0px 16px 16px;
+    }
+    .asUsedByLogo {
+        width: 100%;
+        max-width: 300px;
+        display: block;
+        margin: 0px auto 0px 16px;
+    }
+}
+
 
 /*LoginPage*/
 
@@ -23,11 +87,14 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 .pageDiv {
+    /*
     position: absolute;
-/*    top: 32px;*/
+
     left: 16px;
     right: 16px;
     z-index: 2;
+*/
+    padding: 0px 16px;
     /*background: #ccc;*/
 }
 
@@ -53,60 +120,87 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 
-/*create Event page*/
+/*flex*/
 
-.flex{
+.flex {
     display: flex;
 }
-.flexRow{
+
+.flexRow {
     flex-direction: row;
 }
-.flexWrap{
+
+.flexColumn {
+    flex-direction: column;
+}
+
+.flexWrap {
     flex-wrap: wrap;
 }
-.flexAlignFlexStart{
+
+.flexAlignFlexStart {
     align-items: flex-start;
 }
-.flexAlignCenter{
+
+.flexAlignCenter {
     align-items: center;
 }
-.flexSpaceBetween{
+
+.flexSpaceBetween {
     justify-content: space-between;
 }
-.eventItemTitle{
-    flex:auto;
-    
+
+.flexJustifyCenter {
+    justify-content: center;
+}
+
+
+/*create Event page*/
+
+.eventItemTitle {
+    flex: auto;
     text-align: left;
 }
-.eventItemCaption{
+
+.eventItemCaption {
     align-self: flex-end;
     text-align: left;
-/*    flex:0, auto;*/
+    /*    flex:0, auto;*/
 }
-.eventItemSwitch{
-    flex:1,1,auto;
-   
-    text-align: right; 
-}
-.eventItemSpacer{
-    width:90px;
-    flex:auto;
-    height:100%
-}
-.ripple{
-    z-index: -10;
-}
-.maxScore{
-    flex:auto;
-}
-.maxScoreInput{
-    flex:auto;
-    
+
+.eventItemSwitch {
+    flex: 1, 1, auto;
     text-align: right;
 }
-.addBaseButton{
+
+.eventItemSpacer {
+    width: 90px;
+    flex: auto;
+    height: 100%
+}
+
+.ripple {
+    z-index: -10;
+}
+
+.maxScore {
+    flex: auto;
+}
+
+.maxScoreInput {
+    flex: auto;
+    text-align: right;
+}
+
+.addBaseButton {
     background-color: #FF9100;
 }
+
+#eventBannerInputLabel {
+    width: 100%;
+    max-height: 300px;
+}
+
 
 /*Page 1*/
 
@@ -252,7 +346,8 @@ p {
 .caption {
     font-size: 12px;
 }
-.h3NoStyling{
+
+.h3NoStyling {
     font-size: 14px;
     font-weight: 400;
 }
@@ -276,14 +371,17 @@ p {
 .bold {
     font-weight: bold !important;
 }
-.borderBottom{
-    
+
+.borderBottom {
     border-bottom: thin solid #ccc;
-    
-    
 }
 
+
 /*element styles*/
+
+.marginAuto {
+    margin: auto;
+}
 
 .marginRight {
     margin-right: 16px;
@@ -296,12 +394,19 @@ p {
 .marginTop {
     margin-top: 16px;
 }
-.marginTop32px{
-    margin-top:32px;
+
+.marginTop32px {
+    margin-top: 32px;
 }
-.marginBottom{
+
+.marginBottom {
     margin-bottom: 16px;
 }
+
+.marginLeftAuto {
+    margin-left: auto;
+}
+
 .floatLeft {
     float: left;
 }
@@ -309,8 +414,6 @@ p {
 .floatRight {
     float: right;
 }
-
-
 
 
 /* page indicators */
@@ -349,8 +452,6 @@ p {
 
 
 /* General OnsenUI CSS */
-
-
 
 .text-page {
     position: absolute;
@@ -452,9 +553,6 @@ ons-splitter-mask {
 }
 
 
-
-
-
 /* --- FAB BUTTONS --- */
 
 #fabLocate {
@@ -491,8 +589,6 @@ ons-splitter-mask {
 
 
 /* These settings define the fab icon's locations to align them centrally*/
-
-
 
 .locateNotSelected {
     color: #000;
@@ -617,4 +713,3 @@ ons-splitter-mask {
     width: auto;
     min-width: 50px;
 }
-

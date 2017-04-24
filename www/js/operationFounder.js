@@ -1631,26 +1631,39 @@ ons.ready(function () {
         $('#menu').removeClass('menuShadow');
     });
 
-    // --- login function ---
-    if (appdbConnected == false) {
-        appdb = new PouchDB(appDatabaseName);
-        appdbConnected = true;
-    }
-    appdb.get('login').then(function (doc) { //this part next
-            base = doc.base;
-            name = doc.name;
-            appdbConnected = true;
-            loginAndRunFunction(base);
-        })
-        .catch(function (err) {
-            // no log in info at all.. show log in screen
-            console.log('no log in info at all.. show log in screen');
-            console.log(err);
-            navi.bringPageTop('loginPage.html', {
-                animation: 'none'
-            });
+    // --- End of Menu Controls ---
 
+    /**
+     * First page to load's code
+     */
+    $('.signUpButton').addClass('evtHandler');
+    $('.signUpButton').on('click', function () {
+        console.log('should be changing pages');
+        navi.bringPageTop('signUpPage.html', {
+            animation: 'none'
         });
+    });
+    //the login function will need to move somewhere further inside the app.
+    /* // --- login function ---
+     if (appdbConnected == false) {
+         appdb = new PouchDB(appDatabaseName);
+         appdbConnected = true;
+     }
+     appdb.get('login').then(function (doc) { //this part next
+             base = doc.base;
+             name = doc.name;
+             appdbConnected = true;
+             loginAndRunFunction(base);
+         })
+         .catch(function (err) {
+             // no log in info at all.. show log in screen
+             console.log('no log in info at all.. show log in screen');
+             console.log(err);
+             navi.bringPageTop('loginPage.html', {
+                 animation: 'none'
+             });
+
+         });*/
 
     if (ons.platform.isWebView()) {
 
@@ -1688,9 +1701,9 @@ ons.ready(function () {
     navi.insertPage(0, 'map.html').then(function () {
         createMap();
     });
-    
+
     //for dev purposes
-    navi.bringPageTop('createEventPage.html');
+    // navi.bringPageTop('createEventPage.html');
 
 
 
@@ -1701,267 +1714,392 @@ ons.ready(function () {
      */
     document.addEventListener('postpush', function (event) {
         console.log('page pushed');
+        switch (navi.topPage.name) {
+            //--- Create Event Page ---
+            case 'signInPage.html':
 
-        // --- Log in Page ---
+                break;
+            case 'createEventPage.html':
 
-        if ($('#loginPage').length) {
-            //loginPage.html
-            ons.disableDeviceBackButtonHandler();
-            if (!($('.loginButton').hasClass('evtHandler'))) {
-                $('.loginButton').addClass('evtHandler');
-                $('.loginButton').on('click', function () {
-                    if ($('#baseCode').val != '' && $('#userName').val() != '') {
-                        var baseCodeInput = $('#baseCode').val().toLowerCase();
-                        name = $('#userName').val();
-                        base = baseCodes.indexOf(baseCodeInput);
-                        var timestamp = new Date().toISOString();
-                        if (base > -1) {
-                            //  good
-                            ons.enableDeviceBackButtonHandler();
-                            if (base == 0) {
-                                // navi.bringPageTop('admin.html', {
-                                //     animation: 'fade'
-                                // });
+                //Change image
+                if (!$('#eventBanner').hasClass('evtHandler')) {
+                    $('#eventBanner').addClass('evtHandler');
+                    var inputFile = document.querySelector('#eventBanner');
 
-                                appdb.get('login').then(function (doc) {
-                                        appdb.put({
-                                            _id: doc._id,
-                                            _rev: doc._rev,
-                                            base: base,
-                                            name: name,
-                                            timestamp: timestamp
+                    function fileUpload() {
+                        //make file into a blob
+                        var getFile = inputFile.files[0];
+                        console.log(getFile);
+                        console.log(getFile.type);
+                        var url = URL.createObjectURL(getFile);
+                        console.log(url);
+                        $('#eventBannerImage').attr('src', url);
+                    }
+                    $('#eventBanner').on('change', function () {
+                        console.log('file upload');
+                        fileUpload();
+                    });
+                }
 
+                // Password Protect Logs switch
+                if (!($('.passwordProtectLogs').hasClass('evtHandler'))) {
+                    $('.passwordProtectLogs').addClass('evtHandler');
+                    $('.passwordProtectLogs').on('click', function () {
+                        switch ($('#passwordSwitch').prop("checked")) {
+                            //changes the switch and hides the password input
+                            case true:
+                                $('#passwordSwitch').prop('checked', false);
+                                $('.basePasswordShowHide').addClass('hide');
+                                break;
+                            case false:
+                                $('#passwordSwitch').prop('checked', true);
+                                $('.basePasswordShowHide').removeClass('hide');
+                                break;
+                        }
+                    });
+                }
+                if (!($('#offRouteLogs').hasClass('evtHandler'))) {
+                    $('#offRouteLogs').addClass('evtHandler');
+                    $('.offRouteLogs').on('click', function () {
+                        switch ($('#offRouteLogsSwitch').prop("checked")) {
+                            case true:
+                                $('#offRouteLogsSwitch').prop('checked', false);
+                                break;
+                            case false:
+                                $('#offRouteLogsSwitch').prop('checked', true);
+                        }
+                    });
+                }
+                if (!($('.addBaseButton').hasClass('evtHandler'))) {
+                    $('.addBaseButton').addClass('evtHandler');
+                    //inserts new base above add base button
+                    var baseCount = 1;
+                    $('.addBaseButton').on('click', function () {
+                        baseCount++;
+                        $('.addBaseButton').before(
+                            `
+        <div>
+            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
+            <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+            <div class="flex flexRow flexSpaceBetween marginTop">
+              <div class="caption bold">Maximum score available</div>
+              <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
+            </div>
+            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
+              <div class="caption bold">Base password</div>
+              <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="number" class="basePassword" required></ons-input>
+            </div>
+            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+          </div>
+          `
+                        );
+                        //hides the password input if the password switch is deselected
+                        if (!$('#passwordSwitch').prop("checked")) {
+                            $('.basePasswordShowHide').addClass('hide');
+
+                        }
+                    });
+                }
+
+                if (!$('#saveEvent').hasClass('evtHandler')) {
+                    $('#saveEvent').addClass('evtHandler');
+                    $('#saveEvent').on('click', function () {
+
+                    });
+
+                }
+
+                //end of create event page
+                break;
+
+                // --- Log in Page ---
+
+            case 'loginPage.html':
+                //loginPage.html
+                ons.disableDeviceBackButtonHandler();
+                if (!($('.loginButton').hasClass('evtHandler'))) {
+                    $('.loginButton').addClass('evtHandler');
+                    $('.loginButton').on('click', function () {
+                        if ($('#baseCode').val != '' && $('#userName').val() != '') {
+                            var baseCodeInput = $('#baseCode').val().toLowerCase();
+                            name = $('#userName').val();
+                            base = baseCodes.indexOf(baseCodeInput);
+                            var timestamp = new Date().toISOString();
+                            if (base > -1) {
+                                //  good
+                                ons.enableDeviceBackButtonHandler();
+                                if (base == 0) {
+                                    // navi.bringPageTop('admin.html', {
+                                    //     animation: 'fade'
+                                    // });
+
+                                    appdb.get('login').then(function (doc) {
+                                            appdb.put({
+                                                _id: doc._id,
+                                                _rev: doc._rev,
+                                                base: base,
+                                                name: name,
+                                                timestamp: timestamp
+
+                                            })
                                         })
-                                    })
-                                    .catch(function (err) {
-                                        appdb.put({
-                                            _id: 'login',
-                                            base: base,
-                                            name: name,
-                                            timestamp: timestamp
-                                        }).then(function () {
-                                            ons.notification.alert({
-                                                title: 'Welcome ' + name,
-                                                message: 'Welcome to the Operation Founder admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.',
-                                                cancelable: true
+                                        .catch(function (err) {
+                                            appdb.put({
+                                                _id: 'login',
+                                                base: base,
+                                                name: name,
+                                                timestamp: timestamp
+                                            }).then(function () {
+                                                ons.notification.alert({
+                                                    title: 'Welcome ' + name,
+                                                    message: 'Welcome to the Operation Founder admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.',
+                                                    cancelable: true
+                                                });
+                                            }).catch(function () {
+                                                ons.notification.alert({
+                                                    title: 'Error saving user',
+                                                    message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
+                                                    cancelable: true
+                                                });
                                             });
-                                        }).catch(function () {
-                                            ons.notification.alert({
-                                                title: 'Error saving user',
-                                                message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
-                                                cancelable: true
-                                            });
+
+
                                         });
+                                    loginAndRunFunction(base);
+                                    // } else if (base == 7) {
+                                    //     // roaming page 
+                                } else {
+                                    console.log('pass your base is ' + base);
+                                    // navi.bringPageTop('page1.html', {
+                                    //     animation: 'fade'
+                                    // });
+                                    appdb.get('login').then(function (doc) {
+                                            loginPut(doc);
+                                        })
+                                        .catch(function () {
+                                            appdb.put({
+                                                _id: 'login',
+                                                base: base,
+                                                name: name,
+                                                timestamp: timestamp
+                                            }).then(function () {
+                                                ons.notification.alert({
+                                                    title: 'Welcome ' + name,
+                                                    message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.',
+                                                    cancelable: true
+                                                });
+                                            }).catch(function (err) {
+                                                console.log(err);
+                                                ons.notification.alert({
+                                                    title: 'Error saving user',
+                                                    message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
+                                                    cancelable: true
+                                                });
+                                            });
 
-
-                                    });
-                                loginAndRunFunction(base);
-                                // } else if (base == 7) {
-                                //     // roaming page 
+                                        });
+                                    loginAndRunFunction(base);
+                                }
                             } else {
-                                console.log('pass your base is ' + base);
-                                // navi.bringPageTop('page1.html', {
-                                //     animation: 'fade'
-                                // });
-                                appdb.get('login').then(function (doc) {
-                                        loginPut(doc);
-                                    })
-                                    .catch(function () {
-                                        appdb.put({
-                                            _id: 'login',
-                                            base: base,
-                                            name: name,
-                                            timestamp: timestamp
-                                        }).then(function () {
-                                            ons.notification.alert({
-                                                title: 'Welcome ' + name,
-                                                message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.',
-                                                cancelable: true
-                                            });
-                                        }).catch(function (err) {
-                                            console.log(err);
-                                            ons.notification.alert({
-                                                title: 'Error saving user',
-                                                message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
-                                                cancelable: true
-                                            });
-                                        });
-
-                                    });
-                                loginAndRunFunction(base);
+                                //  bad
+                                ons.notification.alert({
+                                    message: 'Please try re-entering your base code or contact the event organisers',
+                                    title: 'Incorrect Base Code',
+                                    cancelable: true
+                                });
                             }
+
                         } else {
-                            //  bad
                             ons.notification.alert({
-                                message: 'Please try re-entering your base code or contact the event organisers',
-                                title: 'Incorrect Base Code',
+                                message: 'Please enter both your name and your base code provided by the event organisers',
+                                title: 'Missing inputs',
                                 cancelable: true
                             });
-                        }
 
-                    } else {
-                        ons.notification.alert({
-                            message: 'Please enter both your name and your base code provided by the event organisers',
-                            title: 'Missing inputs',
+                        }
+                    });
+                }
+                // end of loginPage.html
+                break;
+                // --- Page 1 for normal bases ---
+
+            case 'page1.html':
+                $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
+                $('.quickAddTitle').html('Add new log from base ' + base);
+                break;
+
+                // --- map page ---
+            case 'map.html':
+
+                ons.disableDeviceBackButtonHandler();
+                if (!$('#mapBackButton').hasClass('evtHandler')) {
+                    $('#mapBackButton').addClass('evtHandler');
+                    $('#mapBackButton').on('click', function () {
+                        mapBackButton();
+                    });
+                }
+                break;
+
+                // --- Admin page ---
+                // these look similar but are seperate for admin and base users
+            case 'admin.html':
+                ons.disableDeviceBackButtonHandler();
+                // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
+                // -- table selection and actions --
+                var adminSpeedDial = document.getElementById('adminSpeedDial');
+                adminSpeedDial.hide();
+                adminCurrentlySelected = [];
+                $('#adminSpeedDial').removeClass('hide');
+                if (!($('#adminLogsTable').hasClass('evtHandler'))) {
+                    $('#adminLogsTable').addClass('evtHandler');
+                    $('#adminLogsTable').on('click', 'tr', function (e) {
+                        if ($(this).hasClass('tableSelected')) {
+                            $(this).removeClass('tableSelected');
+
+                            var dataInfo = $(this).data('databaseInfo');
+                            var index = adminCurrentlySelected.indexOf(dataInfo);
+                            if (index > -1) {
+                                adminCurrentlySelected.splice(index, 1);
+                            }
+                            console.log(adminCurrentlySelected);
+                            if (!($('tr').hasClass('tableSelected'))) {
+                                adminSpeedDial.hide();
+                            }
+                        } else if (e.shiftKey == true) {
+                            $(this).addClass('tableSelected');
+                            // $('#adminSpeedDial').removeClass('hide');
+                            adminSpeedDial.show();
+                            var dataInfo = $(this).data('databaseInfo');
+                            adminCurrentlySelected.push(dataInfo);
+                            console.log(adminCurrentlySelected);
+
+                        } else {
+                            $('tr').removeClass('tableSelected');
+                            $(this).addClass('tableSelected');
+                            // $('#adminSpeedDial').removeClass('hide');
+                            adminSpeedDial.show();
+                            //clear all previously selected items from the array
+                            adminCurrentlySelected = [];
+                            // to get the dbId's off the element
+                            var dataInfo = $(this).data('databaseInfo');
+                            adminCurrentlySelected.push(dataInfo);
+                            console.log(adminCurrentlySelected);
+                        }
+                    });
+                }
+                // button for deleting logs
+                if (!($('#adminDelete').hasClass('evtHandler'))) {
+                    $('#adminDelete').addClass('evtHandler');
+                    /**
+                     * Deletes the selected rows
+                     * @event adminDelete clicked
+                     */
+                    $('#adminDelete').on('click', function () {
+                        ons.notification.confirm({
+                            title: 'Are you sure?',
+                            message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
                             cancelable: true
-                        });
+                        }).then(function (input) {
+                            if (input == 1) {
+                                deleteRecords(adminCurrentlySelected);
+                            }
+                        })
+                    });
+                }
+                //button for locking logs as no longer editable
+                if (!($('#adminLock').hasClass('evtHandler'))) {
+                    $('#adminLock').addClass('evtHandler');
+                    /**
+                     * Locks the selected rows
+                     * @event adminLock clicked
+                     */
+                    $('#adminLock').on('click', function () {
+                        lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
+                    });
+                }
+                if (!($('#adminUnlock').hasClass('evtHandler'))) {
+                    $('#adminUnlock').addClass('evtHandler');
+                    $('#adminUnlock').on('click', function () {
+                        lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
 
-                    }
-                });
-            }
-        } // end of loginPage.html
+                    });
+                }
 
-        // --- Page 1 for normal bases ---
-        if ($('#page1').length) {
-            $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
-            $('.quickAddTitle').html('Add new log from base ' + base);
-
-
-
-        }
-        if ($('#mapPage').length) {
-
-            ons.disableDeviceBackButtonHandler();
-            if (!$('#mapBackButton').hasClass('evtHandler')) {
-                $('#mapBackButton').addClass('evtHandler');
-                $('#mapBackButton').on('click', function () {
-                    mapBackButton();
-                });
-            }
-        }
-        // these look similar but are seperate for admin and base users
-        if ($('#adminPage').length) {
-            ons.disableDeviceBackButtonHandler();
-            // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
-            // -- table selection and actions --
-            var adminSpeedDial = document.getElementById('adminSpeedDial');
-            adminSpeedDial.hide();
-            adminCurrentlySelected = [];
-            $('#adminSpeedDial').removeClass('hide');
-            if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-                $('#adminLogsTable').addClass('evtHandler');
-                $('#adminLogsTable').on('click', 'tr', function (e) {
-                    if ($(this).hasClass('tableSelected')) {
-                        $(this).removeClass('tableSelected');
-
-                        var dataInfo = $(this).data('databaseInfo');
-                        var index = adminCurrentlySelected.indexOf(dataInfo);
-                        if (index > -1) {
-                            adminCurrentlySelected.splice(index, 1);
+                if (!($('#adminCopyTable').hasClass('evtHandler'))) {
+                    $('#adminCopyTable').addClass('evtHandler');
+                    /**
+                     * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
+                     * @event adminCopyTable clicked
+                     */
+                    $('#adminCopyTable').on('click', function () {
+                        //console.log($('#adminLogsTable').html());
+                        function copyToClipboard(element) {
+                            var $temp = $("<input>");
+                            $("body").append($temp);
+                            $temp.val($('.copyMe').html()).select();
+                            document.execCommand("copy");
+                            $temp.remove();
                         }
-                        console.log(adminCurrentlySelected);
-                        if (!($('tr').hasClass('tableSelected'))) {
-                            adminSpeedDial.hide();
-                        }
-                    } else if (e.shiftKey == true) {
-                        $(this).addClass('tableSelected');
-                        // $('#adminSpeedDial').removeClass('hide');
-                        adminSpeedDial.show();
-                        var dataInfo = $(this).data('databaseInfo');
-                        adminCurrentlySelected.push(dataInfo);
-                        console.log(adminCurrentlySelected);
+                        copyToClipboard();
+                        ons.notification.alert({
+                            title: 'Admin logs table added to clipboard',
+                            message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
+                            cancelable: true
+                        })
 
-                    } else {
-                        $('tr').removeClass('tableSelected');
-                        $(this).addClass('tableSelected');
-                        // $('#adminSpeedDial').removeClass('hide');
-                        adminSpeedDial.show();
-                        //clear all previously selected items from the array
-                        adminCurrentlySelected = [];
-                        // to get the dbId's off the element
-                        var dataInfo = $(this).data('databaseInfo');
-                        adminCurrentlySelected.push(dataInfo);
-                        console.log(adminCurrentlySelected);
-                    }
-                });
-            }
-            // button for deleting logs
-            if (!($('#adminDelete').hasClass('evtHandler'))) {
-                $('#adminDelete').addClass('evtHandler');
-                /**
-                 * Deletes the selected rows
-                 * @event adminDelete clicked
-                 */
-                $('#adminDelete').on('click', function () {
-                    ons.notification.confirm({
-                        title: 'Are you sure?',
-                        message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
-                        cancelable: true
-                    }).then(function (input) {
-                        if (input == 1) {
-                            deleteRecords(adminCurrentlySelected);
-                        }
-                    })
-                });
-            }
-            //button for locking logs as no longer editable
-            if (!($('#adminLock').hasClass('evtHandler'))) {
-                $('#adminLock').addClass('evtHandler');
-                /**
-                 * Locks the selected rows
-                 * @event adminLock clicked
-                 */
-                $('#adminLock').on('click', function () {
-                    lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
-                });
-            }
-            if (!($('#adminUnlock').hasClass('evtHandler'))) {
-                $('#adminUnlock').addClass('evtHandler');
-                $('#adminUnlock').on('click', function () {
-                    lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
+                    });
 
-                });
-            }
+                }
+                if (!($('#patrolSearch').hasClass('evtHandler'))) {
+                    $('#patrolSearch').addClass('evtHandler');
+                    var appended = false;
+                    var hidden = false;
+                    /**
+                     * Event handler for the patrol search bar being clicked on the admin page
+                     * @event patrolSearch clicked
+                     */
+                    $('#patrolSearch').on('click', function () {
+                        if (!(appended)) {
+                            $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                            appended = true;
+                            $(document).ready(function () {
+                                $('#patrolSearchInput').focus();
+                                $('#patrolSearchInput').blur(function () {
+                                    if ($(this).val() == '') {
+                                        $(this).toggleClass('hide');
+                                        hidden = true;
+                                        admindb.find({
+                                            selector: {
+                                                timeOut: {
+                                                    $gt: null
+                                                }
 
-            if (!($('#adminCopyTable').hasClass('evtHandler'))) {
-                $('#adminCopyTable').addClass('evtHandler');
-                /**
-                 * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
-                 * @event adminCopyTable clicked
-                 */
-                $('#adminCopyTable').on('click', function () {
-                    //console.log($('#adminLogsTable').html());
-                    function copyToClipboard(element) {
-                        var $temp = $("<input>");
-                        $("body").append($temp);
-                        $temp.val($('.copyMe').html()).select();
-                        document.execCommand("copy");
-                        $temp.remove();
-                    }
-                    copyToClipboard();
-                    ons.notification.alert({
-                        title: 'Admin logs table added to clipboard',
-                        message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
-                        cancelable: true
-                    })
+                                            },
 
-                });
+                                            sort: ['timeOut']
+                                        }).then(function (doc) {
+                                            console.log(doc);
+                                            $('#adminLogsTable').empty();
+                                            patrolRecordAdmin = [];
+                                            offRouteIndexAdmin = [];
+                                            updateTableFromFindQuery(doc, true);
+                                        });
 
-            }
-            if (!($('#patrolSearch').hasClass('evtHandler'))) {
-                $('#patrolSearch').addClass('evtHandler');
-                var appended = false;
-                var hidden = false;
-                /**
-                 * Event handler for the patrol search bar being clicked on the admin page
-                 * @event patrolSearch clicked
-                 */
-                $('#patrolSearch').on('click', function () {
-                    if (!(appended)) {
-                        $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
-                        appended = true;
-                        $(document).ready(function () {
-                            $('#patrolSearchInput').focus();
-                            $('#patrolSearchInput').blur(function () {
-                                if ($(this).val() == '') {
-                                    $(this).toggleClass('hide');
-                                    hidden = true;
+                                    }
+                                });
+                            });
+
+                            $('#patrolSearchInput').on('keydown', function (e) {
+                                if (e.which == 13) {
+                                    var patrolToSearch = $(this).val();
                                     admindb.find({
                                         selector: {
                                             timeOut: {
                                                 $gt: null
+                                            },
+                                            patrol: {
+                                                $eq: patrolToSearch
                                             }
-
                                         },
 
                                         sort: ['timeOut']
@@ -1972,46 +2110,23 @@ ons.ready(function () {
                                         offRouteIndexAdmin = [];
                                         updateTableFromFindQuery(doc, true);
                                     });
-
                                 }
                             });
-                        });
-
-                        $('#patrolSearchInput').on('keydown', function (e) {
-                            if (e.which == 13) {
-                                var patrolToSearch = $(this).val();
-                                admindb.find({
-                                    selector: {
-                                        timeOut: {
-                                            $gt: null
-                                        },
-                                        patrol: {
-                                            $eq: patrolToSearch
-                                        }
-                                    },
-
-                                    sort: ['timeOut']
-                                }).then(function (doc) {
-                                    console.log(doc);
-                                    $('#adminLogsTable').empty();
-                                    patrolRecordAdmin = [];
-                                    offRouteIndexAdmin = [];
-                                    updateTableFromFindQuery(doc, true);
-                                });
-                            }
-                        });
-                    } else if (hidden) {
-                        $('#patrolSearchInput').removeClass('hide');
-                    }
-                });
-            }
+                        } else if (hidden) {
+                            $('#patrolSearchInput').removeClass('hide');
+                        }
+                    });
+                }
 
 
-
+                // -- end of admin.html --
+                break;
+                //to help debug issues
+            default:
+                console.log('the following page has been pushed and has no reference in the push page switch ' + navi.topPage.name);
+                break;
         }
-
-
-
+        // end of pushpage switch
     });
 
 });

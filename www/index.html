@@ -5,7 +5,7 @@
   <title>Operation Founder</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="author" content="Adam Chilton">
   <meta name="keywords" content="operation founder, scouts, tonbridge and malling, guides, hike, base, bases">
@@ -33,7 +33,7 @@
     <ons-splitter-side id="menu" side="left" page="menu.html" swipe-target-width="1px" collapse swipeable>
     </ons-splitter-side>
     <ons-splitter-content id="content"></ons-splitter-content>
-    <ons-navigator id="navi" page="page1.html"></ons-navigator>
+    <ons-navigator id="navi" page="signInPage.html"></ons-navigator>
   </ons-splitter>
   <!-- End of page navigation -->
   <!-- Menu page -->
@@ -62,31 +62,80 @@
   <!-- Start of Sign In page -->
   <ons-template id="signInPage.html">
     <ons-page id="signInPage">
-      <div class="pageDiv">
-        <img src="img/operationFounder.png" class="loginLogo">
-        <form id="signInForm">
-          <ons-input id="signInUserName" modifier="underbar" placeholder="Username" float class="fullWidthInput marginTop"></ons-input>
-          <ons-input id="signInPassword" modifier="underbar" placeholder="Password" float type="password" class="fullWidthInput marginTop"></ons-input>
-          <ons-button class="signUpButton">Sign Up</ons-button>
-          <ons-button class="signInButton">Login</ons-button>
-        </form>
+      <div class="logoBackground">
+        <img src="img/operationFounder.png" class="loginLogo ">
       </div>
+      <div class="pageDiv">
+        <div class="signInFormDiv">
+          <form id="signInForm" class="txtCenter">
+            <p>
+              <ons-input id="signInUserName" modifier="underbar" placeholder="Username" float class="input70perWidth marginTop32px"></ons-input>
+            </p>
+            <p>
+              <ons-input id="signInPassword" modifier="underbar" placeholder="Password" float type="password" class="input70perWidth "></ons-input>
+            </p>
+            <p>
+              <ons-button class="signInButton input70perWidth">Login</ons-button>
+            </p>
+            <ons-button class="signUpButton secondaryColorButton maxWidth" modifier="large">Event Organiser Sign Up</ons-button>
+          </form>
+        </div>
+        <div>
+          <h1 class="txtLeft bold borderBottom">As used by</h1>
+          <img src="img/operationFounder.png" class="asUsedByLogo">
+          <h1 class="txtLeft bold borderBottom">What is Event Hike Manager?</h1>
+          <p>
+            Event Hike Manager was developed initially for the Scout and Guide communities to enable real time updates on where the teams
+            of young people are as they participate in orienteering activities.
+          </p>
+          <p>
+            Event Hike Manager can be used via the app or website to record when, where and who visited a specific location/base. With
+            the added ability to record any scores taken at that location.
+          </p>
+
+          <p>
+            Replacing the need for radio updates or sending messangers to collect logs from accross the countryside.
+          </p>
+          <h2 class="txtLeft bold borderBottom">What if I have bad mobile reception?</h2>
+          <p>Being out in the countyside means there is no guarentee of mobile reception. While this situation is improving,
+            Event Hike Manager has taken an 'offline first' approach.</p>
+          <p>
+            Offline first means that this app/webapp will continue to work even when your mobile internet signal is intermittent. It
+            does this by storing the recorded base logs to a local database before synchronising them with other event users
+            when the mobile device re-connects to the internet.
+          </p>
+        </div>
+
+
+      </div>
+      <div class="caption txtRight bottomDiv">© 2017 Adam Chilton</div>
+
     </ons-page>
   </ons-template>
   <!-- End of signInPage -->
   <!-- Start of signUpPage -->
   <ons-template id="signUpPage.html">
     <ons-page id="signUpPage">
-      <div class="pageDiv txtCenter">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Create Account
+        </div>
+      </ons-toolbar>
+      <div class="pageDiv txtCenter maxWidth marginAuto">
         <h1>The first step towards managing your event..</h1>
-        <form>
-          <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop"></ons-input>
-          <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop" required></ons-input>
+        <form onsubmit="return false">
+          <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"></ons-input>
+          <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop maxWidth"
+            required></ons-input>
           <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
           <p>
-            <ons-button modifier="large" class="signUpInputButton">Create My Account</ons-button>
+            <button modifier="large" class="signUpInputButton maxWidth button button--material button--large" type="submit">Create My Account</button>
           </p>
         </form>
+
       </div>
     </ons-page>
   </ons-template>
@@ -109,35 +158,42 @@
       </ons-toolbar>
       <div class="pageDiv txtCenter">
 
-        <form class="marginTop">
+        <form id="createEventForm" class="marginTop">
+          <input type="file" accept="image/*" id="eventBanner" class="inputFile hide"></input>
+          <label id="eventBannerInputLabel" for="eventBanner">
+            <img src="img/operationFounder.png" class="loginLogo" id="eventBannerImage">
+            <ons-button class="marginTop secondaryColorButton">
+              CHANGE BANNER IMAGE              
+            </ons-button>
+           </label>
           <ons-input id="eventName" modifier="underbar" placeholder="Event name" float type="text" class="fullWidthInput marginTop"
             autofocus></ons-input>
           <textarea class="textarea marginTop" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
           <p class="txtLeft bold marginTop">Event date</p>
           <div class="flex flexRow flexSpaceBetween flexWrap">
             <div class="bold caption">Start
-              <ons-input type="date" class="marginLeft marginRight" required></ons-input>
+              <ons-input type="datetime-local" class="marginLeft marginRight" required></ons-input>
             </div>
             <div class="bold caption txtRight">End
-              <ons-input type="date" class="marginLeft" required></ons-input>
+              <ons-input type="datetime-local" class="marginLeft" required></ons-input>
             </div>
 
           </div>
-          <h1>placeholder for image upload</h1>
-          <div>
+
+          <div id="passwordProtectLogs" class="marginTop">
             <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
             <div class="flex flexRow flexAlignFlexStart">
 
-              <div class="eventItemTitle bold h3NoStyling">
+              <div class="eventItemTitle bold h3NoStyling passwordProtectLogs">
                 Password protect base logs
               </div>
 
               <div class="eventItemSwitch">
-                <ons-switch checked></ons-switch>
+                <ons-switch id="passwordSwitch" checked></ons-switch>
               </div>
 
             </div>
-            <div class="flex flexRow flexAlignFlexStart">
+            <div class="flex flexRow flexAlignFlexStart passwordProtectLogs">
               <div class="eventItemCaption">
                 <p class="caption">
                   This will require those using the app/website to add an additional unique passcode in order to read or enter log entries.
@@ -149,20 +205,20 @@
               <div class="eventItemSpacer"></div>
             </div>
           </div>
-          <div>
+          <div id="offRouteLogs">
             <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
             <div class="flex flexRow flexAlignFlexStart">
 
-              <div class="eventItemTitle bold h3NoStyling">
+              <div class="eventItemTitle bold h3NoStyling offRouteLogs">
                 Log off route entries
               </div>
 
               <div class="eventItemSwitch">
-                <ons-switch checked></ons-switch>
+                <ons-switch id="offRouteLogsSwitch" checked></ons-switch>
               </div>
 
             </div>
-            <div class="flex flexRow flexAlignFlexStart">
+            <div class="flex flexRow flexAlignFlexStart offRouteLogs">
               <div class="eventItemCaption">
                 <p class="caption">
                   This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
@@ -173,19 +229,26 @@
               <div class="eventItemSpacer"></div>
             </div>
           </div>
+          <h2 class="txtLeft bold borderBottom">Admin</h2>
+          <div class="flex flexRow flexSpaceBetween marginTop">
+            <div class="caption bold">Admin password</div>
+            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="number" class="adminPassword" required></ons-input>
+          </div>
+          <p class="caption txtLeft">Passcode required to enter the admin area of the event, to be able to view all logs from all bases and administrate
+            the event. </p>
           <h2 class="txtLeft bold borderBottom">Bases</h2>
           <div>
             <p class="txtLeft bold">Base 1</p>
             <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
-              <div class="caption bold">Maximum Score Available</div>
-              <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max Score" float type="number" class="baseMaxScore" required></ons-input>
+              <div class="caption bold">Maximum score available</div>
+              <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
-            <div class="flex flexRow flexSpaceBetween marginTop">
+            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
               <div class="caption bold">Base password</div>
               <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="number" class="basePassword" required></ons-input>
             </div>
-            <textarea class="textarea marginTop" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+            <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
 
           <ons-button modifier="large" class="addBaseButton marginTop marginBottom">Add Base</ons-button>
@@ -428,7 +491,7 @@
 <!--<script src="js/leaflet/lrm-mapzen.js "></script>-->
 <!--<script src="js/leaflet/Control.Geocoder.js"></script>-->
 <script src="js/leaflet/leaflet-bing-layer.js"></script>
-<!--<script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script>-->
+<script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script>
 <script src="js/leaflet/leaflet.edgebuffer.js"></script>
 <!-- Error tracking -->
 <!--<script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>-->
