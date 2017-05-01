@@ -80,6 +80,13 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 
+/*sign Up page*/
+
+.text-input--underbar:invalid {
+    border-bottom: 0px solid #ff0000;
+}
+
+
 /*LoginPage*/
 
 .fullWidthInput {

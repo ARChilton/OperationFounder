@@ -126,15 +126,18 @@
       </ons-toolbar>
       <div class="pageDiv txtCenter maxWidth marginAuto">
         <h1>The first step towards managing your event..</h1>
-        <form onsubmit="return false">
-          <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"></ons-input>
-          <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop maxWidth"
-            required></ons-input>
-          <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
-          <p>
-            <button modifier="large" class="signUpInputButton maxWidth button button--material button--large" type="submit">Create My Account</button>
-          </p>
-        </form>
+        <!--<form id="signUpForm" onsubmit="return false">-->
+        <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
+          required></ons-input>
+        <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop maxWidth"
+          required></ons-input>
+        <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
+          required></ons-input>
+        <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
+        <p>
+          <button modifier="large" class="signUpInputButton maxWidth button button--material button--large">Create My Account</button>
+        </p>
+        <!--</form>-->
 
       </div>
     </ons-page>

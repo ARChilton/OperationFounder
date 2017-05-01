@@ -29,6 +29,9 @@ var appDatabaseName = 'oppFounderLoginDb';
 //var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
 var remotedbURL = 'http://adam123:adam123@127.0.0.1:5984/adam123';
 
+//server variables
+var appServer = 'http://127.0.0.1:3000';
+
 // map variables
 var marker;
 var accuracyCircle;
@@ -1698,9 +1701,10 @@ ons.ready(function () {
 
         }
     }
-    navi.insertPage(0, 'map.html').then(function () {
+    //commented out for dev
+    /*navi.insertPage(0, 'map.html').then(function () {
         createMap();
-    });
+    });*/
 
     //for dev purposes
     // navi.bringPageTop('createEventPage.html');
@@ -1714,10 +1718,188 @@ ons.ready(function () {
      */
     document.addEventListener('postpush', function (event) {
         console.log('page pushed');
+        console.log(navi.pages);
         switch (navi.topPage.name) {
             //--- Create Event Page ---
             case 'signInPage.html':
 
+                break;
+
+                // --- sign up page ---
+            case 'signUpPage.html':
+                var errorMessageOpen = false;
+                var emailSignUp;
+                var emailSignUpValid;
+                var passwordSignUp;
+                var confirmPassSignUp;
+                /**
+                 * a function to interact with the server and post users and usernames
+                 * @param {string} apiAddress the api endpoint including the server address
+                 * @param {object} dataPackage the object to be sent in the body of the post
+                 */
+                function signUpApiAjax(apiAddress, dataPackage) {
+
+                    return {
+                        "async": true,
+                        "crossDomain": true,
+                        "url": apiAddress,
+                        "method": "POST",
+                        "dataType": "json",
+                        "xhrFields": {
+                            "withCredentials": false
+                        },
+                        "headers": {
+                            "content-type": "application/x-www-form-urlencoded",
+
+                        },
+                        "data": dataPackage
+                    };
+
+                }
+                if (!$('#signUpEmail').hasClass('evtHandler')) {
+                    var lastUsername = '';
+                    $('#signUpEmail').addClass('evtHandler').on('blur', function () {
+                        // finds the input from within the ons-input element
+                        var inpObj = document.getElementById('signUpEmail').getElementsByTagName('input');
+                        //checks if the input is currently valid before checking if it is unique in the db
+                        if ($(inpObj)[0].checkValidity()) {
+                            var checkUsernameApi = appServer + '/api/user/checkusername';
+                            var usernameToTest = $('#signUpEmail').val().trim();
+                            var usernameDataPackage = {
+                                "username": usernameToTest
+                            };
+                            if (usernameToTest != lastUsername && usernameToTest != "") {
+                                $.ajax(signUpApiAjax(checkUsernameApi, usernameDataPackage)).done(function (response) {
+                                    switch (response.status) {
+                                        case 200:
+                                            emailSignUp = usernameToTest;
+                                            emailSignUpValid = true;
+                                            break;
+                                        case 409:
+                                            ons.notification.alert({
+                                                title: response.message,
+                                                message: response.reason,
+                                                cancelable: true
+                                            });
+                                            break;
+                                        case 500:
+                                        default:
+                                            ons.notification.alert({
+                                                title: 'error',
+                                                message: 'issue validating email address is unique',
+                                                cancelable: true
+                                            });
+                                    }
+                                });
+                            }
+                            lastUsername = usernameToTest;
+                        } else {
+                            if (!errorMessageOpen) {
+                                errorMessageOpen = true;
+                                emailSignUpValid = false;
+                                ons.notification.alert({
+                                    title: 'Invalid email',
+                                    message: 'Please enter a valid email address like: event@hikemanager.com',
+                                    cancelable: true
+                                }).then(function () {
+                                    errorMessageOpen = false;
+                                });
+                            }
+                        }
+                    });
+
+                }
+                if (!$('#signUpPassword').hasClass('evtHandler')) {
+                    $('#signUpPassword').addClass('evtHandler').on('blur', function () {
+                        var pass = $(this).val().trim();
+                        if (pass.length >= 6) {
+                            //valid
+                            if (passwordSignUp != pass) {
+                                passwordSignUp = pass;
+                                if (pass === $('#signUpPasswordConfirm').val()) {
+                                    confirmPassSignUp = true;
+                                } else {
+                                    confirmPassSignUp = false;
+                                }
+                            }
+
+                        } else {
+                            //invalid
+                            if (!errorMessageOpen) {
+                                errorMessageOpen = true;
+                                ons.notification.alert({
+                                    title: 'Longer password required',
+                                    message: 'Minimum of 6 characters',
+                                    cancelable: true
+                                }).then(function () {
+                                    errorMessageOpen = false;
+                                });
+                            }
+                        }
+                    });
+                }
+                if (!$('#signUpPasswordConfirm').hasClass('evtHandler')) {
+                    $('#signUpPasswordConfirm').addClass('evtHandler').on('blur', function () {
+                        var confirmP = $(this).val().trim();
+                        if (confirmP === passwordSignUp && passwordSignUp != '') {
+                            //valid
+                            ConfirmPassSignUp = true;
+                        } else {
+                            //invalid
+                            confirmPassSignUp = false;
+                            if (!errorMessageOpen) {
+                                errorMessageOpen = true;
+                                ons.notification.alert({
+                                    title: 'Password does not match',
+                                    messageHTML: '<p> Your confirmation password:</p><p>' + confirmP + '</p><p> does not match </p><p>' + passwordSignUp + '</p>',
+                                    cancelable: true
+                                }).then(function () {
+                                    errorMessageOpen = false;
+                                });
+                            }
+                        }
+                    });
+                }
+                if (!$('.signUpInputButton').hasClass('evtHandler')) {
+                    $('.signUpInputButton').addClass('evtHandler').on('click', function () {
+                        switch (emailSignUpValid && ConfirmPassSignUp) {
+                            case true:
+                                var apiAddress = appServer + '/api/user/new';
+                                var createUserDataPackage = {
+                                    "username": emailSignUp,
+                                    "password": passwordSignUp
+                                };
+                                $.ajax(signUpApiAjax(apiAddress, createUserDataPackage))
+                                    .done(function (doc) {
+                                        console.log(doc);
+                                        switch (doc.status) {
+                                            case 200:
+                                                navi.replacePage('createEventPage.html');
+                                                break;
+
+                                            default:
+                                                ons.notification.alert({
+                                                    title: 'error',
+                                                    message: doc,
+                                                    cancelable: true
+                                                });
+                                        }
+
+                                    }).fail(function (err) {
+                                        console.log(err);
+                                        ons.notification.alert({
+                                            title: 'error',
+                                            message: err,
+                                            cancelable: true
+                                        });
+                                    });
+                                break;
+                            case false:
+                                break;
+
+                        }
+                    });
+                }
                 break;
             case 'createEventPage.html':
 
