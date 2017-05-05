@@ -129,7 +129,7 @@
         <!--<form id="signUpForm" onsubmit="return false">-->
         <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
           required></ons-input>
-        <ons-input id="signUpPassword" modifier="underbar" placeholder="Password" float class="fullWidthInput marginTop maxWidth"
+        <ons-input id="signUpPassword" modifier="underbar" placeholder="Password (min 6 characters)" float class="fullWidthInput marginTop maxWidth"
           required></ons-input>
         <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
           required></ons-input>
@@ -171,14 +171,14 @@
            </label>
           <ons-input id="eventName" modifier="underbar" placeholder="Event name" float type="text" class="fullWidthInput marginTop"
             autofocus></ons-input>
-          <textarea class="textarea marginTop" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
+          <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
           <p class="txtLeft bold marginTop">Event date</p>
           <div class="flex flexRow flexSpaceBetween flexWrap">
             <div class="bold caption">Start
-              <ons-input type="datetime-local" class="marginLeft marginRight" required></ons-input>
+              <ons-input id="eventStartDate" type="datetime-local" class="marginLeft marginRight" required></ons-input>
             </div>
             <div class="bold caption txtRight">End
-              <ons-input type="datetime-local" class="marginLeft" required></ons-input>
+              <ons-input id="eventEndDate" type="datetime-local" class="marginLeft" required></ons-input>
             </div>
 
           </div>
@@ -244,7 +244,9 @@
             <p class="txtLeft bold">Base 1</p>
             <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
-              <div class="caption bold">Maximum score available</div>
+              <div class="caption"><span class="bold">Maximum score available</span>
+                <span class="caption marginLeft">(blank = no score input)</span>
+              </div>
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
