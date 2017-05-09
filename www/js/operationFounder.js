@@ -20,7 +20,9 @@ var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
 var attemptCount = 0;
-
+//user variables
+var username;
+var password;
 //database names
 var adminDatabaseName = 'adminDB1';
 var baseDatabaseName = 'baseDB1';
@@ -501,7 +503,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 offRouteIndexAdmin.push(id);
                 return false;
             }
-            return false; // returns without adding to the overwrite table list
+            //return false; // returns without adding to the overwrite table list
         }
     } else {
         if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
@@ -521,7 +523,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 offRouteIndex.push(id);
                 return false;
             }
-            return false; // returns without adding to the overwrite table list
+            // return false; // returns without adding to the overwrite table list
         }
     }
 }
@@ -531,6 +533,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
  *  A function to remove a record from the patrol records list
  * @param {*} id - database id required for removing from the list
  * @param {*} admin - admin page or base page to determine which array to edit
+ * @return {bool}
  */
 function removePatrolRecord(id, admin) {
 
@@ -548,7 +551,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the admin array of logs');
                 return false;
             }
-            break;
+            //  break; //removed as the returns make this unreachable
         case false:
             var deleteIndex = patrolRecord.indexOf(id);
             var offRouteDeleteIndex = offRouteIndex.indexOf(id);
@@ -562,7 +565,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the base logs');
                 return false;
             }
-            break;
+            // break; //removed as the returns make this unreachable
     }
 
 }
@@ -1004,6 +1007,14 @@ function checkConnection() {
     var networkState = navigator.connection.type;
     return networkState;
 
+}
+
+function changeAtSymbol(email) {
+    return email.replace('@', '%40');
+}
+
+function changeAtSymbolBack(email) {
+    return email.replace('%40', '@');
 }
 //-- log in and out functions
 /**
@@ -1637,15 +1648,22 @@ ons.ready(function () {
     // --- End of Menu Controls ---
 
     /**
-     * First page to load's code
+     * First page to load code
      */
-    $('.signUpButton').addClass('evtHandler');
-    $('.signUpButton').on('click', function () {
-        console.log('should be changing pages');
-        navi.bringPageTop('signUpPage.html', {
-            animation: 'none'
-        });
-    });
+    switch (localStorage.previousLogIn === true) {
+        case true:
+            navi.bringPageTop('loginPage.html', {
+                animation: 'none'
+            });
+            break;
+        default:
+            navi.bringPageTop('signInPage.html', {
+                animation: 'none'
+            });
+    }
+
+
+
     //the login function will need to move somewhere further inside the app.
     /* // --- login function ---
      if (appdbConnected == false) {
@@ -1723,21 +1741,31 @@ ons.ready(function () {
             //--- Create Event Page ---
             case 'signInPage.html':
 
+                if (!$('.signUpButton').hasClass('evtHandler')) {
+                    $('.signUpButton').addClass('evtHandler');
+                    $('.signUpButton').on('click', function () {
+                        console.log('should be changing pages');
+                        navi.bringPageTop('signUpPage.html', {
+                            animation: 'none'
+                        });
+                    });
+                }
+
                 break;
 
                 // --- sign up page ---
             case 'signUpPage.html':
                 var errorMessageOpen = false;
-                var emailSignUp;
-                var emailSignUpValid;
-                var passwordSignUp;
-                var confirmPassSignUp;
+                var emailSignUp = false;
+                var emailSignUpValid = false;
+                var passwordSignUp = false;
+                var confirmPassSignUp = false;
                 /**
                  * a function to interact with the server and post users and usernames
                  * @param {string} apiAddress the api endpoint including the server address
                  * @param {object} dataPackage the object to be sent in the body of the post
                  */
-                function signUpApiAjax(apiAddress, dataPackage) {
+                function apiAjax(apiAddress, dataPackage) {
 
                     return {
                         "async": true,
@@ -1764,31 +1792,53 @@ ons.ready(function () {
                         //checks if the input is currently valid before checking if it is unique in the db
                         if ($(inpObj)[0].checkValidity()) {
                             var checkUsernameApi = appServer + '/api/user/checkusername';
-                            var usernameToTest = $('#signUpEmail').val().trim();
+                            var usernameToTest = changeAtSymbol($('#signUpEmail').val().trim());
                             var usernameDataPackage = {
                                 "username": usernameToTest
                             };
                             if (usernameToTest != lastUsername && usernameToTest != "") {
-                                $.ajax(signUpApiAjax(checkUsernameApi, usernameDataPackage)).done(function (response) {
+                                $.ajax(apiAjax(checkUsernameApi, usernameDataPackage)).done(function (response) {
                                     switch (response.status) {
                                         case 200:
                                             emailSignUp = usernameToTest;
                                             emailSignUpValid = true;
                                             break;
                                         case 409:
-                                            ons.notification.alert({
-                                                title: response.message,
-                                                message: response.reason,
-                                                cancelable: true
-                                            });
+                                            if (!errorMessageOpen) {
+                                                errorMessageOpen = true;
+                                                ons.notification.alert({
+                                                    title: response.message,
+                                                    message: response.reason,
+                                                    cancelable: true
+                                                }).then(function () {
+                                                    errorMessageOpen = false;
+                                                });
+                                            }
                                             break;
                                         case 500:
                                         default:
-                                            ons.notification.alert({
-                                                title: 'error',
-                                                message: 'issue validating email address is unique',
-                                                cancelable: true
-                                            });
+                                            if (!errorMessageOpen) {
+                                                errorMessageOpen = true;
+                                                ons.notification.alert({
+                                                    title: 'error',
+                                                    message: 'issue validating email address is unique',
+                                                    cancelable: true
+                                                }).then(function () {
+                                                    errorMessageOpen = false;
+                                                });
+                                            }
+                                    }
+                                }).fail(function (err) {
+                                    console.log(err);
+                                    if (!errorMessageOpen) {
+                                        errorMessageOpen = true;
+                                        ons.notification.alert({
+                                            title: 'Error connecting to server',
+                                            message: 'We are very sorry there was an error connecting to the server to validate your email address is unique please try submitting your sign up or come back later.',
+                                            cancelable: true
+                                        }).then(function () {
+                                            errorMessageOpen = false;
+                                        });
                                     }
                                 });
                             }
@@ -1825,6 +1875,7 @@ ons.ready(function () {
 
                         } else {
                             //invalid
+                            passwordSignUp = pass;
                             if (!errorMessageOpen) {
                                 errorMessageOpen = true;
                                 ons.notification.alert({
@@ -1843,7 +1894,20 @@ ons.ready(function () {
                         var confirmP = $(this).val().trim();
                         if (confirmP === passwordSignUp && passwordSignUp != '') {
                             //valid
-                            ConfirmPassSignUp = true;
+                            if (passwordSignUp.length >= 6) {
+                                confirmPassSignUp = true;
+                            } else {
+                                if (!errorMessageOpen) {
+                                    errorMessageOpen = true;
+                                    ons.notification.alert({
+                                        title: 'Longer password required',
+                                        message: 'Minimum of 6 characters',
+                                        cancelable: true
+                                    }).then(function () {
+                                        errorMessageOpen = false;
+                                    });
+                                }
+                            }
                         } else {
                             //invalid
                             confirmPassSignUp = false;
@@ -1862,19 +1926,27 @@ ons.ready(function () {
                 }
                 if (!$('.signUpInputButton').hasClass('evtHandler')) {
                     $('.signUpInputButton').addClass('evtHandler').on('click', function () {
-                        switch (emailSignUpValid && ConfirmPassSignUp) {
+                        switch (emailSignUpValid && confirmPassSignUp) {
                             case true:
                                 var apiAddress = appServer + '/api/user/new';
                                 var createUserDataPackage = {
                                     "username": emailSignUp,
                                     "password": passwordSignUp
                                 };
-                                $.ajax(signUpApiAjax(apiAddress, createUserDataPackage))
+                                $.ajax(apiAjax(apiAddress, createUserDataPackage))
                                     .done(function (doc) {
                                         console.log(doc);
                                         switch (doc.status) {
                                             case 200:
                                                 navi.replacePage('createEventPage.html');
+                                                //store username & password as accessable variables
+                                                username = emailSignUp;
+                                                password = passwordSignUp;
+                                                if (typeof (localStorage) !== 'undefined') {
+                                                    //localstorage available save username and password for next time
+                                                    localStorage.username = emailSignUp;
+                                                    localStorage.password = passwordSignUp;
+                                                }
                                                 break;
 
                                             default:
@@ -1895,6 +1967,18 @@ ons.ready(function () {
                                     });
                                 break;
                             case false:
+                                var signUpErrorMessage = '<p>Please complete the following:</p>';
+                                if (emailSignUpValid === false) {
+                                    signUpErrorMessage = signUpErrorMessage + '<p>Enter a username</p>';
+                                }
+                                if (confirmPassSignUp === false) {
+                                    signUpErrorMessage = signUpErrorMessage + '<p>Enter and confirm your password</p>';
+                                }
+                                ons.notification.alert({
+                                    title: 'Missing fields',
+                                    messageHTML: signUpErrorMessage,
+                                    cancelable: true
+                                });
                                 break;
 
                         }
@@ -1902,7 +1986,7 @@ ons.ready(function () {
                 }
                 break;
             case 'createEventPage.html':
-
+                var getFile = false;
                 //Change image
                 if (!$('#eventBanner').hasClass('evtHandler')) {
                     $('#eventBanner').addClass('evtHandler');
@@ -1910,7 +1994,7 @@ ons.ready(function () {
 
                     function fileUpload() {
                         //make file into a blob
-                        var getFile = inputFile.files[0];
+                        getFile = inputFile.files[0];
                         console.log(getFile);
                         console.log(getFile.type);
                         var url = URL.createObjectURL(getFile);
@@ -1940,6 +2024,22 @@ ons.ready(function () {
                         }
                     });
                 }
+                if (!($('#passwordSwitch').hasClass('evtHandler'))) {
+                    $('#passwordSwitch').addClass('evtHandler');
+                    $('#passwordSwitch').on('change', function () {
+                        switch (!$('#passwordSwitch').prop("checked")) {
+                            //hides the password input
+                            case true:
+
+                                $('.basePasswordShowHide').addClass('hide');
+                                break;
+                            case false:
+
+                                $('.basePasswordShowHide').removeClass('hide');
+                                break;
+                        }
+                    });
+                }
                 if (!($('#offRouteLogs').hasClass('evtHandler'))) {
                     $('#offRouteLogs').addClass('evtHandler');
                     $('.offRouteLogs').on('click', function () {
@@ -1964,7 +2064,9 @@ ons.ready(function () {
             <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
             <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
-              <div class="caption bold">Maximum score available</div>
+              <div class="caption"><span class="bold">Maximum score available</span>
+                <span class="caption marginLeft">(blank = no score input)</span>
+              </div>
               <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
@@ -1986,10 +2088,93 @@ ons.ready(function () {
                 if (!$('#saveEvent').hasClass('evtHandler')) {
                     $('#saveEvent').addClass('evtHandler');
                     $('#saveEvent').on('click', function () {
+                        //TODO add checking and uploading event message
+                        //TODO add loading bar
+
+                        var eventDescription = {
+                            _id: 'eventDescription',
+                            username: username,
+                            password: password,
+                            eventName: $('#eventName').val(),
+                            dateStart: $('#eventStartDate').val(),
+                            dateEnd: $('#eventEndDate').val(),
+                            eventDescription: $('#eventDescription').val(),
+                            passwordProtectLogs: $('#offRouteLogsSwitch').prop("checked"),
+                            logOfRoute: $('#offRouteLogsSwitch').prop("checked"),
+                            adminPassword: $('#adminPassword').val(),
+                            bases: [{
+                                baseNo: 0,
+                                baseName: 'admin HQ',
+                                basePassword: $('#adminPassword').val()
+                            }],
+
+                        };
+                        if (getFile !== false) {
+                            //adds an image to the description
+                            eventDescription._attachments = {
+                                data: getFile,
+                                type: getFile.type
+                            };
+                        }
+                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPasscode === '') {
+                            case true:
+                                ons.notification.alert({
+                                    title: 'Missing attributes',
+                                    messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p>'
+                                });
+                                console.log(eventDescription);
+                                break;
+                            case false:
+
+                                for (var i = 1, l = baseCount; i < l; i++) {
+                                    var baseInfo = {
+                                        baseNo: i,
+                                        baseName: $('#base' + i + 'Name').val(),
+                                        baseMaxScore: $('#base' + i + 'MaxScore').val(),
+                                        basePassword: $('#base' + i + 'Password').val(),
+                                        baseInstructions: $('#base' + i + 'Instructions').val()
+                                    };
+                                    eventDescription.bases.push(baseInfo);
+                                }
+                                var apiAddress = appServer + '/api/event/new';
+                                //TODO add done and fail and authentication to the request
+                                $.ajax(apiAjax(apiAddress, eventDescription))
+                                    .then(function (doc) {
+                                        console.log(doc);
+                                        localStorage.db = doc.dbName;
+                                        localStorage.couchdb = doc.url;
+                                        if (remotedbConnected = false) {
+                                            return remotedb = new PouchDB(doc.url + '/' + doc.dbName);
+                                        } else {
+                                            return remotedb;
+                                        }
+                                    }).then(function (db) {
+                                        return db.get('eventDescription')
+                                            .then(function (doc) {
+                                                eventDescription._rev = doc._rev;
+                                                return db.put(eventDescription);
+                                            })
+                                            .catch(function (err) {
+                                                console.log(err);
+                                                if (err.status === 404) {
+                                                    return db.put(eventDescription);
+                                                } else {
+                                                    throw err;
+                                                }
+                                            });
+                                    }).then(function (doc) {
+                                        console.log(doc);
+                                    })
+                                    .catch(function (err) {
+                                        console.log(err);
+                                    });
+
+                        }
 
                     });
-
                 }
+
+
 
                 //end of create event page
                 break;
