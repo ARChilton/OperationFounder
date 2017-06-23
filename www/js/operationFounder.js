@@ -3,6 +3,14 @@
  * @copyright Adam Chilton 2017
  */
 
+/** Information stored in localstorage:
+ * @param {string} username: username of the user
+ * @param {string} password: password of the user
+ * @param {bool} previousSignIn signed in or out
+ * @param {string} url url of couchdb
+ * @param {string} db the database name
+ */
+
 // global variables
 var baseCodes = ['vikings', 'petal', 'peter', 'witch', 'homes', 'trees', 'horse', 'roaming']; // MUST BE LOWER CASE
 var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm', 'Roaming/Check Point']
@@ -1650,7 +1658,7 @@ ons.ready(function () {
     /**
      * First page to load code
      */
-    switch (localStorage.previousLogIn === true) {
+    switch (localStorage.previousSignIn === true) {
         case true:
             navi.bringPageTop('loginPage.html', {
                 animation: 'none'
@@ -1742,12 +1750,18 @@ ons.ready(function () {
             case 'signInPage.html':
 
                 if (!$('.signUpButton').hasClass('evtHandler')) {
-                    $('.signUpButton').addClass('evtHandler');
-                    $('.signUpButton').on('click', function () {
+                    $('.signUpButton').addClass('evtHandler').on('click', function () {
                         console.log('should be changing pages');
                         navi.bringPageTop('signUpPage.html', {
                             animation: 'none'
                         });
+                    });
+                }
+                if (!$('.signInButton').hasClass('evtHandler')) {
+                    $('.signInButton').addClass('evtHandler').on('click', function () {
+                        username = changeAtSymbol($('#signInUserName').val().trim());
+                        password = $('#signInPassword').val().trim();
+                        //TODO sign in via server
                     });
                 }
 
