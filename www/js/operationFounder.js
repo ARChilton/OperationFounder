@@ -559,7 +559,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the admin array of logs');
                 return false;
             }
-        //  break; //removed as the returns make this unreachable
+            //  break; //removed as the returns make this unreachable
         case false:
             var deleteIndex = patrolRecord.indexOf(id);
             var offRouteDeleteIndex = offRouteIndex.indexOf(id);
@@ -573,7 +573,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the base logs');
                 return false;
             }
-        // break; //removed as the returns make this unreachable
+            // break; //removed as the returns make this unreachable
     }
 
 }
@@ -1767,7 +1767,7 @@ ons.ready(function () {
 
                 break;
 
-            // --- sign up page ---
+                // --- sign up page ---
             case 'signUpPage.html':
                 var errorMessageOpen = false;
                 var emailSignUp = false;
@@ -1945,7 +1945,8 @@ ons.ready(function () {
                                 var apiAddress = appServer + '/api/user/new';
                                 var createUserDataPackage = {
                                     "username": emailSignUp,
-                                    "password": passwordSignUp
+                                    "password": passwordSignUp,
+                                    "evtOrganiser": true
                                 };
                                 $.ajax(apiAjax(apiAddress, createUserDataPackage))
                                     .done(function (doc) {
@@ -2193,7 +2194,7 @@ ons.ready(function () {
                 //end of create event page
                 break;
 
-            // --- Log in Page ---
+                // --- Log in Page ---
 
             case 'loginPage.html':
                 //loginPage.html
@@ -2215,15 +2216,15 @@ ons.ready(function () {
                                     // });
 
                                     appdb.get('login').then(function (doc) {
-                                        appdb.put({
-                                            _id: doc._id,
-                                            _rev: doc._rev,
-                                            base: base,
-                                            name: name,
-                                            timestamp: timestamp
+                                            appdb.put({
+                                                _id: doc._id,
+                                                _rev: doc._rev,
+                                                base: base,
+                                                name: name,
+                                                timestamp: timestamp
 
+                                            })
                                         })
-                                    })
                                         .catch(function (err) {
                                             appdb.put({
                                                 _id: 'login',
@@ -2255,8 +2256,8 @@ ons.ready(function () {
                                     //     animation: 'fade'
                                     // });
                                     appdb.get('login').then(function (doc) {
-                                        loginPut(doc);
-                                    })
+                                            loginPut(doc);
+                                        })
                                         .catch(function () {
                                             appdb.put({
                                                 _id: 'login',
@@ -2302,14 +2303,14 @@ ons.ready(function () {
                 }
                 // end of loginPage.html
                 break;
-            // --- Page 1 for normal bases ---
+                // --- Page 1 for normal bases ---
 
             case 'page1.html':
                 $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
                 $('.quickAddTitle').html('Add new log from base ' + base);
                 break;
 
-            // --- map page ---
+                // --- map page ---
             case 'map.html':
 
                 ons.disableDeviceBackButtonHandler();
@@ -2321,8 +2322,8 @@ ons.ready(function () {
                 }
                 break;
 
-            // --- Admin page ---
-            // these look similar but are seperate for admin and base users
+                // --- Admin page ---
+                // these look similar but are seperate for admin and base users
             case 'admin.html':
                 ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
@@ -2502,7 +2503,7 @@ ons.ready(function () {
 
                 // -- end of admin.html --
                 break;
-            //to help debug issues
+                //to help debug issues
             default:
                 console.log('the following page has been pushed and has no reference in the push page switch ' + navi.topPage.name);
                 break;
