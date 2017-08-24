@@ -135,7 +135,7 @@
           required></ons-input>
         <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
         <p>
-          <button modifier="large" class="signUpInputButton maxWidth button button--material button--large">Create My Account</button>
+          <button modifier="large" class="signUpInputButton secondaryColorButton maxWidth button button--material button--large">Create My Account</button>
         </p>
         <!--</form>-->
 
@@ -143,6 +143,33 @@
     </ons-page>
   </ons-template>
   <!-- End of sign up page -->
+  <!-- Start of Verification code entry page -->
+  <ons-template id="verificationPage.html">
+    <ons-page id="verificationPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Enter Virification Code
+        </div>
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon icon="md-check" id="verifyUser"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+      </ons-toolbar>
+      <div class="pageDiv txtCenter caption">
+        <p class="txtLeft marginTop">Enter or paste your verification code below:</p>
+        <ons-input id="verificationCode" modifier="underbar" placeholder="Enter verification code here" float type="text" class="fullWidthInput marginTop"
+          autofocus></ons-input>
+        <ons-button modifier="large" class="marginTop secondaryColorButton">
+          VERIFY ACCOUNT
+        </ons-button>
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of Verification code entry page -->
   <!-- Start of Create Event page -->
   <ons-template id="createEventPage.html">
     <ons-page id="createEventPage">
@@ -165,7 +192,7 @@
           <input type="file" accept="image/*" id="eventBanner" class="inputFile hide"></input>
           <label id="eventBannerInputLabel" for="eventBanner">
             <img src="img/operationFounder.png" class="loginLogo" id="eventBannerImage">
-            <ons-button class="marginTop secondaryColorButton">
+            <ons-button modifier="large" class="marginTop secondaryColorButton">
               CHANGE BANNER IMAGE              
             </ons-button>
            </label>
