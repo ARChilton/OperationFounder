@@ -44,10 +44,13 @@
       </div>
       <ons-list id="opFounderMenu">
         <ons-list-item onclick="logOut()" tappable>
-          Log out
+          Leave Base
         </ons-list-item>
         <ons-list-item onclick="goToMap()" tappable>
           Local Map
+        </ons-list-item>
+        <ons-list-item onclick="signOut()" tappable>
+          Leave Event
         </ons-list-item>
         <!--<ons-list-item onclick="destroyBasedb()" tappable>
           Destroy Db
@@ -75,7 +78,7 @@
               <ons-input id="signInPassword" modifier="underbar" placeholder="Password" float type="password" class="input70perWidth "></ons-input>
             </p>
             <p>
-              <ons-button class="signInButton input70perWidth">Login</ons-button>
+              <ons-button class="signInButton input70perWidth">Sign In</ons-button>
             </p>
             <ons-button class="signUpButton secondaryColorButton maxWidth" modifier="large">Event Organiser Sign Up</ons-button>
           </form>
@@ -151,20 +154,23 @@
           <ons-back-button>Back</ons-back-button>
         </div>
         <div class="center">
-          Enter Virification Code
+          Enter Verification Code
         </div>
-        <div class="right">
-          <ons-toolbar-button>
-            <ons-icon icon="md-check" id="verifyUser"></ons-icon>
-          </ons-toolbar-button>
-        </div>
+
       </ons-toolbar>
       <div class="pageDiv txtCenter caption">
-        <p class="txtLeft marginTop">Enter or paste your verification code below:</p>
+        <p class="txtLeft marginTop">You have just been sent an email to the email address you provided, this contains a verification code. Please enter
+          or paste your verification code below:</p>
         <ons-input id="verificationCode" modifier="underbar" placeholder="Enter verification code here" float type="text" class="fullWidthInput marginTop"
           autofocus></ons-input>
-        <ons-button modifier="large" class="marginTop secondaryColorButton">
+        <ons-button modifier="large" class="marginTop secondaryColorButton" id="verifyAccountButton">
           VERIFY ACCOUNT
+        </ons-button>
+        <h1 class="txtLeft bold borderBottom">Can't find your verification email?</h1>
+        <p class="txtLeft marginTop">It can take a few minutes for the email to arrive; if you cannot find your verification email please check your spam
+          folder, if you still cannot find it press the re-send verification email button below.</p>
+        <ons-button modifier="large" class="marginTop " id="resendVerificationCode">
+          Re-send verification email
         </ons-button>
       </div>
     </ons-page>
@@ -196,15 +202,16 @@
               CHANGE BANNER IMAGE              
             </ons-button>
            </label>
-          <ons-input id="eventName" modifier="underbar" placeholder="Event name" float type="text" class="fullWidthInput marginTop"
+          <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop"
             autofocus></ons-input>
+
           <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
           <p class="txtLeft bold marginTop">Event date</p>
           <div class="flex flexRow flexSpaceBetween flexWrap">
-            <div class="bold caption">Start
+            <div class="bold caption">Start *
               <ons-input id="eventStartDate" type="datetime-local" class="marginLeft marginRight" required></ons-input>
             </div>
-            <div class="bold caption txtRight">End
+            <div class="bold caption txtRight">End *
               <ons-input id="eventEndDate" type="datetime-local" class="marginLeft" required></ons-input>
             </div>
 
@@ -261,8 +268,13 @@
           </div>
           <h2 class="txtLeft bold borderBottom">Admin</h2>
           <div class="flex flexRow flexSpaceBetween marginTop">
-            <div class="caption bold">Admin password</div>
-            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="number" class="adminPassword" required></ons-input>
+            <div class="caption bold">Event Username *</div>
+            <ons-input id="evtUsername" modifier="underbar" placeholder="Username" float type="text" class="eventUsername" required></ons-input>
+          </div>
+          <p class="caption txtLeft">Username for all of the other users of the event. (A password will be auto-generated.)</p>
+          <div class="flex flexRow flexSpaceBetween marginTop">
+            <div class="caption bold">Admin password *</div>
+            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="text" class="adminPassword" required></ons-input>
           </div>
           <p class="caption txtLeft">Passcode required to enter the admin area of the event, to be able to view all logs from all bases and administrate
             the event. </p>
@@ -277,8 +289,8 @@
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-              <div class="caption bold">Base password</div>
-              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="number" class="basePassword" required></ons-input>
+              <div class="caption bold">Base password *</div>
+              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
             </div>
             <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
@@ -290,6 +302,25 @@
     </ons-page>
   </ons-template>
   <!-- End of createEventPage page -->
+  <!-- Start of eventSummary page -->
+  <ons-template id="eventSummaryPage.html">
+    <ons-page id="eventSummaryPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Event Summary
+        </div>
+
+      </ons-toolbar>
+      <div class="pageDiv txtCenter caption evtSummary">
+
+
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of eventSummary page -->
   <!-- Start of loginPage -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">

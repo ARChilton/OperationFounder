@@ -12,6 +12,7 @@
  */
 
 // global variables
+var eventDescription;
 var baseCodes = ['vikings', 'petal', 'peter', 'witch', 'homes', 'trees', 'horse', 'roaming']; // MUST BE LOWER CASE
 var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm', 'Roaming/Check Point']
 var appdb;
@@ -1018,11 +1019,11 @@ function checkConnection() {
 }
 
 function changeAtSymbol(email) {
-    return email.replace('@', '%40');
+    return email.replace('@', ',40,');
 }
 
 function changeAtSymbolBack(email) {
-    return email.replace('%40', '@');
+    return email.replace(',40,', '@');
 }
 //-- log in and out functions
 /**
@@ -1088,6 +1089,31 @@ function logOut() {
 function getBaseNumber() {
     return base;
 }
+/**
+ * a function to interact with the server and post users and usernames
+ * @param {string} apiAddress the api endpoint including the server address
+ * @param {object} dataPackage the object to be sent in the body of the post
+ */
+function apiAjax(apiAddress, dataPackage) {
+
+    return {
+        "async": true,
+        "crossDomain": true,
+        "url": apiAddress,
+        "method": "POST",
+        "dataType": "json",
+        "xhrFields": {
+            "withCredentials": false
+        },
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded",
+
+        },
+        "data": dataPackage
+    };
+
+}
+
 /**
  * The main function for the software, the base number defines which page is presented and what code is run
  * @param {*} base
@@ -1629,6 +1655,7 @@ ons.ready(function () {
     });
 
 
+
     // --- MENU CONTROLS ---
     /**
      * Opens the menu and adds the shadow on the right edge
@@ -1774,30 +1801,7 @@ ons.ready(function () {
                 var emailSignUpValid = false;
                 var passwordSignUp = false;
                 var confirmPassSignUp = false;
-                /**
-                 * a function to interact with the server and post users and usernames
-                 * @param {string} apiAddress the api endpoint including the server address
-                 * @param {object} dataPackage the object to be sent in the body of the post
-                 */
-                function apiAjax(apiAddress, dataPackage) {
 
-                    return {
-                        "async": true,
-                        "crossDomain": true,
-                        "url": apiAddress,
-                        "method": "POST",
-                        "dataType": "json",
-                        "xhrFields": {
-                            "withCredentials": false
-                        },
-                        "headers": {
-                            "content-type": "application/x-www-form-urlencoded",
-
-                        },
-                        "data": dataPackage
-                    };
-
-                }
                 if (!$('#signUpEmail').hasClass('evtHandler')) {
                     var lastUsername = '';
                     $('#signUpEmail').addClass('evtHandler').on('blur', function () {
@@ -1924,16 +1928,27 @@ ons.ready(function () {
                             }
                         } else {
                             //invalid
-                            confirmPassSignUp = false;
-                            if (!errorMessageOpen) {
+                            if (confirmP === '' && passwordSignUp === false) {
                                 errorMessageOpen = true;
                                 ons.notification.alert({
-                                    title: 'Password does not match',
-                                    messageHTML: '<p> Your confirmation password:</p><p>' + confirmP + '</p><p> does not match </p><p>' + passwordSignUp + '</p>',
+                                    title: 'Please enter a password',
+                                    messageHTML: 'Please enter a password to confirm',
                                     cancelable: true
                                 }).then(function () {
                                     errorMessageOpen = false;
                                 });
+                            } else {
+                                confirmPassSignUp = false;
+                                if (!errorMessageOpen) {
+                                    errorMessageOpen = true;
+                                    ons.notification.alert({
+                                        title: 'Password does not match',
+                                        messageHTML: 'Your passwords do not match',
+                                        cancelable: true
+                                    }).then(function () {
+                                        errorMessageOpen = false;
+                                    });
+                                }
                             }
                         }
                     });
@@ -1953,7 +1968,7 @@ ons.ready(function () {
                                         console.log(doc);
                                         switch (doc.status) {
                                             case 200:
-                                                navi.replacePage('createEventPage.html');
+                                                navi.replacePage('verificationPage.html');
                                                 //store username & password as accessable variables
                                                 username = emailSignUp;
                                                 password = passwordSignUp;
@@ -1961,6 +1976,8 @@ ons.ready(function () {
                                                     //localstorage available save username and password for next time
                                                     localStorage.username = emailSignUp;
                                                     localStorage.password = passwordSignUp;
+                                                    localStorage.verified = false;
+                                                    localStorage.evtOrganiser = true;
                                                 }
                                                 break;
 
@@ -1976,7 +1993,7 @@ ons.ready(function () {
                                         console.log(err);
                                         ons.notification.alert({
                                             title: 'error',
-                                            message: err,
+                                            message: 'error: ' + err.toString(),
                                             cancelable: true
                                         });
                                     });
@@ -2000,8 +2017,57 @@ ons.ready(function () {
                     });
                 }
                 break;
+            case 'verificationPage.html':
+                if (!$('#verifyAccountButton').hasClass('evtHandler')) {
+                    $('#verifyAccountButton').addClass('evtHandler').on('click', function () {
+                        var verificationCheckAPI = appServer + '/api/user/verify';
+                        var verificationDataPackage = {
+                            username: localStorage.username,
+                            token: $('#verificationCode').val().trim()
+                        }
+                        if (verificationDataPackage.token != '') {
+                            $.ajax(apiAjax(verificationCheckAPI, verificationDataPackage))
+                                .done(function (doc) {
+                                    switch (doc.status) {
+                                        case 200:
+                                            navi.replacePage('createEventPage.html');
+                                            if (typeof (localStorage) !== 'undefined') {
+                                                //localstorage available save username and password for next time
+                                                localStorage.verified = true;
+                                            }
+                                            break;
+                                        case 401:
+                                            ons.notification.alert({
+                                                title: 'Incorrect code',
+                                                message: "This code does not match your user account, please check you entered it correctly.",
+                                                cancelable: true
+                                            });
+                                            break;
+                                        case 500:
+                                            ons.notification.alert({
+                                                title: 'Error',
+                                                message: doc.err.toString(),
+                                                cancelable: true
+                                            });
+                                            break;
+                                    }
+                                })
+                                .fail(function (err) {
+                                    console.log(err);
+                                    ons.notification.alert({
+                                        title: 'Error sending verification code',
+                                        message: 'failed to send verification code because of: ' + err.toString(),
+                                        cancelable: true
+                                    });
+                                });
+                        }
+                    });
+                }
+                //need to add a resend email function
+                break;
             case 'createEventPage.html':
                 var getFile = false;
+                var evtUsernameUnique = false;
                 //Change image
                 if (!$('#eventBanner').hasClass('evtHandler')) {
                     $('#eventBanner').addClass('evtHandler');
@@ -2045,11 +2111,9 @@ ons.ready(function () {
                         switch (!$('#passwordSwitch').prop("checked")) {
                             //hides the password input
                             case true:
-
                                 $('.basePasswordShowHide').addClass('hide');
                                 break;
                             case false:
-
                                 $('.basePasswordShowHide').removeClass('hide');
                                 break;
                         }
@@ -2067,6 +2131,53 @@ ons.ready(function () {
                         }
                     });
                 }
+                if (!($('#evtUsername').hasClass('evtHandler'))) {
+                    $('#evtUsername').addClass('evtHandler').on('blur', function () {
+                        var evtUsername = $('#evtUsername').val().trim();
+                        if (evtUsername != '') {
+                            var apiAddress = appServer + '/api/user/checkusername';
+                            var evtUsernameToTest = {
+                                username: evtUsername
+                            }
+                            $.ajax(apiAjax(apiAddress, evtUsernameToTest))
+                                .done(function (doc) {
+                                    switch (doc.status) {
+                                        case 200:
+                                            evtUsernameUnique = true;
+                                            break;
+                                        case 409:
+
+                                            ons.notification.alert({
+                                                title: doc.message,
+                                                message: doc.reason,
+                                                cancelable: true
+                                            });
+
+                                            break;
+                                        case 500:
+                                        default:
+
+                                            ons.notification.alert({
+                                                title: 'error',
+                                                message: 'issue checking username is unique',
+                                                cancelable: true
+                                            });
+
+                                    }
+                                }).fail(function (err) {
+                                    console.log(err);
+
+                                    ons.notification.alert({
+                                        title: 'error',
+                                        message: 'issue checking username is unique',
+                                        cancelable: true
+                                    });
+
+                                });
+                        }
+                    });
+                }
+
                 if (!($('.addBaseButton').hasClass('evtHandler'))) {
                     $('.addBaseButton').addClass('evtHandler');
                     //inserts new base above add base button
@@ -2077,7 +2188,7 @@ ons.ready(function () {
                             `
         <div>
             <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
-            <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
               <div class="caption"><span class="bold">Maximum score available</span>
                 <span class="caption marginLeft">(blank = no score input)</span>
@@ -2085,8 +2196,8 @@ ons.ready(function () {
               <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-              <div class="caption bold">Base password</div>
-              <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="number" class="basePassword" required></ons-input>
+              <div class="caption bold">Base password *</div>
+              <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
             </div>
             <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
@@ -2106,10 +2217,8 @@ ons.ready(function () {
                         //TODO add checking and uploading event message
                         //TODO add loading bar
 
-                        var eventDescription = {
+                        eventDescription = {
                             _id: 'eventDescription',
-                            username: username,
-                            password: password,
                             eventName: $('#eventName').val(),
                             dateStart: $('#eventStartDate').val(),
                             dateEnd: $('#eventEndDate').val(),
@@ -2117,6 +2226,7 @@ ons.ready(function () {
                             passwordProtectLogs: $('#offRouteLogsSwitch').prop("checked"),
                             logOfRoute: $('#offRouteLogsSwitch').prop("checked"),
                             adminPassword: $('#adminPassword').val(),
+                            evtUsername: $('#evtUsername').val(),
                             bases: [{
                                 baseNo: 0,
                                 baseName: 'admin HQ',
@@ -2131,67 +2241,93 @@ ons.ready(function () {
                                 type: getFile.type
                             };
                         }
-                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPasscode === '') {
+                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPasscode === '' || eventDescription.evtUsername === '') {
                             case true:
                                 ons.notification.alert({
                                     title: 'Missing attributes',
-                                    messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p>'
+                                    messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p>'
                                 });
                                 console.log(eventDescription);
                                 break;
                             case false:
-
-                                for (var i = 1, l = baseCount; i < l; i++) {
-                                    var baseInfo = {
-                                        baseNo: i,
-                                        baseName: $('#base' + i + 'Name').val(),
-                                        baseMaxScore: $('#base' + i + 'MaxScore').val(),
-                                        basePassword: $('#base' + i + 'Password').val(),
-                                        baseInstructions: $('#base' + i + 'Instructions').val()
-                                    };
-                                    eventDescription.bases.push(baseInfo);
-                                }
-                                var apiAddress = appServer + '/api/event/new';
-                                //TODO add done and fail and authentication to the request
-                                $.ajax(apiAjax(apiAddress, eventDescription))
-                                    .then(function (doc) {
-                                        console.log(doc);
-                                        localStorage.db = doc.dbName;
-                                        localStorage.couchdb = doc.url;
-                                        if (remotedbConnected = false) {
-                                            return remotedb = new PouchDB(doc.url + '/' + doc.dbName);
-                                        } else {
-                                            return remotedb;
-                                        }
-                                    }).then(function (db) {
-                                        return db.get('eventDescription')
-                                            .then(function (doc) {
-                                                eventDescription._rev = doc._rev;
-                                                return db.put(eventDescription);
-                                            })
-                                            .catch(function (err) {
-                                                console.log(err);
-                                                if (err.status === 404) {
+                                if (evtUsernameUnique) {
+                                    for (var i = 1, l = baseCount + 1; i < l; i++) {
+                                        var baseInfo = {
+                                            baseNo: i,
+                                            baseName: $('#base' + i + 'Name').val(),
+                                            baseMaxScore: $('#base' + i + 'MaxScore').val(),
+                                            basePassword: $('#base' + i + 'Password').val(),
+                                            baseInstructions: $('#base' + i + 'Instructions').val()
+                                        };
+                                        eventDescription.bases.push(baseInfo);
+                                    }
+                                    var apiAddress = appServer + '/api/event/new';
+                                    var eventCreationData = {
+                                        username: username,
+                                        password: password,
+                                        eventName: eventDescription.eventName,
+                                        evtUsername: eventDescription.evtUsername
+                                    }
+                                    //TODO add done and fail and authentication to the request
+                                    $.ajax(apiAjax(apiAddress, eventCreationData))
+                                        .then(function (doc) {
+                                            console.log(doc);
+                                            localStorage.db = doc.dbName;
+                                            localStorage.couchdb = doc.url;
+                                            localStorage.http = doc.http;
+                                            eventDescription.evtUserPass = doc.evtUserPass;
+                                            if (remotedbConnected === false) {
+                                                console.log('remotedb not connected');
+                                                console.log(doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName);
+                                                return remotedb = new PouchDB(doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName);
+                                            } else {
+                                                return remotedb;
+                                            }
+                                        }).then(function (db) {
+                                            console.log(db);
+                                            return db.get('eventDescription')
+                                                .then(function (doc) {
+                                                    eventDescription._rev = doc._rev;
                                                     return db.put(eventDescription);
-                                                } else {
-                                                    throw err;
-                                                }
-                                            });
-                                    }).then(function (doc) {
-                                        console.log(doc);
-                                    })
-                                    .catch(function (err) {
-                                        console.log(err);
+                                                })
+                                                .catch(function (err) {
+                                                    console.log(err);
+                                                    if (err.status === 404) {
+                                                        return db.put(eventDescription);
+                                                    } else {
+                                                        throw err;
+                                                    }
+                                                });
+                                        }).then(function (doc) {
+                                            console.log(doc);
+                                            navi.replacePage('eventSummaryPage.html');
+                                        })
+                                        .catch(function (err) {
+                                            console.warn(err);
+                                        });
+
+                                } else {
+                                    ons.notification.alert({
+                                        title: 'error',
+                                        message: 'username is not unique, please try a different username',
+                                        cancelable: true
                                     });
-
+                                }
                         }
-
                     });
                 }
 
 
 
                 //end of create event page
+                break;
+            case 'eventSummaryPage.html':
+                if (!($('#eventSummaryPage').hasClass('evtLoaded'))) {
+                    $('#eventSummaryPage').addClass('evtLoaded');
+                    $('.evtSummary').append(`
+                    need to put event summary info here
+                    `);
+                }
                 break;
 
                 // --- Log in Page ---
