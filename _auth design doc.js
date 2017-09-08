@@ -86,7 +86,9 @@ function (newDoc, oldDoc, userCtx, secObj) {
 
     if (!is_server_or_database_admin(userCtx, secObj)) {
         if (oldDoc) { // validate non-admin updates
-
+            throw ({
+                forbidden: 'Only admins may update user documents.'
+            });
             if (userCtx.name !== newDoc.name) {
                 throw ({
                     forbidden: 'You may only update your own user document.'
