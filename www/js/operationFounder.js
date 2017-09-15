@@ -7,8 +7,11 @@
  * @param {string} username: username of the user
  * @param {string} password: password of the user
  * @param {bool} previousSignIn signed in or out
- * @param {string} url url of couchdb
- * @param {string} db the database name
+ * @param {string} couchdb url of couchdb
+ * @param {array} db array of databases
+ * @param {Bool or undefined} evtOrganiser event organiser
+ * @param {string} http whether the couchdb instance is http:// or https://
+ * @param {Bool or undefined} verified whether the user is verified
  */
 
 // global variables
@@ -30,15 +33,21 @@ var userCurrentlySelected;
 var deleteNotificationCleared = true;
 var attemptCount = 0;
 //user variables
-var username;
-var password;
+var username = localStorage.username;
+var password = localStorage.password;
+//db variables
+var lastDb = localStorage.lastDb;
+var couchdb = localStorage.couchdb;
+var http = localStorage.http;
+var db = localStorage.db;
 //database names
 var adminDatabaseName = 'adminDB1';
-var baseDatabaseName = 'baseDB1';
+var baseDatabaseName;
 var appDatabaseName = 'oppFounderLoginDb';
 //var remotedbURL = 'http://@vps358200.ovh.net:5984/adam_test_ssl';
 //var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
-var remotedbURL = 'http://adam123:adam123@127.0.0.1:5984/adam123';
+//var remotedbURL = 'http://adam123:adam123@127.0.0.1:5984/adam123';
+var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
 
 //server variables
 var appServer = 'http://127.0.0.1:3000';
@@ -727,7 +736,7 @@ function tableUpdateFunction(path, admin) {
             updateAdminTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         }
 
-    } else if (path.base == getBaseNumber()) {
+    } else if (path.base === getBaseNumber()) {
         if (patrolRecordUpdate(path._id, path.offRoute, false)) {
             updateExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         } else {
@@ -1015,7 +1024,6 @@ function showOnMap(locations) {
 function checkConnection() {
     var networkState = navigator.connection.type;
     return networkState;
-
 }
 
 function changeAtSymbol(email) {
@@ -1032,7 +1040,7 @@ function changeAtSymbolBack(email) {
  */
 function loginPut(doc) {
     var timestamp = new Date().toISOString();
-    appdb.put({
+    return appdb.put({
         _id: doc._id,
         _rev: doc._rev,
         base: base,
@@ -1044,12 +1052,16 @@ function loginPut(doc) {
  * Page change handled when log out is performed and resets the log in page except it keeps the name
  */
 function logOutPageChange() {
-    navi.bringPageTop('loginPage.html', {
+    return navi.bringPageTop('loginPage.html', {
         animation: 'none'
+    }).then(function (doc) {
+        $('#userName').val(name);
+        $('#baseCode').val('');
+        $('.adminCleanAll').remove();
+    }).catch(function (err) {
+        console.log(err);
     });
-    $('#userName').val(name);
-    $('#baseCode').val('');
-    $('.adminCleanAll').remove();
+
 
 
 }
@@ -1066,20 +1078,19 @@ function logOut() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
-    appdb.get('login')
+    return appdb.get('login')
         .then(function (doc) {
-            base = 999;
+
             var timestamp = new Date().toISOString();
-            appdb.put({
-                _id: doc._id,
-                _rev: doc._rev,
-                base: base,
-                name: name,
-                timestamp: timestamp
+            doc.base = 999;
+            doc.timestamp = timestamp;
+            return appdb.put({
+                doc
             });
         })
         .catch(function (err) {
             console.log(err);
+            throw err;
         });
 }
 /**
@@ -1124,6 +1135,14 @@ function loginAndRunFunction(base) {
             //-- logged out user --
             logOutPageChange();
             break; // end of logged out user code
+        case -1:
+            // --- incorrect login information
+            alert('incorrect login information saved, please log in again');
+            console.log(err);
+            navi.bringPageTop('loginPage.html', {
+                animation: 'none'
+            });
+            break;
         case 0:
             // -- admin user --
             navi.bringPageTop('admin.html', {
@@ -1211,13 +1230,7 @@ function loginAndRunFunction(base) {
             break; // end of admin user code
 
 
-        case 1: // -- base user --
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        default:
             navi.bringPageTop('page1.html', {
                 animation: 'fade'
             });
@@ -1627,15 +1640,56 @@ function loginAndRunFunction(base) {
             }
             break; // end of page 1 for bases code
 
-        default:
-            // --- incorrect login information
-            alert('incorrect login information saved, please log in again');
-            console.log(err);
-            navi.bringPageTop('loginPage.html', {
-                animation: 'none'
-            });
-            break;
     }
+
+}
+
+function createOrUpdateAppdbEventDescription(eventDescription) {
+    console.log(eventDescription);
+    return appdb.get(eventDescription.dbName + '_eventDescription')
+        .then(function (doc) {
+            eventDescription._id = doc._id;
+            eventDescription._rev = doc._rev;
+            return appdb.put(eventDescription);
+
+        }).catch(function (err) {
+            console.log(err);
+            if (err.status === 404) {
+                eventDescription._id = eventDescription.dbName + '_eventDescription';
+                return appdb.put(eventDescription);
+            } else {
+                console.log(err);
+                err.message = 'unable to save event description on device';
+                throw err;
+            }
+        });
+}
+
+function addAppdbLoginDb(dbName) {
+    console.log(dbName);
+    return appdb.get('login')
+        .then(function (doc) {
+            if (doc.db === undefined) {
+                doc.db = [dbName];
+            } else if (doc.db.indexOf(dbName) = -1) {
+                doc.db.push(dbName);
+            }
+            doc.currentDb = dbName;
+            doc.timestamp = new Date().toISOString();
+            return appdb.put(doc);
+        }).catch(function (err) {
+            if (err.status === 404) {
+                return appdb.put({
+                    _id: 'login',
+                    db: [dbName],
+                    currentDb: dbName,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            console.log(err);
+            err.message = 'issue saving event to device';
+            throw err;
+        });
 
 }
 /**
@@ -1685,41 +1739,55 @@ ons.ready(function () {
     /**
      * First page to load code
      */
-    switch (localStorage.previousSignIn === true) {
-        case true:
-            navi.bringPageTop('loginPage.html', {
-                animation: 'none'
+    //the login function will need to move somewhere further inside the app.
+    // --- login function ---
+    if (appdbConnected == false) {
+        appdb = new PouchDB(appDatabaseName);
+        appdbConnected = true;
+    }
+
+    if (localStorage.previousSignIn && lastDb !== undefined) {
+        baseDatabaseName = lastDb;
+        adminDatabaseName = lastDb + '_admin';
+        appdb.get('login').then(function (doc) { //this part next
+                base = doc.base;
+                name = doc.name;
+                appdbConnected = true;
+                //loginAndRunFunction(base);
+                return doc.currentDb;
+            }).then(function (doc) {
+                return appdb.get(doc + '_eventDescription');
+            })
+            .then(function (doc) {
+                return navi.bringPageTop('loginPage.html', {
+                    animation: 'none',
+                    data: {
+                        eventInfo: doc,
+                        firstPage: true
+                    }
+                });
+            })
+            .catch(function (err) {
+                //error go to sign in screen
+
+                console.log(err);
+                return navi.bringPageTop('signInPage.html', {
+                    animation: 'none'
+                });
+
+
             });
-            break;
-        default:
-            navi.bringPageTop('signInPage.html', {
-                animation: 'none'
-            });
+
+    } else {
+
+        navi.bringPageTop('signInPage.html', {
+            animation: 'none'
+        });
     }
 
 
 
-    //the login function will need to move somewhere further inside the app.
-    /* // --- login function ---
-     if (appdbConnected == false) {
-         appdb = new PouchDB(appDatabaseName);
-         appdbConnected = true;
-     }
-     appdb.get('login').then(function (doc) { //this part next
-             base = doc.base;
-             name = doc.name;
-             appdbConnected = true;
-             loginAndRunFunction(base);
-         })
-         .catch(function (err) {
-             // no log in info at all.. show log in screen
-             console.log('no log in info at all.. show log in screen');
-             console.log(err);
-             navi.bringPageTop('loginPage.html', {
-                 animation: 'none'
-             });
 
-         });*/
 
     if (ons.platform.isWebView()) {
 
@@ -1789,8 +1857,122 @@ ons.ready(function () {
                         username = changeAtSymbol($('#signInUserName').val().trim());
                         password = $('#signInPassword').val().trim();
                         //TODO sign in via server
+                        var signInUrl = appServer + '/api/signin';
+                        var dataPackage = {
+                            username: username,
+                            password: password
+                        };
+                        $.ajax(apiAjax(signInUrl, dataPackage))
+                            .done(function (doc) {
+                                console.log('came down this channel');
+
+                                if (doc.status === 200) {
+                                    console.log(doc);
+                                    if (typeof (localStorage) !== undefined) {
+                                        localStorage.couchdb = doc.couchdb;
+                                        localStorage.http = doc.http;
+                                        localStorage.username = username;
+                                        localStorage.password = password;
+                                        localStorage.db = JSON.stringify(doc.user.roles);
+                                        localStorage.previousSignIn = true;
+                                        if (doc.user.metadata !== undefined) {
+                                            localStorage.evtOrganiser = doc.user.metadata.evtOrganiser;
+                                            localStorage.verified = doc.user.metadata.verification.verified;
+                                        }
+                                    }
+
+                                    couchdb = doc.couchdb;
+                                    http = doc.http;
+                                    //remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                                    db = doc.roles;
+                                    //pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
+                                    /* appdb.get('login')
+                                    .then(function (doc) {
+                                        doc.db = db;
+                                        return appdb.put(doc);
+                                    }).then(function (doc) {
+
+                                    })
+                                    .catch(function (err) {
+
+                                    }); */
+                                    if (doc.user.metadata.evtOrganiser !== true) {
+                                        //event user - TODO event user login
+                                        return navi.bringPageTop('loginPage.html', {
+                                            animation: 'none',
+                                            data: {
+                                                event: db[0]
+                                            }
+                                        });
+                                    }
+                                    if (doc.user.metadata.evtOrganiser === true) {
+                                        if (!doc.user.metadata.verification.verified) {
+                                            navi.bringPageTop('verificationPage.html', {
+                                                animation: 'none'
+                                            });
+                                        }
+                                    }
+                                    if (lastDb === undefined) {
+
+                                        if (db.length < 1) {
+                                            return navi.bringPageTop('eventSelectionPage.html', {
+                                                animation: 'none'
+                                            });
+                                        } else {
+
+                                            return navi.bringPageTop('loginPage.html', {
+                                                animation: 'none',
+                                                data: {
+                                                    event: db[0]
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        return navi.bringPageTop('loginPage.html', {
+                                            animation: 'none',
+                                            data: {
+                                                event: lastDb
+                                            }
+                                        });
+                                    }
+
+                                } else {
+                                    return ons.notification.alert({
+                                        title: doc.error,
+                                        message: doc.message + " Be aware that both your username and password are case sensitive.",
+                                        cancelable: true
+                                    });
+                                }
+                            })
+                            .fail(function (err) {
+                                console.log(err);
+                                var connection;
+                                if (ons.platform.isWebView()) {
+                                    connection = checkConnection();
+                                }
+                                console.log("current connection: " + connection);
+                                switch (connection) {
+                                    case "none":
+                                        console.log(connection);
+                                        return ons.notification.alert({
+                                            title: 'Error',
+                                            message: "Couldn't connect to server because this device is offline.",
+                                            cancelable: true
+                                        });
+                                        break;
+                                    default:
+                                        return ons.notification.alert({
+                                            title: 'Error',
+                                            message: "Couldn't connect to server, please try again later.",
+                                            cancelable: true
+                                        });
+                                }
+
+
+                            });
                     });
                 }
+
 
                 break;
 
@@ -1972,7 +2154,7 @@ ons.ready(function () {
                                                 //store username & password as accessable variables
                                                 username = emailSignUp;
                                                 password = passwordSignUp;
-                                                if (typeof (localStorage) !== 'undefined') {
+                                                if (typeof (localStorage) !== undefined) {
                                                     //localstorage available save username and password for next time
                                                     localStorage.username = emailSignUp;
                                                     localStorage.password = passwordSignUp;
@@ -2031,7 +2213,7 @@ ons.ready(function () {
                                     switch (doc.status) {
                                         case 200:
                                             navi.replacePage('createEventPage.html');
-                                            if (typeof (localStorage) !== 'undefined') {
+                                            if (typeof (localStorage) !== undefined) {
                                                 //localstorage available save username and password for next time
                                                 localStorage.verified = true;
                                             }
@@ -2068,6 +2250,7 @@ ons.ready(function () {
             case 'createEventPage.html':
                 var getFile = false;
                 var evtUsernameUnique = false;
+                var url;
                 //Change image
                 if (!$('#eventBanner').hasClass('evtHandler')) {
                     $('#eventBanner').addClass('evtHandler');
@@ -2078,7 +2261,7 @@ ons.ready(function () {
                         getFile = inputFile.files[0];
                         console.log(getFile);
                         console.log(getFile.type);
-                        var url = URL.createObjectURL(getFile);
+                        url = URL.createObjectURL(getFile);
                         console.log(url);
                         $('#eventBannerImage').attr('src', url);
                     }
@@ -2219,26 +2402,29 @@ ons.ready(function () {
 
                         eventDescription = {
                             _id: 'eventDescription',
-                            eventName: $('#eventName').val(),
+                            eventName: $('#eventName').val().trim(),
                             dateStart: $('#eventStartDate').val(),
                             dateEnd: $('#eventEndDate').val(),
-                            eventDescription: $('#eventDescription').val(),
-                            passwordProtectLogs: $('#offRouteLogsSwitch').prop("checked"),
+                            eventDescription: $('#eventDescription').val().trim(),
+                            passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                             logOfRoute: $('#offRouteLogsSwitch').prop("checked"),
                             adminPassword: $('#adminPassword').val(),
                             evtUsername: $('#evtUsername').val(),
                             bases: [{
                                 baseNo: 0,
                                 baseName: 'admin HQ',
-                                basePassword: $('#adminPassword').val()
+                                basePassword: $('#adminPassword').val().trim()
                             }],
 
                         };
                         if (getFile !== false) {
                             //adds an image to the description
+                            var filename = getFile.name;
                             eventDescription._attachments = {
-                                data: getFile,
-                                type: getFile.type
+                                evtLogo: {
+                                    data: getFile,
+                                    content_type: getFile.type
+                                }
                             };
                         }
                         switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPasscode === '' || eventDescription.evtUsername === '') {
@@ -2254,10 +2440,10 @@ ons.ready(function () {
                                     for (var i = 1, l = baseCount + 1; i < l; i++) {
                                         var baseInfo = {
                                             baseNo: i,
-                                            baseName: $('#base' + i + 'Name').val(),
+                                            baseName: $('#base' + i + 'Name').val().trim(),
                                             baseMaxScore: $('#base' + i + 'MaxScore').val(),
-                                            basePassword: $('#base' + i + 'Password').val(),
-                                            baseInstructions: $('#base' + i + 'Instructions').val()
+                                            basePassword: $('#base' + i + 'Password').val().trim(),
+                                            baseInstructions: $('#base' + i + 'Instructions').val().trim()
                                         };
                                         eventDescription.bases.push(baseInfo);
                                     }
@@ -2272,38 +2458,94 @@ ons.ready(function () {
                                     $.ajax(apiAjax(apiAddress, eventCreationData))
                                         .then(function (doc) {
                                             console.log(doc);
-                                            localStorage.db = doc.dbName;
+                                            if (localStorage.db !== undefined) {
+                                                var dbs = JSON.parse(localStorage.db);
+                                                dbs.push(doc.dbName);
+                                                localStorage.db = JSON.stringify(dbs);
+                                            } else {
+                                                localStorage.db = doc.dbName;
+                                            }
+
+                                            localStorage.lastDb = doc.dbName;
                                             localStorage.couchdb = doc.url;
                                             localStorage.http = doc.http;
                                             eventDescription.evtUserPass = doc.evtUserPass;
-                                            if (remotedbConnected === false) {
-                                                console.log('remotedb not connected');
-                                                console.log(doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName);
-                                                return remotedb = new PouchDB(doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName);
+                                            eventDescription.dbName = doc.dbName;
+                                            var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
+                                            if (remotedbURL === newRemotedbURL) {
+                                                //this returns true
+                                                return true;
                                             } else {
+                                                remotedbURL = newRemotedbURL;
+                                                if (remotedbConnected) {
+
+                                                    remotedb.close().then(function (doc) {
+                                                        return remotedbConnected = false;
+                                                    }).catch(function (err) {
+                                                        console.log(err);
+                                                        throw err;
+                                                    });
+                                                } else {
+                                                    //this should return false
+                                                    return remotedbConnected;
+                                                }
+                                            }
+                                        }).then(function (doc) {
+                                            //checking if remotedb was already defined or not, most likely not
+                                            if (doc === false) {
+                                                console.log('creating new remotedb connection with new characteristics');
+
+                                                //new remotedb location as defined from the server
+                                                return remotedb = new PouchDB(remotedbURL);
+                                            } else {
+                                                //remotedb has not changed
                                                 return remotedb;
                                             }
+
                                         }).then(function (db) {
+                                            //db is remoteDb but via the function not the var
                                             console.log(db);
                                             return db.get('eventDescription')
                                                 .then(function (doc) {
                                                     eventDescription._rev = doc._rev;
                                                     return db.put(eventDescription);
-                                                })
-                                                .catch(function (err) {
+                                                }).catch(function (err) {
                                                     console.log(err);
                                                     if (err.status === 404) {
                                                         return db.put(eventDescription);
                                                     } else {
+                                                        console.log(err);
+                                                        err.message = 'unable to upload event description to the database';
                                                         throw err;
                                                     }
                                                 });
                                         }).then(function (doc) {
+                                            //puts the event description into the appdb
+                                            return createOrUpdateAppdbEventDescription(eventDescription);
+
+                                        }).then(function (doc) {
+                                            //adds a reference to the event description by adding the db to the list of the user's dbs
+                                            return addAppdbLoginDb(eventDescription.dbName);
+
+                                        }).then(function (doc) {
                                             console.log(doc);
-                                            navi.replacePage('eventSummaryPage.html');
+                                            return navi.replacePage('eventSummaryPage.html', {
+                                                data: {
+                                                    eventName: eventName,
+                                                    url: url
+                                                }
+                                            });
                                         })
                                         .catch(function (err) {
                                             console.warn(err);
+                                            if (err.message === undefined) {
+                                                err.message = 'issue saving the event';
+                                            }
+                                            return ons.notification.alert({
+                                                title: 'error',
+                                                message: err.message,
+                                                cancelable: true
+                                            });
                                         });
 
                                 } else {
@@ -2316,17 +2558,67 @@ ons.ready(function () {
                         }
                     });
                 }
-
+                // TODO test event creation adds to appdb so that the login page can pick it up. Also need to add the hook in the sync function to update appdb if basedb gets a change.
 
 
                 //end of create event page
                 break;
             case 'eventSummaryPage.html':
+                var eventName = navi.topPage.data.eventName;
+                var url = navi.topPage.data.url;
+                console.log(url);
                 if (!($('#eventSummaryPage').hasClass('evtLoaded'))) {
                     $('#eventSummaryPage').addClass('evtLoaded');
-                    $('.evtSummary').append(`
-                    need to put event summary info here
-                    `);
+                    console.log(eventDescription);
+                    $('#evtSummaryTitle').html(eventName);
+                    var evtStart = new Date(eventDescription.dateStart);
+                    var evtEnd = new Date(eventDescription.dateEnd)
+
+                    $('#evtSummaryStartDate').append(evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString());
+                    $('#evtSummaryEndDate').append(evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString());
+                    $('#evtSummaryBaseCount').append(eventDescription.bases.length);
+                    $('#evtSummaryUsername').append(eventDescription.evtUsername);
+                    $('#evtSummaryPassword').append(eventDescription.evtUserPass);
+                    $('#evtSummaryDescription').append(eventDescription.eventDescription);
+                    $('#evtSummaryAdminPass').append(eventDescription.bases[0].basePassword);
+
+                    var bases = eventDescription.bases;
+                    bases.forEach(function (base) {
+
+                        if (base.baseName === undefined) {
+                            base.baseName = 'Base ' + base.baseNo;
+                        } else {
+                            base.baseName = 'Base ' + base.baseNo + ': ' + base.baseName
+                        }
+                        $('#evtSummaryBases').append('<h2 class="bold evtSummaryBasesTitle">' + base.baseName + '<h2>');
+                        if (base.baseMaxScore === undefined) {
+                            base.baseMaxScore = 'no score available at this location'
+                        }
+                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + base.baseMaxScore + '<p>');
+                        if (eventDescription.passwordProtectLogs) {
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '<p>');
+                        }
+                        if (base.baseInstructions != undefined && base.baseInstructions != "") {
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions + '<p>');
+                        }
+                    });
+                    if (url != undefined) {
+                        console.log('no no no');
+                        $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
+                    } else if (eventDescription._attachments.evtLogo != undefined) {
+                        //need to work out the structure of the dbs on the device - then I can try the local db then the remote db
+                        //code below required to get attachments and create url for img
+                        /*
+                        remotedb.getAttachment('eventDescription','evtLogo')
+                        .then(function (blob) {
+                            var url = URL.createObjectURL(blob);
+                            console.log(url);});
+                        */
+                        //then put in the banner div
+                        //$('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
+
+                    }
+
                 }
                 break;
 
@@ -2334,7 +2626,13 @@ ons.ready(function () {
 
             case 'loginPage.html':
                 //loginPage.html
-                ons.disableDeviceBackButtonHandler();
+                // ons.disableDeviceBackButtonHandler();
+
+                //TODO next set up login page with dropdown box and change what is displayed as applicable. Also do a check on basecodes and change the current base code check to take the input from the navi.data
+
+                //get the data from the page and update the page
+                $('#loginEventDescription').html(navi.topPage.data.eventInfo.eventDescription.replace(/\n/g, "<br>"));
+                //event handlers
                 if (!($('.loginButton').hasClass('evtHandler'))) {
                     $('.loginButton').addClass('evtHandler');
                     $('.loginButton').on('click', function () {
@@ -2352,17 +2650,14 @@ ons.ready(function () {
                                     // });
 
                                     appdb.get('login').then(function (doc) {
-                                            appdb.put({
-                                                _id: doc._id,
-                                                _rev: doc._rev,
-                                                base: base,
-                                                name: name,
-                                                timestamp: timestamp
-
-                                            })
+                                            doc.base = base;
+                                            doc.name = name;
+                                            doc.timestamp = timestamp;
+                                            return appdb.put(doc);
                                         })
                                         .catch(function (err) {
-                                            appdb.put({
+                                            //TODO check once the db stuff is sorted
+                                            return appdb.put({
                                                 _id: 'login',
                                                 base: base,
                                                 name: name,
@@ -2392,23 +2687,27 @@ ons.ready(function () {
                                     //     animation: 'fade'
                                     // });
                                     appdb.get('login').then(function (doc) {
-                                            loginPut(doc);
+                                            doc.base = base;
+                                            doc.name = name;
+                                            doc.timestamp = timestamp;
+                                            return appdb.put(doc);
+                                            // return loginPut(doc);
                                         })
                                         .catch(function () {
-                                            appdb.put({
+                                            return appdb.put({
                                                 _id: 'login',
                                                 base: base,
                                                 name: name,
                                                 timestamp: timestamp
                                             }).then(function () {
-                                                ons.notification.alert({
+                                                return ons.notification.alert({
                                                     title: 'Welcome ' + name,
                                                     message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.',
                                                     cancelable: true
                                                 });
                                             }).catch(function (err) {
                                                 console.log(err);
-                                                ons.notification.alert({
+                                                return ons.notification.alert({
                                                     title: 'Error saving user',
                                                     message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
                                                     cancelable: true
@@ -2536,20 +2835,18 @@ ons.ready(function () {
                     });
                 }
                 if (!($('#adminUnlock').hasClass('evtHandler'))) {
-                    $('#adminUnlock').addClass('evtHandler');
-                    $('#adminUnlock').on('click', function () {
+                    $('#adminUnlock').addClass('evtHandler').on('click', function () {
                         lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
 
                     });
                 }
 
                 if (!($('#adminCopyTable').hasClass('evtHandler'))) {
-                    $('#adminCopyTable').addClass('evtHandler');
                     /**
                      * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
                      * @event adminCopyTable clicked
                      */
-                    $('#adminCopyTable').on('click', function () {
+                    $('#adminCopyTable').addClass('evtHandler').on('click', function () {
                         //console.log($('#adminLogsTable').html());
                         function copyToClipboard(element) {
                             var $temp = $("<input>");

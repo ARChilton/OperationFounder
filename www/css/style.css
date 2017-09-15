@@ -383,6 +383,30 @@ p {
     border-bottom: thin solid #ccc;
 }
 
+.sentanceCase {
+    text-transform: lowercase;
+}
+
+.sentanceCase:first-letter {
+    text-transform: uppercase;
+}
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.lowercase {
+    text-transform: lowercase;
+}
+
+.keepAsWritten {
+    text-transform: none;
+}
+
 
 /*element styles*/
 
@@ -464,6 +488,14 @@ p {
     position: absolute;
     left: 16px;
     right: 16px;
+}
+
+.navigation-bar__title {
+    text-transform: lowercase;
+}
+
+.navigation-bar__title:first-letter {
+    text-transform: uppercase;
 }
 
 

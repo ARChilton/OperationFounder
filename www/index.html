@@ -314,19 +314,67 @@
         </div>
 
       </ons-toolbar>
-      <div class="pageDiv txtCenter caption evtSummary">
-
-
+      <div class="pageDiv evtSummary">
+        <div id="evtSummaryBanner"></div>
+        <h2 class="txtLeft bold borderBottom keepAsWritten" id="evtSummaryTitle">Event Details</h2>
+        <p id="evtSummaryStartDate" class=""><span class="bold sentanceCase">Start Date: </span></p>
+        <p id="evtSummaryEndDate" class=""><span class="bold sentanceCase">End Date: </span></p>
+        <p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">Bases: </span></p>
+        <p id="evtSummaryUsername" class=""><span class="bold sentanceCase">base user username: </span></p>
+        <p id="evtSummaryPassword" class=""><span class="bold sentanceCase">base user password: </span></p>
+        <p id="evtSummaryDescription" class=""><span class="bold sentanceCase">Event Description: </span><br></p>
+        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
+        <div id="evtSummaryBases"></div>
+        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
+        <p id="evtSummaryAdminPass" class=""><span class="bold sentanceCase">Admin passcode: </span></p>
       </div>
     </ons-page>
   </ons-template>
   <!-- End of eventSummary page -->
+  <!-- Start of eventSelectionPage -->
+  <ons-template id="eventSelectionPage.html">
+    <ons-page id="eventSelectionPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Select event
+        </div>
+
+      </ons-toolbar>
+      <div class="pageDiv evtSummary">
+        <div id="evtSummaryBanner"></div>
+        <h2 class="txtLeft bold borderBottom keepAsWritten" id="evtSummaryTitle">Event Details</h2>
+        <p id="evtSummaryStartDate" class=""><span class="bold sentanceCase">Start Date: </span></p>
+        <p id="evtSummaryEndDate" class=""><span class="bold sentanceCase">End Date: </span></p>
+        <p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">Bases: </span></p>
+        <p id="evtSummaryUsername" class=""><span class="bold sentanceCase">base user username: </span></p>
+        <p id="evtSummaryPassword" class=""><span class="bold sentanceCase">base user password: </span></p>
+        <p id="evtSummaryDescription" class=""><span class="bold sentanceCase">Event Description: </span><br></p>
+        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
+        <div id="evtSummaryBases"></div>
+        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
+        <p id="evtSummaryAdminPass" class=""><span class="bold sentanceCase">Admin passcode: </span></p>
+      </div>
+    </ons-page>
+  </ons-template>
+  <!-- End of eventSelectionPage -->
   <!-- Start of loginPage -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Event homepage
+        </div>
+
+      </ons-toolbar>
       <div class="pageDiv marginTop32px">
         <img src="img/operationFounder.png" class="loginLogo">
-        <p class="marginTop">Welcome to the Operation Founder app, please enter your name and base code below:</p>
+        <p class="marginTop">Please enter your name and base code below:</p>
         <p>
           <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput marginTop"></ons-input>
         </p>
@@ -336,8 +384,10 @@
         </p>
         <p class="caption">(Each code is individual to each base)</p>
         <p class="txtCenter marginTop">
-          <ons-button class="loginButton">Login</ons-button>
+          <ons-button modifier="large" class="loginButton secondaryColorButton">Login</ons-button>
         </p>
+        <h2 class="txtLeft bold borderBottom sentanceCase">Event Description</h2>
+        <p id="loginEventDescription">loading event description/instructions</p>
       </div>
       <!--<div id="compassDiv">
         <img src="img/compass.png" id="compass">
