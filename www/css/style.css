@@ -112,18 +112,8 @@ Accent Darker color: Orange 800: #EF6C00
     margin: auto;
 }
 
-#compassDiv {
-    margin: auto;
-    position: absolute;
-    bottom: 16px;
-    left: 0;
-    z-index: 1;
-}
-
-#compass {
-    width: 60%;
-    display: block;
-    margin: auto;
+#baseSelectDialog {
+    padding: 16px;
 }
 
 
