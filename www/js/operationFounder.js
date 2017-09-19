@@ -16,8 +16,8 @@
 
 // global variables
 var eventDescription;
-var baseCodes = ['vikings', 'petal', 'peter', 'witch', 'homes', 'trees', 'horse', 'roaming']; // MUST BE LOWER CASE
-var baseNames = ['HQ', 'Rose Revived', 'Hookwood', 'Dunks Green', 'Oxon Hoath', 'Beech Farm', 'Hope Farm', 'Roaming/Check Point']
+var baseCodes = []; // MUST BE LOWER CASE
+var baseNames = [];
 var appdb;
 var appdbConnected = false;
 var basedb;
@@ -1084,9 +1084,7 @@ function logOut() {
             var timestamp = new Date().toISOString();
             doc.base = 999;
             doc.timestamp = timestamp;
-            return appdb.put({
-                doc
-            });
+            return appdb.put(doc);
         })
         .catch(function (err) {
             console.log(err);
@@ -1779,7 +1777,7 @@ ons.ready(function () {
             });
 
     } else {
-
+        //TODO put in else if for not verified and for a verified account that didnt create an event
         navi.bringPageTop('signInPage.html', {
             animation: 'none'
         });
@@ -2160,6 +2158,7 @@ ons.ready(function () {
                                                     localStorage.password = passwordSignUp;
                                                     localStorage.verified = false;
                                                     localStorage.evtOrganiser = true;
+                                                    localStorage.previousSignIn = true;
                                                 }
                                                 break;
 
@@ -2579,7 +2578,9 @@ ons.ready(function () {
                     $('#evtSummaryBaseCount').append(eventDescription.bases.length);
                     $('#evtSummaryUsername').append(eventDescription.evtUsername);
                     $('#evtSummaryPassword').append(eventDescription.evtUserPass);
-                    $('#evtSummaryDescription').append(eventDescription.eventDescription);
+                    if (eventDescription.eventDescription !== '') {
+                        $('#evtSummaryDescription').append(eventDescription.eventDescription.replace(/\n/g, "<br>"));
+                    }
                     $('#evtSummaryAdminPass').append(eventDescription.bases[0].basePassword);
 
                     var bases = eventDescription.bases;
@@ -2599,23 +2600,26 @@ ons.ready(function () {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '<p>');
                         }
                         if (base.baseInstructions != undefined && base.baseInstructions != "") {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions + '<p>');
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '<p>');
                         }
                     });
                     if (url != undefined) {
                         console.log('no no no');
                         $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
                     } else if (eventDescription._attachments.evtLogo != undefined) {
-                        //need to work out the structure of the dbs on the device - then I can try the local db then the remote db
+
                         //code below required to get attachments and create url for img
-                        /*
-                        remotedb.getAttachment('eventDescription','evtLogo')
-                        .then(function (blob) {
-                            var url = URL.createObjectURL(blob);
-                            console.log(url);});
-                        */
-                        //then put in the banner div
-                        //$('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
+
+                        appdb.getAttachment(eventDescription.dbName + '_eventDescription', 'evtLogo')
+                            .then(function (blob) {
+                                return URL.createObjectURL(blob);
+                            })
+                            .then(function (url) {
+                                $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
+                            }).catch(function (err) {
+                                console.log('issue loading evtLogo image');
+                                console.log(err);
+                            });
 
                     }
 
@@ -2629,9 +2633,74 @@ ons.ready(function () {
                 // ons.disableDeviceBackButtonHandler();
 
                 //TODO next set up login page with dropdown box and change what is displayed as applicable. Also do a check on basecodes and change the current base code check to take the input from the navi.data
+                if (navi.topPage.data.eventInfo !== undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo;
+                    //get the data from the page and update the page
 
-                //get the data from the page and update the page
-                $('#loginEventDescription').html(navi.topPage.data.eventInfo.eventDescription.replace(/\n/g, "<br>"));
+                    //Event Description update
+
+                    $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
+
+                    //Event Logo update
+                    appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
+                        .then(function (blob) {
+                            return URL.createObjectURL(blob);
+                        })
+                        .then(function (url) {
+                            $('#loginEventLogo').attr('src', url);
+                        }).catch(function (err) {
+                            console.log('issue loading evtLogo image');
+                            console.log(err);
+                        });
+
+                    //Base Password put into array and checks if base passwords are required or a dropdown is added
+                    if (eventInfo.passwordProtectLogs) {
+                        //if bases have a password
+                        eventInfo.bases.forEach(function (base) {
+                            var baseCode = base.basePassword;
+                            if (baseCode === '') {
+                                baseCode = base.baseNo.toString();
+                            }
+                            baseCodes.push(baseCode);
+                            //base names are put into array
+                            baseNames.push(base.baseName);
+                        });
+                    } else {
+
+
+                        $('#baseCode').replaceWith('<ons-button modifier="large" id="baseCode">Select a base</ons-button>')
+                        // if (!($('#baseCode').hasClass('evtHandler'))) {
+                        $('#baseCode').addClass('evtHandler').on('click', function () {
+
+                            // if (!($('#baseSelectDialog').hasClass('evtHandler'))) {
+                            // $('#baseSelectDialog').addClass('evtHandler');
+                            ons.createDialog('baseSelectDialog.html')
+                                .then(function (dialog) {
+
+                                    eventInfo.bases.forEach(function (base) {
+                                        var baseCode = base.baseNo.toString();
+                                        var baseName = base.baseName;
+                                        baseCodes.push(baseCode);
+                                        //base names are put into array
+                                        baseNames.push(baseName);
+                                        //adds an option in the dropdown
+                                        var loginSelect = $('#loginBaseSelect');
+                                        $('#loginBaseSelect').append('<ons-list-item tappable>' + baseName + '</ons-list-item>')
+                                    });
+
+                                    console.log(dialog);
+
+                                    dialog.show();
+
+                                });
+
+
+                        });
+                        //}
+                    }
+
+
+                }
                 //event handlers
                 if (!($('.loginButton').hasClass('evtHandler'))) {
                     $('.loginButton').addClass('evtHandler');
