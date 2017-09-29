@@ -28,6 +28,8 @@ var admindb;
 var admindbConnected = false;
 var adminSyncInProgress = false;
 var baseSyncInProgress = false;
+var syncBasedb;
+var adminSync;
 var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
@@ -1058,6 +1060,8 @@ function logOutPageChange() {
         $('#userName').val(name);
         $('#baseCode').val('');
         $('.adminCleanAll').remove();
+        deleteIndexes();
+        return doc;
     }).catch(function (err) {
         console.log(err);
     });
@@ -1065,6 +1069,14 @@ function logOutPageChange() {
 
 
 }
+
+function deleteIndexes() {
+    offRouteIndex = [];
+    offRouteIndexAdmin = [];
+    patrolRecord = [];
+    patrolRecordAdmin = [];
+}
+
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
  */
@@ -1074,10 +1086,7 @@ function logOut() {
     $('tbody').empty();
     logOutPageChange();
     document.getElementById('menu').toggle();
-    offRouteIndex = [];
-    offRouteIndexAdmin = [];
-    patrolRecord = [];
-    patrolRecordAdmin = [];
+
     return appdb.get('login')
         .then(function (doc) {
 
@@ -1090,6 +1099,30 @@ function logOut() {
             console.log(err);
             throw err;
         });
+}
+
+function signOut() {
+    navi.resetToPage('signInPage.html', {
+        animation: 'none'
+    });
+    document.getElementById('menu').toggle();
+    if (basedbConnected && !syncBasedb.canceled) {
+        syncBasedb.cancel();
+        basedb;
+        syncBasedb;
+        basedbConnected = false;
+        baseSyncInProgress = false;
+    }
+    if (admindbConnected && !adminSync.canceled) {
+        adminSync.cancel();
+        admindb;
+        adminSync;
+        admindbConnected = false;
+        adminSyncInProgress = false;
+    }
+    deleteIndexes();
+    localStorage.lastDb = false;
+
 }
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -1124,10 +1157,18 @@ function apiAjax(apiAddress, dataPackage) {
 }
 
 /**
+ * A function to set the base code value when using the dropdown menu.
+ * @param {*} value the value to be set as the base code's value
+ */
+function baseSelectValue(value) {
+    document.getElementById('baseSelectDialog').hide();
+    return $('#baseCode').val(value).text('Selected base: ' + baseNames[value]);
+}
+/**
  * The main function for the software, the base number defines which page is presented and what code is run
  * @param {*} base
  */
-function loginAndRunFunction(base) {
+function loginAndRunFunction(base, data) {
     switch (base) {
         case 999:
             //-- logged out user --
@@ -1195,7 +1236,7 @@ function loginAndRunFunction(base) {
                         retry: true
                     }
                     adminSyncInProgress = true;
-                    var adminSync = admindb.sync(remotedb, syncOptions)
+                    return adminSync = admindb.sync(remotedb, syncOptions)
                         .on('change', function (doc) {
                             // yo, something changed!
 
@@ -1219,6 +1260,8 @@ function loginAndRunFunction(base) {
                         }).on('error', function (err) {
                             // totally unhandled error (shouldn't happen)
                             console.log('Replication Error: ' + err);
+                        }).on('complete', function (info) {
+                            console.log('sync disconected from admin database.');
                         });
                 }
             }).catch(function (err) {
@@ -1250,7 +1293,7 @@ function loginAndRunFunction(base) {
                 basedbConnected = true;
             }
             //create timeOut index
-            basedb.createIndex({
+            return basedb.createIndex({
                 index: {
                     fields: ['timeOut'],
                     name: 'timeOutIndex',
@@ -1259,7 +1302,7 @@ function loginAndRunFunction(base) {
                 }
             }).then(function (doc) {
                 console.log(doc);
-                basedb.createIndex({
+                return basedb.createIndex({
                     index: {
                         fields: ['base', 'timeOut'],
                         name: 'baseTimeOutIndex',
@@ -1268,7 +1311,7 @@ function loginAndRunFunction(base) {
                     }
                 })
             }).then(function (doc) {
-                basedb.createIndex({
+                return basedb.createIndex({
                     index: {
                         fields: ['patrol'],
                         name: 'patrolIndex',
@@ -1293,15 +1336,15 @@ function loginAndRunFunction(base) {
                 });
             }).then(function (doc) {
                 console.log(doc);
-                updateTableFromFindQuery(doc, false);
-            }).then(function () {
-                basedb.createIndex({
+                return updateTableFromFindQuery(doc, false);
+            }).then(function (doc) {
+                return basedb.createIndex({
                     index: {
                         fields: ['base']
                     }
                 });
 
-            }).then(function () {
+            }).then(function (doc) {
                 if (remotedbConnected == false) {
                     remotedb = new PouchDB(remotedbURL);
                     remotedbConnected = true;
@@ -1318,7 +1361,8 @@ function loginAndRunFunction(base) {
                         live: true,
                         retry: true
                     }
-                    var syncBasedb = basedb.sync(remotedb, syncOptions)
+
+                    return syncBasedb = basedb.sync(remotedb, syncOptions)
                         .on('change', function (doc) {
                             // yo, something changed!
 
@@ -1340,10 +1384,15 @@ function loginAndRunFunction(base) {
                         }).on('error', function (err) {
                             // totally unhandled error (shouldn't happen)
                             console.log(err);
+                            if (err.status === 409) {
+                                console.log('conflict in doc upload');
+                            }
+                        }).on('complete', function (info) {
+                            console.log('sync cancelled to basedb');
                         });
                 }
             }).catch(function (err) {
-                console.log(err);
+                return console.log(err);
             });
 
 
@@ -1669,7 +1718,7 @@ function addAppdbLoginDb(dbName) {
         .then(function (doc) {
             if (doc.db === undefined) {
                 doc.db = [dbName];
-            } else if (doc.db.indexOf(dbName) = -1) {
+            } else if (doc.db.indexOf(dbName) === -1) {
                 doc.db.push(dbName);
             }
             doc.currentDb = dbName;
@@ -1744,30 +1793,31 @@ ons.ready(function () {
         appdbConnected = true;
     }
 
-    if (localStorage.previousSignIn && lastDb !== undefined) {
+    if (localStorage.previousSignIn && lastDb != false) {
         baseDatabaseName = lastDb;
         adminDatabaseName = lastDb + '_admin';
         appdb.get('login').then(function (doc) { //this part next
                 base = doc.base;
                 name = doc.name;
                 appdbConnected = true;
-                //loginAndRunFunction(base);
                 return doc.currentDb;
             }).then(function (doc) {
                 return appdb.get(doc + '_eventDescription');
             })
             .then(function (doc) {
+                //TODO ARC 20/09/2017 consider loginandrun function here passing data on
+                var data = {
+                    eventInfo: doc,
+                    firstPage: true
+                };
                 return navi.bringPageTop('loginPage.html', {
                     animation: 'none',
-                    data: {
-                        eventInfo: doc,
-                        firstPage: true
-                    }
+                    data: data
                 });
             })
             .catch(function (err) {
                 //error go to sign in screen
-
+                console.log('going to sign in screen');
                 console.log(err);
                 return navi.bringPageTop('signInPage.html', {
                     animation: 'none'
@@ -1778,6 +1828,7 @@ ons.ready(function () {
 
     } else {
         //TODO put in else if for not verified and for a verified account that didnt create an event
+        console.log('no previous sign in information');
         navi.bringPageTop('signInPage.html', {
             animation: 'none'
         });
@@ -1844,12 +1895,25 @@ ons.ready(function () {
 
                 if (!$('.signUpButton').hasClass('evtHandler')) {
                     $('.signUpButton').addClass('evtHandler').on('click', function () {
-                        console.log('should be changing pages');
                         navi.bringPageTop('signUpPage.html', {
                             animation: 'none'
                         });
                     });
                 }
+                if (!$('#signInPassword').hasClass('evtHandler')) {
+                    $('#signInPassword').addClass('evtHandler').on('keyup', function (e) {
+                        var key = e.which;
+                        console.log(key);
+                        // enter key is 13
+                        if (key === 13) {
+                            e.preventDefault();
+                            $('.signInButton').click();
+
+                        }
+                    });
+                }
+
+                //TODO this button Needs lots of work ARC 20/09/2017
                 if (!$('.signInButton').hasClass('evtHandler')) {
                     $('.signInButton').addClass('evtHandler').on('click', function () {
                         username = changeAtSymbol($('#signInUserName').val().trim());
@@ -1883,7 +1947,8 @@ ons.ready(function () {
                                     http = doc.http;
                                     //remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                                     db = doc.roles;
-                                    //pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
+                                    //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
+                                    //need to do the whole getting of the event information
                                     /* appdb.get('login')
                                     .then(function (doc) {
                                         doc.db = db;
@@ -1910,9 +1975,9 @@ ons.ready(function () {
                                             });
                                         }
                                     }
-                                    if (lastDb === undefined) {
+                                    if (lastDb === false) {
 
-                                        if (db.length < 1) {
+                                        if (db.length > 1) {
                                             return navi.bringPageTop('eventSelectionPage.html', {
                                                 animation: 'none'
                                             });
@@ -2131,6 +2196,13 @@ ons.ready(function () {
                                 }
                             }
                         }
+                    }).on('keyup', function (e) {
+                        var key = e.which;
+                        // enter key is 13
+                        if (key === 13) {
+                            e.preventDefault();
+                            $('.signUpInputButton').click();
+                        }
                     });
                 }
                 if (!$('.signUpInputButton').hasClass('evtHandler')) {
@@ -2199,7 +2271,17 @@ ons.ready(function () {
                 }
                 break;
             case 'verificationPage.html':
-                if (!$('#verifyAccountButton').hasClass('evtHandler')) {
+                if (!($('#verificationCode').hasClass('evtHandler'))) {
+                    $('#verificationCode').addClass('evtHandler').on('keyup', function (e) {
+                        var key = e.which;
+                        // enter key is 13
+                        if (key === 13) {
+                            e.preventDefault();
+                            $('#verifyAccountButton').click();
+                        }
+                    });
+                }
+                if (!($('#verifyAccountButton').hasClass('evtHandler'))) {
                     $('#verifyAccountButton').addClass('evtHandler').on('click', function () {
                         var verificationCheckAPI = appServer + '/api/user/verify';
                         var verificationDataPackage = {
@@ -2368,22 +2450,22 @@ ons.ready(function () {
                         baseCount++;
                         $('.addBaseButton').before(
                             `
-        <div>
-            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
-            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
-            <div class="flex flexRow flexSpaceBetween marginTop">
-              <div class="caption"><span class="bold">Maximum score available</span>
-                <span class="caption marginLeft">(blank = no score input)</span>
-              </div>
-              <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
-            </div>
-            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-              <div class="caption bold">Base password *</div>
-              <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
-            </div>
-            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
-          </div>
-          `
+                            <div>
+                                <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
+                                <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+                                <div class="flex flexRow flexSpaceBetween marginTop">
+                                    <div class="caption"><span class="bold">Maximum score available</span>
+                                        <span class="caption marginLeft">(blank = no score input)</span>
+                                    </div>
+                                <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
+                                </div>
+                                <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
+                                    <div class="caption bold">Base password *</div>
+                                        <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
+                                    </div>
+                                <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+                            </div>
+                            `
                         );
                         //hides the password input if the password switch is deselected
                         if (!$('#passwordSwitch').prop("checked")) {
@@ -2638,8 +2720,10 @@ ons.ready(function () {
                     //get the data from the page and update the page
 
                     //Event Description update
-
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
+                    var evtStart = new Date(eventInfo.dateStart);
+                    var evtEnd = new Date(eventInfo.dateEnd);
+                    $('#loginEventDescriptionTitle').after('<p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
                     //Event Logo update
                     appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
@@ -2653,8 +2737,13 @@ ons.ready(function () {
                             console.log(err);
                         });
 
+                    //Title update
+                    $('#loginTitle').html(eventInfo.eventName);
+
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
                     if (eventInfo.passwordProtectLogs) {
+
+
                         //if bases have a password
                         eventInfo.bases.forEach(function (base) {
                             var baseCode = base.basePassword;
@@ -2665,39 +2754,70 @@ ons.ready(function () {
                             //base names are put into array
                             baseNames.push(base.baseName);
                         });
+                        //change error message
+                        var noBaseSelectedErrorMessage = 'Please enter both your name and your base code provided by the event organisers.';
+                        //change welcome text
+                        var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
+                        var baseCodeInput = $('#baseCode');
+                        if (!(baseCodeInput.hasClass('evtHandler'))) {
+                            baseCodeInput.addClass('evtHandler').on('keyup', function (e) {
+                                var key = e.which;
+                                console.log(key);
+                                // enter key is 13
+                                if (key === 13) {
+                                    e.preventDefault();
+                                    $('.loginButton').click();
+                                }
+                            });
+                        }
+
                     } else {
+                        // bases do not have a password
+
+                        var noBaseSelectedErrorMessage = 'Please enter both your name and select a base.';
+                        //change welcome text
+                        var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
+                        //change the code input to a button and select
+                        $('#baseCode').replaceWith('<ons-button modifier="large" id="baseCode">Select a base</ons-button>');
+                        var baseCodeInput = $('#baseCode');
+                        if (!(baseCodeInput.hasClass('evtHandler'))) {
+                            baseCodeInput.addClass('evtHandler').on('click', function () {
+                                var baseSelectDialog = document.getElementById('baseSelectDialog');
+                                if (baseSelectDialog === null) {
+
+                                    ons.createDialog('baseSelectDialog.html')
+                                        .then(function (dialog) {
+
+                                            eventInfo.bases.forEach(function (base) {
+                                                var baseCode = base.baseNo.toString();
+                                                var baseName = base.baseName;
+                                                baseCodes.push(baseCode);
+                                                //base names are put into array
+                                                baseNames.push(baseName);
+                                                //adds an option in the dropdown
+                                                var loginSelect = $('#loginBaseSelect');
 
 
-                        $('#baseCode').replaceWith('<ons-button modifier="large" id="baseCode">Select a base</ons-button>')
-                        // if (!($('#baseCode').hasClass('evtHandler'))) {
-                        $('#baseCode').addClass('evtHandler').on('click', function () {
+                                                $('#loginBaseSelect').append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>')
 
-                            // if (!($('#baseSelectDialog').hasClass('evtHandler'))) {
-                            // $('#baseSelectDialog').addClass('evtHandler');
-                            ons.createDialog('baseSelectDialog.html')
-                                .then(function (dialog) {
+                                            });
+                                            dialog.show();
+                                        });
 
-                                    eventInfo.bases.forEach(function (base) {
-                                        var baseCode = base.baseNo.toString();
-                                        var baseName = base.baseName;
-                                        baseCodes.push(baseCode);
-                                        //base names are put into array
-                                        baseNames.push(baseName);
-                                        //adds an option in the dropdown
-                                        var loginSelect = $('#loginBaseSelect');
-                                        $('#loginBaseSelect').append('<ons-list-item tappable>' + baseName + '</ons-list-item>')
-                                    });
-
-                                    console.log(dialog);
-
-                                    dialog.show();
-
-                                });
+                                } else {
+                                    baseSelectDialog.show();
+                                }
 
 
-                        });
-                        //}
+
+                            });
+                        }
+                        $('#betweenNameAndBase').html('Select your base by pressing the button below:');
+                        $('#loginCodeCaption').remove();
+
                     }
+                    //add a welcome message
+                    $('#loginWelcome').html(welcomeMessage);
 
 
                 }
@@ -2797,7 +2917,7 @@ ons.ready(function () {
 
                         } else {
                             ons.notification.alert({
-                                message: 'Please enter both your name and your base code provided by the event organisers',
+                                message: noBaseSelectedErrorMessage,
                                 title: 'Missing inputs',
                                 cancelable: true
                             });
@@ -2808,7 +2928,8 @@ ons.ready(function () {
                 // end of loginPage.html
                 break;
                 // --- Page 1 for normal bases ---
-
+            case 'selectEventPage.html':
+                break;
             case 'page1.html':
                 $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
                 $('.quickAddTitle').html('Add new log from base ' + base);
