@@ -2927,10 +2927,12 @@ ons.ready(function () {
                 }
                 // end of loginPage.html
                 break;
-                // --- Page 1 for normal bases ---
+
             case 'selectEventPage.html':
                 break;
+
             case 'page1.html':
+                // --- Page 1 for normal bases ---
                 $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
                 $('.quickAddTitle').html('Add new log from base ' + base);
                 break;
