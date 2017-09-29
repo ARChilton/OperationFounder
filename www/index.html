@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Operation Founder</title>
+  <title>Incident Hike Manager</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
@@ -97,15 +97,15 @@
           </p>
 
           <p>
-            Replacing the need for radio updates or sending messangers to collect logs from accross the countryside.
+            Replacing the need for radio updates or sending messangers to collect records of team sightings from accross the countryside.
           </p>
           <h2 class="txtLeft bold borderBottom">What if I have bad mobile reception?</h2>
           <p>Being out in the countyside means there is no guarentee of mobile reception. While this situation is improving,
             Event Hike Manager has taken an 'offline first' approach.</p>
           <p>
             Offline first means that this app/webapp will continue to work even when your mobile internet signal is intermittent. It
-            does this by storing the recorded base logs to a local database before synchronising them with other event users
-            when the mobile device re-connects to the internet.
+            does this by storing the recorded base logs to your mobile device before synchronising them with other event
+            users when the mobile device re-connects to the internet.
           </p>
         </div>
 
@@ -365,35 +365,81 @@
     <ons-page id="loginPage">
       <ons-toolbar>
         <div class="left">
-          <ons-back-button>Back</ons-back-button>
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
         </div>
-        <div class="center">
+        <div class="center" id="loginTitle">
           Event homepage
         </div>
 
       </ons-toolbar>
       <div class="pageDiv marginTop32px">
-        <img src="img/operationFounder.png" class="loginLogo">
-        <p class="marginTop">Please enter your name and base code below:</p>
+        <img src="img/operationFounder.png" class="loginLogo" id="loginEventLogo">
+        <p class="marginTop" id="loginWelcome">Please enter your name and base code below:</p>
         <p>
-          <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput marginTop"></ons-input>
+          <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput"></ons-input>
         </p>
-        <p>This is the short code provided to you by the Operation Founder organisers.</p>
+        <p id="betweenNameAndBase">This is the short code provided to you by the Operation Founder organisers.</p>
         <p>
           <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="fullWidthInput marginTop"></ons-input>
         </p>
-        <p class="caption">(Each code is individual to each base)</p>
+        <p class="caption" id="loginCodeCaption">(Each code is individual to each base)</p>
         <p class="txtCenter marginTop">
-          <ons-button modifier="large" class="loginButton secondaryColorButton">Login</ons-button>
+          <ons-button modifier="large" class="loginButton secondaryColorButton">Go to base</ons-button>
         </p>
-        <h2 class="txtLeft bold borderBottom sentanceCase">Event Description</h2>
+        <h2 class="txtLeft bold borderBottom sentanceCase" id="loginEventDescriptionTitle">Event Details</h2>
+
         <p id="loginEventDescription">loading event description/instructions</p>
       </div>
-      <!--<div id="compassDiv">
-        <img src="img/compass.png" id="compass">
-      </div>-->
     </ons-page>
   </ons-template>
+  <!-- End of Login page -->
+  <!-- Start of select base dialog template -->
+  <ons-template id="baseSelectDialog.html">
+    <ons-dialog id="baseSelectDialog" cancelable>
+      <div>
+        <ons-list>
+          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-title>
+
+        </ons-list>
+      </div>
+    </ons-dialog>
+  </ons-template>
+  <!-- End of select base dialog template -->
+  <!-- Start of select event page -->
+  <ons-template id="eventSelectionPage.html">
+    <ons-page id="eventSelectionPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center" id="loginTitle">
+          Select Event
+        </div>
+
+      </ons-toolbar>
+      <div class="pageDiv marginTop32px">
+      </div>
+
+    </ons-page>
+  </ons-template>
+  <!-- End of Login page -->
+  <!-- Start of select base dialog template -->
+  <ons-template id="baseSelectDialog.html">
+    <ons-dialog id="baseSelectDialog" cancelable>
+      <div>
+        <ons-list>
+          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-title>
+
+        </ons-list>
+      </div>
+    </ons-dialog>
+  </ons-template>
+  <!-- End of select event page -->
+  <!-- Start of page 1 -->
   <ons-template id="page1.html">
     <ons-page id="page1">
       <!--Toolbar-->
