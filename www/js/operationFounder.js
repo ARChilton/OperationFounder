@@ -104,6 +104,8 @@ var patrolRecord = [];
 var patrolRecordAdmin = [];
 var offRouteIndex = [];
 var offRouteIndexAdmin = [];
+//page change animation
+var pageChangeAnimation = 'none';
 /**
  * Device ready event listener
  * @event deviceReady - the device is deemed ready in the cordova lifecycle
@@ -240,7 +242,7 @@ function cleanAll() {
  */
 function goToMap() {
     navi.bringPageTop('map.html', {
-        animation: 'none'
+        animation: pageChangeAnimation
     }).then(function () {
         map.invalidateSize();
     }).catch(function (err) {
@@ -266,34 +268,29 @@ function goToMap() {
 function mapBackButton() {
     map.stopLocate();
     ons.enableDeviceBackButtonHandler();
-
-    switch (getBaseNumber()) {
+    var index = getBaseNumber();
+    switch (index) {
         case 0:
-            navi.bringPageTop('admin.html', {
-                animation: 'fade'
-            });
-            break;
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-            navi.bringPageTop('page1.html', {
-                animation: 'fade'
+            return navi.bringPageTop('admin.html', {
+                animation: pageChangeAnimation
             });
             break;
         default:
-
-            navi.bringPageTop('loginPage.html', {
-                animation: 'fade'
+            if (index) {
+                throw navi.bringPageTop('loginPage.html', {
+                    animation: pageChangeAnimation
+                }).then(function (doc) {;
+                    ons.notification.alert({
+                        title: 'error',
+                        message: 'An error has occured and have returned to the login screen, please log in again',
+                        cancelable: true
+                    });
+                });
+            }
+            return navi.bringPageTop('page1.html', {
+                animation: pageChangeAnimation
             });
-            ons.notification.alert({
-                title: 'error',
-                message: 'An error has occured and have returned to the login screen, please log again',
-                cancelable: true
-            });
+            break;
     }
 }
 /**
@@ -817,7 +814,7 @@ function updateTableFromFindQuery(doc, admin) {
 function clearQuickAddInputs() {
     $('.quickAddInput').val('');
     $('#wait').val('0');
-    $('#offRoute').removeProp('checked');
+    $('#offRoute').prop('checked', false);
     $('#total').prop('disabled', false);
 
 }
@@ -1055,7 +1052,7 @@ function loginPut(doc) {
  */
 function logOutPageChange() {
     return navi.bringPageTop('loginPage.html', {
-        animation: 'none'
+        animation: pageChangeAnimation
     }).then(function (doc) {
         $('#userName').val(name);
         $('#baseCode').val('');
@@ -1075,6 +1072,7 @@ function deleteIndexes() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
+    baseNames = [];
 }
 
 /**
@@ -1103,7 +1101,7 @@ function logOut() {
 
 function signOut() {
     navi.resetToPage('signInPage.html', {
-        animation: 'none'
+        animation: pageChangeAnimation
     });
     document.getElementById('menu').toggle();
     if (basedbConnected && !syncBasedb.canceled) {
@@ -1169,6 +1167,16 @@ function baseSelectValue(value) {
  * @param {*} base
  */
 function loginAndRunFunction(base, data) {
+    if (data != undefined) {
+        var options = {
+            animation: pageChangeAnimation,
+            data: data
+        }
+    } else {
+        var options = {
+            animation: pageChangeAnimation
+        }
+    }
     switch (base) {
         case 999:
             //-- logged out user --
@@ -1178,513 +1186,23 @@ function loginAndRunFunction(base, data) {
             // --- incorrect login information
             alert('incorrect login information saved, please log in again');
             console.log(err);
-            navi.bringPageTop('loginPage.html', {
-                animation: 'none'
-            });
+            navi.bringPageTop('loginPage.html', options);
             break;
         case 0:
             // -- admin user --
-            navi.bringPageTop('admin.html', {
-                animation: 'none'
-            });
+            navi.bringPageTop('admin.html', options);
 
 
-            var admin = true;
-            if (admindbConnected == false) {
-                admindb = new PouchDB(adminDatabaseName);
-                admindbConnected = true;
-            }
 
-            admindb.createIndex({
-                index: {
-                    fields: ['timeOut'],
-                    name: 'admintimeOutIndex',
-                    ddoc: 'admintimeOutIndexDDoc',
-                    type: 'json'
-                }
-            }).then(function (doc) {
-                console.log(doc);
-                admindb.createIndex({
-                    index: {
-                        fields: ['base', 'timeOut'],
-                        name: 'adminbaseTimeOutIndex',
-                        ddoc: 'adminbaseTimeOutIndexDDoc',
-                        type: 'json'
-                    }
-                }).then(function () {
-                    return admindb.find({
-                        selector: {
-
-                            timeOut: {
-                                $gt: null
-                            }
-                        },
-                        sort: ['timeOut']
-                    });
-                }).then(function (doc) {
-                    console.log(doc);
-                    updateTableFromFindQuery(doc, true);
-                });;
-            }).then(function () {
-                if (remotedbConnected == false) {
-                    remotedb = new PouchDB(remotedbURL);
-                    remotedbConnected = true;
-                }
-                if (adminSyncInProgress == false) {
-                    var syncOptions = {
-                        live: true,
-                        retry: true
-                    }
-                    adminSyncInProgress = true;
-                    return adminSync = admindb.sync(remotedb, syncOptions)
-                        .on('change', function (doc) {
-                            // yo, something changed!
-
-                            console.log(doc);
-                            if (doc.direction == 'pull') {
-                                console.log('change occured in remote updating admindb');
-                                var change = doc.change;
-
-                                updateTableFromFindQuery(change, true);
-                            } else {
-                                console.log('updating remotedb'); //fixme needs to do something with pushes
-                            }
-                        }).on('paused', function (info) {
-                            // replication was paused, usually because of a lost connection
-                            console.log('replication paused because of: ' + info);
-
-                        }).on('active', function (info) {
-                            // replication was resumed
-                            console.log('replication resumed. Info: ' + info);
-
-                        }).on('error', function (err) {
-                            // totally unhandled error (shouldn't happen)
-                            console.log('Replication Error: ' + err);
-                        }).on('complete', function (info) {
-                            console.log('sync disconected from admin database.');
-                        });
-                }
-            }).catch(function (err) {
-                console.log(err);
-            });
 
             break; // end of admin user code
 
 
         default:
-            navi.bringPageTop('page1.html', {
-                animation: 'fade'
-            });
-
-            if (!(base == 7)) {
-                $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
-                $('.quickAddTitle').html('Add new log from base ' + base);
-
-            } else {
-                $('.pageTitle').html(baseNames[base]);
-                $('.quickAddTitle').html('Record the teams you see');
-                $('#tableTitle').html('Teams seen')
-
-            }
-            $('#logsTable').empty();
-
-            if (basedbConnected == false) {
-                basedb = new PouchDB(baseDatabaseName);
-                basedbConnected = true;
-            }
-            //create timeOut index
-            return basedb.createIndex({
-                index: {
-                    fields: ['timeOut'],
-                    name: 'timeOutIndex',
-                    ddoc: 'timeOutIndexDDoc',
-                    type: 'json'
-                }
-            }).then(function (doc) {
-                console.log(doc);
-                return basedb.createIndex({
-                    index: {
-                        fields: ['base', 'timeOut'],
-                        name: 'baseTimeOutIndex',
-                        ddoc: 'baseTimeOutIndexDDoc',
-                        type: 'json'
-                    }
-                })
-            }).then(function (doc) {
-                return basedb.createIndex({
-                    index: {
-                        fields: ['patrol'],
-                        name: 'patrolIndex',
-                        ddoc: 'patrolIndexDDoc',
-                        type: 'json'
-                    }
-                });
-
-            }).then(function (doc) {
-                console.log(doc);
-                return basedb.find({
-                    selector: {
-                        timeOut: {
-                            $gt: null
-                        },
-                        base: {
-                            $eq: base
-                        }
-                    },
-
-                    sort: ['timeOut']
-                });
-            }).then(function (doc) {
-                console.log(doc);
-                return updateTableFromFindQuery(doc, false);
-            }).then(function (doc) {
-                return basedb.createIndex({
-                    index: {
-                        fields: ['base']
-                    }
-                });
-
-            }).then(function (doc) {
-                if (remotedbConnected == false) {
-                    remotedb = new PouchDB(remotedbURL);
-                    remotedbConnected = true;
-                }
-
-                // var syncOptions = {
-                //     live: true,
-                //     retry: true,
-                //     filter: 'baseFilter1/by_base'
-
-                // }
-                if (baseSyncInProgress == false) {
-                    var syncOptions = {
-                        live: true,
-                        retry: true
-                    }
-
-                    return syncBasedb = basedb.sync(remotedb, syncOptions)
-                        .on('change', function (doc) {
-                            // yo, something changed!
-
-                            console.log(doc);
-                            if (doc.direction == 'pull') {
-                                console.log('change occured in remote updating basedb');
-                                var change = doc.change;
-                                updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
-                            } else {
-                                console.log('updating remotedb');
-                                //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
-                                // var change = doc.change;
-                                // updateTableFromFindQuery(change, false);
-                            }
-                        }).on('paused', function (info) {
-                            // replication was paused, usually because of a lost connection
-                        }).on('active', function (info) {
-                            // replication was resumed
-                        }).on('error', function (err) {
-                            // totally unhandled error (shouldn't happen)
-                            console.log(err);
-                            if (err.status === 409) {
-                                console.log('conflict in doc upload');
-                            }
-                        }).on('complete', function (info) {
-                            console.log('sync cancelled to basedb');
-                        });
-                }
-            }).catch(function (err) {
-                return console.log(err);
-            });
+            navi.bringPageTop('page1.html', options);
 
 
 
-
-
-
-            // -- QuickAdd --
-
-            // Control for the on or off route button
-            if (!($('#offRouteCheckbox').hasClass('evtHandler'))) {
-                $('#offRouteCheckbox').addClass('evtHandler');
-                $('.checkbox').on('click', '.checkbox__input', function () {
-                    if ($('#offRoute.checkbox__input').is('.checkbox__input:checked')) {
-                        $('#total').prop('disabled', true);
-                    } else {
-                        $('#total').prop('disabled', false);
-                    }
-                });
-            }
-            var editFab = document.getElementById('fullEditFab');
-            editFab.hide();
-            userCurrentlySelected = [];
-            $('#fullEditFab').removeClass('hide');
-            if (!($('#logsTable').hasClass('evtHandler'))) {
-                $('#logsTable').addClass('evtHandler');
-                $('#logsTable').on('click', 'tr', function (e) {
-                    if (!($(this).hasClass('lockedLog'))) {
-                        if ($(this).hasClass('tableSelected')) {
-                            $(this).removeClass('tableSelected');
-
-                            var dataInfo = $(this).data('databaseInfo');
-                            var index = userCurrentlySelected.indexOf(dataInfo);
-                            if (index > -1) {
-                                userCurrentlySelected.splice(index, 1);
-                            }
-                            console.log(userCurrentlySelected);
-                            if (!($('tr').hasClass('tableSelected'))) {
-                                editFab.hide();
-                            }
-                            // } else if (e.shiftKey == true) {
-                            //     $(this).addClass('tableSelected');
-                            //     // $('#adminSpeedDial').removeClass('hide');
-                            //     editFab.show();
-                            //     var dataInfo = $(this).data('databaseInfo');
-                            //     userCurrentlySelected.push(dataInfo);
-                            //     console.log(userCurrentlySelected);
-
-                        } else {
-                            $('tr').removeClass('tableSelected');
-                            $(this).addClass('tableSelected');
-                            // $('#adminSpeedDial').removeClass('hide');
-                            editFab.show();
-                            //clear all previously selected items from the array
-                            userCurrentlySelected = [];
-                            // to get the dbId's off the element
-                            var dataInfo = $(this).data('databaseInfo');
-                            userCurrentlySelected.push(dataInfo);
-                            console.log(userCurrentlySelected);
-                        }
-                    } else {
-                        ons.notification.alert({
-                            title: 'No longer editable',
-                            message: 'This record has been locked by HQ and cannot be edited',
-                            cancelable: true
-                        });
-                    }
-                });
-            }
-            if (!($('#fullEditFab').hasClass('evtHandler'))) {
-                $('#fullEditFab').addClass('evtHandler');
-                $('#fullEditFab').on('click', function () {
-                    editLog(userCurrentlySelected);
-                });
-            }
-            // Clear quick submit entries
-            if (!($('#cancelSubmitQuick').hasClass('evtHandler'))) {
-                // Add the event handler only once when the page is first loaded.
-                $('#cancelSubmitQuick').addClass('evtHandler');
-                $('#cancelSubmitQuick').on('click', function () {
-                    ons.notification.confirm({
-                        message: 'Are you sure you want to clear this entry?',
-                        cancelable: true
-                    }).then(function (input) {
-                        if (input == 1) {
-                            clearQuickAddInputs();
-                        }
-                    });
-                });
-            }
-            // Quick submit code
-            if (!($('#submitQuick').hasClass('evtHandler'))) {
-                // Add the event handler only once when the page is first loaded.
-                $('#submitQuick').addClass('evtHandler');
-                $('#submitQuick').on('click', function () {
-                    base = getBaseNumber();
-                    //currentLocation = getGeolocation();
-                    // set variables to the input values
-                    sqPatrol = $('#patrolNo').val();
-                    sqTimeIn = $('#timeIn').val();
-                    sqTimeOut = $('#timeOut').val();
-                    sqWait = $('#wait').val();
-                    sqOffRoute = $('#offRoute').prop('checked');
-                    sqTotalScore = $('#total').val();
-                    var missingInformationMessage = "";
-                    var now = Date.now();
-                    var time = new Date();
-                    var timestamp = time.toISOString();
-
-                    if (sqPatrol == "") {
-                        missingInformationMessage = '<p>Patrol number</p>';
-                    }
-                    if (sqTotalScore == "" && sqOffRoute == false && base != 7) {
-                        missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
-                    }
-                    if (missingInformationMessage != "") {
-                        ons.notification.alert({
-                            title: 'Missing fields',
-                            messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
-                            cancelable: true
-                        });
-                    } else if (sqTotalScore > 25) {
-                        ons.notification.alert({
-                            title: 'Total score',
-                            message: 'the total score entered is greater than the maximum points available at a base',
-                            cancelable: true
-                        });
-                    }
-                    //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
-                    //     ons.notification.alert({
-                    //         title: 'Incorrect times',
-                    //         message: 'this log entry has the patrol leaving before they arrived',
-                    //         cancelable: true
-                    //     });
-                    // } 
-                    else {
-                        // if (sqPatrol < 10) {
-                        //     sqPatrol = '0' + sqPatrol;
-                        // }
-                        if (sqTimeIn == "") {
-                            var date = new Date();
-                            sqTimeIn = date.toLocaleTimeString();
-                        } else if (sqTimeIn.length == 5) {
-                            sqTimeIn = sqTimeIn + ':00';
-                        }
-                        if (sqTimeOut == "") {
-                            var date = new Date();
-                            sqTimeOut = date.toLocaleTimeString();
-                        } else if (sqTimeOut.length == 5) {
-                            sqTimeOut = sqTimeOut + ':00';
-                        }
-                        if (sqWait == "") {
-                            sqWait = 0;
-                        }
-                        if (sqTotalScore != "" && sqOffRoute || base == 7) {
-                            sqTotalScore = '';
-                        }
-
-                        var patrolLog = {
-                            _id: sqPatrol + '_base_' + base,
-                            patrol: sqPatrol,
-                            base: base,
-                            username: name,
-                            timeIn: sqTimeIn,
-                            timeOut: sqTimeOut,
-                            timeWait: sqWait,
-                            offRoute: '',
-                            totalScore: sqTotalScore,
-                            editable: true,
-                            timestamp: timestamp
-                        }
-
-                        // -- important if off route it is just added to the db
-
-                        switch (sqOffRoute) {
-                            case true:
-                                console.log(base);
-                                var offRoutePatrolLog = {
-                                    _id: sqPatrol + '_base_' + base + '_offRoute_' + now,
-                                    patrol: sqPatrol,
-                                    base: base,
-                                    username: name,
-                                    timeIn: sqTimeIn,
-                                    timeOut: sqTimeOut,
-                                    timeWait: sqWait,
-                                    offRoute: sqOffRoute,
-                                    totalScore: sqTotalScore,
-                                    editable: true,
-                                    timestamp: timestamp
-                                }
-
-
-                                tableUpdateFunction(offRoutePatrolLog, false);
-                                clearQuickAddInputs();
-                                basedb.put(offRoutePatrolLog);
-                                break;
-                            case false:
-                                basedb.get(patrolLog._id)
-                                    .then(function (doc) {
-                                        switch (doc.editable) {
-                                            case true:
-                                                ons.notification.confirm({
-                                                    title: 'Update',
-                                                    message: 'Are you sure you want to update patrol number ' + sqPatrol,
-                                                    cancelable: true
-                                                }).then(function (input) {
-                                                    if (input == 1) {
-                                                        clearQuickAddInputs();
-                                                        var patrolLogUpdate = {
-                                                            _id: doc._id,
-                                                            _rev: doc._rev,
-                                                            patrol: sqPatrol,
-                                                            base: base,
-                                                            username: name,
-                                                            timeIn: sqTimeIn,
-                                                            timeOut: sqTimeOut,
-                                                            timeWait: sqWait,
-                                                            offRoute: '',
-                                                            totalScore: sqTotalScore,
-                                                            editable: true,
-                                                            timestamp: timestamp
-                                                        }
-                                                        basedb.put(patrolLogUpdate).then(function () {
-                                                            tableUpdateFunction(patrolLogUpdate, false);
-                                                        });
-                                                    }
-                                                }).catch(function (err) {
-                                                    console.log(err);
-                                                });
-                                                break;
-                                            case false:
-                                                ons.notification.alert({
-                                                    title: 'No longer editable',
-                                                    message: 'This record has been updated by HQ and cannot be edited',
-                                                    cancelable: true
-                                                });
-                                                clearQuickAddInputs();
-                                                break;
-                                        }
-
-
-                                    }).catch(function (err) {
-
-                                        if (err.status == 404) {
-                                            console.log('404 no prior record putting a new record');
-                                            tableUpdateFunction(patrolLog, false);
-                                            clearQuickAddInputs();
-                                            return basedb.put(patrolLog);
-
-                                        } else if (err.status == 409) {
-                                            switch (doc.editable) {
-                                                case true:
-                                                    console.log('409 putting anyway');
-                                                    clearQuickAddInputs();
-                                                    var patrolLogUpdate = {
-                                                        _id: doc._id,
-                                                        _rev: doc._rev,
-                                                        patrol: sqPatrol,
-                                                        base: base,
-                                                        username: name,
-                                                        timeIn: sqTimeIn,
-                                                        timeOut: sqTimeOut,
-                                                        timeWait: sqWait,
-                                                        offRoute: '',
-                                                        totalScore: sqTotalScore,
-                                                        editable: true,
-                                                        timestamp: timestamp
-                                                    }
-                                                    basedb.put(patrolLogUpdate).then(function () {
-                                                        tableUpdateFunction(patrolLogUpdate, false);
-                                                    });
-                                                    break;
-                                                case false:
-                                                    console.log('409 alert message');
-                                                    ons.notification.alert({
-                                                        title: 'No longer editable',
-                                                        message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
-                                                        cancelable: true
-                                                    });
-                                                    clearQuickAddInputs();
-                                                    break;
-                                            }
-                                        }
-                                    });
-                                break;
-                        }
-
-
-
-                    }
-                });
-            }
             break; // end of page 1 for bases code
 
     }
@@ -1811,7 +1329,7 @@ ons.ready(function () {
                     firstPage: true
                 };
                 return navi.bringPageTop('loginPage.html', {
-                    animation: 'none',
+                    animation: pageChangeAnimation,
                     data: data
                 });
             })
@@ -1820,7 +1338,7 @@ ons.ready(function () {
                 console.log('going to sign in screen');
                 console.log(err);
                 return navi.bringPageTop('signInPage.html', {
-                    animation: 'none'
+                    animation: pageChangeAnimation
                 });
 
 
@@ -1830,7 +1348,7 @@ ons.ready(function () {
         //TODO put in else if for not verified and for a verified account that didnt create an event
         console.log('no previous sign in information');
         navi.bringPageTop('signInPage.html', {
-            animation: 'none'
+            animation: pageChangeAnimation
         });
     }
 
@@ -1896,7 +1414,7 @@ ons.ready(function () {
                 if (!$('.signUpButton').hasClass('evtHandler')) {
                     $('.signUpButton').addClass('evtHandler').on('click', function () {
                         navi.bringPageTop('signUpPage.html', {
-                            animation: 'none'
+                            animation: pageChangeAnimation
                         });
                     });
                 }
@@ -1962,7 +1480,7 @@ ons.ready(function () {
                                     if (doc.user.metadata.evtOrganiser !== true) {
                                         //event user - TODO event user login
                                         return navi.bringPageTop('loginPage.html', {
-                                            animation: 'none',
+                                            animation: pageChangeAnimation,
                                             data: {
                                                 event: db[0]
                                             }
@@ -1971,7 +1489,7 @@ ons.ready(function () {
                                     if (doc.user.metadata.evtOrganiser === true) {
                                         if (!doc.user.metadata.verification.verified) {
                                             navi.bringPageTop('verificationPage.html', {
-                                                animation: 'none'
+                                                animation: pageChangeAnimation
                                             });
                                         }
                                     }
@@ -1979,12 +1497,12 @@ ons.ready(function () {
 
                                         if (db.length > 1) {
                                             return navi.bringPageTop('eventSelectionPage.html', {
-                                                animation: 'none'
+                                                animation: pageChangeAnimation
                                             });
                                         } else {
 
                                             return navi.bringPageTop('loginPage.html', {
-                                                animation: 'none',
+                                                animation: pageChangeAnimation,
                                                 data: {
                                                     event: db[0]
                                                 }
@@ -1992,7 +1510,7 @@ ons.ready(function () {
                                         }
                                     } else {
                                         return navi.bringPageTop('loginPage.html', {
-                                            animation: 'none',
+                                            animation: pageChangeAnimation,
                                             data: {
                                                 event: lastDb
                                             }
@@ -2833,9 +2351,9 @@ ons.ready(function () {
                             if (base > -1) {
                                 //  good
                                 ons.enableDeviceBackButtonHandler();
-                                if (base == 0) {
+                                if (base === 0) {
                                     // navi.bringPageTop('admin.html', {
-                                    //     animation: 'fade'
+                                    //     animation: pageChangeAnimation
                                     // });
 
                                     appdb.get('login').then(function (doc) {
@@ -2867,13 +2385,13 @@ ons.ready(function () {
 
 
                                         });
-                                    loginAndRunFunction(base);
+                                    loginAndRunFunction(base, eventInfo);
                                     // } else if (base == 7) {
                                     //     // roaming page 
                                 } else {
                                     console.log('pass your base is ' + base);
                                     // navi.bringPageTop('page1.html', {
-                                    //     animation: 'fade'
+                                    //     animation: pageChangeAnimation
                                     // });
                                     appdb.get('login').then(function (doc) {
                                             doc.base = base;
@@ -2904,7 +2422,7 @@ ons.ready(function () {
                                             });
 
                                         });
-                                    loginAndRunFunction(base);
+                                    loginAndRunFunction(base, eventInfo);
                                 }
                             } else {
                                 //  bad
@@ -2932,9 +2450,451 @@ ons.ready(function () {
                 break;
 
             case 'page1.html':
+                //passing through information about the event and the base
+                if (navi.topPage.data !== undefined) {
+                    var eventInfo = navi.topPage.data;
+                }
                 // --- Page 1 for normal bases ---
-                $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
-                $('.quickAddTitle').html('Add new log from base ' + base);
+                if (base > 0) {
+                    $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
+                    $('.quickAddTitle').html('Add new log from base ' + base);
+
+                } else if (base === 'noBase') {
+                    $('.pageTitle').html(baseNames[base]);
+                    $('.quickAddTitle').html('Record the teams you see');
+                    $('#tableTitle').html('Teams seen')
+
+                }
+                $('#logsTable').empty();
+
+                if (basedbConnected == false) {
+                    basedb = new PouchDB(baseDatabaseName);
+                    basedbConnected = true;
+                }
+                //create timeOut index
+                basedb.createIndex({
+                    index: {
+                        fields: ['timeOut'],
+                        name: 'timeOutIndex',
+                        ddoc: 'timeOutIndexDDoc',
+                        type: 'json'
+                    }
+                }).then(function (doc) {
+                    console.log(doc);
+                    return basedb.createIndex({
+                        index: {
+                            fields: ['base', 'timeOut'],
+                            name: 'baseTimeOutIndex',
+                            ddoc: 'baseTimeOutIndexDDoc',
+                            type: 'json'
+                        }
+                    })
+                }).then(function (doc) {
+                    return basedb.createIndex({
+                        index: {
+                            fields: ['patrol'],
+                            name: 'patrolIndex',
+                            ddoc: 'patrolIndexDDoc',
+                            type: 'json'
+                        }
+                    });
+
+                }).then(function (doc) {
+                    console.log(doc);
+                    return basedb.find({
+                        selector: {
+                            timeOut: {
+                                $gt: null
+                            },
+                            base: {
+                                $eq: base
+                            }
+                        },
+
+                        sort: ['timeOut']
+                    });
+                }).then(function (doc) {
+                    console.log(doc);
+                    return updateTableFromFindQuery(doc, false);
+                }).then(function (doc) {
+                    return basedb.createIndex({
+                        index: {
+                            fields: ['base']
+                        }
+                    });
+
+                }).then(function (doc) {
+                    if (remotedbConnected == false) {
+                        remotedb = new PouchDB(remotedbURL);
+                        remotedbConnected = true;
+                    }
+
+                    // var syncOptions = {
+                    //     live: true,
+                    //     retry: true,
+                    //     filter: 'baseFilter1/by_base'
+
+                    // }
+                    if (baseSyncInProgress == false) {
+                        var syncOptions = {
+                            live: true,
+                            retry: true
+                        }
+
+                        return syncBasedb = basedb.sync(remotedb, syncOptions)
+                            .on('change', function (doc) {
+                                // yo, something changed!
+
+                                console.log(doc);
+                                if (doc.direction == 'pull') {
+                                    console.log('change occured in remote updating basedb');
+                                    var change = doc.change;
+                                    updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
+                                } else {
+                                    console.log('updating remotedb');
+                                    //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
+                                    // var change = doc.change;
+                                    // updateTableFromFindQuery(change, false);
+                                }
+                            }).on('paused', function (info) {
+                                // replication was paused, usually because of a lost connection
+                            }).on('active', function (info) {
+                                // replication was resumed
+                            }).on('error', function (err) {
+                                // totally unhandled error (shouldn't happen)
+                                console.log(err);
+                                if (err.status === 409) {
+                                    console.log('conflict in doc upload');
+                                }
+                            }).on('complete', function (info) {
+                                console.log('sync cancelled to basedb');
+                            });
+                    }
+                }).catch(function (err) {
+                    return console.log(err);
+                });
+
+
+
+
+
+
+                // -- QuickAdd --
+
+                // Control for the on or off route button
+                if ((!($('#offRouteCheckbox').hasClass('evtHandler'))) && eventInfo.logOfRoute) {
+                    $('#offRouteCheckbox').addClass('evtHandler').removeClass('logOfRouteFalse');
+                    $('.checkbox').on('click', '.checkbox__input', function () {
+                        if ($('#offRoute.checkbox__input').is('.checkbox__input:checked')) {
+                            $('#total').prop('disabled', true);
+                        } else {
+                            $('#total').prop('disabled', false);
+                        }
+                    });
+                } else if (!eventInfo.logOfRoute) {
+                    $('#offRouteCheckbox').addClass('logOfRouteFalse');
+                }
+                //stops the FAB button showing before a table element is selected
+                var editFab = document.getElementById('fullEditFab');
+                editFab.hide();
+                userCurrentlySelected = [];
+                $('#fullEditFab').removeClass('hide');
+
+                if (!($('#logsTable').hasClass('evtHandler'))) {
+                    $('#logsTable').addClass('evtHandler');
+                    $('#logsTable').on('click', 'tr', function (e) {
+                        if (!($(this).hasClass('lockedLog'))) {
+                            if ($(this).hasClass('tableSelected')) {
+                                $(this).removeClass('tableSelected');
+
+                                var dataInfo = $(this).data('databaseInfo');
+                                var index = userCurrentlySelected.indexOf(dataInfo);
+                                if (index > -1) {
+                                    userCurrentlySelected.splice(index, 1);
+                                }
+                                console.log(userCurrentlySelected);
+                                if (!($('tr').hasClass('tableSelected'))) {
+                                    editFab.hide();
+                                }
+                                // } else if (e.shiftKey == true) {
+                                //     $(this).addClass('tableSelected');
+                                //     // $('#adminSpeedDial').removeClass('hide');
+                                //     editFab.show();
+                                //     var dataInfo = $(this).data('databaseInfo');
+                                //     userCurrentlySelected.push(dataInfo);
+                                //     console.log(userCurrentlySelected);
+
+                            } else {
+                                $('tr').removeClass('tableSelected');
+                                $(this).addClass('tableSelected');
+                                // $('#adminSpeedDial').removeClass('hide');
+                                editFab.show();
+                                //clear all previously selected items from the array
+                                userCurrentlySelected = [];
+                                // to get the dbId's off the element
+                                var dataInfo = $(this).data('databaseInfo');
+                                userCurrentlySelected.push(dataInfo);
+                                console.log(userCurrentlySelected);
+                            }
+                        } else {
+                            ons.notification.alert({
+                                title: 'No longer editable',
+                                message: 'This record has been locked by HQ and cannot be edited',
+                                cancelable: true
+                            });
+                        }
+                    });
+                }
+                if (!($('#fullEditFab').hasClass('evtHandler'))) {
+                    $('#fullEditFab').addClass('evtHandler');
+                    $('#fullEditFab').on('click', function () {
+                        editLog(userCurrentlySelected);
+                    });
+                }
+                // Clear quick submit entries
+                if (!($('#cancelSubmitQuick').hasClass('evtHandler'))) {
+                    // Add the event handler only once when the page is first loaded.
+                    $('#cancelSubmitQuick').addClass('evtHandler');
+                    console.log('got to here');
+                    $('#cancelSubmitQuick').on('click', function () {
+                        ons.notification.confirm({
+                            message: 'Are you sure you want to clear this entry?',
+                            cancelable: true
+                        }).then(function (input) {
+                            if (input == 1) {
+                                clearQuickAddInputs();
+                            }
+                        });
+                    });
+                }
+                // Quick submit code
+                if (!($('#submitQuick').hasClass('evtHandler'))) {
+                    // Add the event handler only once when the page is first loaded.
+                    $('#submitQuick').addClass('evtHandler');
+                    $('#submitQuick').on('click', function () {
+                        base = getBaseNumber();
+                        //currentLocation = getGeolocation();
+                        // set variables to the input values
+                        sqPatrol = $('#patrolNo').val();
+                        sqTimeIn = $('#timeIn').val();
+                        sqTimeOut = $('#timeOut').val();
+                        sqWait = $('#wait').val();
+                        sqOffRoute = $('#offRoute').prop('checked');
+                        sqTotalScore = $('#total').val();
+                        var missingInformationMessage = "";
+                        var now = Date.now();
+                        var time = new Date();
+                        var timestamp = time.toISOString();
+
+                        if (sqPatrol == "") {
+                            missingInformationMessage = '<p>Patrol number</p>';
+                        }
+                        if (sqTotalScore == "" && sqOffRoute == false && base != 7) {
+                            missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
+                        }
+                        if (missingInformationMessage != "") {
+                            ons.notification.alert({
+                                title: 'Missing fields',
+                                messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
+                                cancelable: true
+                            });
+                        } else if (sqTotalScore > 25) {
+                            ons.notification.alert({
+                                title: 'Total score',
+                                message: 'the total score entered is greater than the maximum points available at a base',
+                                cancelable: true
+                            });
+                        } else if (sqTotalScore != "" && sqOffRoute) {
+
+                            ons.notification.confirm({
+                                    title: 'Confirm off route or log score',
+                                    messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
+                                    cancelable: true,
+                                    buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
+                                }).then(function (input) {
+                                    //button index
+                                    console.log(input);
+                                    switch (input) {
+                                        case 0:
+                                            $('#total').val('');
+                                            $('#submitQuick').click();
+                                            break;
+                                        case 1:
+                                            $('#offRoute').prop('checked', false);
+                                            $('#submitQuick').click();
+                                            break;
+                                    }
+                                })
+                                .catch(function (err) {
+                                    console.log(err);
+                                });
+
+                        }
+                        //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
+                        //     ons.notification.alert({
+                        //         title: 'Incorrect times',
+                        //         message: 'this log entry has the patrol leaving before they arrived',
+                        //         cancelable: true
+                        //     });
+                        // } 
+                        else {
+                            // if (sqPatrol < 10) {
+                            //     sqPatrol = '0' + sqPatrol;
+                            // }
+                            if (sqTimeIn === "") {
+                                var date = new Date();
+                                sqTimeIn = date.toLocaleTimeString();
+                            } else if (sqTimeIn.length == 5) {
+                                sqTimeIn = sqTimeIn + ':00';
+                            }
+                            if (sqTimeOut === "") {
+                                var date = new Date();
+                                sqTimeOut = date.toLocaleTimeString();
+                            } else if (sqTimeOut.length == 5) {
+                                sqTimeOut = sqTimeOut + ':00';
+                            }
+                            if (sqWait == "") {
+                                sqWait = 0;
+                            }
+                            if (sqTotalScore != "" && sqOffRoute || base === 'noBase') {
+                                sqTotalScore = '';
+                            }
+                            //if logging off route is not enabled
+                            if (!eventInfo.logOfRoute) {
+                                sqOffRoute = 'n/a';
+                            }
+
+                            var patrolLog = {
+                                _id: sqPatrol + '_base_' + base,
+                                patrol: sqPatrol,
+                                base: base,
+                                username: name,
+                                timeIn: sqTimeIn,
+                                timeOut: sqTimeOut,
+                                timeWait: sqWait,
+                                offRoute: '',
+                                totalScore: sqTotalScore,
+                                editable: true,
+                                timestamp: timestamp
+                            }
+
+                            // -- important if off route it is just added to the db
+
+                            switch (sqOffRoute) {
+                                case true:
+                                    console.log(base);
+                                    var offRoutePatrolLog = {
+                                        _id: sqPatrol + '_base_' + base + '_offRoute_' + now,
+                                        patrol: sqPatrol,
+                                        base: base,
+                                        username: name,
+                                        timeIn: sqTimeIn,
+                                        timeOut: sqTimeOut,
+                                        timeWait: sqWait,
+                                        offRoute: sqOffRoute,
+                                        totalScore: sqTotalScore,
+                                        editable: true,
+                                        timestamp: timestamp
+                                    }
+
+                                    tableUpdateFunction(offRoutePatrolLog, false);
+                                    clearQuickAddInputs();
+                                    basedb.put(offRoutePatrolLog);
+                                    break;
+                                default:
+                                    basedb.get(patrolLog._id)
+                                        .then(function (doc) {
+                                            switch (doc.editable) {
+                                                case true:
+                                                    ons.notification.confirm({
+                                                        title: 'Update',
+                                                        message: 'Are you sure you want to update patrol number ' + sqPatrol,
+                                                        cancelable: true
+                                                    }).then(function (input) {
+                                                        if (input === 1) {
+                                                            clearQuickAddInputs();
+                                                            var patrolLogUpdate = {
+                                                                _id: doc._id,
+                                                                _rev: doc._rev,
+                                                                patrol: sqPatrol,
+                                                                base: base,
+                                                                username: name,
+                                                                timeIn: sqTimeIn,
+                                                                timeOut: sqTimeOut,
+                                                                timeWait: sqWait,
+                                                                offRoute: '',
+                                                                totalScore: sqTotalScore,
+                                                                editable: true,
+                                                                timestamp: timestamp
+                                                            }
+                                                            return basedb.put(patrolLogUpdate)
+                                                                .then(function (doc) {
+                                                                    return tableUpdateFunction(patrolLogUpdate, false);
+                                                                });
+                                                        }
+                                                    }).catch(function (err) {
+                                                        console.log(err);
+                                                    });
+                                                    break;
+                                                case false:
+                                                    ons.notification.alert({
+                                                        title: 'No longer editable',
+                                                        message: 'This record has been updated by HQ and cannot be edited',
+                                                        cancelable: true
+                                                    });
+                                                    clearQuickAddInputs();
+                                                    break;
+                                            }
+
+
+                                        }).catch(function (err) {
+
+                                            if (err.status == 404) {
+                                                console.log('404 no prior record putting a new record');
+                                                tableUpdateFunction(patrolLog, false);
+                                                clearQuickAddInputs();
+                                                return basedb.put(patrolLog);
+
+                                            } else if (err.status == 409) {
+                                                switch (doc.editable) {
+                                                    case true:
+                                                        console.log('409 putting anyway');
+                                                        clearQuickAddInputs();
+                                                        var patrolLogUpdate = {
+                                                            _id: doc._id,
+                                                            _rev: doc._rev,
+                                                            patrol: sqPatrol,
+                                                            base: base,
+                                                            username: name,
+                                                            timeIn: sqTimeIn,
+                                                            timeOut: sqTimeOut,
+                                                            timeWait: sqWait,
+                                                            offRoute: '',
+                                                            totalScore: sqTotalScore,
+                                                            editable: true,
+                                                            timestamp: timestamp
+                                                        }
+                                                        basedb.put(patrolLogUpdate).then(function () {
+                                                            tableUpdateFunction(patrolLogUpdate, false);
+                                                        });
+                                                        break;
+                                                    case false:
+                                                        console.log('409 alert message');
+                                                        ons.notification.alert({
+                                                            title: 'No longer editable',
+                                                            message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
+                                                            cancelable: true
+                                                        });
+                                                        clearQuickAddInputs();
+                                                        break;
+                                                }
+                                            }
+                                        });
+                                    break;
+                            }
+                        }
+                    });
+                }
                 break;
 
                 // --- map page ---
@@ -2958,6 +2918,88 @@ ons.ready(function () {
                 var adminSpeedDial = document.getElementById('adminSpeedDial');
                 adminSpeedDial.hide();
                 adminCurrentlySelected = [];
+                // from loginandrunfunction
+
+                var admin = true;
+                if (admindbConnected == false) {
+                    admindb = new PouchDB(adminDatabaseName);
+                    admindbConnected = true;
+                }
+
+                admindb.createIndex({
+                    index: {
+                        fields: ['timeOut'],
+                        name: 'admintimeOutIndex',
+                        ddoc: 'admintimeOutIndexDDoc',
+                        type: 'json'
+                    }
+                }).then(function (doc) {
+                    console.log(doc);
+                    admindb.createIndex({
+                        index: {
+                            fields: ['base', 'timeOut'],
+                            name: 'adminbaseTimeOutIndex',
+                            ddoc: 'adminbaseTimeOutIndexDDoc',
+                            type: 'json'
+                        }
+                    }).then(function () {
+                        return admindb.find({
+                            selector: {
+
+                                timeOut: {
+                                    $gt: null
+                                }
+                            },
+                            sort: ['timeOut']
+                        });
+                    }).then(function (doc) {
+                        console.log(doc);
+                        updateTableFromFindQuery(doc, true);
+                    });;
+                }).then(function () {
+                    if (remotedbConnected == false) {
+                        remotedb = new PouchDB(remotedbURL);
+                        remotedbConnected = true;
+                    }
+                    if (adminSyncInProgress == false) {
+                        var syncOptions = {
+                            live: true,
+                            retry: true
+                        }
+                        adminSyncInProgress = true;
+                        return adminSync = admindb.sync(remotedb, syncOptions)
+                            .on('change', function (doc) {
+                                // yo, something changed!
+
+                                console.log(doc);
+                                if (doc.direction == 'pull') {
+                                    console.log('change occured in remote updating admindb');
+                                    var change = doc.change;
+
+                                    updateTableFromFindQuery(change, true);
+                                } else {
+                                    console.log('updating remotedb'); //fixme needs to do something with pushes
+                                }
+                            }).on('paused', function (info) {
+                                // replication was paused, usually because of a lost connection
+                                console.log('replication paused because of: ' + info);
+
+                            }).on('active', function (info) {
+                                // replication was resumed
+                                console.log('replication resumed. Info: ' + info);
+
+                            }).on('error', function (err) {
+                                // totally unhandled error (shouldn't happen)
+                                console.log('Replication Error: ' + err);
+                            }).on('complete', function (info) {
+                                console.log('sync disconected from admin database.');
+                            });
+                    }
+                }).catch(function (err) {
+                    console.log(err);
+                });
+                // end of longinandrunfunction
+
                 $('#adminSpeedDial').removeClass('hide');
                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
                     $('#adminLogsTable').addClass('evtHandler');
