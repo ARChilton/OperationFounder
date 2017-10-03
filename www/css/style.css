@@ -215,6 +215,10 @@ Accent Darker color: Orange 800: #EF6C00
     max-width: 100%;
 }
 
+.logOfRouteFalse {
+    display: none;
+}
+
 @media screen and (min-width: 768px) {
     .quickAddInput {
         width: 400px;
