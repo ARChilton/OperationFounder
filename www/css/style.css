@@ -26,6 +26,10 @@ Accent Darker color: Orange 800: #EF6C00
     color: #3F51B5;
 }
 
+.secondaryColor {
+    color: #FF9100;
+}
+
 
 /*signIn page*/
 
@@ -176,7 +180,7 @@ Accent Darker color: Orange 800: #EF6C00
     height: 100%
 }
 
-.ripple {
+.bigEventSetUpButtons .ripple {
     z-index: -10;
 }
 
@@ -213,6 +217,32 @@ Accent Darker color: Orange 800: #EF6C00
 .quickAddInput {
     width: 200px;
     max-width: 100%;
+}
+
+.rotate270 {
+    -webkit-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    transform: rotate(270deg);
+    -webkit-transition: all 500ms ease-in-out;
+    -moz-transition: all 500ms ease-in-out;
+    -o-transition: all 500ms ease-in-out;
+    -ms-transition: all 500ms ease-in-out;
+    transition: all 500ms ease-in-out;
+}
+
+.rotate90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+    -webkit-transition: all 500ms ease-in-out;
+    -moz-transition: all 500ms ease-in-out;
+    -o-transition: all 500ms ease-in-out;
+    -ms-transition: all 500ms ease-in-out;
+    transition: all 500ms ease-in-out;
 }
 
 .logOfRouteFalse {
