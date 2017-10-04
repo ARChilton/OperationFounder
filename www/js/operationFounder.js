@@ -1062,9 +1062,6 @@ function logOutPageChange() {
     }).catch(function (err) {
         console.log(err);
     });
-
-
-
 }
 
 function deleteIndexes() {
@@ -1072,18 +1069,22 @@ function deleteIndexes() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
-    baseNames = [];
+    // baseNames = [];
 }
 
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
  */
-function logOut() {
+function baseLogOut() {
     // $('#logsTable').empty();
     //sync
-    $('tbody').empty();
+    // $('tbody').empty();
+    navi.popPage({
+        animation: pageChangeAnimation
+    });
     logOutPageChange();
     document.getElementById('menu').toggle();
+    $('#baseLogOut').addClass('hide');
 
     return appdb.get('login')
         .then(function (doc) {
@@ -2450,10 +2451,27 @@ ons.ready(function () {
                 break;
 
             case 'page1.html':
+                //allow for baseLogOut to be shown in the menu
+                $('#baseLogOut').removeClass('hide');
                 //passing through information about the event and the base
+
                 if (navi.topPage.data !== undefined) {
                     var eventInfo = navi.topPage.data;
+                    if (eventInfo.bases[getBaseNumber()].baseInstructions != '') {
+                        console.log('there are base instructions');
+                        $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270" id="fullEditIcon"></ons-icon></div></ons-list-item></div>');
+                        $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
+                        $('#instructions').on('click', function () {
+                            $('#instructionChevron').toggleClass('rotate90');
+                            $('#baseInstructions').slideToggle(500);
+                        });
+                    }
+
                 }
+                //TODO 3/10/2017 add base instuructions and edit the menu according to the page shown
+                //Also send the user straight through to the base if they had a previous base selected
+                //Also work out how to filter the data sent on sync
+                //Also work out how to downscale the images saved
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
                     $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
@@ -2595,6 +2613,7 @@ ons.ready(function () {
                     $('#offRouteCheckbox').addClass('logOfRouteFalse');
                 }
                 //stops the FAB button showing before a table element is selected
+                //TODO 3/10/2017 make fulledit fab have multiple options including removing the log
                 var editFab = document.getElementById('fullEditFab');
                 editFab.hide();
                 userCurrentlySelected = [];
