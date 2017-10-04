@@ -43,13 +43,13 @@
         <img src="img/operationFounder-compass-logo.jpg" class="menuTopBoxContent">
       </div>
       <ons-list id="opFounderMenu">
-        <ons-list-item onclick="logOut()" tappable>
+        <ons-list-item id="baseLogOut" class="hide" onclick="baseLogOut()" tappable>
           Leave Base
         </ons-list-item>
         <ons-list-item onclick="goToMap()" tappable>
           Local Map
         </ons-list-item>
-        <ons-list-item onclick="signOut()" tappable>
+        <ons-list-item id="eventSignOut" onclick="signOut()" tappable>
           Leave Event
         </ons-list-item>
         <!--<ons-list-item onclick="destroyBasedb()" tappable>
@@ -216,54 +216,56 @@
             </div>
 
           </div>
+          <div class="bigEventSetUpButtons">
+            <div id="passwordProtectLogs" class="marginTop">
+              <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
+              <div class="flex flexRow flexAlignFlexStart">
 
-          <div id="passwordProtectLogs" class="marginTop">
-            <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
-            <div class="flex flexRow flexAlignFlexStart">
+                <div class="eventItemTitle bold h3NoStyling passwordProtectLogs">
+                  Password protect base logs
+                </div>
 
-              <div class="eventItemTitle bold h3NoStyling passwordProtectLogs">
-                Password protect base logs
+                <div class="eventItemSwitch">
+                  <ons-switch id="passwordSwitch" checked></ons-switch>
+                </div>
+
               </div>
+              <div class="flex flexRow flexAlignFlexStart passwordProtectLogs">
+                <div class="eventItemCaption">
+                  <p class="caption">
+                    This will require those using the app/website to add an additional unique passcode in order to read or enter log entries.
+                    If this option is turned off all users with the event log-in will be able to select the base they are
+                    logging visits for from a drop down list.
+                  </p>
 
-              <div class="eventItemSwitch">
-                <ons-switch id="passwordSwitch" checked></ons-switch>
+                </div>
+
+                <div class="eventItemSpacer"></div>
               </div>
-
             </div>
-            <div class="flex flexRow flexAlignFlexStart passwordProtectLogs">
-              <div class="eventItemCaption">
-                <p class="caption">
-                  This will require those using the app/website to add an additional unique passcode in order to read or enter log entries.
-                  If this option is turned off all users with the event log-in will be able to select the base they are logging
-                  visits for from a drop down list.
-                </p>
+            <div id="offRouteLogs">
+              <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
+              <div class="flex flexRow flexAlignFlexStart">
+
+                <div class="eventItemTitle bold h3NoStyling offRouteLogs">
+                  Log off route entries
+                </div>
+
+                <div class="eventItemSwitch">
+                  <ons-switch id="offRouteLogsSwitch" checked></ons-switch>
+                </div>
 
               </div>
-              <div class="eventItemSpacer"></div>
-            </div>
-          </div>
-          <div id="offRouteLogs">
-            <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
-            <div class="flex flexRow flexAlignFlexStart">
+              <div class="flex flexRow flexAlignFlexStart offRouteLogs">
+                <div class="eventItemCaption">
+                  <p class="caption">
+                    This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
+                    is useful from a safety perspective as every team sighting is recorded.
+                  </p>
 
-              <div class="eventItemTitle bold h3NoStyling offRouteLogs">
-                Log off route entries
+                </div>
+                <div class="eventItemSpacer"></div>
               </div>
-
-              <div class="eventItemSwitch">
-                <ons-switch id="offRouteLogsSwitch" checked></ons-switch>
-              </div>
-
-            </div>
-            <div class="flex flexRow flexAlignFlexStart offRouteLogs">
-              <div class="eventItemCaption">
-                <p class="caption">
-                  This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
-                  is useful from a safety perspective as every team sighting is recorded.
-                </p>
-
-              </div>
-              <div class="eventItemSpacer"></div>
             </div>
           </div>
           <h2 class="txtLeft bold borderBottom">Admin</h2>
@@ -457,6 +459,7 @@
         <ons-icon icon="md-edit" class="fabIcon" id="fullEditIcon"></ons-icon>
       </ons-fab>
       <!--Top half of screen-->
+
       <div class="topHalf landscapeHide">
         <ons-list>
           <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
