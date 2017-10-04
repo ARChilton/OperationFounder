@@ -1120,7 +1120,7 @@ function signOut() {
         adminSyncInProgress = false;
     }
     deleteIndexes();
-    localStorage.lastDb = false;
+    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
 
 }
 /**
@@ -1312,16 +1312,26 @@ ons.ready(function () {
         appdbConnected = true;
     }
 
-    if (localStorage.previousSignIn && lastDb != false) {
+    if (localStorage.previousSignIn && lastDb != 'false') {
         baseDatabaseName = lastDb;
         adminDatabaseName = lastDb + '_admin';
-        appdb.get('login').then(function (doc) { //this part next
+        appdb.get('login')
+            .then(function (doc) {
                 base = doc.base;
                 name = doc.name;
                 appdbConnected = true;
-                return doc.currentDb;
-            }).then(function (doc) {
-                return appdb.get(doc + '_eventDescription');
+                return doc;
+            }).then(function (login) {
+                console.log(login);
+                return appdb.get(login.currentDb + '_eventDescription')
+                    .then(function (doc) {
+                        console.log(doc);
+                        doc.lastBase = login.base;
+                        return doc;
+                    }).catch(function (err) {
+                        console.log(err);
+                        throw err;
+                    });
             })
             .then(function (doc) {
                 //TODO ARC 20/09/2017 consider loginandrun function here passing data on
@@ -1329,7 +1339,13 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
-                return navi.bringPageTop('loginPage.html', {
+                if ((doc.lastBase != undefined || doc.lastBase === '') && !doc.lastBase === 999) {
+                    var pageDestination = 'page1.html';
+                } else {
+                    var pageDestination = 'loginPage.html';
+                }
+
+                return navi.bringPageTop(pageDestination, {
                     animation: pageChangeAnimation,
                     data: data
                 });
@@ -1465,7 +1481,7 @@ ons.ready(function () {
                                     couchdb = doc.couchdb;
                                     http = doc.http;
                                     //remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
-                                    db = doc.roles;
+                                    db = doc.user.roles;
                                     //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
                                     //need to do the whole getting of the event information
                                     /* appdb.get('login')
@@ -1478,6 +1494,9 @@ ons.ready(function () {
                                     .catch(function (err) {
 
                                     }); */
+
+                                    //NEED TO DEFINE THE INFORMATION PASSED TO EACH PAGE, MIGHT NEED TO MAKE A FUNCTION OF THE INITIAL LOG IN
+
                                     if (doc.user.metadata.evtOrganiser !== true) {
                                         //event user - TODO event user login
                                         return navi.bringPageTop('loginPage.html', {
@@ -1489,12 +1508,12 @@ ons.ready(function () {
                                     }
                                     if (doc.user.metadata.evtOrganiser === true) {
                                         if (!doc.user.metadata.verification.verified) {
-                                            navi.bringPageTop('verificationPage.html', {
+                                            return navi.bringPageTop('verificationPage.html', {
                                                 animation: pageChangeAnimation
                                             });
                                         }
                                     }
-                                    if (lastDb === false) {
+                                    if (lastDb === 'false') {
 
                                         if (db.length > 1) {
                                             return navi.bringPageTop('eventSelectionPage.html', {
@@ -2386,7 +2405,9 @@ ons.ready(function () {
 
 
                                         });
-                                    loginAndRunFunction(base, eventInfo);
+                                    loginAndRunFunction(base, {
+                                        eventInfo: eventInfo
+                                    });
                                     // } else if (base == 7) {
                                     //     // roaming page 
                                 } else {
@@ -2423,7 +2444,9 @@ ons.ready(function () {
                                             });
 
                                         });
-                                    loginAndRunFunction(base, eventInfo);
+                                    loginAndRunFunction(base, {
+                                        eventInfo: eventInfo
+                                    });
                                 }
                             } else {
                                 //  bad
@@ -2455,8 +2478,8 @@ ons.ready(function () {
                 $('#baseLogOut').removeClass('hide');
                 //passing through information about the event and the base
 
-                if (navi.topPage.data !== undefined) {
-                    var eventInfo = navi.topPage.data;
+                if (navi.topPage.data.eventInfo !== undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo;
                     if (eventInfo.bases[getBaseNumber()].baseInstructions != '') {
                         console.log('there are base instructions');
                         $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270" id="fullEditIcon"></ons-icon></div></ons-list-item></div>');
@@ -2468,7 +2491,7 @@ ons.ready(function () {
                     }
 
                 }
-                //TODO 3/10/2017 add base instuructions and edit the menu according to the page shown
+                //TODO 3/10/2017
                 //Also send the user straight through to the base if they had a previous base selected
                 //Also work out how to filter the data sent on sync
                 //Also work out how to downscale the images saved
