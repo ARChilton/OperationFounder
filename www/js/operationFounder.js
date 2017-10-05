@@ -1460,9 +1460,8 @@ ons.ready(function () {
                             password: password
                         };
                         $.ajax(apiAjax(signInUrl, dataPackage))
-                            .done(function (doc) {
-                                console.log('came down this channel');
-
+                            .then(function (doc) {
+                                console.log('this worked');
                                 if (doc.status === 200) {
                                     console.log(doc);
                                     if (typeof (localStorage) !== undefined) {
@@ -1545,7 +1544,8 @@ ons.ready(function () {
                                     });
                                 }
                             })
-                            .fail(function (err) {
+                            .catch(function (err) {
+                                console.log('no response from sign in');
                                 console.log(err);
                                 var connection;
                                 if (ons.platform.isWebView()) {
@@ -1598,50 +1598,51 @@ ons.ready(function () {
                                 "username": usernameToTest
                             };
                             if (usernameToTest != lastUsername && usernameToTest != "") {
-                                $.ajax(apiAjax(checkUsernameApi, usernameDataPackage)).done(function (response) {
-                                    switch (response.status) {
-                                        case 200:
-                                            emailSignUp = usernameToTest;
-                                            emailSignUpValid = true;
-                                            break;
-                                        case 409:
-                                            if (!errorMessageOpen) {
-                                                errorMessageOpen = true;
-                                                ons.notification.alert({
-                                                    title: response.message,
-                                                    message: response.reason,
-                                                    cancelable: true
-                                                }).then(function () {
-                                                    errorMessageOpen = false;
-                                                });
-                                            }
-                                            break;
-                                        case 500:
-                                        default:
-                                            if (!errorMessageOpen) {
-                                                errorMessageOpen = true;
-                                                ons.notification.alert({
-                                                    title: 'error',
-                                                    message: 'issue validating email address is unique',
-                                                    cancelable: true
-                                                }).then(function () {
-                                                    errorMessageOpen = false;
-                                                });
-                                            }
-                                    }
-                                }).fail(function (err) {
-                                    console.log(err);
-                                    if (!errorMessageOpen) {
-                                        errorMessageOpen = true;
-                                        ons.notification.alert({
-                                            title: 'Error connecting to server',
-                                            message: 'We are very sorry there was an error connecting to the server to validate your email address is unique please try submitting your sign up or come back later.',
-                                            cancelable: true
-                                        }).then(function () {
-                                            errorMessageOpen = false;
-                                        });
-                                    }
-                                });
+                                $.ajax(apiAjax(checkUsernameApi, usernameDataPackage))
+                                    .then(function (response) {
+                                        switch (response.status) {
+                                            case 200:
+                                                emailSignUp = usernameToTest;
+                                                emailSignUpValid = true;
+                                                break;
+                                            case 409:
+                                                if (!errorMessageOpen) {
+                                                    errorMessageOpen = true;
+                                                    ons.notification.alert({
+                                                        title: response.message,
+                                                        message: response.reason,
+                                                        cancelable: true
+                                                    }).then(function () {
+                                                        errorMessageOpen = false;
+                                                    });
+                                                }
+                                                break;
+                                            case 500:
+                                            default:
+                                                if (!errorMessageOpen) {
+                                                    errorMessageOpen = true;
+                                                    ons.notification.alert({
+                                                        title: 'error',
+                                                        message: 'issue validating email address is unique',
+                                                        cancelable: true
+                                                    }).then(function () {
+                                                        errorMessageOpen = false;
+                                                    });
+                                                }
+                                        }
+                                    }).catch(function (err) {
+                                        console.log(err);
+                                        if (!errorMessageOpen) {
+                                            errorMessageOpen = true;
+                                            ons.notification.alert({
+                                                title: 'Error connecting to server',
+                                                message: 'We are very sorry there was an error connecting to the server to validate your email address is unique please try submitting your sign up or come back later.',
+                                                cancelable: true
+                                            }).then(function () {
+                                                errorMessageOpen = false;
+                                            });
+                                        }
+                                    });
                             }
                             lastUsername = usernameToTest;
                         } else {
@@ -1754,7 +1755,7 @@ ons.ready(function () {
                                     "evtOrganiser": true
                                 };
                                 $.ajax(apiAjax(apiAddress, createUserDataPackage))
-                                    .done(function (doc) {
+                                    .then(function (doc) {
                                         console.log(doc);
                                         switch (doc.status) {
                                             case 200:
@@ -1780,7 +1781,7 @@ ons.ready(function () {
                                                 });
                                         }
 
-                                    }).fail(function (err) {
+                                    }).catch(function (err) {
                                         console.log(err);
                                         ons.notification.alert({
                                             title: 'error',
@@ -1828,7 +1829,7 @@ ons.ready(function () {
                         }
                         if (verificationDataPackage.token != '') {
                             $.ajax(apiAjax(verificationCheckAPI, verificationDataPackage))
-                                .done(function (doc) {
+                                .then(function (doc) {
                                     switch (doc.status) {
                                         case 200:
                                             navi.replacePage('createEventPage.html');
@@ -1853,7 +1854,7 @@ ons.ready(function () {
                                             break;
                                     }
                                 })
-                                .fail(function (err) {
+                                .catch(function (err) {
                                     console.log(err);
                                     ons.notification.alert({
                                         title: 'Error sending verification code',
@@ -1942,7 +1943,7 @@ ons.ready(function () {
                                 username: evtUsername
                             }
                             $.ajax(apiAjax(apiAddress, evtUsernameToTest))
-                                .done(function (doc) {
+                                .then(function (doc) {
                                     switch (doc.status) {
                                         case 200:
                                             evtUsernameUnique = true;
@@ -1966,7 +1967,7 @@ ons.ready(function () {
                                             });
 
                                     }
-                                }).fail(function (err) {
+                                }).catch(function (err) {
                                     console.log(err);
 
                                     ons.notification.alert({
