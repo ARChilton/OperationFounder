@@ -1090,7 +1090,7 @@ function baseLogOut() {
         .then(function (doc) {
 
             var timestamp = new Date().toISOString();
-            doc.base = 999;
+            doc.base = 'logOut';
             doc.timestamp = timestamp;
             return appdb.put(doc);
         })
@@ -1179,7 +1179,7 @@ function loginAndRunFunction(base, data) {
         }
     }
     switch (base) {
-        case 999:
+        case 'logOut':
             //-- logged out user --
             logOutPageChange();
             break; // end of logged out user code
@@ -1192,22 +1192,11 @@ function loginAndRunFunction(base, data) {
         case 0:
             // -- admin user --
             navi.bringPageTop('admin.html', options);
-
-
-
-
             break; // end of admin user code
-
-
         default:
             navi.bringPageTop('page1.html', options);
-
-
-
             break; // end of page 1 for bases code
-
     }
-
 }
 
 function createOrUpdateAppdbEventDescription(eventDescription) {
@@ -1257,6 +1246,21 @@ function addAppdbLoginDb(dbName) {
             throw err;
         });
 
+}
+/**
+ * Compare two arrays are identical
+ * @param {array} arr1 array 1
+ * @param {array} arr2 array 2
+ */
+function compareArraysMatch(arr1, arr2) {
+    var different = false;
+    for (var i = 0, l = arr1.length; i < l; i++) {
+        if (arr1[i] != arr2[i]) {
+            different = true;
+        }
+
+    }
+    return different;
 }
 /**
  * ons.ready function is the start of the script and runs only when OnsenUI has loaded
@@ -1311,16 +1315,62 @@ ons.ready(function () {
         appdb = new PouchDB(appDatabaseName);
         appdbConnected = true;
     }
-
-    if (localStorage.previousSignIn && lastDb != 'false') {
+    //the user has an event they previously signed into and were in a previous db
+    if (localStorage.previousSignIn === 'true' && lastDb != 'false') {
         baseDatabaseName = lastDb;
         adminDatabaseName = lastDb + '_admin';
         appdb.get('login')
             .then(function (doc) {
-                base = doc.base;
-                name = doc.name;
+                base = doc.base; //last base used
+                name = doc.name; //the name used for the logs
                 appdbConnected = true;
-                return doc;
+                var signInUrl = appServer + '/api/signin';
+                var dataPackage = {
+                    username: username,
+                    password: password
+                };
+                return $.ajax(apiAjax(signInUrl, dataPackage))
+                    .then(function (user) {
+                        if (compareArraysMatch(user.user.roles.sort(), doc.db.sort())) {
+                            //updated db array with the authorative source from couchdb
+                            doc.db = user.user.roles;
+                            appdb.put(doc)
+                                .then(function (info) {
+                                    return appdb.compact();
+                                })
+                                .catch(function (err) {
+                                    console.log(err);
+                                });
+                            localStorage.db = JSON.stringify(doc.db); //need to return this info to login
+                            var index = doc.db.indexOf(doc.currentDb);
+                            if (index > -1) {
+                                console.log('dbs updated and last exists');
+                                return doc;
+                            } else {
+                                var error = {
+                                    status: 307,
+                                    message: "last database does not match current user's databases"
+                                }
+                                console.log(error.message);
+                                throw error;
+                            }
+                        } else {
+                            console.log('dbs were the same');
+                            return doc;
+                        }
+                    })
+                    .catch(function (err) {
+                        if (err.status === 307) {
+                            throw err;
+                        } else if (err.status === 401 && err.error === 'unauthorized') {
+                            throw err;
+                        } else {
+                            return doc;
+                        }
+
+                    });
+
+                // return doc; //previous return before ajax implimentation
             }).then(function (login) {
                 console.log(login);
                 return appdb.get(login.currentDb + '_eventDescription')
@@ -1339,7 +1389,7 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
-                if ((doc.lastBase != undefined || doc.lastBase === '') && !doc.lastBase === 999) {
+                if ((doc.lastBase != undefined || doc.lastBase === '') && !doc.lastBase === 'logOut') {
                     var pageDestination = 'page1.html';
                 } else {
                     var pageDestination = 'loginPage.html';
@@ -1357,10 +1407,20 @@ ons.ready(function () {
                 return navi.bringPageTop('signInPage.html', {
                     animation: pageChangeAnimation
                 });
-
-
             });
 
+        //user didn't verify or create an event
+    } else if (localStorage.previousSignIn === 'true' && localStorage.verified === 'false' && localStorage.evtOrganiser === 'true') {
+        navi.bringPageTop('verificationPage.html', {
+            animation: pageChangeAnimation
+        });
+        //user didn't create an event
+        /*  } else if (localStorage.previousSignIn === 'true' && localStorage.verified === 'true' && localStorage.evtOrganiser === 'true' && lastDb === 'false') {
+             navi.bringPageTop('createEventPage.html', {
+                 animation: pageChangeAnimation
+              */
+        //});
+        //all other options
     } else {
         //TODO put in else if for not verified and for a verified account that didnt create an event
         console.log('no previous sign in information');
@@ -2588,7 +2648,7 @@ ons.ready(function () {
                                 // yo, something changed!
 
                                 console.log(doc);
-                                if (doc.direction == 'pull') {
+                                if (doc.direction === 'pull') {
                                     console.log('change occured in remote updating basedb');
                                     var change = doc.change;
                                     updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
@@ -2605,11 +2665,16 @@ ons.ready(function () {
                             }).on('error', function (err) {
                                 // totally unhandled error (shouldn't happen)
                                 console.log(err);
+                                ons.notification.alert({
+                                    title: 'Error',
+                                    messageHTML: '<p>An error has occured with the following message</p><p>' + err.message + '</p>',
+                                    cancelable: true
+                                });
                                 if (err.status === 409) {
                                     console.log('conflict in doc upload');
                                 }
                             }).on('complete', function (info) {
-                                console.log('sync cancelled to basedb');
+                                console.log('sync between remotedb and basedb has been cancelled');
                             });
                     }
                 }).catch(function (err) {
