@@ -1248,20 +1248,30 @@ function addAppdbLoginDb(dbName) {
 
 }
 /**
- * Compare two arrays are identical
- * @param {array} arr1 array 1
- * @param {array} arr2 array 2
+ * Check two arrays are identical
+ * @param {array} arr1 array 1 authorative
+ * @param {array} arr2 array 2 comparative
  */
-function compareArraysMatch(arr1, arr2) {
-    var different = false;
-    for (var i = 0, l = arr1.length; i < l; i++) {
-        if (arr1[i] != arr2[i]) {
-            different = true;
-        }
+function compareTwoArrays(arr1, arr2, outputDifferences) {
+    if (outputDifferences) {
+        var different = [];
+    } else {
+        var different = false;
+    }
 
+    for (var i = 0, l = arr1.length; i < l; i++) {
+        if (outputDifferences) {
+            different = $(arr2).not(arr1).get();
+        } else {
+            if (arr1[i] != arr2[i]) {
+                return different = true;
+            }
+        }
     }
     return different;
 }
+
+
 /**
  * ons.ready function is the start of the script and runs only when OnsenUI has loaded
  * @event onsenui is ready 
@@ -1331,7 +1341,7 @@ ons.ready(function () {
                 };
                 return $.ajax(apiAjax(signInUrl, dataPackage))
                     .then(function (user) {
-                        if (compareArraysMatch(user.user.roles.sort(), doc.db.sort())) {
+                        if (compareTwoArrays(user.user.roles.sort(), doc.db.sort())) {
                             //updated db array with the authorative source from couchdb
                             doc.db = user.user.roles;
                             appdb.put(doc)
@@ -1498,7 +1508,6 @@ ons.ready(function () {
                 if (!$('#signInPassword').hasClass('evtHandler')) {
                     $('#signInPassword').addClass('evtHandler').on('keyup', function (e) {
                         var key = e.which;
-                        console.log(key);
                         // enter key is 13
                         if (key === 13) {
                             e.preventDefault();
@@ -1543,17 +1552,90 @@ ons.ready(function () {
                                     db = doc.user.roles;
                                     //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
                                     //need to do the whole getting of the event information
-                                    /* appdb.get('login')
-                                    .then(function (doc) {
-                                        doc.db = db;
-                                        return appdb.put(doc);
-                                    }).then(function (doc) {
+                                    var timestamp = new Date().toISOString();
+                                    appdb.get('login')
+                                        .then(function (doc) {
+                                            doc.db = db;
+                                            doc.timestamp = timestamp;
+                                            doc.http = http;
+                                            doc.couchdb = couchdb;
+                                            return appdb.put(doc);
+                                        }).then(function (doc) {
+                                            return appdb.allDocs()
+                                                .then(function (docs) {
+                                                    var docsIds = [];
+                                                    docs.rows.forEach(function (row) {
+                                                        console.log(row._id);
+                                                        return docsIds.push(row._id);
+                                                    });
+                                                    compareTwoArrays(docsIds.sort(), db.sort(), true).forEach(function (id) {
+                                                        console.log(id);
+                                                        var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
+                                                        return db.get('eventDescription', {
+                                                                include_docs: true,
+                                                                attachments: true
+                                                            })
+                                                            .then(function (event) {
+                                                                console.log(event);
 
-                                    })
-                                    .catch(function (err) {
+                                                                return appdb.get(event.dbName + '_eventDescription')
+                                                                    .then(function (appdbEvent) {
+                                                                        console.log(appdbEvent);
+                                                                        console.log('appdbevent found');
+                                                                    })
+                                                                    .catch(function (err) {
+                                                                        console.log('err1');
+                                                                        console.log(err);
+                                                                        if (err.status === 404) {
+                                                                            event._id = event.dbName + '_eventDescription';
+                                                                            delete event._rev;
+                                                                            return appdb.put(event)
+                                                                                .then(function (doc) {
+                                                                                    console.log(doc);
+                                                                                    if (doc.ok) {
+                                                                                        return true;
+                                                                                    }
+                                                                                }).catch(function (err) {
+                                                                                    console.log(err);
+                                                                                    console.log('err5');
+                                                                                });
+                                                                        }
+                                                                    })
 
-                                    }); */
+                                                            }).catch(function (err) {
+                                                                console.log('err2');
+                                                                console.log(err);
+                                                            })
 
+                                                    });
+                                                    //go get the missing event descriptions and add to appdb
+
+                                                })
+                                                .catch(function (err) {
+                                                    console.log('err3');
+                                                    console.log(err);
+                                                    throw err;
+                                                })
+                                        })
+                                        .catch(function (err) {
+                                            console.log('err4');
+                                            if (err.status === 404) {
+                                                var putDoc = {
+                                                    _id: 'login',
+                                                    db: db,
+                                                    timestamp: timestamp,
+                                                    http: http,
+                                                    couchdb: couchdb
+                                                };
+                                                return appdb.put(putDoc).then(function (doc) {
+                                                    return true;
+                                                }).catch(function (err) {
+                                                    console.log(err);
+                                                });
+                                            }
+                                        });
+
+                                    //05/10/2017 pick up here, need to test this works for 2 or more databases and then feed information through to the other pages
                                     //NEED TO DEFINE THE INFORMATION PASSED TO EACH PAGE, MIGHT NEED TO MAKE A FUNCTION OF THE INITIAL LOG IN
 
                                     if (doc.user.metadata.evtOrganiser !== true) {
