@@ -684,11 +684,14 @@ ons-splitter-mask {
 
 /* Loader */
 
-
-/*.progressBar {
+.progressBar {
+    /*to stay reletive to its parent but not move the page down when shown*/
     position: absolute;
-    z-index: 2;
-}*/
+    z-index: 99999;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+}
 
 .circle-loader {
     fill: transparent;
