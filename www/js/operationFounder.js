@@ -1249,28 +1249,29 @@ function addAppdbLoginDb(dbName) {
 }
 /**
  * Check two arrays are identical
- * @param {array} arr1 array 1 authorative
- * @param {array} arr2 array 2 comparative
+ * @param {array} arr1 array 1 authorative must be sorted
+ * @param {array} arr2 array 2 comparative must be sorted
+ * @param {bool} outputDifferences true will output an array of differences. Any in arr1 not in arr2. False will output true or false if the arrays are different
+ * output true if the same, false if different or the differences if requested
  */
 function compareTwoArrays(arr1, arr2, outputDifferences) {
     if (outputDifferences) {
-        var different = [];
+        return $(arr1).not(arr2).get();
     } else {
-        var different = false;
-    }
 
-    for (var i = 0, l = arr1.length; i < l; i++) {
-        if (outputDifferences) {
-            different = $(arr2).not(arr1).get();
-        } else {
+        if (arr1.length != arr2.length) {
+            return false;
+        }
+        for (var i = 0, l = arr1.length; i < l; i++) {
+
             if (arr1[i] != arr2[i]) {
-                return different = true;
+                return false;
             }
         }
+        return true;
     }
-    return different;
-}
 
+}
 
 /**
  * ons.ready function is the start of the script and runs only when OnsenUI has loaded
@@ -1341,7 +1342,7 @@ ons.ready(function () {
                 };
                 return $.ajax(apiAjax(signInUrl, dataPackage))
                     .then(function (user) {
-                        if (compareTwoArrays(user.user.roles.sort(), doc.db.sort())) {
+                        if (compareTwoArrays(user.user.roles.sort(), doc.db.sort(), false) === false) {
                             //updated db array with the authorative source from couchdb
                             doc.db = user.user.roles;
                             appdb.put(doc)
@@ -1497,6 +1498,9 @@ ons.ready(function () {
         switch (navi.topPage.name) {
             //--- Create Event Page ---
             case 'signInPage.html':
+                if (username != undefined) {
+                    $('#signInUserName').val(changeAtSymbolBack(username));
+                }
 
                 if (!$('.signUpButton').hasClass('evtHandler')) {
                     $('.signUpButton').addClass('evtHandler').on('click', function () {
@@ -1520,8 +1524,10 @@ ons.ready(function () {
                 //TODO this button Needs lots of work ARC 20/09/2017
                 if (!$('.signInButton').hasClass('evtHandler')) {
                     $('.signInButton').addClass('evtHandler').on('click', function () {
+                        $('#signInPage .progressBar').removeClass('hide');
                         username = changeAtSymbol($('#signInUserName').val().trim());
                         password = $('#signInPassword').val().trim();
+
                         //TODO sign in via server
                         var signInUrl = appServer + '/api/signin';
                         var dataPackage = {
@@ -1530,7 +1536,7 @@ ons.ready(function () {
                         };
                         $.ajax(apiAjax(signInUrl, dataPackage))
                             .then(function (doc) {
-                                console.log('this worked');
+                                console.log('sign in sent back status: ' + doc.status);
                                 if (doc.status === 200) {
                                     console.log(doc);
                                     if (typeof (localStorage) !== undefined) {
@@ -1548,89 +1554,33 @@ ons.ready(function () {
 
                                     couchdb = doc.couchdb;
                                     http = doc.http;
-                                    //remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                                    //var db is the authority on which databases the user should have event descriptions for
                                     db = doc.user.roles;
                                     console.log(db);
-                                    console.log(db.sort());
                                     //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
                                     //need to do the whole getting of the event information
                                     var timestamp = new Date().toISOString();
-                                    appdb.get('login')
-                                        .then(function (doc) {
-                                            doc.db = db;
-                                            doc.timestamp = timestamp;
-                                            doc.http = http;
-                                            doc.couchdb = couchdb;
+                                    return appdb.get('login')
+                                        .then(function (login) {
+                                            login.db = db;
+                                            login.timestamp = timestamp;
+                                            login.http = http;
+                                            login.couchdb = couchdb;
                                             //update 'login' info
-                                            return appdb.put(doc);
-                                        }).then(function (doc) {
-
-                                            return appdb.allDocs()
-                                                .then(function (docs) {
-                                                    var docsIds = [];
-                                                    //create an array of alldocs _ids
-                                                    docs.rows.forEach(function (row) {
-                                                        if (row.id != 'login') {
-                                                            var idIndex = row.id.replace('_eventDescription', '');
-                                                            return docsIds.push(idIndex);
-                                                        }
-                                                    });
-                                                    //compare the sorted arrays and output differences, for each difference not in arr2 i.e. db.sort() connect and return the event description
-                                                    compareTwoArrays(docsIds.sort(), db.sort(), true).forEach(function (id) {
-                                                        //if there is a missing db
-                                                        console.log(id);
-                                                        var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
-                                                        return db.get('eventDescription', {
-                                                                include_docs: true,
-                                                                attachments: true
-                                                            })
-                                                            .then(function (event) {
-                                                                console.log(event);
-                                                                //to prevent an error try getting the new event description, in case it is already there
-                                                                return appdb.get(event.dbName + '_eventDescription')
-                                                                    .then(function (appdbEvent) {
-                                                                        console.log(appdbEvent);
-                                                                        console.log('appdbevent found');
-                                                                    })
-                                                                    .catch(function (err) {
-                                                                        console.log('err1');
-                                                                        console.log(err);
-                                                                        //if not found then put the event description into appdb
-                                                                        if (err.status === 404) {
-                                                                            event._id = event.dbName + '_eventDescription';
-                                                                            delete event._rev;
-                                                                            return appdb.put(event)
-                                                                                .then(function (doc) {
-                                                                                    console.log(doc);
-                                                                                    if (doc.ok) {
-                                                                                        return true;
-                                                                                    }
-                                                                                }).catch(function (err) {
-                                                                                    console.log(err);
-                                                                                    console.log('err5');
-                                                                                });
-                                                                        }
-                                                                    })
-
-                                                            }).catch(function (err) {
-                                                                console.log('err2');
-                                                                console.log(err);
-                                                            })
-
-                                                    });
-                                                    //go get the missing event descriptions and add to appdb
-
+                                            return appdb.put(login)
+                                                .then(function (info) {
+                                                    return doc;
                                                 })
                                                 .catch(function (err) {
-                                                    console.log('err3');
                                                     console.log(err);
                                                     throw err;
-                                                })
+                                                });
                                         })
                                         .catch(function (err) {
-                                            console.log('err4');
+                                            console.log(err);
                                             //if no 'login' doc
                                             if (err.status === 404) {
+                                                console.log('no login doc, creating one');
                                                 var putDoc = {
                                                     _id: 'login',
                                                     db: db,
@@ -1639,68 +1589,223 @@ ons.ready(function () {
                                                     couchdb: couchdb
                                                 };
                                                 //create a 'login' doc
-                                                return appdb.put(putDoc).then(function (doc) {
-                                                    return true;
-                                                }).catch(function (err) {
-                                                    console.log(err);
-                                                });
+                                                return appdb.put(putDoc)
+                                                    .then(function (info) {
+                                                        if (info.ok) {
+                                                            return doc;
+                                                        }
+                                                    }).catch(function (err) {
+                                                        console.log(err);
+                                                    });
+                                            } else {
+                                                throw err;
                                             }
                                         });
-
-                                    //05/10/2017 pick up here, need to test this works for 2 or more databases and then feed information through to the other pages
-                                    //NEED TO DEFINE THE INFORMATION PASSED TO EACH PAGE, MIGHT NEED TO MAKE A FUNCTION OF THE INITIAL LOG IN
-
-                                    if (doc.user.metadata.evtOrganiser !== true) {
-                                        //event user - TODO event user login
-                                        return navi.bringPageTop('loginPage.html', {
-                                            animation: pageChangeAnimation,
-                                            data: {
-                                                event: db[0]
+                                } else {
+                                    throw doc;
+                                }
+                            }).then(function (doc) {
+                                console.log(doc);
+                                return appdb.allDocs()
+                                    .then(function (docs) {
+                                        console.log(docs);
+                                        var docsIds = [];
+                                        //create an array of alldocs _ids
+                                        docs.rows.forEach(function (row) {
+                                            if (row.id != 'login') {
+                                                var idIndex = row.id.replace('_eventDescription', '');
+                                                docsIds.push(idIndex);
                                             }
                                         });
-                                    }
-                                    if (doc.user.metadata.evtOrganiser === true) {
-                                        if (!doc.user.metadata.verification.verified) {
-                                            return navi.bringPageTop('verificationPage.html', {
-                                                animation: pageChangeAnimation
-                                            });
-                                        }
-                                    }
-                                    if (lastDb === 'false') {
+                                        console.log(docsIds);
+                                        var eventComparison = compareTwoArrays(db.sort(), docsIds.sort(), true);
+                                        if (eventComparison.length > 0) {
+                                            //compare the sorted arrays and output differences, for each difference not in arr2 i.e. db.sort() connect and return the event description
+                                            return Promise.all(eventComparison.map(function (id) {
+                                                //if there is a missing db
+                                                console.log(id);
+                                                var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
 
-                                        if (db.length > 1) {
-                                            return navi.bringPageTop('eventSelectionPage.html', {
-                                                animation: pageChangeAnimation
+                                                return db.get('eventDescription', {
+                                                        include_docs: true,
+                                                        attachments: true
+                                                    })
+                                                    .then(function (event) {
+                                                        console.log(event);
+                                                        //to prevent an error try getting the new event description, in case it is already there
+                                                        return appdb.get(event.dbName + '_eventDescription')
+                                                            .then(function (appdbEvent) {
+                                                                console.log(appdbEvent);
+                                                                console.log('appdbevent found, if different will update from basedb');
+                                                                return event;
+                                                            })
+                                                            .catch(function (err) {
+                                                                console.log('event missing from appdb so creating it');
+                                                                console.log(err);
+                                                                //if not found then put the event description into appdb
+                                                                if (err.status === 404) {
+                                                                    event._id = event.dbName + '_eventDescription';
+                                                                    //event.version = event._rev;
+                                                                    delete event._rev;
+                                                                    return appdb.put(event)
+                                                                        .then(function (doc) {
+                                                                            console.log(doc);
+                                                                            if (doc.ok) {
+                                                                                return event;
+                                                                            }
+                                                                        }).catch(function (err) {
+                                                                            console.log(err);
+                                                                            console.log('err5');
+                                                                            throw err;
+                                                                        });
+                                                                } else {
+                                                                    throw err;
+                                                                }
+                                                            });
+
+                                                    }).catch(function (err) {
+                                                        console.log('err2');
+                                                        console.log(err);
+                                                        if (err.status === 404) {
+                                                            console.log('db not found');
+                                                            throw {
+                                                                status: 404,
+                                                                title: 'Event information not found on server',
+                                                                message: 'Please contact support'
+                                                            }
+
+                                                        } else {
+                                                            throw err;
+                                                        }
+                                                    });
+                                            })).then(function (promiseReturn) {
+                                                console.log(doc);
+                                                return doc.user.metadata;
                                             });
                                         } else {
+                                            console.warn('took else route');
+                                            return doc;
+                                        }
+                                        //this is the area for returning outside the get promise
 
-                                            return navi.bringPageTop('loginPage.html', {
-                                                animation: pageChangeAnimation,
-                                                data: {
-                                                    event: db[0]
+                                    })
+                                    .catch(function (err) {
+                                        console.log('err3');
+                                        console.log(err);
+                                        throw err;
+                                    });
+
+
+                                //05/10/2017 pick up here, need to test this works for 2 or more databases and then feed information through to the other pages
+                                //NEED TO DEFINE THE INFORMATION PASSED TO EACH PAGE, MIGHT NEED TO MAKE A FUNCTION OF THE INITIAL LOG IN
+                            }).then(function (doc) {
+                                console.log('got down to here');
+                                console.log(doc);
+                                var page;
+                                Promise.resolve().then(function () {
+                                    if (doc.evtOrganiser && doc.verification.verified || !doc.evtOrganiser) {
+                                        switch (db.length) {
+                                            case 1:
+                                                page = 'loginPage.html';
+                                                return appdb.get(db[0] + '_eventDescription')
+                                                    .then(function (event) {
+                                                        baseDatabaseName = event.dbName;
+                                                        localStorage.lastDb = event.dbName;
+                                                        lastDb = event.dbName;
+                                                        remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                                                        return {
+                                                            eventInfo: event
+                                                        };
+
+                                                    })
+                                                    .catch(function (err) {
+                                                        console.log(err);
+                                                        throw err;
+                                                    });
+
+                                                break;
+                                            case 0:
+                                                if (doc.evtOrganiser) {
+                                                    page = 'createEventPage.html';
+                                                    return false;
+                                                    break;
                                                 }
-                                            });
+
+
+                                            default:
+                                                if (lastDb != 'false') {
+                                                    page = 'loginPage.html';
+                                                    var event = db.indexOf(lastDb);
+                                                    if (event > -1) {
+                                                        return appdb.get(db[event] + '_eventDescription')
+                                                            .then(function (event) {
+                                                                baseDatabaseName = event.dbName;
+                                                                localStorage.lastDb = event.dbName;
+                                                                lastDb = event.dbName;
+                                                                remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                                                                return {
+                                                                    eventInfo: event
+                                                                };
+
+                                                            })
+                                                            .catch(function (err) {
+                                                                console.log(err);
+                                                                throw err;
+                                                            });
+                                                    }
+                                                } else {
+                                                    page = 'eventSelectionPage.html';
+                                                    return {
+                                                        db: db
+                                                    };
+                                                }
+                                                break;
                                         }
                                     } else {
-                                        return navi.bringPageTop('loginPage.html', {
-                                            animation: pageChangeAnimation,
-                                            data: {
-                                                event: lastDb
-                                            }
-                                        });
+                                        page = 'verificationPage.html';
+                                        return false;
                                     }
-
-                                } else {
-                                    return ons.notification.alert({
-                                        title: doc.error,
-                                        message: doc.message + " Be aware that both your username and password are case sensitive.",
-                                        cancelable: true
-                                    });
-                                }
+                                }).then(function (data) {
+                                    console.log(data);
+                                    if (data === false) {
+                                        var options = {
+                                            animation: pageChangeAnimation
+                                        }
+                                    } else {
+                                        var options = {
+                                            animation: pageChangeAnimation,
+                                            data: data
+                                        }
+                                    }
+                                    return navi.bringPageTop(page, options);
+                                }).catch(function (err) {
+                                    console.log(err);
+                                    throw err;
+                                });
                             })
                             .catch(function (err) {
-                                console.log('no response from sign in');
+                                $('#signInPage .progressBar').addClass('hide');
                                 console.log(err);
+                                if (err.status === 401) {
+                                    return ons.notification.alert({
+                                        title: err.error,
+                                        messageHTML: "<p>" + err.message + "</p><p>Be aware that both your username and password are case sensitive.</p>",
+                                        cancelable: true
+                                    });
+                                } else {
+                                    console.log('no response from sign in');
+                                }
+                                if (err.status === 404 & err.title === 'Event information not found on server') {
+                                    //Not sure whether it needs to remove the db so it can move on might need to check if it is an event organiser or not
+                                    //will need to remove databases from roles when databases are deleted
+                                    /* return ons.notification.alert({
+                                         title: 'Event information not found on server',
+                                         message: 'Please contact the event organiser or support',
+                                         cancelable: true
+                                     }); */
+                                    return false;
+                                }
+
                                 var connection;
                                 if (ons.platform.isWebView()) {
                                     connection = checkConnection();
@@ -2253,7 +2358,7 @@ ons.ready(function () {
                                                 remotedbURL = newRemotedbURL;
                                                 if (remotedbConnected) {
 
-                                                    remotedb.close().then(function (doc) {
+                                                    return remotedb.close().then(function (doc) {
                                                         return remotedbConnected = false;
                                                     }).catch(function (err) {
                                                         console.log(err);
@@ -2697,6 +2802,7 @@ ons.ready(function () {
 
                 }).then(function (doc) {
                     console.log(doc);
+                    //returns just this base' records
                     return basedb.find({
                         selector: {
                             timeOut: {
@@ -3159,7 +3265,7 @@ ons.ready(function () {
                         updateTableFromFindQuery(doc, true);
                     });;
                 }).then(function () {
-                    if (remotedbConnected == false) {
+                    if (remotedbConnected === false) {
                         remotedb = new PouchDB(remotedbURL);
                         remotedbConnected = true;
                     }
