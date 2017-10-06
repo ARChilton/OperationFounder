@@ -1559,15 +1559,19 @@ ons.ready(function () {
                                             doc.timestamp = timestamp;
                                             doc.http = http;
                                             doc.couchdb = couchdb;
+                                            //update 'login' info
                                             return appdb.put(doc);
                                         }).then(function (doc) {
+
                                             return appdb.allDocs()
                                                 .then(function (docs) {
                                                     var docsIds = [];
+                                                    //create an array of alldocs _ids
                                                     docs.rows.forEach(function (row) {
                                                         console.log(row._id);
                                                         return docsIds.push(row._id);
                                                     });
+                                                    //compare the sorted arrays and output differences, for each difference not in arr2 i.e. db.sort() connect and return the event description
                                                     compareTwoArrays(docsIds.sort(), db.sort(), true).forEach(function (id) {
                                                         console.log(id);
                                                         var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
@@ -1577,7 +1581,7 @@ ons.ready(function () {
                                                             })
                                                             .then(function (event) {
                                                                 console.log(event);
-
+                                                                //to prevent an error try getting the new event description, in case it is already there
                                                                 return appdb.get(event.dbName + '_eventDescription')
                                                                     .then(function (appdbEvent) {
                                                                         console.log(appdbEvent);
@@ -1586,6 +1590,7 @@ ons.ready(function () {
                                                                     .catch(function (err) {
                                                                         console.log('err1');
                                                                         console.log(err);
+                                                                        //if not found then put the event description into appdb
                                                                         if (err.status === 404) {
                                                                             event._id = event.dbName + '_eventDescription';
                                                                             delete event._rev;
@@ -1619,6 +1624,7 @@ ons.ready(function () {
                                         })
                                         .catch(function (err) {
                                             console.log('err4');
+                                            //if no 'login' doc
                                             if (err.status === 404) {
                                                 var putDoc = {
                                                     _id: 'login',
@@ -1627,6 +1633,7 @@ ons.ready(function () {
                                                     http: http,
                                                     couchdb: couchdb
                                                 };
+                                                //create a 'login' doc
                                                 return appdb.put(putDoc).then(function (doc) {
                                                     return true;
                                                 }).catch(function (err) {
