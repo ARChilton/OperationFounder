@@ -1550,6 +1550,8 @@ ons.ready(function () {
                                     http = doc.http;
                                     //remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                                     db = doc.user.roles;
+                                    console.log(db);
+                                    console.log(db.sort());
                                     //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
                                     //need to do the whole getting of the event information
                                     var timestamp = new Date().toISOString();
@@ -1568,11 +1570,14 @@ ons.ready(function () {
                                                     var docsIds = [];
                                                     //create an array of alldocs _ids
                                                     docs.rows.forEach(function (row) {
-                                                        console.log(row._id);
-                                                        return docsIds.push(row._id);
+                                                        if (row.id != 'login') {
+                                                            var idIndex = row.id.replace('_eventDescription', '');
+                                                            return docsIds.push(idIndex);
+                                                        }
                                                     });
                                                     //compare the sorted arrays and output differences, for each difference not in arr2 i.e. db.sort() connect and return the event description
                                                     compareTwoArrays(docsIds.sort(), db.sort(), true).forEach(function (id) {
+                                                        //if there is a missing db
                                                         console.log(id);
                                                         var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
                                                         return db.get('eventDescription', {
