@@ -138,7 +138,8 @@
           required></ons-input>
         <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
           required></ons-input>
-        <p class="marginTop">That's it you're done.<br> Go forth and manage your events with ease.</p>
+        <p class="marginTop">That's it you're done.
+          <br> Go forth and manage your events with ease.</p>
         <p>
           <button modifier="large" class="signUpInputButton secondaryColorButton maxWidth button button--material button--large">Create My Account</button>
         </p>
@@ -201,9 +202,9 @@
           <label id="eventBannerInputLabel" for="eventBanner">
             <img src="img/operationFounder.png" class="loginLogo" id="eventBannerImage">
             <ons-button modifier="large" class="marginTop secondaryColorButton">
-              CHANGE BANNER IMAGE              
+              CHANGE BANNER IMAGE
             </ons-button>
-           </label>
+          </label>
           <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop"
             autofocus></ons-input>
 
@@ -278,7 +279,8 @@
           <p class="caption txtLeft">Username for all of the other users of the event. (A password will be auto-generated.)</p>
           <div class="flex flexRow flexSpaceBetween marginTop">
             <div class="caption bold">Admin password *</div>
-            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="text" class="adminPassword" required></ons-input>
+            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="text" class="adminPassword eventPassword"
+              required></ons-input>
           </div>
           <p class="caption txtLeft">Passcode required to enter the admin area of the event, to be able to view all logs from all bases and administrate
             the event. </p>
@@ -287,14 +289,16 @@
             <p class="txtLeft bold">Base 1</p>
             <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
-              <div class="caption"><span class="bold">Maximum score available</span>
+              <div class="caption">
+                <span class="bold">Maximum score available</span>
                 <span class="caption marginLeft">(blank = no score input)</span>
               </div>
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
               <div class="caption bold">Base password *</div>
-              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
+              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword"
+                required></ons-input>
             </div>
             <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
@@ -321,16 +325,31 @@
       <div class="pageDiv evtSummary">
         <div id="evtSummaryBanner"></div>
         <h2 class="txtLeft bold borderBottom keepAsWritten" id="evtSummaryTitle">Event Details</h2>
-        <p id="evtSummaryStartDate" class=""><span class="bold sentanceCase">Start Date: </span></p>
-        <p id="evtSummaryEndDate" class=""><span class="bold sentanceCase">End Date: </span></p>
-        <p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">Bases: </span></p>
-        <p id="evtSummaryUsername" class=""><span class="bold sentanceCase">base user username: </span></p>
-        <p id="evtSummaryPassword" class=""><span class="bold sentanceCase">base user password: </span></p>
-        <p id="evtSummaryDescription" class=""><span class="bold sentanceCase">Event Description: </span><br></p>
+        <p id="evtSummaryStartDate" class="">
+          <span class="bold sentanceCase">Start Date: </span>
+        </p>
+        <p id="evtSummaryEndDate" class="">
+          <span class="bold sentanceCase">End Date: </span>
+        </p>
+        <p id="evtSummaryBaseCount" class="">
+          <span class="bold sentanceCase">Bases: </span>
+        </p>
+        <p id="evtSummaryUsername" class="">
+          <span class="bold sentanceCase">base user username: </span>
+        </p>
+        <p id="evtSummaryPassword" class="">
+          <span class="bold sentanceCase">base user password: </span>
+        </p>
+        <p id="evtSummaryDescription" class="">
+          <span class="bold sentanceCase">Event Description: </span>
+          <br>
+        </p>
         <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
         <div id="evtSummaryBases"></div>
         <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
-        <p id="evtSummaryAdminPass" class=""><span class="bold sentanceCase">Admin passcode: </span></p>
+        <p id="evtSummaryAdminPass" class="">
+          <span class="bold sentanceCase">Admin passcode: </span>
+        </p>
       </div>
     </ons-page>
   </ons-template>
@@ -350,16 +369,31 @@
       <div class="pageDiv evtSummary">
         <div id="evtSummaryBanner"></div>
         <h2 class="txtLeft bold borderBottom keepAsWritten" id="evtSummaryTitle">Event Details</h2>
-        <p id="evtSummaryStartDate" class=""><span class="bold sentanceCase">Start Date: </span></p>
-        <p id="evtSummaryEndDate" class=""><span class="bold sentanceCase">End Date: </span></p>
-        <p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">Bases: </span></p>
-        <p id="evtSummaryUsername" class=""><span class="bold sentanceCase">base user username: </span></p>
-        <p id="evtSummaryPassword" class=""><span class="bold sentanceCase">base user password: </span></p>
-        <p id="evtSummaryDescription" class=""><span class="bold sentanceCase">Event Description: </span><br></p>
+        <p id="evtSummaryStartDate" class="">
+          <span class="bold sentanceCase">Start Date: </span>
+        </p>
+        <p id="evtSummaryEndDate" class="">
+          <span class="bold sentanceCase">End Date: </span>
+        </p>
+        <p id="evtSummaryBaseCount" class="">
+          <span class="bold sentanceCase">Bases: </span>
+        </p>
+        <p id="evtSummaryUsername" class="">
+          <span class="bold sentanceCase">base user username: </span>
+        </p>
+        <p id="evtSummaryPassword" class="">
+          <span class="bold sentanceCase">base user password: </span>
+        </p>
+        <p id="evtSummaryDescription" class="">
+          <span class="bold sentanceCase">Event Description: </span>
+          <br>
+        </p>
         <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
         <div id="evtSummaryBases"></div>
         <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
-        <p id="evtSummaryAdminPass" class=""><span class="bold sentanceCase">Admin passcode: </span></p>
+        <p id="evtSummaryAdminPass" class="">
+          <span class="bold sentanceCase">Admin passcode: </span>
+        </p>
       </div>
     </ons-page>
   </ons-template>
@@ -477,7 +511,7 @@
           <ons-list-item tappable class="checkbox" id="offRouteCheckbox">
             <label class="right">
               <ons-input type="checkbox" input-id="offRoute" value="offRoute"></ons-input>
-              </label>
+            </label>
             <label for="offRoute" class="center">Off route</label>
           </ons-list-item>
           <ons-list-item class="">
