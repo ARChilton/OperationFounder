@@ -1055,7 +1055,7 @@ function logOutPageChange() {
         animation: pageChangeAnimation
     }).then(function (doc) {
         $('#userName').val(name);
-        $('#baseCode').val('');
+        //$('#baseCode').val(''); //testing turning this off as it breaks the dropdown select need to check it works with the basecode input
         $('.adminCleanAll').remove();
         deleteIndexes();
         return doc;
@@ -2363,7 +2363,7 @@ ons.ready(function () {
                             dateEnd: $('#eventEndDate').val(),
                             eventDescription: $('#eventDescription').val().trim(),
                             passwordProtectLogs: $('#passwordSwitch').prop("checked"),
-                            logOfRoute: $('#offRouteLogsSwitch').prop("checked"),
+                            logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
                             adminPassword: $('#adminPassword').val(),
                             evtUsername: $('#evtUsername').val(),
                             bases: [{
@@ -2829,7 +2829,8 @@ ons.ready(function () {
 
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
-                    if (eventInfo.bases[getBaseNumber()].baseInstructions != '') {
+                    var eventInfoBase = eventInfo.bases[getBaseNumber()];
+                    if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
                         $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270" id="fullEditIcon"></ons-icon></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
@@ -2838,6 +2839,13 @@ ons.ready(function () {
                             $('#baseInstructions').slideToggle(500);
                         });
                     }
+                    //hides score entry if there is no maximum base score
+                    if (eventInfoBase.baseMaxScore === '' || eventInfoBase.baseMaxScore === undefined) {
+                        $('#page1TotalScore').hide();
+                    } else {
+                        $('#total').attr('placeholder', 'Total score (max ' + eventInfoBase.baseMaxScore + ')');
+                    }
+
 
                 }
                 //TODO 3/10/2017
@@ -2915,7 +2923,7 @@ ons.ready(function () {
                     });
 
                 }).then(function (doc) {
-                    if (remotedbConnected == false) {
+                    if (remotedbConnected === false) {
                         remotedb = new PouchDB(remotedbURL);
                         remotedbConnected = true;
                     }
@@ -2926,12 +2934,12 @@ ons.ready(function () {
                     //     filter: 'baseFilter1/by_base'
 
                     // }
-                    if (baseSyncInProgress == false) {
+                    if (baseSyncInProgress === false) {
                         var syncOptions = {
                             live: true,
                             retry: true
                         }
-
+                        baseSyncInProgress = true;
                         return syncBasedb = basedb.sync(remotedb, syncOptions)
                             .on('change', function (doc) {
                                 // yo, something changed!
@@ -2964,6 +2972,7 @@ ons.ready(function () {
                                 }
                             }).on('complete', function (info) {
                                 console.log('sync between remotedb and basedb has been cancelled');
+                                baseSyncInProgress = false;
                             });
                     }
                 }).catch(function (err) {
@@ -2978,8 +2987,8 @@ ons.ready(function () {
                 // -- QuickAdd --
 
                 // Control for the on or off route button
-                if ((!($('#offRouteCheckbox').hasClass('evtHandler'))) && eventInfo.logOfRoute) {
-                    $('#offRouteCheckbox').addClass('evtHandler').removeClass('logOfRouteFalse');
+                if ((!($('#offRouteCheckbox').hasClass('evtHandler'))) && eventInfo.logOffRoute) {
+                    $('#offRouteCheckbox').addClass('evtHandler').removeClass('logOffRouteFalse');
                     $('.checkbox').on('click', '.checkbox__input', function () {
                         if ($('#offRoute.checkbox__input').is('.checkbox__input:checked')) {
                             $('#total').prop('disabled', true);
@@ -2987,8 +2996,9 @@ ons.ready(function () {
                             $('#total').prop('disabled', false);
                         }
                     });
-                } else if (!eventInfo.logOfRoute) {
-                    $('#offRouteCheckbox').addClass('logOfRouteFalse');
+                } else if (!eventInfo.logOffRoute) {
+                    //hides the log off route option
+                    $('#offRouteCheckbox').addClass('logOffRouteFalse');
                 }
                 //stops the FAB button showing before a table element is selected
                 //TODO 3/10/2017 make fulledit fab have multiple options including removing the log
@@ -3083,10 +3093,10 @@ ons.ready(function () {
                         var time = new Date();
                         var timestamp = time.toISOString();
 
-                        if (sqPatrol == "") {
+                        if (sqPatrol === "") {
                             missingInformationMessage = '<p>Patrol number</p>';
                         }
-                        if (sqTotalScore == "" && sqOffRoute == false && base != 7) {
+                        if (sqTotalScore === "" && sqOffRoute === false && eventInfoBase.baseMaxScore != '') {
                             missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
                         }
                         if (missingInformationMessage != "") {
@@ -3095,7 +3105,7 @@ ons.ready(function () {
                                 messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
                                 cancelable: true
                             });
-                        } else if (sqTotalScore > 25) {
+                        } else if (sqTotalScore > eventInfoBase.baseMaxScore) {
                             ons.notification.alert({
                                 title: 'Total score',
                                 message: 'the total score entered is greater than the maximum points available at a base',
@@ -3157,7 +3167,7 @@ ons.ready(function () {
                                 sqTotalScore = '';
                             }
                             //if logging off route is not enabled
-                            if (!eventInfo.logOfRoute) {
+                            if (!eventInfo.logOffRoute) {
                                 sqOffRoute = 'n/a';
                             }
 
@@ -3390,6 +3400,7 @@ ons.ready(function () {
                                 console.log('Replication Error: ' + err);
                             }).on('complete', function (info) {
                                 console.log('sync disconected from admin database.');
+                                adminSyncInProgress = false;
                             });
                     }
                 }).catch(function (err) {
