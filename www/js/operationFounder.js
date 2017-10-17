@@ -1485,8 +1485,6 @@ ons.ready(function () {
     //for dev purposes
     // navi.bringPageTop('createEventPage.html');
 
-
-
     // ---  page change code ---
     /**
      * Very important section as this defines what happens when a page changes and when certain pages are loaded
@@ -2127,9 +2125,78 @@ ons.ready(function () {
                 //need to add a resend email function
                 break;
             case 'createEventPage.html':
+                //variables
                 var getFile = false;
                 var evtUsernameUnique = false;
                 var url;
+                var passwordObject = {};
+                var passwordArray = [];
+                //functions
+                function passwordCheck(thisPass) {
+                    var passElement = $(thisPass);
+                    var pass = $(thisPass).val();
+
+                    //check the password has a value
+                    if (pass != '') {
+                        //check if password is in the array of passwords
+                        var index = passwordArray.indexOf(pass);
+                        if (index > -1) {
+                            var error = false;
+                            //need to check if the password is being used by the current base in which case there is no issue otherwise it is an error
+                            if (passwordObject[thisPass.id] != undefined) {
+
+                                // if it has changed there is an issue otherwise do nothing
+                                if (passwordObject[thisPass.id] != pass) {
+                                    error = true;
+                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    passwordArray.splice(basePassIndex, 1);
+                                    delete passwordObject[thisPass.id];
+                                }
+                            } else {
+                                // error trying to use the same password for two bases
+                                error = true;
+                            }
+                            if (error) {
+                                ons.notification.alert({
+                                    title: 'Password Error',
+                                    message: 'The admin and base passwords must be unique.',
+                                    cancelable: true
+                                }).then(function () {
+                                    passElement.val('');
+
+                                });
+                            }
+                        } else {
+                            if (passwordObject[thisPass.id] != undefined) {
+
+                                // if it has changed, remove old password and update with new
+                                if (passwordObject[thisPass.id] != pass) {
+                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    passwordArray.splice(basePassIndex, 1);
+                                    passwordObject[thisPass.id] = pass;
+                                    passwordArray.push(pass);
+                                }
+                            } else {
+                                //no previous password for the base or usage of the password.
+                                //update the password array and object
+                                passwordArray.push(pass);
+                                passwordObject[thisPass.id] = pass;
+                            }
+                        }
+                    } else {
+                        if (passwordObject[thisPass.id] != undefined) {
+                            console.log('6');
+                            // if it has changed there is an issue otherwise do nothing
+                            if (passwordObject[thisPass.id] != pass) {
+                                var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                passwordArray.splice(basePassIndex, 1);
+                                delete passwordObject[thisPass.id];
+                            }
+                        }
+                    }
+                    console.log(passwordArray);
+                    console.log(passwordObject);
+                }
                 //Change image
                 if (!$('#eventBanner').hasClass('evtHandler')) {
                     $('#eventBanner').addClass('evtHandler');
@@ -2152,24 +2219,23 @@ ons.ready(function () {
 
                 // Password Protect Logs switch
                 if (!($('.passwordProtectLogs').hasClass('evtHandler'))) {
-                    $('.passwordProtectLogs').addClass('evtHandler');
-                    $('.passwordProtectLogs').on('click', function () {
-                        switch ($('#passwordSwitch').prop("checked")) {
+                    $('.passwordProtectLogs').addClass('evtHandler').on('click', function () {
+                        var passwordSwitch = $('#passwordSwitch');
+                        switch (passwordSwitch.prop("checked")) {
                             //changes the switch and hides the password input
                             case true:
-                                $('#passwordSwitch').prop('checked', false);
+                                passwordSwitch.prop('checked', false);
                                 $('.basePasswordShowHide').addClass('hide');
                                 break;
                             case false:
-                                $('#passwordSwitch').prop('checked', true);
+                                passwordSwitch.prop('checked', true);
                                 $('.basePasswordShowHide').removeClass('hide');
                                 break;
                         }
                     });
                 }
                 if (!($('#passwordSwitch').hasClass('evtHandler'))) {
-                    $('#passwordSwitch').addClass('evtHandler');
-                    $('#passwordSwitch').on('change', function () {
+                    $('#passwordSwitch').addClass('evtHandler').on('change', function () {
                         switch (!$('#passwordSwitch').prop("checked")) {
                             //hides the password input
                             case true:
@@ -2180,6 +2246,12 @@ ons.ready(function () {
                                 break;
                         }
                     });
+                }
+                if (!($('#createEventForm').hasClass('evtHandlerPassword'))) {
+                    $('#createEventForm').addClass('evtHandlerPassword').find('.eventPassword').on('blur', function () {
+                        passwordCheck(this);
+                    });
+
                 }
                 if (!($('#offRouteLogs').hasClass('evtHandler'))) {
                     $('#offRouteLogs').addClass('evtHandler');
@@ -2259,7 +2331,7 @@ ons.ready(function () {
                                 </div>
                                 <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
                                     <div class="caption bold">Base password *</div>
-                                        <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword" required></ons-input>
+                                        <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
                                     </div>
                                 <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
                             </div>
@@ -2270,6 +2342,10 @@ ons.ready(function () {
                             $('.basePasswordShowHide').addClass('hide');
 
                         }
+                        //adds the password check event handler to the added base
+                        $('#base' + baseCount + 'Password').on('blur', function () {
+                            passwordCheck(this);
+                        });
                     });
                 }
 
@@ -2278,6 +2354,7 @@ ons.ready(function () {
                     $('#saveEvent').on('click', function () {
                         //TODO add checking and uploading event message
                         //TODO add loading bar
+                        //Need to put in a check for passwords
 
                         eventDescription = {
                             _id: 'eventDescription',
@@ -2306,7 +2383,7 @@ ons.ready(function () {
                                 }
                             };
                         }
-                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPasscode === '' || eventDescription.evtUsername === '') {
+                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '') {
                             case true:
                                 ons.notification.alert({
                                     title: 'Missing attributes',
@@ -2316,6 +2393,7 @@ ons.ready(function () {
                                 break;
                             case false:
                                 if (evtUsernameUnique) {
+
                                     for (var i = 1, l = baseCount + 1; i < l; i++) {
                                         var baseInfo = {
                                             baseNo: i,
@@ -2324,8 +2402,19 @@ ons.ready(function () {
                                             basePassword: $('#base' + i + 'Password').val().trim(),
                                             baseInstructions: $('#base' + i + 'Instructions').val().trim()
                                         };
+                                        //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
+                                        //TODO 17/10/2017 test this password check works as expected
+                                        if (passwordProtectLogs && baseInfo.basePassword === '') {
+                                            ons.notification.alert({
+                                                title: 'Missing Password',
+                                                message: "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
+                                                cancelable: true
+                                            });
+                                            break;
+                                        }
                                         eventDescription.bases.push(baseInfo);
                                     }
+
                                     var apiAddress = appServer + '/api/event/new';
                                     var eventCreationData = {
                                         username: username,
