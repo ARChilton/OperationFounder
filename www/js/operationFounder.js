@@ -767,7 +767,6 @@ function updateTableFromFindQuery(doc, admin) {
 
     console.log('updating from find query');
 
-
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
         var path = doc.docs[i];
@@ -1024,11 +1023,17 @@ function checkConnection() {
     var networkState = navigator.connection.type;
     return networkState;
 }
-
+/**
+ * 
+ * @param {*} email email to code from an @ sign
+ */
 function changeAtSymbol(email) {
     return email.replace('@', ',40,');
 }
-
+/**
+ * changes the coded email symbol back to @
+ * @param {*} email email address to decode
+ */
 function changeAtSymbolBack(email) {
     return email.replace(',40,', '@');
 }
@@ -1063,13 +1068,34 @@ function logOutPageChange() {
         console.log(err);
     });
 }
-
+/**
+ * a function to delete some of the main indexes used in the app by the bases
+ */
 function deleteIndexes() {
     offRouteIndex = [];
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
     // baseNames = [];
+}
+/**
+ * function to stop the databases from syncing
+ */
+function closeDatabases() {
+    if (basedbConnected && !syncBasedb.canceled) {
+        syncBasedb.cancel();
+
+        syncBasedb;
+        basedbConnected = false;
+        baseSyncInProgress = false;
+    }
+    if (admindbConnected && !adminSync.canceled) {
+        adminSync.cancel();
+
+        adminSync;
+        admindbConnected = false;
+        adminSyncInProgress = false;
+    }
 }
 
 /**
@@ -1079,9 +1105,22 @@ function baseLogOut() {
     // $('#logsTable').empty();
     //sync
     // $('tbody').empty();
-    navi.popPage({
-        animation: pageChangeAnimation
-    });
+    if (navi.topPage.data.firstPage) {
+        var options = {
+            animation: pageChangeAnimation,
+            data: {
+                eventInfo: navi.topPage.data.eventInfo
+            }
+        };
+        navi.replacePage('loginPage.html', options);
+    } else {
+        var options = {
+            animation: pageChangeAnimation,
+        }
+        navi.popPage(options);
+    }
+
+    closeDatabases();
     logOutPageChange();
     document.getElementById('menu').toggle();
     $('#baseLogOut').addClass('hide');
@@ -1099,26 +1138,18 @@ function baseLogOut() {
             throw err;
         });
 }
-
+/**
+ * sign out of the session and return to the sign in screen
+ */
 function signOut() {
+    //need to find out why this isn't doing anything on a pushpage event
     navi.resetToPage('signInPage.html', {
         animation: pageChangeAnimation
     });
     document.getElementById('menu').toggle();
-    if (basedbConnected && !syncBasedb.canceled) {
-        syncBasedb.cancel();
-        basedb;
-        syncBasedb;
-        basedbConnected = false;
-        baseSyncInProgress = false;
-    }
-    if (admindbConnected && !adminSync.canceled) {
-        adminSync.cancel();
-        admindb;
-        adminSync;
-        admindbConnected = false;
-        adminSyncInProgress = false;
-    }
+    closeDatabases();
+    basedb;
+    admindb;
     deleteIndexes();
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
 
@@ -1320,7 +1351,7 @@ ons.ready(function () {
     /**
      * First page to load code
      */
-    //the login function will need to move somewhere further inside the app.
+
     // --- login function ---
     if (appdbConnected == false) {
         appdb = new PouchDB(appDatabaseName);
@@ -1400,8 +1431,12 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
-                if ((doc.lastBase != undefined || doc.lastBase === '') && !doc.lastBase === 'logOut') {
-                    var pageDestination = 'page1.html';
+                if ((doc.lastBase != undefined || doc.lastBase !== '') && doc.lastBase !== 'logOut') {
+                    if (doc.lastBase === 0) {
+                        var pageDestination = 'admin.html';
+                    } else {
+                        var pageDestination = 'page1.html';
+                    }
                 } else {
                     var pageDestination = 'loginPage.html';
                 }
@@ -1726,9 +1761,17 @@ ons.ready(function () {
                                                 if (doc.evtOrganiser) {
                                                     page = 'createEventPage.html';
                                                     return false;
-                                                    break;
-                                                }
+                                                } else {
+                                                    ons.notification.alert({
+                                                        title: 'This event has finished',
+                                                        message: 'The events associated with these log in details have finished',
+                                                        cancelable: true
+                                                    });
+                                                    page = 'signInPage.html';
+                                                    return false;
 
+                                                }
+                                                break;
 
                                             default:
                                                 if (lastDb != 'false') {
@@ -1774,6 +1817,7 @@ ons.ready(function () {
                                             animation: pageChangeAnimation,
                                             data: data
                                         }
+                                        return navi.resetToPage(page, options);
                                     }
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
@@ -2410,112 +2454,118 @@ ons.ready(function () {
                                                 message: "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
                                                 cancelable: true
                                             });
+                                            var passwordsOk = false;
                                             break;
+                                            console.log('shouldnt see me');
+                                        } else {
+                                            eventDescription.bases.push(baseInfo);
+                                            var passwordsOk = true;
                                         }
-                                        eventDescription.bases.push(baseInfo);
                                     }
+                                    if (passwordsOk) {
+                                        var apiAddress = appServer + '/api/event/new';
+                                        var eventCreationData = {
+                                            username: username,
+                                            password: password,
+                                            eventName: eventDescription.eventName,
+                                            evtUsername: eventDescription.evtUsername
+                                        }
+                                        //TODO add done and fail and authentication to the request
+                                        $.ajax(apiAjax(apiAddress, eventCreationData))
+                                            .then(function (doc) {
+                                                console.log(doc);
+                                                if (localStorage.db !== undefined) {
+                                                    var dbs = JSON.parse(localStorage.db);
+                                                    dbs.push(doc.dbName);
+                                                    localStorage.db = JSON.stringify(dbs);
+                                                } else {
+                                                    localStorage.db = doc.dbName;
+                                                }
 
-                                    var apiAddress = appServer + '/api/event/new';
-                                    var eventCreationData = {
-                                        username: username,
-                                        password: password,
-                                        eventName: eventDescription.eventName,
-                                        evtUsername: eventDescription.evtUsername
-                                    }
-                                    //TODO add done and fail and authentication to the request
-                                    $.ajax(apiAjax(apiAddress, eventCreationData))
-                                        .then(function (doc) {
-                                            console.log(doc);
-                                            if (localStorage.db !== undefined) {
-                                                var dbs = JSON.parse(localStorage.db);
-                                                dbs.push(doc.dbName);
-                                                localStorage.db = JSON.stringify(dbs);
-                                            } else {
-                                                localStorage.db = doc.dbName;
-                                            }
+                                                localStorage.lastDb = doc.dbName;
+                                                localStorage.couchdb = doc.url;
+                                                localStorage.http = doc.http;
+                                                eventDescription.evtUserPass = doc.evtUserPass;
+                                                eventDescription.dbName = doc.dbName;
+                                                var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
+                                                if (remotedbURL === newRemotedbURL) {
+                                                    //this returns true
+                                                    return true;
+                                                } else {
+                                                    remotedbURL = newRemotedbURL;
+                                                    if (remotedbConnected) {
 
-                                            localStorage.lastDb = doc.dbName;
-                                            localStorage.couchdb = doc.url;
-                                            localStorage.http = doc.http;
-                                            eventDescription.evtUserPass = doc.evtUserPass;
-                                            eventDescription.dbName = doc.dbName;
-                                            var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
-                                            if (remotedbURL === newRemotedbURL) {
-                                                //this returns true
-                                                return true;
-                                            } else {
-                                                remotedbURL = newRemotedbURL;
-                                                if (remotedbConnected) {
+                                                        return remotedb.close().then(function (doc) {
+                                                            return remotedbConnected = false;
+                                                        }).catch(function (err) {
+                                                            console.log(err);
+                                                            throw err;
+                                                        });
+                                                    } else {
+                                                        //this should return false
+                                                        return remotedbConnected;
+                                                    }
+                                                }
+                                            }).then(function (doc) {
+                                                //checking if remotedb was already defined or not, most likely not
+                                                if (doc === false) {
+                                                    console.log('creating new remotedb connection with new characteristics');
 
-                                                    return remotedb.close().then(function (doc) {
-                                                        return remotedbConnected = false;
+                                                    //new remotedb location as defined from the server
+                                                    return remotedb = new PouchDB(remotedbURL);
+                                                } else {
+                                                    //remotedb has not changed
+                                                    return remotedb;
+                                                }
+
+                                            }).then(function (db) {
+                                                //db is remoteDb but via the function not the var
+                                                console.log(db);
+                                                return db.get('eventDescription')
+                                                    .then(function (doc) {
+                                                        eventDescription._rev = doc._rev;
+                                                        return db.put(eventDescription);
                                                     }).catch(function (err) {
                                                         console.log(err);
-                                                        throw err;
+                                                        if (err.status === 404) {
+                                                            return db.put(eventDescription);
+                                                        } else {
+                                                            console.log(err);
+                                                            err.message = 'unable to upload event description to the database';
+                                                            throw err;
+                                                        }
                                                     });
-                                                } else {
-                                                    //this should return false
-                                                    return remotedbConnected;
-                                                }
-                                            }
-                                        }).then(function (doc) {
-                                            //checking if remotedb was already defined or not, most likely not
-                                            if (doc === false) {
-                                                console.log('creating new remotedb connection with new characteristics');
+                                            }).then(function (doc) {
+                                                //puts the event description into the appdb
+                                                return createOrUpdateAppdbEventDescription(eventDescription);
 
-                                                //new remotedb location as defined from the server
-                                                return remotedb = new PouchDB(remotedbURL);
-                                            } else {
-                                                //remotedb has not changed
-                                                return remotedb;
-                                            }
+                                            }).then(function (doc) {
+                                                //adds a reference to the event description by adding the db to the list of the user's dbs
+                                                return addAppdbLoginDb(eventDescription.dbName);
 
-                                        }).then(function (db) {
-                                            //db is remoteDb but via the function not the var
-                                            console.log(db);
-                                            return db.get('eventDescription')
-                                                .then(function (doc) {
-                                                    eventDescription._rev = doc._rev;
-                                                    return db.put(eventDescription);
-                                                }).catch(function (err) {
-                                                    console.log(err);
-                                                    if (err.status === 404) {
-                                                        return db.put(eventDescription);
-                                                    } else {
-                                                        console.log(err);
-                                                        err.message = 'unable to upload event description to the database';
-                                                        throw err;
+                                            }).then(function (doc) {
+                                                console.log(doc);
+
+                                                return navi.resetToPage('eventSummaryPage.html', {
+                                                    data: {
+                                                        eventName: eventName,
+                                                        url: url,
+                                                        eventInfo: eventDescription
                                                     }
                                                 });
-                                        }).then(function (doc) {
-                                            //puts the event description into the appdb
-                                            return createOrUpdateAppdbEventDescription(eventDescription);
-
-                                        }).then(function (doc) {
-                                            //adds a reference to the event description by adding the db to the list of the user's dbs
-                                            return addAppdbLoginDb(eventDescription.dbName);
-
-                                        }).then(function (doc) {
-                                            console.log(doc);
-                                            return navi.replacePage('eventSummaryPage.html', {
-                                                data: {
-                                                    eventName: eventName,
-                                                    url: url
+                                            })
+                                            .catch(function (err) {
+                                                console.warn(err);
+                                                if (err.message === undefined) {
+                                                    err.message = 'issue saving the event';
                                                 }
+                                                return ons.notification.alert({
+                                                    title: 'error',
+                                                    message: err.message,
+                                                    cancelable: true
+                                                });
                                             });
-                                        })
-                                        .catch(function (err) {
-                                            console.warn(err);
-                                            if (err.message === undefined) {
-                                                err.message = 'issue saving the event';
-                                            }
-                                            return ons.notification.alert({
-                                                title: 'error',
-                                                message: err.message,
-                                                cancelable: true
-                                            });
-                                        });
-
+                                    }
                                 } else {
                                     ons.notification.alert({
                                         title: 'error',
@@ -2534,25 +2584,30 @@ ons.ready(function () {
             case 'eventSummaryPage.html':
                 var eventName = navi.topPage.data.eventName;
                 var url = navi.topPage.data.url;
+                if (navi.topPage.data.eventInfo != undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo
+                } else {
+                    var eventInfo = eventDescription;
+                }
                 console.log(url);
                 if (!($('#eventSummaryPage').hasClass('evtLoaded'))) {
                     $('#eventSummaryPage').addClass('evtLoaded');
-                    console.log(eventDescription);
+                    console.log(eventInfo);
                     $('#evtSummaryTitle').html(eventName);
-                    var evtStart = new Date(eventDescription.dateStart);
-                    var evtEnd = new Date(eventDescription.dateEnd)
+                    var evtStart = new Date(eventInfo.dateStart);
+                    var evtEnd = new Date(eventInfo.dateEnd)
 
                     $('#evtSummaryStartDate').append(evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString());
                     $('#evtSummaryEndDate').append(evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString());
-                    $('#evtSummaryBaseCount').append(eventDescription.bases.length);
-                    $('#evtSummaryUsername').append(eventDescription.evtUsername);
-                    $('#evtSummaryPassword').append(eventDescription.evtUserPass);
-                    if (eventDescription.eventDescription !== '') {
-                        $('#evtSummaryDescription').append(eventDescription.eventDescription.replace(/\n/g, "<br>"));
+                    $('#evtSummaryBaseCount').append(eventInfo.bases.length);
+                    $('#evtSummaryUsername').append(eventInfo.evtUsername);
+                    $('#evtSummaryPassword').append(eventInfo.evtUserPass);
+                    if (eventInfo.eventDescription !== '') {
+                        $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     }
-                    $('#evtSummaryAdminPass').append(eventDescription.bases[0].basePassword);
+                    $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
 
-                    var bases = eventDescription.bases;
+                    var bases = eventInfo.bases;
                     bases.forEach(function (base) {
 
                         if (base.baseName === undefined) {
@@ -2565,7 +2620,7 @@ ons.ready(function () {
                             base.baseMaxScore = 'no score available at this location'
                         }
                         $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + base.baseMaxScore + '<p>');
-                        if (eventDescription.passwordProtectLogs) {
+                        if (eventInfo.passwordProtectLogs) {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '<p>');
                         }
                         if (base.baseInstructions != undefined && base.baseInstructions != "") {
@@ -2573,26 +2628,37 @@ ons.ready(function () {
                         }
                     });
                     if (url != undefined) {
-                        console.log('no no no');
+
                         $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
-                    } else if (eventDescription._attachments.evtLogo != undefined) {
+                    } else if (eventInfo._attachments != undefined) {
 
                         //code below required to get attachments and create url for img
-
-                        appdb.getAttachment(eventDescription.dbName + '_eventDescription', 'evtLogo')
-                            .then(function (blob) {
-                                return URL.createObjectURL(blob);
-                            })
-                            .then(function (url) {
-                                $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
-                            }).catch(function (err) {
-                                console.log('issue loading evtLogo image');
-                                console.log(err);
-                            });
+                        if (eventInfo._attachments.evtLogo != undefined) {
+                            appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
+                                .then(function (blob) {
+                                    return URL.createObjectURL(blob);
+                                })
+                                .then(function (url) {
+                                    $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
+                                }).catch(function (err) {
+                                    console.log('issue loading evtLogo image');
+                                    console.log(err);
+                                });
+                        }
 
                     }
 
+                    $('#goToEvent').on('click', function () {
+                        navi.resetToPage('loginPage.html', {
+                            animation: pageChangeAnimation,
+                            data: {
+                                eventInfo: eventInfo,
+                                url: url
+                            }
+                        })
+                    });
                 }
+
                 break;
 
                 // --- Log in Page ---
@@ -2600,7 +2666,9 @@ ons.ready(function () {
             case 'loginPage.html':
                 //loginPage.html
                 // ons.disableDeviceBackButtonHandler();
-
+                if (name != undefined) {
+                    $('#userName').val(name);
+                }
                 //TODO next set up login page with dropdown box and change what is displayed as applicable. Also do a check on basecodes and change the current base code check to take the input from the navi.data
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
@@ -2613,17 +2681,22 @@ ons.ready(function () {
                     $('#loginEventDescriptionTitle').after('<p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
                     //Event Logo update
-                    appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
-                        .then(function (blob) {
-                            return URL.createObjectURL(blob);
-                        })
-                        .then(function (url) {
-                            $('#loginEventLogo').attr('src', url);
-                        }).catch(function (err) {
-                            console.log('issue loading evtLogo image');
-                            console.log(err);
-                        });
-
+                    if (navi.topPage.url != undefined) {
+                        $('#loginEventLogo').attr('src', navi.topPage.url);
+                    } else if (eventInfo._attachments != undefined) {
+                        if (eventInfo._attachments.evtLogo != undefined) {
+                            appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
+                                .then(function (blob) {
+                                    return URL.createObjectURL(blob);
+                                })
+                                .then(function (url) {
+                                    $('#loginEventLogo').attr('src', url);
+                                }).catch(function (err) {
+                                    console.log('issue loading evtLogo image');
+                                    console.log(err);
+                                });
+                        }
+                    }
                     //Title update
                     $('#loginTitle').html(eventInfo.eventName);
 
@@ -2705,9 +2778,13 @@ ons.ready(function () {
                     }
                     //add a welcome message
                     $('#loginWelcome').html(welcomeMessage);
-
-
                 }
+
+                /*  if (localStorage.evtOrganiser) {
+                     $('ons-toolbar .right').append('<ons-toolbar-button><ons-icon icon="md-repeat" id="selectEvent"></ons-icon></ons-toolbar-button>');
+
+                 } */
+
                 //event handlers
                 if (!($('.loginButton').hasClass('evtHandler'))) {
                     $('.loginButton').addClass('evtHandler');
@@ -2718,85 +2795,51 @@ ons.ready(function () {
                             base = baseCodes.indexOf(baseCodeInput);
                             var timestamp = new Date().toISOString();
                             if (base > -1) {
-                                //  good
+                                //  code is in the list
                                 ons.enableDeviceBackButtonHandler();
                                 if (base === 0) {
-                                    // navi.bringPageTop('admin.html', {
-                                    //     animation: pageChangeAnimation
-                                    // });
-
-                                    appdb.get('login').then(function (doc) {
-                                            doc.base = base;
-                                            doc.name = name;
-                                            doc.timestamp = timestamp;
-                                            return appdb.put(doc);
-                                        })
-                                        .catch(function (err) {
-                                            //TODO check once the db stuff is sorted
-                                            return appdb.put({
-                                                _id: 'login',
-                                                base: base,
-                                                name: name,
-                                                timestamp: timestamp
-                                            }).then(function () {
-                                                ons.notification.alert({
-                                                    title: 'Welcome ' + name,
-                                                    message: 'Welcome to the Operation Founder admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.',
-                                                    cancelable: true
-                                                });
-                                            }).catch(function () {
-                                                ons.notification.alert({
-                                                    title: 'Error saving user',
-                                                    message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
-                                                    cancelable: true
-                                                });
-                                            });
-
-
-                                        });
-                                    loginAndRunFunction(base, {
-                                        eventInfo: eventInfo
-                                    });
-                                    // } else if (base == 7) {
-                                    //     // roaming page 
+                                    //admin message
+                                    var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.';
                                 } else {
-                                    console.log('pass your base is ' + base);
-                                    // navi.bringPageTop('page1.html', {
-                                    //     animation: pageChangeAnimation
-                                    // });
-                                    appdb.get('login').then(function (doc) {
-                                            doc.base = base;
-                                            doc.name = name;
-                                            doc.timestamp = timestamp;
-                                            return appdb.put(doc);
-                                            // return loginPut(doc);
-                                        })
-                                        .catch(function () {
-                                            return appdb.put({
-                                                _id: 'login',
-                                                base: base,
-                                                name: name,
-                                                timestamp: timestamp
-                                            }).then(function () {
-                                                return ons.notification.alert({
-                                                    title: 'Welcome ' + name,
-                                                    message: 'Welcome to the Operation Founder base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.',
-                                                    cancelable: true
-                                                });
-                                            }).catch(function (err) {
-                                                console.log(err);
-                                                return ons.notification.alert({
-                                                    title: 'Error saving user',
-                                                    message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
-                                                    cancelable: true
-                                                });
-                                            });
-
-                                        });
-                                    loginAndRunFunction(base, {
-                                        eventInfo: eventInfo
-                                    });
+                                    var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
                                 }
+                                appdb.get('login').then(function (doc) {
+                                        doc.base = base;
+                                        doc.name = name;
+                                        doc.currentDb = eventInfo.dbName;
+                                        doc.timestamp = timestamp;
+                                        return appdb.put(doc);
+                                    })
+                                    .catch(function (err) {
+                                        //TODO check once the db stuff is sorted
+                                        return appdb.put({
+                                            _id: 'login',
+                                            base: base,
+                                            name: name,
+                                            currentDb: eventInfo.dbName,
+                                            timestamp: timestamp
+                                        }).then(function () {
+                                            ons.notification.alert({
+                                                title: 'Welcome ' + name,
+                                                message: welcomeMessage,
+                                                cancelable: true
+                                            });
+                                        }).catch(function () {
+                                            ons.notification.alert({
+                                                title: 'Error saving user',
+                                                message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
+                                                cancelable: true
+                                            });
+                                        });
+
+
+                                    });
+                                loginAndRunFunction(base, {
+                                    eventInfo: eventInfo
+                                });
+                                // } else if (base == 7) {
+                                //     // roaming page 
+
                             } else {
                                 //  bad
                                 ons.notification.alert({
@@ -2824,7 +2867,7 @@ ons.ready(function () {
 
             case 'page1.html':
                 //allow for baseLogOut to be shown in the menu
-                $('#baseLogOut').removeClass('hide');
+                $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
                 //passing through information about the event and the base
 
                 if (navi.topPage.data.eventInfo !== undefined) {
@@ -2854,18 +2897,18 @@ ons.ready(function () {
                 //Also work out how to downscale the images saved
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
-                    $('.pageTitle').html('Base ' + base + ' @ ' + baseNames[base]);
+                    $('.pageTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
                     $('.quickAddTitle').html('Add new log from base ' + base);
 
                 } else if (base === 'noBase') {
-                    $('.pageTitle').html(baseNames[base]);
+                    $('.pageTitle').html('On the look out');
                     $('.quickAddTitle').html('Record the teams you see');
                     $('#tableTitle').html('Teams seen')
 
                 }
                 $('#logsTable').empty();
 
-                if (basedbConnected == false) {
+                if (basedbConnected === false) {
                     basedb = new PouchDB(baseDatabaseName);
                     basedbConnected = true;
                 }
@@ -3319,8 +3362,12 @@ ons.ready(function () {
                 // --- Admin page ---
                 // these look similar but are seperate for admin and base users
             case 'admin.html':
-                ons.disableDeviceBackButtonHandler();
+                // ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
+
+                //allow for baseLogOut to be shown in the menu
+                $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
+
                 // -- table selection and actions --
                 var adminSpeedDial = document.getElementById('adminSpeedDial');
                 adminSpeedDial.hide();
@@ -3410,8 +3457,7 @@ ons.ready(function () {
 
                 $('#adminSpeedDial').removeClass('hide');
                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-                    $('#adminLogsTable').addClass('evtHandler');
-                    $('#adminLogsTable').on('click', 'tr', function (e) {
+                    $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
                         if ($(this).hasClass('tableSelected')) {
                             $(this).removeClass('tableSelected');
 
@@ -3441,6 +3487,7 @@ ons.ready(function () {
                             adminCurrentlySelected = [];
                             // to get the dbId's off the element
                             var dataInfo = $(this).data('databaseInfo');
+                            console.log(dataInfo);
                             adminCurrentlySelected.push(dataInfo);
                             console.log(adminCurrentlySelected);
                         }
@@ -3467,12 +3514,11 @@ ons.ready(function () {
                 }
                 //button for locking logs as no longer editable
                 if (!($('#adminLock').hasClass('evtHandler'))) {
-                    $('#adminLock').addClass('evtHandler');
                     /**
                      * Locks the selected rows
                      * @event adminLock clicked
                      */
-                    $('#adminLock').on('click', function () {
+                    $('#adminLock').addClass('evtHandler').on('click', function () {
                         lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
                     });
                 }
