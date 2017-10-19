@@ -320,7 +320,11 @@
         <div class="center">
           Event Summary
         </div>
-
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon icon="md-check" id="goToEvent"></ons-icon>
+          </ons-toolbar-button>
+        </div>
       </ons-toolbar>
       <div class="pageDiv evtSummary">
         <div id="evtSummaryBanner"></div>
@@ -496,11 +500,11 @@
       </ons-fab>
       <!--Top half of screen-->
 
-      <div class="topHalf landscapeHide">
+      <div class="topHalf">
         <ons-list>
           <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
           <ons-list-item>
-            <div class="left">
+            <div class="center">
               Patrol No.
             </div>
             <div class="right">
@@ -515,7 +519,7 @@
             <label for="offRoute" class="center">Off route</label>
           </ons-list-item>
           <ons-list-item class="">
-            <div class="left">
+            <div class="center">
               Time in
             </div>
             <div class="right">
@@ -524,14 +528,14 @@
             </div>
           </ons-list-item>
           <ons-list-item class="">
-            <div class="left">Wait time</div>
+            <div class="center">Wait time</div>
             <div class="right">
               <ons-input id="wait" type="number" modifier="underbar" placeholder="minutes" value="0" float class="quickAddInput">
               </ons-input>
             </div>
           </ons-list-item>
           <ons-list-item class="">
-            <div class="left">
+            <div class="center">
               Time out
             </div>
             <div class="right">
@@ -540,7 +544,7 @@
             </div>
           </ons-list-item>
           <ons-list-item id="page1TotalScore" class="">
-            <div class="left">Total score</div>
+            <div class="center">Total score</div>
             <div class="right">
               <ons-input id="total" type="number" modifier="underbar" placeholder="Total score" float class="quickAddInput">
               </ons-input>
