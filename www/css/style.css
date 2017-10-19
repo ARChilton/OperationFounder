@@ -333,9 +333,11 @@ Accent Darker color: Orange 800: #EF6C00
     /*background-color: #FFB74D;*/
 }
 
-.mdl-data-table tbody tr:hover {
-    background-color: #7986CB;
-    color: #fff;
+@media(hover:hover) {
+    .mdl-data-table tbody tr:hover {
+        background-color: #7986CB;
+        color: #fff;
+    }
 }
 
 #patrolSearchInput {
