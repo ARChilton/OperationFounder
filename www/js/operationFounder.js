@@ -801,7 +801,6 @@ function updateTableFromFindQuery(doc, admin) {
             tableUpdateFunction(path, admin);
         }
     }
-
     orientationLandscapeUpdate();
 
 }
@@ -3248,6 +3247,7 @@ ons.ready(function () {
                                     }
 
                                     tableUpdateFunction(offRoutePatrolLog, false);
+                                    orientationLandscapeUpdate();
                                     clearQuickAddInputs();
                                     basedb.put(offRoutePatrolLog);
                                     break;
@@ -3279,7 +3279,8 @@ ons.ready(function () {
                                                             }
                                                             return basedb.put(patrolLogUpdate)
                                                                 .then(function (doc) {
-                                                                    return tableUpdateFunction(patrolLogUpdate, false);
+                                                                    tableUpdateFunction(patrolLogUpdate, false);
+                                                                    return orientationLandscapeUpdate();
                                                                 });
                                                         }
                                                     }).catch(function (err) {
@@ -3302,6 +3303,7 @@ ons.ready(function () {
                                             if (err.status == 404) {
                                                 console.log('404 no prior record putting a new record');
                                                 tableUpdateFunction(patrolLog, false);
+                                                orientationLandscapeUpdate();
                                                 clearQuickAddInputs();
                                                 return basedb.put(patrolLog);
 
@@ -3326,6 +3328,7 @@ ons.ready(function () {
                                                         }
                                                         basedb.put(patrolLogUpdate).then(function () {
                                                             tableUpdateFunction(patrolLogUpdate, false);
+                                                            orientationLandscapeUpdate();
                                                         });
                                                         break;
                                                     case false:
