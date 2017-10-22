@@ -766,39 +766,64 @@ function updateTableFromAllDocs(doc, admin) {
 function updateTableFromFindQuery(doc, admin) {
 
     console.log('updating from find query');
-
+    //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
 
         var path = doc.docs[i];
-        if (path._deleted > 0) {
+        //console.log(path);
+        try {
+            if (path._deleted > 0) {
 
 
-            console.log(path._id + ' has been set to deleted in remotedb');
-            //if the record is the array of IDs in the table
-            if (removePatrolRecord(path._id, admin)) {
-                //remove the row # + ID 
-                $('#' + path._id).remove();
-                console.log(path._id + ' removed');
+                console.log(path._id + ' has been set to deleted in remotedb');
+                //if the record is the array of IDs in the table
+                if (removePatrolRecord(path._id, admin)) {
+                    //remove the row # + ID 
+                    $('#' + path._id).remove();
+                    console.log(path._id + ' removed');
 
 
 
-                if (deleteNotificationCleared) {
-                    deleteNotificationCleared = false;
-                    ons.notification.alert({
-                        title: 'HQ deleted some logs',
-                        messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
-                        cancelable: true
-                    }).then(function (input) {
-                        deleteNotificationCleared = true;
+                    if (deleteNotificationCleared) {
+                        deleteNotificationCleared = false;
+                        ons.notification.alert({
+                            title: 'HQ deleted some logs',
+                            messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
+                            cancelable: true
+                        }).then(function (input) {
+                            deleteNotificationCleared = true;
 
-                    });
+                        });
+                    }
                 }
+
+            } else if (path.patrol != undefined) {
+                if (path.patrol.length > 0) {
+                    tableUpdateFunction(path, admin);
+                }
+            } else if (path._id === 'eventDescription') {
+                //console.log(path);
+                console.log('event description update');
+                ons.notification.alert({
+                    title: 'Event Update',
+                    messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                    cancelable: true
+                }).then(function () {
+                    navi.resetToPage('updatePage.html', {
+                        animation: pageChangeAnimation,
+                        data: {
+                            eventInfo: path,
+                            lastPage: navi.topPage.name
+                        }
+                    });
+
+                }).catch(function (err) {
+                    console.log(err);
+                });
+                //break;
             }
-
-        } else if (path.patrol.length > 0) {
-
-
-            tableUpdateFunction(path, admin);
+        } catch (err) {
+            console.log(err);
         }
     }
     orientationLandscapeUpdate();
@@ -1095,6 +1120,7 @@ function closeDatabases() {
         admindbConnected = false;
         adminSyncInProgress = false;
     }
+    deleteIndexes();
 }
 
 /**
@@ -1149,7 +1175,6 @@ function signOut() {
     closeDatabases();
     basedb;
     admindb;
-    deleteIndexes();
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
 
 }
@@ -1196,6 +1221,7 @@ function baseSelectValue(value) {
 /**
  * The main function for the software, the base number defines which page is presented and what code is run
  * @param {*} base
+ * @param {*} data
  */
 function loginAndRunFunction(base, data) {
     if (data != undefined) {
@@ -1229,7 +1255,8 @@ function loginAndRunFunction(base, data) {
     }
 }
 
-function createOrUpdateAppdbEventDescription(eventDescription) {
+//deprecated solution
+/* function createOrUpdateAppdbEventDescription(eventDescription) {
     console.log(eventDescription);
     return appdb.get(eventDescription.dbName + '_eventDescription')
         .then(function (doc) {
@@ -1248,7 +1275,7 @@ function createOrUpdateAppdbEventDescription(eventDescription) {
                 throw err;
             }
         });
-}
+} */
 
 function addAppdbLoginDb(dbName) {
     console.log(dbName);
@@ -1352,7 +1379,7 @@ ons.ready(function () {
      */
 
     // --- login function ---
-    if (appdbConnected == false) {
+    if (appdbConnected === false) {
         appdb = new PouchDB(appDatabaseName);
         appdbConnected = true;
     }
@@ -1375,6 +1402,7 @@ ons.ready(function () {
                         if (compareTwoArrays(user.user.roles.sort(), doc.db.sort(), false) === false) {
                             //updated db array with the authorative source from couchdb
                             doc.db = user.user.roles;
+                            // doc.currentDb = lastDb;
                             appdb.put(doc)
                                 .then(function (info) {
                                     return appdb.compact();
@@ -1383,7 +1411,7 @@ ons.ready(function () {
                                     console.log(err);
                                 });
                             localStorage.db = JSON.stringify(doc.db); //need to return this info to login
-                            var index = doc.db.indexOf(doc.currentDb);
+                            var index = doc.db.indexOf(lastDb);
                             if (index > -1) {
                                 console.log('dbs updated and last exists');
                                 return doc;
@@ -1414,7 +1442,9 @@ ons.ready(function () {
                 // return doc; //previous return before ajax implimentation
             }).then(function (login) {
                 console.log(login);
-                return appdb.get(login.currentDb + '_eventDescription')
+                // return appdb.get(login.currentDb + '_eventDescription')
+                var db = new PouchDB(lastDb);
+                return db.get('eventDescription')
                     .then(function (doc) {
                         console.log(doc);
                         doc.lastBase = login.base;
@@ -1425,12 +1455,13 @@ ons.ready(function () {
                     });
             })
             .then(function (doc) {
+
                 //TODO ARC 20/09/2017 consider loginandrun function here passing data on
                 var data = {
                     eventInfo: doc,
                     firstPage: true
                 };
-                if ((doc.lastBase != undefined || doc.lastBase !== '') && doc.lastBase !== 'logOut') {
+                if (doc.lastBase != undefined && doc.lastBase !== '' && doc.lastBase !== 'logOut') {
                     if (doc.lastBase === 0) {
                         var pageDestination = 'admin.html';
                     } else {
@@ -1638,7 +1669,7 @@ ons.ready(function () {
                                 }
                             }).then(function (doc) {
                                 console.log(doc);
-                                return appdb.allDocs()
+                                /*  return appdb.allDocs()
                                     .then(function (docs) {
                                         console.log(docs);
                                         var docsIds = [];
@@ -1725,7 +1756,20 @@ ons.ready(function () {
                                         console.log('err3');
                                         console.log(err);
                                         throw err;
-                                    });
+                                     });
+                                */
+
+
+                                return Promise.all(db.map(function (event) {
+                                    return updateSingleDoc(event, ['eventDescription']);
+
+                                })).then(function (info) {
+                                    console.log(info);
+                                    return doc.user.metadata;
+                                }).catch(function (err) {
+                                    throw err;
+                                });
+
 
 
                                 //05/10/2017 pick up here, need to test this works for 2 or more databases and then feed information through to the other pages
@@ -1739,7 +1783,8 @@ ons.ready(function () {
                                         switch (db.length) {
                                             case 1:
                                                 page = 'loginPage.html';
-                                                return appdb.get(db[0] + '_eventDescription')
+                                                var tempdb = new PouchDB(db[0]);
+                                                return tempdb.get('eventDescription')
                                                     .then(function (event) {
                                                         baseDatabaseName = event.dbName;
                                                         localStorage.lastDb = event.dbName;
@@ -1777,7 +1822,8 @@ ons.ready(function () {
                                                     page = 'loginPage.html';
                                                     var event = db.indexOf(lastDb);
                                                     if (event > -1) {
-                                                        return appdb.get(db[event] + '_eventDescription')
+                                                        var tempdb = new PouchDB(db[event]);
+                                                        return tempdb.get('eventDescription')
                                                             .then(function (event) {
                                                                 baseDatabaseName = event.dbName;
                                                                 localStorage.lastDb = event.dbName;
@@ -2534,9 +2580,9 @@ ons.ready(function () {
                                                             throw err;
                                                         }
                                                     });
-                                            }).then(function (doc) {
-                                                //puts the event description into the appdb
-                                                return createOrUpdateAppdbEventDescription(eventDescription);
+                                                /* }).then(function (doc) {
+                                                    //puts the event description into the appdb
+                                                    return createOrUpdateAppdbEventDescription(eventDescription); */
 
                                             }).then(function (doc) {
                                                 //adds a reference to the event description by adding the db to the list of the user's dbs
@@ -2633,7 +2679,8 @@ ons.ready(function () {
 
                         //code below required to get attachments and create url for img
                         if (eventInfo._attachments.evtLogo != undefined) {
-                            appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
+                            var tempdb = new PouchDB(eventInfo.dbName);
+                            tempdb.getAttachment('eventDescription', 'evtLogo')
                                 .then(function (blob) {
                                     return URL.createObjectURL(blob);
                                 })
@@ -2665,14 +2712,81 @@ ons.ready(function () {
             case 'loginPage.html':
                 //loginPage.html
                 // ons.disableDeviceBackButtonHandler();
-                if (name != undefined) {
+                var db, tempRemotedb, options, messageOpen;
+                if (name != undefined && name != 'undefined') {
                     $('#userName').val(name);
                 }
                 //TODO next set up login page with dropdown box and change what is displayed as applicable. Also do a check on basecodes and change the current base code check to take the input from the navi.data
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
+                    if (navi.topPage.data.firstPage === true) {
 
+                        var db = new PouchDB(eventInfo.dbName);
+                        var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
+                        var options = {
+                            doc_ids: ['eventDescription'],
+                            live: true,
+                            retry: true
+                        };
+                        var messageOpen = false;
+                        var evtUpdateCheck = db.replicate.from(tempRemotedb, options)
+                            .on('change', function (doc) {
+                                if (!messageOpen) {
+                                    messageOpen = true;
+                                    ons.notification.alert({
+                                        title: 'Event Updated',
+                                        messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                        cancelable: true
+                                    }).then(function (input) {
+                                        var options = {
+                                            animation: pageChangeAnimation,
+                                            data: {
+                                                event: eventInfo.dbName,
+                                                lastPage: 'loginPage.html'
+                                            }
+                                        };
+                                        navi.resetToPage('updatePage.html', options);
+                                        evtUpdateCheck.cancel();
+                                        messageOpen = false;
+                                        //to stop any further code from taking place
+
+                                    });
+                                }
+                            }).on('paused active denied complete error', function (info) {
+                                console.log(info);
+                            });
+
+                        /*  var evtDescUpdate = Promise.resolve().then(function () {
+                             return updateSingleDoc(eventInfo.dbName, ['eventDescription']);
+                         }).then(function (eventInfoUpdated) {
+                             console.log(eventInfoUpdated);
+                             if (eventInfoUpdated) {
+                                 ons.notification.alert({
+                                     title: 'Event Updated',
+                                     messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                     cancelable: true
+                                 }).then(function (input) {
+                                     var options = {
+                                         animation: pageChangeAnimation,
+                                         data: {
+                                             event: eventInfo.dbName,
+                                             lastPage: 'loginPage.html'
+                                         }
+                                     };
+                                     navi.resetToPage('updatePage.html', options);
+                                     return eventInfoUpdated;
+                                     //to stop any further code from taking place
+
+                                 });
+
+                             }
+                         }).catch(function (err) {
+                             console.log(err);
+                         }); */
+
+
+                    }
                     //Event Description update
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
@@ -2684,7 +2798,8 @@ ons.ready(function () {
                         $('#loginEventLogo').attr('src', navi.topPage.url);
                     } else if (eventInfo._attachments != undefined) {
                         if (eventInfo._attachments.evtLogo != undefined) {
-                            appdb.getAttachment(eventInfo.dbName + '_eventDescription', 'evtLogo')
+                            var tempdb = new PouchDB(eventInfo.dbName);
+                            tempdb.getAttachment('eventDescription', 'evtLogo')
                                 .then(function (blob) {
                                     return URL.createObjectURL(blob);
                                 })
@@ -2836,6 +2951,7 @@ ons.ready(function () {
                                 loginAndRunFunction(base, {
                                     eventInfo: eventInfo
                                 });
+                                evtUpdateCheck.cancel();
                                 // } else if (base == 7) {
                                 //     // roaming page 
 
@@ -3596,7 +3712,7 @@ ons.ready(function () {
                             });
 
                             $('#patrolSearchInput').on('keydown', function (e) {
-                                if (e.which == 13) {
+                                if (e.which === 13) {
                                     var patrolToSearch = $(this).val();
                                     admindb.find({
                                         selector: {
@@ -3610,6 +3726,7 @@ ons.ready(function () {
 
                                         sort: ['timeOut']
                                     }).then(function (doc) {
+                                        //TODO add a pause variable in here to only update this patrol's records
                                         console.log(doc);
                                         $('#adminLogsTable').empty();
                                         patrolRecordAdmin = [];
@@ -3627,6 +3744,56 @@ ons.ready(function () {
 
                 // -- end of admin.html --
                 break;
+
+            case 'updatePage.html':
+                // -- start of updatePage.html --
+                var updateInfo, pageChange, options, updateInfo;
+                //update the event and reset to last page using the data
+
+                var updateInfo = navi.topPage.data;
+                console.log(updateInfo);
+                options = {
+                    animation: pageChangeAnimation,
+                    data: {
+                        firstPage: true
+                    }
+
+                };
+                closeDatabases();
+                Promise.resolve().then(function () {
+                    if (updateInfo.lastPage === undefined) {
+                        throw 'no last page defined';
+                    }
+                    pageChange = navi.topPage.data.lastPage;
+                    if (updateInfo.eventInfo != undefined) {
+                        //information to update is already present just pass it to the page
+                        return options.data.eventInfo = updateInfo.eventInfo;
+                    } else if (updateInfo.event != undefined) {
+                        var tempdb = new PouchDB(updateInfo.event);
+                        return tempdb.get('eventDescription')
+                            .then(function (doc) {
+                                options.data.eventInfo = doc;
+                            }).catch(function (err) {
+                                throw err;
+                            });
+                    }
+                }).then(function (info) {
+                    navi.resetToPage(pageChange, options);
+                }).catch(function (err) {
+                    console.log(err);
+                    ons.notification.alert({
+                        title: 'Issue Updating',
+                        message: 'There was an issue updating, please sign in again to fix',
+                        cancelable: true
+                    }).then(function () {
+                        pageChange = 'signInPage.html';
+                        navi.resetToPage(pageChange, options);
+                    });
+                });
+
+                //-- end of updatePage.html --
+                break;
+
                 //to help debug issues
             default:
                 console.log('the following page has been pushed and has no reference in the push page switch ' + navi.topPage.name);
@@ -3636,3 +3803,33 @@ ons.ready(function () {
     });
 
 });
+/**
+ * Checks that the doc is up to date and will update if required
+ * @param {string} event the name of the local and remote db to update
+ * @param {[]} doc_id the doc to update 
+ * @returns {Bool} true for an update, false already up to date
+ */
+function updateSingleDoc(event, doc_ids, live) {
+    var tempdb, tempRemotedb, options;
+
+    var tempdb = new PouchDB(event);
+    var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event);
+    var options = {
+        doc_ids: doc_ids
+    };
+
+    return tempRemotedb.replicate.to(tempdb, options).then(function (info) {
+        console.log(info)
+        if (info.docs_written > 0) {
+            console.log('event Description for ' + event + ' updated');
+            return true;
+        } else {
+            console.log('event Description for ' + event + ' was up to date');
+            return false;
+        }
+    }).catch(function (err) {
+        console.log('there was an error');
+        console.log(err);
+        throw err;
+    });
+}
