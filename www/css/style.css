@@ -800,3 +800,20 @@ ons-splitter-mask {
     width: auto;
     min-width: 50px;
 }
+
+
+/*--Update Page--*/
+
+#updateEventUpdate {
+    width: 100vw;
+    height: 40vh;
+    font-size: 40vh;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFB74D;
+}
+
+.updateFiller {
+    width: 100vw;
+    height: 30vh;
+}
