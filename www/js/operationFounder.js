@@ -277,8 +277,8 @@ function mapBackButton() {
             });
             break;
         default:
-            if (index) {
-                throw navi.bringPageTop('loginPage.html', {
+            if (index === 'logout') {
+                throw navi.resetToPage('loginPage.html', {
                     animation: pageChangeAnimation
                 }).then(function (doc) {;
                     ons.notification.alert({
@@ -1101,7 +1101,7 @@ function deleteIndexes() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
-    // baseNames = [];
+
 }
 /**
  * function to stop the databases from syncing
@@ -1154,7 +1154,7 @@ function baseLogOut() {
     document.getElementById('menu').toggle();
     $('#baseLogOut').addClass('hide');
 
-    return appdb.get('login')
+    return appdb.get('login_' + username)
         .then(function (doc) {
 
             var timestamp = new Date().toISOString();
@@ -1175,12 +1175,15 @@ function signOut() {
     navi.resetToPage('signInPage.html', {
         animation: pageChangeAnimation
     });
+    baseNames = [];
+    baseCodes = [];
     document.getElementById('menu').toggle();
     closeDatabases();
     basedb;
     admindb;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     localStorage.verified = 'false';
+    localStorage.evtOrganiser = 'false';
 }
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -1283,7 +1286,7 @@ function loginAndRunFunction(base, data) {
 
 function addAppdbLoginDb(dbName) {
     console.log(dbName);
-    return appdb.get('login')
+    return appdb.get('login_' + username)
         .then(function (doc) {
             if (doc.db === undefined) {
                 doc.db = [dbName];
@@ -1296,7 +1299,7 @@ function addAppdbLoginDb(dbName) {
         }).catch(function (err) {
             if (err.status === 404) {
                 return appdb.put({
-                    _id: 'login',
+                    _id: 'login_' + username,
                     db: [dbName],
                     currentDb: dbName,
                     timestamp: new Date().toISOString()
@@ -1390,7 +1393,7 @@ ons.ready(function () {
     //the user has an event they previously signed into and were in a previous db
     if (localStorage.previousSignIn === 'true' && lastDb != 'false') {
 
-        appdb.get('login')
+        appdb.get('login_' + username)
             .then(function (doc) {
                 base = doc.base; //last base used
                 name = doc.name; //the name used for the logs
@@ -1612,7 +1615,9 @@ ons.ready(function () {
                                         localStorage.previousSignIn = true;
                                         if (doc.user.metadata !== undefined) {
                                             localStorage.evtOrganiser = doc.user.metadata.evtOrganiser;
-                                            localStorage.verified = doc.user.metadata.verification.verified;
+                                            if (doc.user.metadata.verification != undefined) {
+                                                localStorage.verified = doc.user.metadata.verification.verified;
+                                            }
                                         }
                                     }
 
@@ -1624,7 +1629,7 @@ ons.ready(function () {
                                     //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
                                     //need to do the whole getting of the event information
                                     var timestamp = new Date().toISOString();
-                                    return appdb.get('login')
+                                    return appdb.get('login_' + username)
                                         .then(function (login) {
                                             login.db = db;
                                             login.timestamp = timestamp;
@@ -1646,7 +1651,7 @@ ons.ready(function () {
                                             if (err.status === 404) {
                                                 console.log('no login doc, creating one');
                                                 var putDoc = {
-                                                    _id: 'login',
+                                                    _id: 'login_' + username,
                                                     db: db,
                                                     timestamp: timestamp,
                                                     http: http,
@@ -2120,6 +2125,28 @@ ons.ready(function () {
                         }
                     });
                 }
+                if (!($('#resendVerificationCode').hasClass('evtHandler'))) {
+                    $('#resendVerificationCode').addClass('evtHandler').on('click', function () {
+                        var url = appServer + '/api/user/resendverification';
+                        var dataPackage = {
+                            username: username
+                        };
+                        $.ajax(apiAjax(url, dataPackage))
+                            .then(function (doc) {
+                                ons.notification.alert({
+                                    title: 'Email sent',
+                                    message: 'Your new verification email has been sent',
+                                    cancelable: true
+                                });
+                            }).catch(function (err) {
+                                ons.notification.alert({
+                                    title: 'Error',
+                                    message: 'There was an issue re-sending your verification email, please try again',
+                                    cancelable: true
+                                });
+                            });
+                    });
+                }
                 //need to add a resend email function
                 break;
             case 'createEventPage.html':
@@ -2402,7 +2429,7 @@ ons.ready(function () {
                                         };
                                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                                         //TODO 17/10/2017 test this password check works as expected
-                                        if (passwordProtectLogs && baseInfo.basePassword === '') {
+                                        if (eventDescription.passwordProtectLogs && baseInfo.basePassword === '') {
                                             ons.notification.alert({
                                                 title: 'Missing Password',
                                                 message: "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
@@ -2492,7 +2519,8 @@ ons.ready(function () {
                                                 /* }).then(function (doc) {
                                                     //puts the event description into the appdb
                                                     return createOrUpdateAppdbEventDescription(eventDescription); */
-
+                                            }).then(function (doc) {
+                                                return updateSingleDoc(eventDescription.dbName, ['eventDescription']);
                                             }).then(function (doc) {
                                                 //adds a reference to the event description by adding the db to the list of the user's dbs
                                                 return addAppdbLoginDb(eventDescription.dbName);
@@ -2745,7 +2773,6 @@ ons.ready(function () {
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('keyup', function (e) {
                                 var key = e.which;
-                                console.log(key);
                                 // enter key is 13
                                 if (key === 13) {
                                     e.preventDefault();
@@ -2826,7 +2853,7 @@ ons.ready(function () {
                                 } else {
                                     var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
                                 }
-                                appdb.get('login').then(function (doc) {
+                                appdb.get('login_' + username).then(function (doc) {
                                         doc.base = base;
                                         doc.name = name;
                                         doc.currentDb = eventInfo.dbName;
@@ -2836,7 +2863,7 @@ ons.ready(function () {
                                     .catch(function (err) {
                                         //TODO check once the db stuff is sorted
                                         return appdb.put({
-                                            _id: 'login',
+                                            _id: 'login_' + username,
                                             base: base,
                                             name: name,
                                             currentDb: eventInfo.dbName,
@@ -3741,7 +3768,7 @@ ons.ready(function () {
  * @param {[]} doc_id the doc to update 
  * @returns {Bool} true for an update, false already up to date
  */
-function updateSingleDoc(event, doc_ids, live) {
+function updateSingleDoc(event, doc_ids) {
     var tempdb, tempRemotedb, options;
 
     var tempdb = new PouchDB(event);
