@@ -30,6 +30,7 @@ var adminSyncInProgress = false;
 var baseSyncInProgress = false;
 var syncBasedb;
 var adminSync;
+var evtUpdateCheck;
 var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
@@ -43,7 +44,7 @@ var couchdb = localStorage.couchdb;
 var http = localStorage.http;
 var db = localStorage.db;
 //database names
-var adminDatabaseName = 'adminDB1';
+var adminDatabaseName;
 var baseDatabaseName;
 var appDatabaseName = 'oppFounderLoginDb';
 //var remotedbURL = 'http://@vps358200.ovh.net:5984/adam_test_ssl';
@@ -1120,6 +1121,9 @@ function closeDatabases() {
         admindbConnected = false;
         adminSyncInProgress = false;
     }
+    if (evtUpdateCheck != undefined && !evtUpdateCheck.canceled) {
+        evtUpdateCheck.cancel();
+    }
     deleteIndexes();
 }
 
@@ -1176,7 +1180,7 @@ function signOut() {
     basedb;
     admindb;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
-
+    localStorage.verified = 'false';
 }
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -1385,8 +1389,7 @@ ons.ready(function () {
     }
     //the user has an event they previously signed into and were in a previous db
     if (localStorage.previousSignIn === 'true' && lastDb != 'false') {
-        baseDatabaseName = lastDb;
-        adminDatabaseName = lastDb + '_admin';
+
         appdb.get('login')
             .then(function (doc) {
                 base = doc.base; //last base used
@@ -1486,10 +1489,10 @@ ons.ready(function () {
             });
 
         //user didn't verify or create an event
-    } else if (localStorage.previousSignIn === 'true' && localStorage.verified === 'false' && localStorage.evtOrganiser === 'true') {
-        navi.bringPageTop('verificationPage.html', {
-            animation: pageChangeAnimation
-        });
+        /*  } else if (localStorage.previousSignIn === 'true' && localStorage.verified === 'false' && localStorage.evtOrganiser === 'true') {
+             navi.bringPageTop('verificationPage.html', {
+                 animation: pageChangeAnimation
+             }); */
         //user didn't create an event
         /*  } else if (localStorage.previousSignIn === 'true' && localStorage.verified === 'true' && localStorage.evtOrganiser === 'true' && lastDb === 'false') {
              navi.bringPageTop('createEventPage.html', {
@@ -1547,8 +1550,6 @@ ons.ready(function () {
         createMap();
     });*/
 
-    //for dev purposes
-    // navi.bringPageTop('createEventPage.html');
 
     // ---  page change code ---
     /**
@@ -1669,97 +1670,6 @@ ons.ready(function () {
                                 }
                             }).then(function (doc) {
                                 console.log(doc);
-                                /*  return appdb.allDocs()
-                                    .then(function (docs) {
-                                        console.log(docs);
-                                        var docsIds = [];
-                                        //create an array of alldocs _ids
-                                        docs.rows.forEach(function (row) {
-                                            if (row.id != 'login') {
-                                                var idIndex = row.id.replace('_eventDescription', '');
-                                                docsIds.push(idIndex);
-                                            }
-                                        });
-                                        console.log(docsIds);
-                                        var eventComparison = compareTwoArrays(db.sort(), docsIds.sort(), true);
-                                        if (eventComparison.length > 0) {
-                                            //compare the sorted arrays and output differences, for each difference not in arr2 i.e. db.sort() connect and return the event description
-                                            return Promise.all(eventComparison.map(function (id) {
-                                                //if there is a missing db
-                                                console.log(id);
-                                                var db = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + id);
-
-                                                return db.get('eventDescription', {
-                                                        include_docs: true,
-                                                        attachments: true
-                                                    })
-                                                    .then(function (event) {
-                                                        console.log(event);
-                                                        //to prevent an error try getting the new event description, in case it is already there
-                                                        return appdb.get(event.dbName + '_eventDescription')
-                                                            .then(function (appdbEvent) {
-                                                                console.log(appdbEvent);
-                                                                console.log('appdbevent found, if different will update from basedb');
-                                                                return event;
-                                                            })
-                                                            .catch(function (err) {
-                                                                console.log('event missing from appdb so creating it');
-                                                                console.log(err);
-                                                                //if not found then put the event description into appdb
-                                                                if (err.status === 404) {
-                                                                    event._id = event.dbName + '_eventDescription';
-                                                                    //event.version = event._rev;
-                                                                    delete event._rev;
-                                                                    return appdb.put(event)
-                                                                        .then(function (doc) {
-                                                                            console.log(doc);
-                                                                            if (doc.ok) {
-                                                                                return event;
-                                                                            }
-                                                                        }).catch(function (err) {
-                                                                            console.log(err);
-                                                                            console.log('err5');
-                                                                            throw err;
-                                                                        });
-                                                                } else {
-                                                                    throw err;
-                                                                }
-                                                            });
-
-                                                    }).catch(function (err) {
-                                                        console.log('err2');
-                                                        console.log(err);
-                                                        if (err.status === 404) {
-                                                            console.log('db not found');
-                                                            throw {
-                                                                status: 404,
-                                                                title: 'Event information not found on server',
-                                                                message: 'Please contact support'
-                                                            }
-
-                                                        } else {
-                                                            throw err;
-                                                        }
-                                                    });
-                                            })).then(function (promiseReturn) {
-                                                console.log(doc);
-                                                return doc.user.metadata;
-                                            });
-                                        } else {
-                                            console.warn('took else route');
-                                            return doc;
-                                        }
-                                        //this is the area for returning outside the get promise
-
-                                    })
-                                    .catch(function (err) {
-                                        console.log('err3');
-                                        console.log(err);
-                                        throw err;
-                                     });
-                                */
-
-
                                 return Promise.all(db.map(function (event) {
                                     return updateSingleDoc(event, ['eventDescription']);
 
@@ -1786,7 +1696,7 @@ ons.ready(function () {
                                                 var tempdb = new PouchDB(db[0]);
                                                 return tempdb.get('eventDescription')
                                                     .then(function (event) {
-                                                        baseDatabaseName = event.dbName;
+
                                                         localStorage.lastDb = event.dbName;
                                                         lastDb = event.dbName;
                                                         remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
@@ -1825,8 +1735,7 @@ ons.ready(function () {
                                                         var tempdb = new PouchDB(db[event]);
                                                         return tempdb.get('eventDescription')
                                                             .then(function (event) {
-                                                                baseDatabaseName = event.dbName;
-                                                                localStorage.lastDb = event.dbName;
+
                                                                 lastDb = event.dbName;
                                                                 remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                                                                 return {
@@ -2720,73 +2629,73 @@ ons.ready(function () {
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
-                    if (navi.topPage.data.firstPage === true) {
+                    // if (navi.topPage.data.firstPage === true) {
 
-                        var db = new PouchDB(eventInfo.dbName);
-                        var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
-                        var options = {
-                            doc_ids: ['eventDescription'],
-                            live: true,
-                            retry: true
-                        };
-                        var messageOpen = false;
-                        var evtUpdateCheck = db.replicate.from(tempRemotedb, options)
-                            .on('change', function (doc) {
-                                if (!messageOpen) {
-                                    messageOpen = true;
-                                    ons.notification.alert({
-                                        title: 'Event Updated',
-                                        messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
-                                        cancelable: true
-                                    }).then(function (input) {
-                                        var options = {
-                                            animation: pageChangeAnimation,
-                                            data: {
-                                                event: eventInfo.dbName,
-                                                lastPage: 'loginPage.html'
-                                            }
-                                        };
-                                        navi.resetToPage('updatePage.html', options);
-                                        evtUpdateCheck.cancel();
-                                        messageOpen = false;
-                                        //to stop any further code from taking place
+                    var db = new PouchDB(eventInfo.dbName);
+                    var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
+                    var options = {
+                        doc_ids: ['eventDescription'],
+                        live: true,
+                        retry: true
+                    };
+                    var messageOpen = false;
+                    evtUpdateCheck = db.replicate.from(tempRemotedb, options)
+                        .on('change', function (doc) {
+                            if (!messageOpen) {
+                                messageOpen = true;
+                                ons.notification.alert({
+                                    title: 'Event Updated',
+                                    messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                    cancelable: true
+                                }).then(function (input) {
+                                    var options = {
+                                        animation: pageChangeAnimation,
+                                        data: {
+                                            event: eventInfo.dbName,
+                                            lastPage: 'loginPage.html'
+                                        }
+                                    };
+                                    navi.resetToPage('updatePage.html', options);
+                                    evtUpdateCheck.cancel();
+                                    messageOpen = false;
+                                    //to stop any further code from taking place
 
-                                    });
-                                }
-                            }).on('paused active denied complete error', function (info) {
-                                console.log(info);
-                            });
+                                });
+                            }
+                        }).on('paused active denied complete error', function (info) {
+                            console.log(info);
+                        });
 
-                        /*  var evtDescUpdate = Promise.resolve().then(function () {
-                             return updateSingleDoc(eventInfo.dbName, ['eventDescription']);
-                         }).then(function (eventInfoUpdated) {
-                             console.log(eventInfoUpdated);
-                             if (eventInfoUpdated) {
-                                 ons.notification.alert({
-                                     title: 'Event Updated',
-                                     messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
-                                     cancelable: true
-                                 }).then(function (input) {
-                                     var options = {
-                                         animation: pageChangeAnimation,
-                                         data: {
-                                             event: eventInfo.dbName,
-                                             lastPage: 'loginPage.html'
-                                         }
-                                     };
-                                     navi.resetToPage('updatePage.html', options);
-                                     return eventInfoUpdated;
-                                     //to stop any further code from taking place
+                    /*  var evtDescUpdate = Promise.resolve().then(function () {
+                         return updateSingleDoc(eventInfo.dbName, ['eventDescription']);
+                     }).then(function (eventInfoUpdated) {
+                         console.log(eventInfoUpdated);
+                         if (eventInfoUpdated) {
+                             ons.notification.alert({
+                                 title: 'Event Updated',
+                                 messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                 cancelable: true
+                             }).then(function (input) {
+                                 var options = {
+                                     animation: pageChangeAnimation,
+                                     data: {
+                                         event: eventInfo.dbName,
+                                         lastPage: 'loginPage.html'
+                                     }
+                                 };
+                                 navi.resetToPage('updatePage.html', options);
+                                 return eventInfoUpdated;
+                                 //to stop any further code from taking place
 
-                                 });
+                             });
 
-                             }
-                         }).catch(function (err) {
-                             console.log(err);
-                         }); */
+                         }
+                     }).catch(function (err) {
+                         console.log(err);
+                     }); */
 
 
-                    }
+                    //}
                     //Event Description update
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
@@ -3004,7 +2913,7 @@ ons.ready(function () {
                         $('#total').attr('placeholder', 'Total score (max ' + eventInfoBase.baseMaxScore + ')');
                     }
 
-
+                    baseDatabaseName = eventInfo.dbName;
                 }
                 //TODO 3/10/2017
                 //Also send the user straight through to the base if they had a previous base selected
@@ -3067,7 +2976,6 @@ ons.ready(function () {
                                 $eq: base
                             }
                         },
-
                         sort: ['timeOut']
                     });
                 }).then(function (doc) {
@@ -3076,7 +2984,10 @@ ons.ready(function () {
                 }).then(function (doc) {
                     return basedb.createIndex({
                         index: {
-                            fields: ['base']
+                            fields: ['base'],
+                            name: 'baseIndex',
+                            ddoc: 'baseIndexDDoc',
+                            type: 'json'
                         }
                     });
 
@@ -3483,7 +3394,10 @@ ons.ready(function () {
             case 'admin.html':
                 // ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
-
+                if (navi.topPage.data.eventInfo != undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo;
+                    adminDatabaseName = eventInfo.dbName;
+                }
                 //allow for baseLogOut to be shown in the menu
                 $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
 
@@ -3502,33 +3416,51 @@ ons.ready(function () {
                 admindb.createIndex({
                     index: {
                         fields: ['timeOut'],
-                        name: 'admintimeOutIndex',
-                        ddoc: 'admintimeOutIndexDDoc',
+                        name: 'timeOutIndex',
+                        ddoc: 'timeOutIndexDDoc',
                         type: 'json'
                     }
                 }).then(function (doc) {
                     console.log(doc);
-                    admindb.createIndex({
+                    return admindb.createIndex({
                         index: {
                             fields: ['base', 'timeOut'],
-                            name: 'adminbaseTimeOutIndex',
-                            ddoc: 'adminbaseTimeOutIndexDDoc',
+                            name: 'baseTimeOutIndex',
+                            ddoc: 'baseTimeOutIndexDDoc',
                             type: 'json'
                         }
-                    }).then(function () {
-                        return admindb.find({
-                            selector: {
+                    });
+                }).then(function (doc) {
+                    return admindb.createIndex({
+                        index: {
+                            fields: ['patrol'],
+                            name: 'patrolIndex',
+                            ddoc: 'patrolIndexDDoc',
+                            type: 'json'
+                        }
+                    });
+                }).then(function (doc) {
+                    return admindb.createIndex({
+                        index: {
+                            fields: ['base'],
+                            name: 'baseIndex',
+                            ddoc: 'baseIndexDDoc',
+                            type: 'json'
+                        }
+                    });
+                }).then(function (doc) {
+                    return admindb.find({
+                        selector: {
+                            timeOut: {
+                                $gt: null
+                            }
+                        },
+                        sort: ['timeOut']
+                    });
+                }).then(function (doc) {
+                    console.log(doc);
+                    return updateTableFromFindQuery(doc, true);
 
-                                timeOut: {
-                                    $gt: null
-                                }
-                            },
-                            sort: ['timeOut']
-                        });
-                    }).then(function (doc) {
-                        console.log(doc);
-                        updateTableFromFindQuery(doc, true);
-                    });;
                 }).then(function () {
                     if (remotedbConnected === false) {
                         remotedb = new PouchDB(remotedbURL);

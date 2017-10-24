@@ -14,7 +14,7 @@ function (newDoc, oldDoc, userCtx, secObj) {
 
     if ((oldDoc && oldDoc.type !== 'user') || newDoc.type !== 'user') {
         throw ({
-            forbidden: 'doc.type must be user'
+            forbidden: 'doc.type must be user.'
         });
     } // we only allow user docs for now
 
