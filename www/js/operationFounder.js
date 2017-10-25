@@ -764,7 +764,7 @@ function updateTableFromAllDocs(doc, admin) {
  * @param {*} doc - the document from the database
  * @param {*} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not 
  */
-function updateTableFromFindQuery(doc, admin) {
+function updateTableFromFindQuery(doc, admin, patrolToSearch) {
 
     console.log('updating from find query');
     //console.log(doc);
@@ -800,7 +800,10 @@ function updateTableFromFindQuery(doc, admin) {
 
             } else if (path.patrol != undefined) {
                 if (path.patrol.length > 0) {
-                    tableUpdateFunction(path, admin);
+                    console.log('var ' + patrolToSearch);
+                    if (path.patrol === patrolToSearch || !patrolToSearch || patrolToSearch === undefined) {
+                        tableUpdateFunction(path, admin);
+                    }
                 }
             } else if (path._id === 'eventDescription') {
                 //console.log(path);
@@ -3419,6 +3422,8 @@ ons.ready(function () {
                 // --- Admin page ---
                 // these look similar but are seperate for admin and base users
             case 'admin.html':
+                //declarations
+                var patrolToSearch;
                 // ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
                 if (navi.topPage.data.eventInfo != undefined) {
@@ -3508,7 +3513,7 @@ ons.ready(function () {
                                     console.log('change occured in remote updating admindb');
                                     var change = doc.change;
 
-                                    updateTableFromFindQuery(change, true);
+                                    updateTableFromFindQuery(change, true, patrolToSearch);
                                 } else {
                                     console.log('updating remotedb'); //fixme needs to do something with pushes
                                 }
@@ -3644,35 +3649,37 @@ ons.ready(function () {
                             $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
                             appended = true;
                             $(document).ready(function () {
-                                $('#patrolSearchInput').focus();
-                                $('#patrolSearchInput').blur(function () {
-                                    if ($(this).val() == '') {
-                                        $(this).toggleClass('hide');
-                                        hidden = true;
-                                        admindb.find({
-                                            selector: {
-                                                timeOut: {
-                                                    $gt: null
-                                                }
+                                $('#patrolSearchInput').focus()
+                                    .blur(function () {
+                                        if ($(this).val() === '') {
+                                            $(this).toggleClass('hide');
+                                            hidden = true;
+                                            admindb.find({
+                                                selector: {
+                                                    timeOut: {
+                                                        $gt: null
+                                                    }
 
-                                            },
+                                                },
 
-                                            sort: ['timeOut']
-                                        }).then(function (doc) {
-                                            console.log(doc);
-                                            $('#adminLogsTable').empty();
-                                            patrolRecordAdmin = [];
-                                            offRouteIndexAdmin = [];
-                                            updateTableFromFindQuery(doc, true);
-                                        });
+                                                sort: ['timeOut']
+                                            }).then(function (doc) {
+                                                console.log(doc);
+                                                patrolToSearch = false;
+                                                $('#adminLogsTable').empty();
+                                                patrolRecordAdmin = [];
+                                                offRouteIndexAdmin = [];
+                                                updateTableFromFindQuery(doc, true);
 
-                                    }
-                                });
+                                            });
+
+                                        }
+                                    });
                             });
 
                             $('#patrolSearchInput').on('keydown', function (e) {
                                 if (e.which === 13) {
-                                    var patrolToSearch = $(this).val();
+                                    patrolToSearch = $(this).val();
                                     admindb.find({
                                         selector: {
                                             timeOut: {
