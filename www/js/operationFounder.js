@@ -800,7 +800,6 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
 
             } else if (path.patrol != undefined) {
                 if (path.patrol.length > 0) {
-                    console.log('var ' + patrolToSearch);
                     if (path.patrol === patrolToSearch || !patrolToSearch || patrolToSearch === undefined) {
                         tableUpdateFunction(path, admin);
                     }
@@ -1603,6 +1602,35 @@ ons.ready(function () {
                 throw err;
             });
     }
+    /**
+     * Gets the event logo and updates the image container with that src
+     * @param {object} eventInfo the page's eventInfo object 
+     * @param {string} url 
+     */
+    function eventLogoGetter(eventInfo, url) {
+        console.log(url);
+        if (url != undefined) {
+            return url;
+        }
+        if (eventInfo._attachments != undefined) {
+            //code below required to get attachments and create url for img
+            if (eventInfo._attachments.evtLogo != undefined) {
+                console.log('getting attachment');
+                var tempdb = new PouchDB(eventInfo.dbName);
+                return tempdb.getAttachment('eventDescription', 'evtLogo')
+                    .then(function (blob) {
+                        console.log(blob);
+                        return URL.createObjectURL(blob);
+                    }).catch(function (err) {
+                        console.log('issue loading evtLogo image');
+                        console.log(err);
+                        return undefined;
+                    });
+            }
+        }
+
+    }
+
     //commented out for dev
     /*navi.insertPage(0, 'map.html').then(function () {
         createMap();
@@ -2205,8 +2233,6 @@ ons.ready(function () {
                 //need to add a resend email function
                 break;
             case 'createEventPage.html':
-                //declarations
-
 
                 //variables
                 var evtUsernameUnique = false;
@@ -2215,6 +2241,9 @@ ons.ready(function () {
                 var editEvent = false;
                 var baseCount = 1;
                 var pageData = navi.topPage.data;
+                var getFile = false;
+                var passwordsOk;
+                var url;
 
                 //functions
                 /**
@@ -2294,7 +2323,6 @@ ons.ready(function () {
                  * @param {object} inputFile needs to be found using plain js
                  */
                 function fileUpload(inputFile) {
-                    var url, getFile;
                     //make file into a blob
                     getFile = inputFile.files[0];
                     url = URL.createObjectURL(getFile);
@@ -2342,7 +2370,33 @@ ons.ready(function () {
                             break;
                     }
                 }
-
+                /**
+                 * creates the eventDescription variable in the higher scope
+                 */
+                function createEventDescription() {
+                    eventDescription = {
+                        _id: 'eventDescription',
+                        eventName: $('#eventName').val().trim(),
+                        dateStart: $('#eventStartDate').val(),
+                        dateEnd: $('#eventEndDate').val(),
+                        eventDescription: $('#eventDescription').val().trim(),
+                        passwordProtectLogs: $('#passwordSwitch').prop("checked"),
+                        logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
+                        adminPassword: $('#adminPassword').val(),
+                        evtUsername: $('#evtUsername').val(),
+                        bases: [{
+                            baseNo: 0,
+                            baseName: 'admin HQ',
+                            basePassword: $('#adminPassword').val().trim()
+                        }]
+                    };
+                }
+                /**
+                 * Adds the bases to the general event description
+                 * @param {number} baseCount the number of bases to loop over
+                 * @param {boolean} passwordProtectLogs true or false whether the bases will have a password upon entry
+                 * @param {object} eventDescription event description to add the base information to
+                 */
                 function addBasesToEvtDescription(baseCount, passwordProtectLogs, eventDescription) {
                     for (var i = 1, l = baseCount + 1; i < l; i++) {
                         var baseInfo = {
@@ -2352,7 +2406,7 @@ ons.ready(function () {
                             basePassword: $('#base' + i + 'Password').val().trim(),
                             baseInstructions: $('#base' + i + 'Instructions').val().trim()
                         };
-                        var passwordsOk = false;
+                        passwordsOk = false;
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
                             return ons.notification.alert({
@@ -2373,8 +2427,6 @@ ons.ready(function () {
                     }
                     return passwordsOk;
                 }
-                // event handler required to help set up page
-
 
                 //Normal code to run
                 if (pageData.edit === true) {
@@ -2417,6 +2469,19 @@ ons.ready(function () {
                                 //admin base
                                 passwordObject.adminPassword = password;
                             }
+                        });
+                        var imageContainer = $('#eventBannerImage');
+                        Promise.resolve().then(function () {
+                            return eventLogoGetter(eventInfo, url);
+                        }).then(function (src) {
+                            if (src != undefined) {
+                                imageContainer.hide().attr('src', src).fadeIn(2000);
+                                url = src;
+                            } else {
+                                imageContainer.hide().fadeIn(2000);
+                            }
+                        }).catch(function (err) {
+                            console.log(err);
                         });
                         //lastly update whether password entries show or not
                         hidePasswordEntry(!eventInfo.passwordProtectLogs);
@@ -2477,6 +2542,7 @@ ons.ready(function () {
                 }
                 if (!($('#evtUsername').hasClass('evtHandler'))) {
                     $('#evtUsername').addClass('evtHandler').on('blur', function () {
+
                         var evtUsername = $('#evtUsername').val().trim();
                         if (evtUsername != '') {
                             var apiAddress = appServer + '/api/user/checkusername';
@@ -2547,26 +2613,9 @@ ons.ready(function () {
                         //TODO add loading bar
                         if (!editEvent) {
                             showProgressBar('createEventPage', true);
-                            eventDescription = {
-                                _id: 'eventDescription',
-                                eventName: $('#eventName').val().trim(),
-                                dateStart: $('#eventStartDate').val(),
-                                dateEnd: $('#eventEndDate').val(),
-                                eventDescription: $('#eventDescription').val().trim(),
-                                passwordProtectLogs: $('#passwordSwitch').prop("checked"),
-                                logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
-                                adminPassword: $('#adminPassword').val(),
-                                evtUsername: $('#evtUsername').val(),
-                                bases: [{
-                                    baseNo: 0,
-                                    baseName: 'admin HQ',
-                                    basePassword: $('#adminPassword').val().trim()
-                                }],
-
-                            };
+                            createEventDescription();
                             if (getFile !== false) {
                                 //adds an image to the description
-                                var filename = getFile.name;
                                 eventDescription._attachments = {
                                     evtLogo: {
                                         data: getFile,
@@ -2659,27 +2708,23 @@ ons.ready(function () {
                                                                 throw err;
                                                             }
                                                         });
-                                                    /* }).then(function (doc) {
-                                                        //puts the event description into the appdb
-                                                        return createOrUpdateAppdbEventDescription(eventDescription); */
                                                 }).then(function (doc) {
                                                     return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
                                                 }).then(function (doc) {
                                                     //adds a reference to the event description by adding the db to the list of the user's dbs
                                                     return addAppdbLoginDb(eventDescription.dbName);
-
                                                 }).then(function (doc) {
                                                     console.log(doc);
-
-                                                    return navi.resetToPage('eventSummaryPage.html', {
+                                                    var options = {
+                                                        animation: pageChangeAnimation,
                                                         data: {
-                                                            eventName: eventName,
+                                                            eventName: eventDescription.eventName,
                                                             url: url,
                                                             eventInfo: eventDescription
                                                         }
-                                                    });
-                                                })
-                                                .catch(function (err) {
+                                                    };
+                                                    return navi.resetToPage('eventSummaryPage.html', options);
+                                                }).catch(function (err) {
                                                     console.warn(err);
                                                     if (err.message === undefined) {
                                                         err.message = 'issue saving the event';
@@ -2705,30 +2750,89 @@ ons.ready(function () {
                             }
                         } else if (editEvent) {
                             //update rather than save
+                            var tempdb = new PouchDB(eventInfo.dbName);
                             ons.notification.confirm({
                                 title: 'Update Event',
                                 message: 'Are you sure you want to update ' + eventInfo.eventName,
                                 cancelable: true
                             }).then(function (index) {
-                                if (index === 1) {
-                                    showProgressBar('createEventPage', true);
-                                    //TODO get and update from localdb then replicate to remotedb
-                                    var tempdb = new PouchDB(eventInfo.dbName);
-                                    tempdb.get('eventDescription')
-                                        .then(function (doc) {
-
-                                        }).then(function (doc) {
-                                            return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
-                                        });
+                                if (!index === 1) {
+                                    throw index;
                                 }
+                                showProgressBar('createEventPage', true);
+                                return tempdb.get('eventDescription');
+                            }).then(function (doc) {
+                                var changeMade = false;
+                                createEventDescription();
+
+                                if (!addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
+                                    throw 'password not set';
+                                }
+
+                                //look for changes
+                                $.each(eventDescription, function (key, value) {
+                                    console.log('key: ' + key + ' value: ' + value);
+                                    if (key != 'bases') {
+                                        if (value === eventInfo[key]) {
+                                            return true;
+                                        }
+                                    } else {
+                                        return $.each(value, function (key1, value1) {
+                                            var testAgainst = eventInfo.bases[key1];
+                                            return $.each(value1, function (key2, value2) {
+                                                if (value2 === testAgainst[key2]) {
+                                                    return true;
+                                                }
+                                            });
+                                        });
+                                    }
+                                    console.log('change made');
+                                    changeMade = true;
+                                    return false;
+                                });
+
+                                if (getFile !== false) {
+                                    //adds an image to the description
+                                    eventDescription._attachments = {
+                                        evtLogo: {
+                                            data: getFile,
+                                            content_type: getFile.type
+                                        }
+                                    };
+                                    changeMade = true;
+                                } else if (eventInfo._attachments != undefined) {
+                                    eventDescription._attachments = eventInfo._attachments;
+                                }
+                                if (!changeMade) {
+
+                                    return {
+                                        ok: false
+                                    }; //no change made so cancel out
+                                }
+                                eventDescription._rev = doc._rev;
+                                eventDescription.dbName = eventInfo.dbName;
+                                return tempdb.put(eventDescription);
+                            }).then(function (doc) {
+                                if (doc.ok) {
+                                    return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+                                }
+                            }).then(function (doc) {
+                                console.log(doc);
+                                var options = {
+                                    animation: pageChangeAnimation,
+                                    data: {
+                                        eventName: eventDescription.eventName,
+                                        url: url,
+                                        eventInfo: eventDescription
+                                    }
+                                };
+                                return navi.resetToPage('eventSummaryPage.html', options);
+                            }).catch(function (err) {
+                                console.log(err);
                             });
                         }
-
                     });
                 }
-                // TODO test event creation adds to appdb so that the login page can pick it up. Also need to add the hook in the sync function to update appdb if basedb gets a change.
-
-
                 //end of create event page
                 break;
             case 'eventSummaryPage.html':
@@ -2777,28 +2881,19 @@ ons.ready(function () {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '<p>');
                         }
                     });
-                    if (url != undefined) {
 
-                        $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
-                    } else if (eventInfo._attachments != undefined) {
-
-                        //code below required to get attachments and create url for img
-                        if (eventInfo._attachments.evtLogo != undefined) {
-                            var tempdb = new PouchDB(eventInfo.dbName);
-                            tempdb.getAttachment('eventDescription', 'evtLogo')
-                                .then(function (blob) {
-                                    return URL.createObjectURL(blob);
-                                })
-                                .then(function (url) {
-                                    $('#evtSummaryBanner').append('<img src="' + url + '" class="loginLogo" id="eventSummaryBannerImage">');
-                                }).catch(function (err) {
-                                    console.log('issue loading evtLogo image');
-                                    console.log(err);
-                                });
+                    //eventLogo update
+                    Promise.resolve().then(function () {
+                        return eventLogoGetter(eventInfo, url);
+                    }).then(function (src) {
+                        console.log(src);
+                        if (src != undefined) {
+                            $('#evtSummaryBanner').append('<img src="' + src + '" class="loginLogo marginTop" id="eventSummaryBannerImage">');
+                            url = src;
                         }
-
-                    }
-
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
                     $('#goToEvent').on('click', function () {
                         navi.resetToPage('loginPage.html', {
                             animation: pageChangeAnimation,
@@ -2862,36 +2957,7 @@ ons.ready(function () {
                             console.log(info);
                         });
 
-                    /*  var evtDescUpdate = Promise.resolve().then(function () {
-                         return replicateOnce(eventInfo.dbName, ['eventDescription']);
-                     }).then(function (eventInfoUpdated) {
-                         console.log(eventInfoUpdated);
-                         if (eventInfoUpdated) {
-                             ons.notification.alert({
-                                 title: 'Event Updated',
-                                 messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
-                                 cancelable: true
-                             }).then(function (input) {
-                                 var options = {
-                                     animation: pageChangeAnimation,
-                                     data: {
-                                         event: eventInfo.dbName,
-                                         lastPage: 'loginPage.html'
-                                     }
-                                 };
-                                 navi.resetToPage('updatePage.html', options);
-                                 return eventInfoUpdated;
-                                 //to stop any further code from taking place
 
-                             });
-
-                         }
-                     }).catch(function (err) {
-                         console.log(err);
-                     }); */
-
-
-                    //}
                     //Event Description update
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
@@ -2899,23 +2965,20 @@ ons.ready(function () {
                     $('#loginEventDescriptionTitle').after('<p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
                     //Event Logo update
-                    if (navi.topPage.url != undefined) {
-                        $('#loginEventLogo').attr('src', navi.topPage.url);
-                    } else if (eventInfo._attachments != undefined) {
-                        if (eventInfo._attachments.evtLogo != undefined) {
-                            var tempdb = new PouchDB(eventInfo.dbName);
-                            tempdb.getAttachment('eventDescription', 'evtLogo')
-                                .then(function (blob) {
-                                    return URL.createObjectURL(blob);
-                                })
-                                .then(function (url) {
-                                    $('#loginEventLogo').attr('src', url);
-                                }).catch(function (err) {
-                                    console.log('issue loading evtLogo image');
-                                    console.log(err);
-                                });
+                    var url = navi.topPage.data.url;
+                    var imageContainer = $('#loginEventLogo')
+                    Promise.resolve().then(function () {
+                        return eventLogoGetter(eventInfo, url);
+                    }).then(function (src) {
+                        if (src != undefined) {
+                            imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(2000);
+                            url = src;
+                        } else {
+                            imageContainer.hide().removeClass('hide').fadeIn(2000);
                         }
-                    }
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
                     //Title update
                     $('#loginTitle').html(eventInfo.eventName);
 
