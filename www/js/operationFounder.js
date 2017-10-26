@@ -6,12 +6,12 @@
 /** Information stored in localstorage:
  * @param {string} username: username of the user
  * @param {string} password: password of the user
- * @param {bool} previousSignIn signed in or out
+ * @param {boolean} previousSignIn signed in or out
  * @param {string} couchdb url of couchdb
- * @param {array} db array of databases
- * @param {Bool or undefined} evtOrganiser event organiser
+ * @param {string[]} db array of databases
+ * @param {boolean | undefined} evtOrganiser event organiser
  * @param {string} http whether the couchdb instance is http:// or https://
- * @param {Bool or undefined} verified whether the user is verified
+ * @param {boolean | undefined} verified whether the user is verified
  */
 
 // global variables
@@ -343,7 +343,7 @@ function createMap() {
                  * On the success of the location function, this will locate you on the map and add a marker to show where you are
                  * @param {*} e - location passed by the location function
                  * @param {*} e.accuracy - the accuracy of the location
-                 * @param {Array} e.latlng - the lat lng array of the location
+                 * @param {any[]} e.latlng - the lat lng array of the location
                  */
                 function onLocationFound(e) {
 
@@ -383,7 +383,7 @@ function createMap() {
 
                 /**
                  * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
-                 * @param {*} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
+                 * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
                  */
                 function locateButton(press) {
                     switch (press) {
@@ -496,9 +496,9 @@ function createMap() {
 
 /**
  * keeps track of which patrol entries have already been input
- * @param {*} id - id in the database
- * @param {Boolean} offRoute - true or false, determines which list the record is added to as the same team can be off route multiple times
- * @param {Boolean} admin - true or false, are you using the admin page(true) or the base page (false or not present)
+ * @param {string|number} id - id in the database
+ * @param {boolean} offRoute - true or false, determines which list the record is added to as the same team can be off route multiple times
+ * @param {boolean} admin - true or false, are you using the admin page(true) or the base page (false or not present)
  */
 function patrolRecordUpdate(id, offRoute, admin) {
     if (admin) {
@@ -549,9 +549,9 @@ function patrolRecordUpdate(id, offRoute, admin) {
 // A function to remove a record from the patrol records list
 /**
  *  A function to remove a record from the patrol records list
- * @param {*} id - database id required for removing from the list
- * @param {*} admin - admin page or base page to determine which array to edit
- * @return {bool}
+ * @param {string|number} id - database id required for removing from the list
+ * @param {boolean} admin - admin page or base page to determine which array to edit
+ * @return {boolean}
  */
 function removePatrolRecord(id, admin) {
 
@@ -589,8 +589,8 @@ function removePatrolRecord(id, admin) {
 }
 /**
  * Adds the editable or locked styling to the row in the table. This is important as that styling is used elsewhere in the code to allow editing or not.
- * @param {Boolean} editable - true = can be edited, false = locked by HQ on admin page
- * @param {*} trId - #Id of the html to be edited - refers to a table record
+ * @param {boolean} editable - true = can be edited, false = locked by HQ on admin page
+ * @param {string} trId - #Id of the html to be edited - refers to a table record
  */
 function editableStyling(editable, trId) {
     if (!(editable)) {
@@ -606,8 +606,8 @@ function editableStyling(editable, trId) {
 
 /**
  * a function to remove an exisiting record from a base
- * @param {*} id - database id
- * @param {*} admin - admin page or base page
+ * @param {string|number} id - database id
+ * @param {boolean} admin - admin page or base page
  * @todo add delete functionality to the base page - this function is currently unused
  */
 function removeExisiting(id, admin) {
@@ -615,16 +615,16 @@ function removeExisiting(id, admin) {
 }
 /**
  * functions to update the table or row according to the update table function for the Base page's table
- * @param {*} dbId - _id in the database
- * @param {*} patrolNo - patrol number in the databse document
- * @param {*} timeIn - time the patrol came into the base
- * @param {*} timeOut - time the patrol left the baseCode
- * @param {*} wait - time the patrol waited, if they waited at all
- * @param {Boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
- * @param {*} totalScore - score recorded on the base
- * @param {Boolean} editable - can the record be edited by the base or not
- * @param {*} tableId - base table or admin table (unused in this function)
- * @param {*} tableLogId - the class of the row (unused in this function)
+ * @param {string|number} dbId - _id in the database
+ * @param {string|number} patrolNo - patrol number in the databse document
+ * @param {string} timeIn - time the patrol came into the base
+ * @param {string} timeOut - time the patrol left the baseCode
+ * @param {string|number} wait - time the patrol waited, if they waited at all
+ * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
+ * @param {string|number} totalScore - score recorded on the base
+ * @param {boolean} editable - can the record be edited by the base or not
+ * @param {string} tableId - base table or admin table
+ * @param {string} tableLogId - the class of the row(unused in this function)
  */
 function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     var trId = dbId;
@@ -635,16 +635,16 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
 }
 /**
  * functions to update the table or row according to the update table function for the Admin table
- * @param {*} dbId - _id in the database
- * @param {*} patrolNo - patrol number in the databse document
- * @param {*} timeIn - time the patrol came into the base
- * @param {*} timeOut - time the patrol left the baseCode
- * @param {*} wait - time the patrol waited, if they waited at all
- * @param {*} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
- * @param {*} totalScore - score recorded on the base
- * @param {*} editable - can the record be edited by the base or not
- * @param {*} tableId - base table or admin table (unused in this function)
- * @param {*} tableLogId - the class of the row (unused in this function)
+ * @param {string|number} dbId - _id in the database
+ * @param {string|number} patrolNo - patrol number in the databse document
+ * @param {string} timeIn - time the patrol came into the base
+ * @param {string} timeOut - time the patrol left the baseCode
+ * @param {string|number} wait - time the patrol waited, if they waited at all
+ * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
+ * @param {string|number} totalScore - score recorded on the base
+ * @param {boolean} editable - can the record be edited by the base or not
+ * @param {string} tableId - base table or admin table
+ * @param {string} tableLogId - the class of the row (unused in this function)
  */
 function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     var trId = dbId;
@@ -659,16 +659,16 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
 
 /**
  * Function which initially adds a row to the base's table
- * @param {*} dbId - _id in the database
- * @param {*} patrolNo - patrol number in the databse document
- * @param {*} timeIn - time the patrol came into the base
- * @param {*} timeOut - time the patrol left the baseCode
- * @param {*} wait - time the patrol waited, if they waited at all
- * @param {Boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
- * @param {*} totalScore - score recorded on the base
- * @param {Boolean} editable - can the record be edited by the base or not
- * @param {*} tableId - base table or admin table
- * @param {*} tableLogId - the class of the row
+ * @param {string|number} dbId - _id in the database
+ * @param {string|number} patrolNo - patrol number in the databse document
+ * @param {string} timeIn - time the patrol came into the base
+ * @param {string} timeOut - time the patrol left the baseCode
+ * @param {string|number} wait - time the patrol waited, if they waited at all
+ * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
+ * @param {string|number} totalScore - score recorded on the base
+ * @param {boolean} editable - can the record be edited by the base or not
+ * @param {string} tableId - base table or admin table
+ * @param {string} tableLogId - the class of the row
  */
 function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
@@ -684,16 +684,16 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
 }
 /**
  * Function which initially adds a row to the admin's table
- * @param {*} dbId - _id in the database
- * @param {*} patrolNo - patrol number in the databse document
- * @param {*} timeIn - time the patrol came into the base
- * @param {*} timeOut - time the patrol left the baseCode
- * @param {*} wait - time the patrol waited, if they waited at all
- * @param {Boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
- * @param {*} totalScore - score recorded on the base
- * @param {Boolean} editable - can the record be edited by the base or not
- * @param {*} tableId - base table or admin table
- * @param {*} tableLogId - the class of the row
+ * @param {string|number} dbId - _id in the database
+ * @param {string|number} patrolNo - patrol number in the databse document
+ * @param {string} timeIn - time the patrol came into the base
+ * @param {string} timeOut - time the patrol left the baseCode
+ * @param {string|number} wait - time the patrol waited, if they waited at all
+ * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
+ * @param {string|number} totalScore - score recorded on the base
+ * @param {boolean} editable - can the record be edited by the base or not
+ * @param {string} tableId - base table or admin table
+ * @param {string} tableLogId - the class of the row
  */
 function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     console.log(dbId);
@@ -713,8 +713,8 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
 }
 /**
  * Standardised update table or update exisiting row calling function (was previously two functions)
- * @param {*} path - determines the route into the JSON database document to get to the documents values, this differs in an alldocs request and a find function or sync input
- * @param {*} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
+ * @param {object} path - determines the route into the JSON database document to get to the documents values, this differs in an alldocs request and a find function or sync input
+ * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
  */
 function tableUpdateFunction(path, admin) {
 
@@ -747,8 +747,8 @@ function tableUpdateFunction(path, admin) {
 }
 /**
  * updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.rows
- * @param {*} doc - the document from the database
- * @param {*} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
+ * @param {object} doc - the document from the database
+ * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
  */
 function updateTableFromAllDocs(doc, admin) {
     console.log('updating from all docs on local db');
@@ -761,8 +761,8 @@ function updateTableFromAllDocs(doc, admin) {
 }
 /**
  * updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.docs
- * @param {*} doc - the document from the database
- * @param {*} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not 
+ * @param {object} doc - the document from the database
+ * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not 
  */
 function updateTableFromFindQuery(doc, admin, patrolToSearch) {
 
@@ -847,7 +847,7 @@ function clearQuickAddInputs() {
 }
 /**
  * User Edit function
- * @param {Array} logs - array of logs selected by the user
+ * @param {object[]} logs - array of logs selected by the user
  */
 function editLog(logs) {
     var logsLength = logs.length;
@@ -891,7 +891,7 @@ function editLog(logs) {
 
 /**
  * Delete function ONLY FOR ADMINs as it only works on admindb
- * @param {Array} deleteDocs - array of selected rows in the table to be deleted
+ * @param {object[]} deleteDocs - array of selected rows in the table to be deleted
  */
 function deleteRecords(deleteDocs) {
     var deletedDocsLength = deleteDocs.length;
@@ -903,7 +903,7 @@ function deleteRecords(deleteDocs) {
 
         /**
          * Will make 5 attempts to write the edit to the db in the case of conflicts occuring
-         * @param {*} id - _id in the pouch database to be written
+         * @param {string} id - _id in the pouch database to be written
          */
         function writeUntilWritten(id) {
 
@@ -962,8 +962,8 @@ function deleteRecords(deleteDocs) {
 
 /**
  * Lock from editing any further function
- * @param {Array} lockDocs - array of ids that have been user selected from the table to be locked
- * @param {Boolean} lock - true = lock the document from edits, false = unlock the doc from edits
+ * @param {object[]} lockDocs - array of ids that have been user selected from the table to be locked
+ * @param {boolean} lock - true = lock the document from edits, false = unlock the doc from edits
  */
 function lockOrUnlockLogFromEdits(lockDocs, lock) {
     //lockDocs is an array of db Ids and ids from the table
@@ -1029,7 +1029,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 
 /**
  * Show on Map function //unfinished!!
- * @param {Array} locations - array of user selected locations to be shown on map
+ * @param {any[]} locations - array of user selected locations to be shown on map
  * @todo finish the function to add pins of the selected rows on the map
  */
 function showOnMap(locations) {
@@ -1053,14 +1053,14 @@ function checkConnection() {
 }
 /**
  * 
- * @param {*} email email to code from an @ sign
+ * @param {string} email email to code from an @ sign
  */
 function changeAtSymbol(email) {
     return email.replace('@', ',40,');
 }
 /**
  * changes the coded email symbol back to @
- * @param {*} email email address to decode
+ * @param {string} email email address to decode
  */
 function changeAtSymbolBack(email) {
     return email.replace(',40,', '@');
@@ -1230,8 +1230,8 @@ function baseSelectValue(value) {
 }
 /**
  * The main function for the software, the base number defines which page is presented and what code is run
- * @param {*} base
- * @param {*} data
+ * @param {number} base
+ * @param {object} data the data object to be passed to the next page
  */
 function loginAndRunFunction(base, data) {
     if (data != undefined) {
@@ -1316,9 +1316,9 @@ function addAppdbLoginDb(dbName) {
 }
 /**
  * Check two arrays are identical
- * @param {array} arr1 array 1 authorative must be sorted
- * @param {array} arr2 array 2 comparative must be sorted
- * @param {bool} outputDifferences true will output an array of differences. Any in arr1 not in arr2. False will output true or false if the arrays are different
+ * @param {any[]} arr1 array 1 authorative must be sorted
+ * @param {any[]} arr2 array 2 comparative must be sorted
+ * @param {boolean} outputDifferences true will output an array of differences. Any in arr1 not in arr2. False will output true or false if the arrays are different
  * output true if the same, false if different or the differences if requested
  */
 function compareTwoArrays(arr1, arr2, outputDifferences) {
@@ -1551,6 +1551,58 @@ ons.ready(function () {
 
         }
     }
+
+    /**
+     * A function to show or hide the progress bar
+     * @param {boolean} trueOrFalse 
+     */
+    function showProgressBar(page, trueOrFalse) {
+        switch (trueOrFalse) {
+            case true:
+                $('#' + page + ' .progressBar').removeClass('hide');
+                break;
+            case false:
+                $('#' + page + ' .progressBar').addClass('hide');
+                break;
+        }
+    }
+    /**
+     * Checks that the doc is up to date and will update if required
+     * @param {string} event the name of the local and remote db to update
+     * @param {string[]} doc_ids the doc to update
+     * @param {boolean} replicateToRemote defines whether the replication is to the remote (true) or from the remote db (false)
+     * @returns {boolean} true for an update, false already up to date
+     */
+    function replicateOnce(event, doc_ids, replicateToRemote) {
+        if (!replicateToRemote) {
+            //replicating to local event db
+            var db2 = new PouchDB(event); //local
+            var db1 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+        } else {
+            //replicating to remote event db
+            var db1 = new PouchDB(event); //local
+            var db2 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+        }
+        var options = {
+            doc_ids: doc_ids
+        };
+
+        return db1.replicate.to(db2, options)
+            .then(function (info) {
+                console.log(info)
+                if (info.docs_written > 0) {
+                    console.log('event Description for ' + event + ' updated');
+                    return true;
+                } else {
+                    console.log('event Description for ' + event + ' was up to date');
+                    return false;
+                }
+            }).catch(function (err) {
+                console.log('there was an error');
+                console.log(err);
+                throw err;
+            });
+    }
     //commented out for dev
     /*navi.insertPage(0, 'map.html').then(function () {
         createMap();
@@ -1594,7 +1646,7 @@ ons.ready(function () {
                 //TODO this button Needs lots of work ARC 20/09/2017
                 if (!$('.signInButton').hasClass('evtHandler')) {
                     $('.signInButton').addClass('evtHandler').on('click', function () {
-                        $('#signInPage .progressBar').removeClass('hide');
+                        showProgressBar('signInPage', true);
                         username = changeAtSymbol($('#signInUserName').val().trim());
                         password = $('#signInPassword').val().trim();
 
@@ -1679,7 +1731,7 @@ ons.ready(function () {
                             }).then(function (doc) {
                                 console.log(doc);
                                 return Promise.all(db.map(function (event) {
-                                    return updateSingleDoc(event, ['eventDescription']);
+                                    return replicateOnce(event, ['eventDescription'], false);
 
                                 })).then(function (info) {
                                     console.log(info);
@@ -2153,23 +2205,35 @@ ons.ready(function () {
                 //need to add a resend email function
                 break;
             case 'createEventPage.html':
+                //declarations
+
+
                 //variables
-                var getFile = false;
                 var evtUsernameUnique = false;
-                var url;
                 var passwordObject = {};
                 var passwordArray = [];
+                var editEvent = false;
+                var baseCount = 1;
+                var pageData = navi.topPage.data;
+
                 //functions
+                /**
+                 * function to check if the password is unique
+                 * @param {*} thisPass 
+                 */
                 function passwordCheck(thisPass) {
+                    //variables
                     var passElement = $(thisPass);
                     var pass = $(thisPass).val();
-
+                    var index;
+                    var error;
+                    //function code
                     //check the password has a value
                     if (pass != '') {
                         //check if password is in the array of passwords
-                        var index = passwordArray.indexOf(pass);
+                        index = passwordArray.indexOf(pass);
                         if (index > -1) {
-                            var error = false;
+                            error = false;
                             //need to check if the password is being used by the current base in which case there is no issue otherwise it is an error
                             if (passwordObject[thisPass.id] != undefined) {
 
@@ -2225,24 +2289,148 @@ ons.ready(function () {
                     console.log(passwordArray);
                     console.log(passwordObject);
                 }
+                /**
+                 * a function to update the event banner based upon a file upload
+                 * @param {object} inputFile needs to be found using plain js
+                 */
+                function fileUpload(inputFile) {
+                    var url, getFile;
+                    //make file into a blob
+                    getFile = inputFile.files[0];
+                    url = URL.createObjectURL(getFile);
+                    console.log(url);
+                    $('#eventBannerImage').attr('src', url);
+                    return url;
+                }
+                /**
+                 * function to add a base before the add base button
+                 * @param {number|string} baseCount 
+                 */
+                function addBase(baseCount) {
+                    return $('.addBaseButton').before(
+                        `
+                        <div>
+                            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
+                            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+                            <div class="flex flexRow flexSpaceBetween marginTop">
+                                <div class="caption"><span class="bold">Maximum score available</span>
+                                    <span class="caption marginLeft">(blank = no score input)</span>
+                                </div>
+                            <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
+                            </div>
+                            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
+                                <div class="caption bold">Base password *</div>
+                                    <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
+                                </div>
+                            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+                        </div>
+                        `
+                    );
+                }
+                /**
+                 * a function to show or hide the password inputs
+                 * @param {Bool} trueOrFalse 
+                 */
+                function hidePasswordEntry(trueOrFalse) {
+                    switch (trueOrFalse) {
+                        //hides the password input
+                        case true:
+                            $('.basePasswordShowHide').addClass('hide');
+                            break;
+                        case false:
+                            $('.basePasswordShowHide').removeClass('hide');
+                            break;
+                    }
+                }
+
+                function addBasesToEvtDescription(baseCount, passwordProtectLogs, eventDescription) {
+                    for (var i = 1, l = baseCount + 1; i < l; i++) {
+                        var baseInfo = {
+                            baseNo: i,
+                            baseName: $('#base' + i + 'Name').val().trim(),
+                            baseMaxScore: $('#base' + i + 'MaxScore').val(),
+                            basePassword: $('#base' + i + 'Password').val().trim(),
+                            baseInstructions: $('#base' + i + 'Instructions').val().trim()
+                        };
+                        var passwordsOk = false;
+                        //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
+                        if (passwordProtectLogs && baseInfo.basePassword === '') {
+                            return ons.notification.alert({
+                                title: 'Missing Password',
+                                message: "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
+                                cancelable: true
+                            }).then(function () {
+                                showProgressBar('createEventPage', false);
+                                return false;
+                            });
+
+                            break;
+                            console.log('shouldnt see me');
+                        } else {
+                            eventDescription.bases.push(baseInfo);
+                            passwordsOk = true;
+                        }
+                    }
+                    return passwordsOk;
+                }
+                // event handler required to help set up page
+
+
+                //Normal code to run
+                if (pageData.edit === true) {
+                    if (pageData.eventInfo != undefined) {
+                        editEvent = true;
+                        var eventInfo = pageData.eventInfo;
+                        $('#eventName').val(eventInfo.eventName);
+                        $('#eventStartDate').val(eventInfo.dateStart);
+                        $('#eventEndDate').val(eventInfo.dateEnd);
+                        $('#eventDescription').val(eventInfo.eventDescription);
+                        $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
+                        $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
+                        $('#adminPassword').val(eventInfo.adminPassword);
+                        $('#evtUsername').val(eventInfo.evtUsername).prop('disabled', true);
+                        //base handling
+                        eventInfo.bases.forEach(function (base) {
+                            var password = base.basePassword;
+                            var id = 'base' + base.baseNo;
+                            var baseNo = base.baseNo;
+                            if (password != '') {
+                                //add password to password array for checking against
+                                passwordArray.push(password);
+                            }
+                            if (baseNo > 0) {
+                                //normal base                               
+                                if (baseNo > 1) {
+                                    //first add base if not already included
+                                    addBase(baseNo);
+                                    baseCount = baseNo;
+                                }
+                                if (password != '') {
+                                    passwordObject[id + 'Password'] = password;
+                                    $('#' + id + 'Password').val(password);
+                                }
+                                $('#' + id + 'Name').val(base.baseName);
+                                $('#' + id + 'MaxScore').val(base.baseMaxScore);
+                                $('#' + id + 'Instructions').val(base.baseInstructions);
+
+                            } else {
+                                //admin base
+                                passwordObject.adminPassword = password;
+                            }
+                        });
+                        //lastly update whether password entries show or not
+                        hidePasswordEntry(!eventInfo.passwordProtectLogs);
+                    }
+                }
+                //Other Event Handlers
                 //Change image
                 if (!$('#eventBanner').hasClass('evtHandler')) {
-                    $('#eventBanner').addClass('evtHandler');
                     var inputFile = document.querySelector('#eventBanner');
-
-                    function fileUpload() {
-                        //make file into a blob
-                        getFile = inputFile.files[0];
-                        console.log(getFile);
-                        console.log(getFile.type);
-                        url = URL.createObjectURL(getFile);
-                        console.log(url);
-                        $('#eventBannerImage').attr('src', url);
-                    }
-                    $('#eventBanner').on('change', function () {
-                        console.log('file upload');
-                        fileUpload();
-                    });
+                    $('#eventBanner').addClass('evtHandler')
+                        .on('change', function () {
+                            console.log('file upload');
+                            return fileUpload(inputFile);
+                        });
                 }
 
                 // Password Protect Logs switch
@@ -2262,19 +2450,13 @@ ons.ready(function () {
                         }
                     });
                 }
+
                 if (!($('#passwordSwitch').hasClass('evtHandler'))) {
                     $('#passwordSwitch').addClass('evtHandler').on('change', function () {
-                        switch (!$('#passwordSwitch').prop("checked")) {
-                            //hides the password input
-                            case true:
-                                $('.basePasswordShowHide').addClass('hide');
-                                break;
-                            case false:
-                                $('.basePasswordShowHide').removeClass('hide');
-                                break;
-                        }
+                        hidePasswordEntry(!$('#passwordSwitch').prop("checked"));
                     });
                 }
+
                 if (!($('#createEventForm').hasClass('evtHandlerPassword'))) {
                     $('#createEventForm').addClass('evtHandlerPassword').find('.eventPassword').on('blur', function () {
                         passwordCheck(this);
@@ -2343,28 +2525,10 @@ ons.ready(function () {
                 if (!($('.addBaseButton').hasClass('evtHandler'))) {
                     $('.addBaseButton').addClass('evtHandler');
                     //inserts new base above add base button
-                    var baseCount = 1;
+
                     $('.addBaseButton').on('click', function () {
                         baseCount++;
-                        $('.addBaseButton').before(
-                            `
-                            <div>
-                                <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
-                                <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
-                                <div class="flex flexRow flexSpaceBetween marginTop">
-                                    <div class="caption"><span class="bold">Maximum score available</span>
-                                        <span class="caption marginLeft">(blank = no score input)</span>
-                                    </div>
-                                <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
-                                </div>
-                                <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-                                    <div class="caption bold">Base password *</div>
-                                        <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
-                                    </div>
-                                <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
-                            </div>
-                            `
-                        );
+                        addBase(baseCount);
                         //hides the password input if the password switch is deselected
                         if (!$('#passwordSwitch').prop("checked")) {
                             $('.basePasswordShowHide').addClass('hide');
@@ -2378,187 +2542,188 @@ ons.ready(function () {
                 }
 
                 if (!$('#saveEvent').hasClass('evtHandler')) {
-                    $('#saveEvent').addClass('evtHandler');
-                    $('#saveEvent').on('click', function () {
+                    $('#saveEvent').addClass('evtHandler').on('click', function () {
                         //TODO add checking and uploading event message
                         //TODO add loading bar
-                        //Need to put in a check for passwords
+                        if (!editEvent) {
+                            showProgressBar('createEventPage', true);
+                            eventDescription = {
+                                _id: 'eventDescription',
+                                eventName: $('#eventName').val().trim(),
+                                dateStart: $('#eventStartDate').val(),
+                                dateEnd: $('#eventEndDate').val(),
+                                eventDescription: $('#eventDescription').val().trim(),
+                                passwordProtectLogs: $('#passwordSwitch').prop("checked"),
+                                logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
+                                adminPassword: $('#adminPassword').val(),
+                                evtUsername: $('#evtUsername').val(),
+                                bases: [{
+                                    baseNo: 0,
+                                    baseName: 'admin HQ',
+                                    basePassword: $('#adminPassword').val().trim()
+                                }],
 
-                        eventDescription = {
-                            _id: 'eventDescription',
-                            eventName: $('#eventName').val().trim(),
-                            dateStart: $('#eventStartDate').val(),
-                            dateEnd: $('#eventEndDate').val(),
-                            eventDescription: $('#eventDescription').val().trim(),
-                            passwordProtectLogs: $('#passwordSwitch').prop("checked"),
-                            logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
-                            adminPassword: $('#adminPassword').val(),
-                            evtUsername: $('#evtUsername').val(),
-                            bases: [{
-                                baseNo: 0,
-                                baseName: 'admin HQ',
-                                basePassword: $('#adminPassword').val().trim()
-                            }],
-
-                        };
-                        if (getFile !== false) {
-                            //adds an image to the description
-                            var filename = getFile.name;
-                            eventDescription._attachments = {
-                                evtLogo: {
-                                    data: getFile,
-                                    content_type: getFile.type
-                                }
                             };
-                        }
-                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '') {
-                            case true:
-                                ons.notification.alert({
-                                    title: 'Missing attributes',
-                                    messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p>'
-                                });
-                                console.log(eventDescription);
-                                break;
-                            case false:
-                                if (evtUsernameUnique) {
-
-                                    for (var i = 1, l = baseCount + 1; i < l; i++) {
-                                        var baseInfo = {
-                                            baseNo: i,
-                                            baseName: $('#base' + i + 'Name').val().trim(),
-                                            baseMaxScore: $('#base' + i + 'MaxScore').val(),
-                                            basePassword: $('#base' + i + 'Password').val().trim(),
-                                            baseInstructions: $('#base' + i + 'Instructions').val().trim()
-                                        };
-                                        //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
-                                        //TODO 17/10/2017 test this password check works as expected
-                                        if (eventDescription.passwordProtectLogs && baseInfo.basePassword === '') {
-                                            ons.notification.alert({
-                                                title: 'Missing Password',
-                                                message: "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
-                                                cancelable: true
-                                            });
-                                            var passwordsOk = false;
-                                            break;
-                                            console.log('shouldnt see me');
-                                        } else {
-                                            eventDescription.bases.push(baseInfo);
-                                            var passwordsOk = true;
-                                        }
+                            if (getFile !== false) {
+                                //adds an image to the description
+                                var filename = getFile.name;
+                                eventDescription._attachments = {
+                                    evtLogo: {
+                                        data: getFile,
+                                        content_type: getFile.type
                                     }
-                                    if (passwordsOk) {
-                                        var apiAddress = appServer + '/api/event/new';
-                                        var eventCreationData = {
-                                            username: username,
-                                            password: password,
-                                            eventName: eventDescription.eventName,
-                                            evtUsername: eventDescription.evtUsername
-                                        }
-                                        //TODO add done and fail and authentication to the request
-                                        $.ajax(apiAjax(apiAddress, eventCreationData))
-                                            .then(function (doc) {
-                                                console.log(doc);
-                                                if (localStorage.db !== undefined) {
-                                                    var dbs = JSON.parse(localStorage.db);
-                                                    dbs.push(doc.dbName);
-                                                    localStorage.db = JSON.stringify(dbs);
-                                                } else {
-                                                    localStorage.db = doc.dbName;
-                                                }
+                                };
+                            }
+                            switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '') {
+                                case true:
+                                    ons.notification.alert({
+                                        title: 'Missing attributes',
+                                        messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p>'
+                                    }).then(function () {
+                                        return showProgressBar('createEventPage', false);
+                                    });
+                                    console.log(eventDescription);
+                                    break;
+                                case false:
+                                    if (evtUsernameUnique) {
+                                        if (addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
+                                            var apiAddress = appServer + '/api/event/new';
+                                            var eventCreationData = {
+                                                username: username,
+                                                password: password,
+                                                eventName: eventDescription.eventName,
+                                                evtUsername: eventDescription.evtUsername
+                                            };
+                                            //TODO add done and fail and authentication to the request
+                                            $.ajax(apiAjax(apiAddress, eventCreationData))
+                                                .then(function (doc) {
+                                                    console.log(doc);
+                                                    if (localStorage.db !== undefined) {
+                                                        var dbs = JSON.parse(localStorage.db);
+                                                        dbs.push(doc.dbName);
+                                                        localStorage.db = JSON.stringify(dbs);
+                                                    } else {
+                                                        localStorage.db = doc.dbName;
+                                                    }
 
-                                                localStorage.lastDb = doc.dbName;
-                                                localStorage.couchdb = doc.url;
-                                                localStorage.http = doc.http;
-                                                eventDescription.evtUserPass = doc.evtUserPass;
-                                                eventDescription.dbName = doc.dbName;
-                                                var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
-                                                if (remotedbURL === newRemotedbURL) {
-                                                    //this returns true
-                                                    return true;
-                                                } else {
-                                                    remotedbURL = newRemotedbURL;
-                                                    if (remotedbConnected) {
+                                                    localStorage.lastDb = doc.dbName;
+                                                    localStorage.couchdb = doc.url;
+                                                    localStorage.http = doc.http;
+                                                    eventDescription.evtUserPass = doc.evtUserPass;
+                                                    eventDescription.dbName = doc.dbName;
+                                                    var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
+                                                    if (remotedbURL === newRemotedbURL) {
+                                                        //this returns true
+                                                        return true;
+                                                    } else {
+                                                        remotedbURL = newRemotedbURL;
+                                                        if (remotedbConnected) {
 
-                                                        return remotedb.close().then(function (doc) {
-                                                            return remotedbConnected = false;
+                                                            return remotedb.close().then(function (doc) {
+                                                                return remotedbConnected = false;
+                                                            }).catch(function (err) {
+                                                                console.log(err);
+                                                                throw err;
+                                                            });
+                                                        } else {
+                                                            //this should return false
+                                                            return remotedbConnected;
+                                                        }
+                                                    }
+                                                }).then(function (doc) {
+                                                    //checking if remotedb was already defined or not, most likely not
+                                                    if (doc === false) {
+                                                        console.log('creating new remotedb connection with new characteristics');
+
+                                                        //new remotedb location as defined from the server
+                                                        return remotedb = new PouchDB(remotedbURL);
+                                                    } else {
+                                                        //remotedb has not changed
+                                                        return remotedb;
+                                                    }
+
+                                                }).then(function (db) {
+                                                    //db is remoteDb but via the function not the var
+                                                    console.log(db);
+                                                    return db.get('eventDescription')
+                                                        .then(function (doc) {
+                                                            eventDescription._rev = doc._rev;
+                                                            return db.put(eventDescription);
                                                         }).catch(function (err) {
                                                             console.log(err);
-                                                            throw err;
+                                                            if (err.status === 404) {
+                                                                return db.put(eventDescription);
+                                                            } else {
+                                                                console.log(err);
+                                                                err.message = 'unable to upload event description to the database';
+                                                                throw err;
+                                                            }
                                                         });
-                                                    } else {
-                                                        //this should return false
-                                                        return remotedbConnected;
-                                                    }
-                                                }
-                                            }).then(function (doc) {
-                                                //checking if remotedb was already defined or not, most likely not
-                                                if (doc === false) {
-                                                    console.log('creating new remotedb connection with new characteristics');
+                                                    /* }).then(function (doc) {
+                                                        //puts the event description into the appdb
+                                                        return createOrUpdateAppdbEventDescription(eventDescription); */
+                                                }).then(function (doc) {
+                                                    return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
+                                                }).then(function (doc) {
+                                                    //adds a reference to the event description by adding the db to the list of the user's dbs
+                                                    return addAppdbLoginDb(eventDescription.dbName);
 
-                                                    //new remotedb location as defined from the server
-                                                    return remotedb = new PouchDB(remotedbURL);
-                                                } else {
-                                                    //remotedb has not changed
-                                                    return remotedb;
-                                                }
+                                                }).then(function (doc) {
+                                                    console.log(doc);
 
-                                            }).then(function (db) {
-                                                //db is remoteDb but via the function not the var
-                                                console.log(db);
-                                                return db.get('eventDescription')
-                                                    .then(function (doc) {
-                                                        eventDescription._rev = doc._rev;
-                                                        return db.put(eventDescription);
-                                                    }).catch(function (err) {
-                                                        console.log(err);
-                                                        if (err.status === 404) {
-                                                            return db.put(eventDescription);
-                                                        } else {
-                                                            console.log(err);
-                                                            err.message = 'unable to upload event description to the database';
-                                                            throw err;
+                                                    return navi.resetToPage('eventSummaryPage.html', {
+                                                        data: {
+                                                            eventName: eventName,
+                                                            url: url,
+                                                            eventInfo: eventDescription
                                                         }
                                                     });
-                                                /* }).then(function (doc) {
-                                                    //puts the event description into the appdb
-                                                    return createOrUpdateAppdbEventDescription(eventDescription); */
-                                            }).then(function (doc) {
-                                                return updateSingleDoc(eventDescription.dbName, ['eventDescription']);
-                                            }).then(function (doc) {
-                                                //adds a reference to the event description by adding the db to the list of the user's dbs
-                                                return addAppdbLoginDb(eventDescription.dbName);
-
-                                            }).then(function (doc) {
-                                                console.log(doc);
-
-                                                return navi.resetToPage('eventSummaryPage.html', {
-                                                    data: {
-                                                        eventName: eventName,
-                                                        url: url,
-                                                        eventInfo: eventDescription
+                                                })
+                                                .catch(function (err) {
+                                                    console.warn(err);
+                                                    if (err.message === undefined) {
+                                                        err.message = 'issue saving the event';
                                                     }
+                                                    return ons.notification.alert({
+                                                        title: 'error',
+                                                        message: err.message,
+                                                        cancelable: true
+                                                    }).then(function () {
+                                                        return showProgressBar('createEventPage', false);
+                                                    });
                                                 });
-                                            })
-                                            .catch(function (err) {
-                                                console.warn(err);
-                                                if (err.message === undefined) {
-                                                    err.message = 'issue saving the event';
-                                                }
-                                                return ons.notification.alert({
-                                                    title: 'error',
-                                                    message: err.message,
-                                                    cancelable: true
-                                                });
-                                            });
+                                        }
+                                    } else {
+                                        ons.notification.alert({
+                                            title: 'error',
+                                            message: 'username is not unique, please try a different username',
+                                            cancelable: true
+                                        }).then(function () {
+                                            return showProgressBar('createEventPage', false);
+                                        });
                                     }
-                                } else {
-                                    ons.notification.alert({
-                                        title: 'error',
-                                        message: 'username is not unique, please try a different username',
-                                        cancelable: true
-                                    });
+                            }
+                        } else if (editEvent) {
+                            //update rather than save
+                            ons.notification.confirm({
+                                title: 'Update Event',
+                                message: 'Are you sure you want to update ' + eventInfo.eventName,
+                                cancelable: true
+                            }).then(function (index) {
+                                if (index === 1) {
+                                    showProgressBar('createEventPage', true);
+                                    //TODO get and update from localdb then replicate to remotedb
+                                    var tempdb = new PouchDB(eventInfo.dbName);
+                                    tempdb.get('eventDescription')
+                                        .then(function (doc) {
+
+                                        }).then(function (doc) {
+                                            return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+                                        });
                                 }
+                            });
                         }
+
                     });
                 }
                 // TODO test event creation adds to appdb so that the login page can pick it up. Also need to add the hook in the sync function to update appdb if basedb gets a change.
@@ -2698,7 +2863,7 @@ ons.ready(function () {
                         });
 
                     /*  var evtDescUpdate = Promise.resolve().then(function () {
-                         return updateSingleDoc(eventInfo.dbName, ['eventDescription']);
+                         return replicateOnce(eventInfo.dbName, ['eventDescription']);
                      }).then(function (eventInfoUpdated) {
                          console.log(eventInfoUpdated);
                          if (eventInfoUpdated) {
@@ -3769,33 +3934,3 @@ ons.ready(function () {
     });
 
 });
-/**
- * Checks that the doc is up to date and will update if required
- * @param {string} event the name of the local and remote db to update
- * @param {[]} doc_id the doc to update 
- * @returns {Bool} true for an update, false already up to date
- */
-function updateSingleDoc(event, doc_ids) {
-    var tempdb, tempRemotedb, options;
-
-    var tempdb = new PouchDB(event);
-    var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event);
-    var options = {
-        doc_ids: doc_ids
-    };
-
-    return tempRemotedb.replicate.to(tempdb, options).then(function (info) {
-        console.log(info)
-        if (info.docs_written > 0) {
-            console.log('event Description for ' + event + ' updated');
-            return true;
-        } else {
-            console.log('event Description for ' + event + ' was up to date');
-            return false;
-        }
-    }).catch(function (err) {
-        console.log('there was an error');
-        console.log(err);
-        throw err;
-    });
-}
