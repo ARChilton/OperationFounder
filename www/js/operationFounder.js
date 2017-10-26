@@ -2777,12 +2777,17 @@ ons.ready(function () {
                                             return true;
                                         }
                                     } else {
-                                        return $.each(value, function (key1, value1) {
-                                            var testAgainst = eventInfo.bases[key1];
-                                            return $.each(value1, function (key2, value2) {
+                                        return value.forEach(function (base) {
+                                            var testAgainst = eventInfo.bases[base.baseNo];
+                                            console.log(testAgainst);
+                                            return $.each(base, function (key2, value2) {
                                                 if (value2 === testAgainst[key2]) {
+                                                    console.log('SAME key: ' + key2 + ' value: ' + value2);
                                                     return true;
                                                 }
+                                                console.log('DIFF key: ' + key2 + ' value: ' + value2);
+                                                changeMade = true;
+                                                return false;
                                             });
                                         });
                                     }
@@ -2813,6 +2818,7 @@ ons.ready(function () {
                                 eventDescription.dbName = eventInfo.dbName;
                                 return tempdb.put(eventDescription);
                             }).then(function (doc) {
+                                console.log(doc);
                                 if (doc.ok) {
                                     return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
                                 }
@@ -2826,6 +2832,7 @@ ons.ready(function () {
                                         eventInfo: eventDescription
                                     }
                                 };
+                                console.log(options);
                                 return navi.resetToPage('eventSummaryPage.html', options);
                             }).catch(function (err) {
                                 console.log(err);
