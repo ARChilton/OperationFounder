@@ -110,8 +110,12 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 .loginLogo {
-    width: 100%;
-    max-width: 800px;
+    max-height: 25vh;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    /* width: 100%;
+    max-width: 800px; */
     display: block;
     margin: auto;
 }
