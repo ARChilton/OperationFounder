@@ -2754,6 +2754,9 @@ ons.ready(function () {
                                     }
                             }
                         } else if (editEvent) {
+                            Promise.resolve().then(function () {
+
+                            })
                             //update rather than save
                             var tempdb = new PouchDB(eventInfo.dbName);
                             ons.notification.confirm({
@@ -2827,6 +2830,14 @@ ons.ready(function () {
                                 console.log(doc);
                                 if (doc.ok) {
                                     return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+                                } else {
+                                    return ons.notification.alert({
+                                        title: 'No change found',
+                                        message: 'No change has been detected from previous event information. A new version has not been saved.',
+                                        cancelable: true
+                                    }).then(function () {
+                                        throw navi.popPage();
+                                    });
                                 }
                             }).then(function (doc) {
                                 console.log(doc);
