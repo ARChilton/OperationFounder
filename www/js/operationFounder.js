@@ -2399,13 +2399,18 @@ ons.ready(function () {
                  */
                 function addBasesToEvtDescription(baseCount, passwordProtectLogs, eventDescription) {
                     for (var i = 1, l = baseCount + 1; i < l; i++) {
+
                         var baseInfo = {
                             baseNo: i,
-                            baseName: $('#base' + i + 'Name').val().trim(),
                             baseMaxScore: $('#base' + i + 'MaxScore').val(),
                             basePassword: $('#base' + i + 'Password').val().trim(),
                             baseInstructions: $('#base' + i + 'Instructions').val().trim()
                         };
+                        var bName = $('#base' + i + 'Name').val().trim();
+                        if (bName === '' || bName === undefined) {
+                            bName = i;
+                        }
+                        baseInfo.baseName = bName;
                         passwordsOk = false;
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
@@ -2475,10 +2480,10 @@ ons.ready(function () {
                             return eventLogoGetter(eventInfo, url);
                         }).then(function (src) {
                             if (src != undefined) {
-                                imageContainer.hide().attr('src', src).fadeIn(2000);
+                                imageContainer.hide().attr('src', src).fadeIn(1500);
                                 url = src;
                             } else {
-                                imageContainer.hide().fadeIn(2000);
+                                imageContainer.hide().fadeIn(1500);
                             }
                         }).catch(function (err) {
                             console.log(err);
@@ -2816,6 +2821,7 @@ ons.ready(function () {
                                 }
                                 eventDescription._rev = doc._rev;
                                 eventDescription.dbName = eventInfo.dbName;
+
                                 return tempdb.put(eventDescription);
                             }).then(function (doc) {
                                 console.log(doc);
@@ -2832,7 +2838,7 @@ ons.ready(function () {
                                         eventInfo: eventDescription
                                     }
                                 };
-                                console.log(options);
+
                                 return navi.resetToPage('eventSummaryPage.html', options);
                             }).catch(function (err) {
                                 console.log(err);
@@ -2850,6 +2856,7 @@ ons.ready(function () {
                 } else {
                     var eventInfo = eventDescription;
                 }
+
                 console.log(url);
                 if (!($('#eventSummaryPage').hasClass('evtLoaded'))) {
                     $('#eventSummaryPage').addClass('evtLoaded');
@@ -2868,19 +2875,16 @@ ons.ready(function () {
                     }
                     $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
 
-                    var bases = eventInfo.bases;
-                    bases.forEach(function (base) {
+                    eventInfo.bases.forEach(function (base) {
 
-                        if (base.baseName === undefined) {
-                            base.baseName = 'Base ' + base.baseNo;
-                        } else {
-                            base.baseName = 'Base ' + base.baseNo + ': ' + base.baseName
-                        }
-                        $('#evtSummaryBases').append('<h2 class="bold evtSummaryBasesTitle">' + base.baseName + '<h2>');
+                        $('#evtSummaryBases').append('<h2 class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '<h2>');
                         if (base.baseMaxScore === undefined) {
-                            base.baseMaxScore = 'no score available at this location'
+                            message = 'no score available at this location';
+                        } else {
+                            message = base.baseMaxScore;
                         }
-                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + base.baseMaxScore + '<p>');
+
+                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '<p>');
                         if (eventInfo.passwordProtectLogs) {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '<p>');
                         }
@@ -2978,10 +2982,10 @@ ons.ready(function () {
                         return eventLogoGetter(eventInfo, url);
                     }).then(function (src) {
                         if (src != undefined) {
-                            imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(2000);
+                            imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(1500);
                             url = src;
                         } else {
-                            imageContainer.hide().removeClass('hide').fadeIn(2000);
+                            imageContainer.hide().removeClass('hide').fadeIn(1500);
                         }
                     }).catch(function (err) {
                         console.log(err);
