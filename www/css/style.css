@@ -540,12 +540,15 @@ p {
 }
 
 .navigation-bar__title {
-    text-transform: lowercase;
+    /* text-transform: lowercase; */
+    text-transform: capitalize;
 }
 
+
+/*
 .navigation-bar__title:first-letter {
     text-transform: uppercase;
-}
+} */
 
 
 /* alerts */
