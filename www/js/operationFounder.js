@@ -1103,6 +1103,7 @@ function deleteIndexes() {
     offRouteIndexAdmin = [];
     patrolRecord = [];
     patrolRecordAdmin = [];
+    return true;
 
 }
 /**
@@ -1133,9 +1134,6 @@ function closeDatabases() {
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
  */
 function baseLogOut() {
-    // $('#logsTable').empty();
-    //sync
-    // $('tbody').empty();
     if (navi.topPage.data.firstPage) {
         var options = {
             animation: pageChangeAnimation,
@@ -1186,6 +1184,21 @@ function signOut() {
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     localStorage.verified = 'false';
     localStorage.evtOrganiser = 'false';
+}
+/**
+ * A function to take you from the menu to the edit event page
+ */
+function editEvent() {
+    document.getElementById('menu').toggle();
+    var options = {
+        animation: pageChangeAnimation,
+        data: {
+            edit: true,
+            eventInfo: navi.topPage.data.eventInfo
+        }
+    };
+
+    return navi.bringPageTop('createEventPage.html', options);
 }
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -1410,6 +1423,7 @@ ons.ready(function () {
                         if (compareTwoArrays(user.user.roles.sort(), doc.db.sort(), false) === false) {
                             //updated db array with the authorative source from couchdb
                             doc.db = user.user.roles;
+
                             // doc.currentDb = lastDb;
                             appdb.put(doc)
                                 .then(function (info) {
@@ -1483,8 +1497,7 @@ ons.ready(function () {
                     animation: pageChangeAnimation,
                     data: data
                 });
-            })
-            .catch(function (err) {
+            }).catch(function (err) {
                 //error go to sign in screen
                 console.log('going to sign in screen');
                 console.log(err);
@@ -1630,7 +1643,18 @@ ons.ready(function () {
         }
 
     }
-
+    /**
+     * shows and hides the event editor option in the side menu
+     */
+    function menuShowHideEvtEdit() {
+        //allow the eventOrganisers to edit their current event
+        if (localStorage.evtOrganiser === 'true') {
+            console.log(localStorage.evtOrganiser);
+            $('#eventEditor').removeClass('hide');
+        } else {
+            $('#eventEditor').addClass('hide');
+        }
+    }
     //commented out for dev
     /*navi.insertPage(0, 'map.html').then(function () {
         createMap();
@@ -2754,9 +2778,6 @@ ons.ready(function () {
                                     }
                             }
                         } else if (editEvent) {
-                            Promise.resolve().then(function () {
-
-                            })
                             //update rather than save
                             var tempdb = new PouchDB(eventInfo.dbName);
                             ons.notification.confirm({
@@ -2786,6 +2807,11 @@ ons.ready(function () {
                                         }
                                     } else {
                                         return value.forEach(function (base) {
+                                            if (eventInfo.bases[base.baseNo] === undefined) {
+                                                console.log('new base added');
+                                                changeMade = true;
+                                                return false;
+                                            }
                                             var testAgainst = eventInfo.bases[base.baseNo];
                                             console.log(testAgainst);
                                             return $.each(base, function (key2, value2) {
@@ -2851,6 +2877,8 @@ ons.ready(function () {
                                 };
 
                                 return navi.resetToPage('eventSummaryPage.html', options);
+                            }).then(function (doc) {
+                                return closeDatabases();
                             }).catch(function (err) {
                                 console.log(err);
                             });
@@ -2938,7 +2966,6 @@ ons.ready(function () {
                 if (name != undefined && name != 'undefined') {
                     $('#userName').val(name);
                 }
-                //TODO next set up login page with dropdown box and change what is displayed as applicable. Also do a check on basecodes and change the current base code check to take the input from the navi.data
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
@@ -3050,21 +3077,25 @@ ons.ready(function () {
 
                                     ons.createDialog('baseSelectDialog.html')
                                         .then(function (dialog) {
-
-                                            eventInfo.bases.forEach(function (base) {
-                                                var baseCode = base.baseNo.toString();
-                                                var baseName = base.baseName;
-                                                baseCodes.push(baseCode);
-                                                //base names are put into array
-                                                baseNames.push(baseName);
-                                                //adds an option in the dropdown
+                                            dialog.addEventListener('preshow', function (event) {
+                                                var selectBase = navi.topPage.data.eventInfo.bases;
+                                                baseCodes = [];
+                                                baseNames = [];
                                                 var loginSelect = $('#loginBaseSelect');
-
-
-                                                $('#loginBaseSelect').append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>')
-
+                                                loginSelect.empty();
+                                                selectBase.forEach(function (base) {
+                                                    var baseCode = base.baseNo.toString();
+                                                    var baseName = base.baseName;
+                                                    baseCodes.push(baseCode);
+                                                    //base names are put into array
+                                                    baseNames.push(baseName);
+                                                    //adds an option in the dropdown
+                                                    loginSelect.append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>')
+                                                });
                                             });
                                             dialog.show();
+                                        }).catch(function (err) {
+                                            console.log(err);
                                         });
 
                                 } else {
@@ -3163,6 +3194,7 @@ ons.ready(function () {
                         }
                     });
                 }
+                menuShowHideEvtEdit();
                 // end of loginPage.html
                 break;
 
