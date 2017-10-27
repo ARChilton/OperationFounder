@@ -2461,6 +2461,7 @@ ons.ready(function () {
                 if (pageData.edit === true) {
                     if (pageData.eventInfo != undefined) {
                         editEvent = true;
+                        $('#createEventPage .center').html('Edit Event');
                         var eventInfo = pageData.eventInfo;
                         $('#eventName').val(eventInfo.eventName);
                         $('#eventStartDate').val(eventInfo.dateStart);
@@ -2499,6 +2500,7 @@ ons.ready(function () {
                                 passwordObject.adminPassword = password;
                             }
                         });
+                        console.log(baseCount);
                         var imageContainer = $('#eventBannerImage');
                         Promise.resolve().then(function () {
                             return eventLogoGetter(eventInfo, url);
@@ -2616,24 +2618,29 @@ ons.ready(function () {
                         }
                     });
                 }
+                var addBaseButton = $('.addBaseButton');
+                if (!(addBaseButton.hasClass('evtHandler'))) {
+                    addBaseButton.addClass('evtHandler')
+                        .on('click', function () {
+                            baseCount++;
+                            addBase(baseCount);
+                            //hides the password input if the password switch is deselected
+                            if (!$('#passwordSwitch').prop("checked")) {
+                                $('.basePasswordShowHide').addClass('hide');
 
-                if (!($('.addBaseButton').hasClass('evtHandler'))) {
-                    $('.addBaseButton').addClass('evtHandler');
-                    //inserts new base above add base button
+                            }
 
-                    $('.addBaseButton').on('click', function () {
-                        baseCount++;
-                        addBase(baseCount);
-                        //hides the password input if the password switch is deselected
-                        if (!$('#passwordSwitch').prop("checked")) {
-                            $('.basePasswordShowHide').addClass('hide');
-
-                        }
-                        //adds the password check event handler to the added base
-                        $('#base' + baseCount + 'Password').on('blur', function () {
-                            passwordCheck(this);
+                            var offset = 1370 + baseCount * (181);
+                            console.log(offset);
+                            var page = $('#createEventPage .page__content');
+                            page.animate({
+                                scrollTop: offset
+                            }, 1000);
+                            //adds the password check event handler to the added base
+                            $('#base' + baseCount + 'Password').on('blur', function () {
+                                passwordCheck(this);
+                            });
                         });
-                    });
                 }
 
                 if (!$('#saveEvent').hasClass('evtHandler')) {
