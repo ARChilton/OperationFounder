@@ -2917,7 +2917,7 @@ ons.ready(function () {
                     eventInfo.bases.forEach(function (base) {
 
                         $('#evtSummaryBases').append('<h2 class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '<h2>');
-                        if (base.baseMaxScore === undefined) {
+                        if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
                             message = 'no score available at this location';
                         } else {
                             message = base.baseMaxScore;
