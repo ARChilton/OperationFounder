@@ -557,6 +557,13 @@ p {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
+.dialog {
+    max-height: 80vh;
+    overflow-y: auto;
+    max-width: 70vw;
+    overflow-x: hidden;
+}
+
 
 /* --- MAP AREA --- */
 
