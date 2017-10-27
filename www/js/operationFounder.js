@@ -2629,9 +2629,8 @@ ons.ready(function () {
                                 $('.basePasswordShowHide').addClass('hide');
 
                             }
-
+                            //scrolls to the bottom of the page
                             var offset = 1370 + baseCount * (181);
-                            console.log(offset);
                             var page = $('#createEventPage .page__content');
                             page.animate({
                                 scrollTop: offset
