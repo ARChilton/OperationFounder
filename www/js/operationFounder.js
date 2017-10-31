@@ -1351,6 +1351,133 @@ function compareTwoArrays(arr1, arr2, outputDifferences) {
     }
 
 }
+/**
+ * Takes an image element and finds the average pixel value
+ * @param {element} imgEl 
+ */
+function getAverageRGB(imgEl) {
+
+    var blockSize = 5, // only visit every 5 pixels
+        defaultRGB = {
+            r: 0,
+            g: 0,
+            b: 0
+        }, // for non-supporting envs
+        canvas = document.createElement('canvas'),
+        context = canvas.getContext && canvas.getContext('2d'),
+        data, width, height,
+        i = -4,
+        length,
+        rgb = {
+            r: 0,
+            g: 0,
+            b: 0
+        },
+        count = 0;
+
+    if (!context) {
+        return defaultRGB;
+    }
+
+    height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+    width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+    context.drawImage(imgEl, 0, 0);
+
+    try {
+        data = context.getImageData(0, 0, width, height);
+    } catch (e) {
+        /* security error, img on diff domain */
+        return defaultRGB;
+    }
+
+    length = data.data.length;
+
+    while ((i += blockSize * 4) < length) {
+        ++count;
+        rgb.r += data.data[i];
+        rgb.g += data.data[i + 1];
+        rgb.b += data.data[i + 2];
+    }
+
+    // ~~ used to floor values
+    rgb.r = ~~(rgb.r / count);
+    rgb.g = ~~(rgb.g / count);
+    rgb.b = ~~(rgb.b / count);
+
+    return rgb;
+
+}
+const BW_TRESHOLD = Math.sqrt(1.05 * 0.05) - 0.05;
+const RE_HEX = /^(?:[0-9a-f]{3}){1,2}$/i;
+
+function padz(str, len) {
+    len = len || 2;
+    return (new Array(len).join('0') + str).slice(-len);
+}
+
+function toObj(c) {
+    return {
+        r: c[0],
+        g: c[1],
+        b: c[2]
+    };
+}
+
+function hexToRGB(hex) {
+    if (hex.slice(0, 1) === '#') hex = hex.slice(1);
+    if (!RE_HEX.test(hex)) throw new Error('Invalid HEX color.');
+    // normalize / convert 3-chars hex to 6-chars.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    return [
+        parseInt(hex.slice(0, 2), 16), // r
+        parseInt(hex.slice(2, 4), 16), // g
+        parseInt(hex.slice(4, 6), 16) // b
+    ];
+}
+
+// c = String (hex) | Array [r, g, b] | Object {r, g, b}
+function toRGB(c) {
+    if (Array.isArray(c)) return c;
+    return typeof c === 'string' ? hexToRGB(c) : [c.r, c.g, c.b];
+}
+
+
+function getLuminance(c) {
+    let i, x;
+    const a = []; // so we don't mutate
+    for (i = 0; i < c.length; i++) {
+        x = c[i] / 255;
+        a[i] = x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+}
+
+function invertToBW(color, asArr) {
+    return getLuminance(color) > BW_TRESHOLD ?
+        (asArr ? [0, 0, 0] : '#000000') :
+        (asArr ? [255, 255, 255] : '#ffffff');
+}
+
+function invert(color, bw) {
+    color = toRGB(color);
+    if (bw) return invertToBW(color);
+    return '#' + color.map(c => padz((255 - c).toString(16))).join('');
+}
+
+invert.asRgbArray = (color, bw) => {
+    color = toRGB(color);
+    return bw ? invertToBW(color, true) : color.map(c => 255 - c);
+};
+
+invert.asRgbObject = (color, bw) => {
+    color = toRGB(color);
+    return toObj(bw ? invertToBW(color, true) : color.map(c => 255 - c));
+};
+
+//invert.asRgbObject(getAverageRGB(document.getElementById('loginEventLogo')),true);
 
 /**
  * ons.ready function is the start of the script and runs only when OnsenUI has loaded
@@ -1655,6 +1782,8 @@ ons.ready(function () {
             $('#eventEditor').addClass('hide');
         }
     }
+
+
     //commented out for dev
     /*navi.insertPage(0, 'map.html').then(function () {
         createMap();
