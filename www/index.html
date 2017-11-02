@@ -73,7 +73,7 @@
     <ons-page id="signInPage">
       <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
       <div class="logoBackground">
-        <img src="img/operationFounder.png" class="loginLogo ">
+        <img src="img/operationFounder.png" class="loginLogo " id="signInLogo">
       </div>
 
       <div class="pageDiv">
@@ -365,50 +365,6 @@
     </ons-page>
   </ons-template>
   <!-- End of eventSummary page -->
-  <!-- Start of eventSelectionPage -->
-  <ons-template id="eventSelectionPage.html">
-    <ons-page id="eventSelectionPage">
-      <ons-toolbar>
-        <div class="left">
-          <ons-back-button>Back</ons-back-button>
-        </div>
-        <div class="center">
-          Select event
-        </div>
-
-      </ons-toolbar>
-      <div class="pageDiv evtSummary">
-        <div id="evtSummaryBanner"></div>
-        <h2 class="txtLeft bold borderBottom keepAsWritten" id="evtSummaryTitle">Event Details</h2>
-        <p id="evtSummaryStartDate" class="">
-          <span class="bold sentanceCase">Start Date: </span>
-        </p>
-        <p id="evtSummaryEndDate" class="">
-          <span class="bold sentanceCase">End Date: </span>
-        </p>
-        <p id="evtSummaryBaseCount" class="">
-          <span class="bold sentanceCase">Bases: </span>
-        </p>
-        <p id="evtSummaryUsername" class="">
-          <span class="bold sentanceCase">base user username: </span>
-        </p>
-        <p id="evtSummaryPassword" class="">
-          <span class="bold sentanceCase">base user password: </span>
-        </p>
-        <p id="evtSummaryDescription" class="">
-          <span class="bold sentanceCase">Event Description: </span>
-          <br>
-        </p>
-        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
-        <div id="evtSummaryBases"></div>
-        <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
-        <p id="evtSummaryAdminPass" class="">
-          <span class="bold sentanceCase">Admin passcode: </span>
-        </p>
-      </div>
-    </ons-page>
-  </ons-template>
-  <!-- End of eventSelectionPage -->
   <!-- Start of loginPage -->
   <ons-template id="loginPage.html">
     <ons-page id="loginPage">
@@ -456,7 +412,7 @@
     </ons-dialog>
   </ons-template>
   <!-- End of select base dialog template -->
-  <!-- Start of select event page -->
+  <!-- Start of eventSelectionPage -->
   <ons-template id="eventSelectionPage.html">
     <ons-page id="eventSelectionPage">
       <ons-toolbar>
@@ -471,21 +427,20 @@
 
       </ons-toolbar>
       <div class="pageDiv marginTop32px">
+        <div id="createdEvents">
+
+        </div>
+        <div id="createNewEvent">
+          <div class=" mdl-shadow--4dp">
+            <div class="mdl-card__media">
+              <img id="adam" src=".\img\operationFounder.png" style="padding:20px;">
+            </div>
+            <div class="mdl-card__title">Create New Event</div>
+          </div>
+        </div>
       </div>
 
     </ons-page>
-  </ons-template>
-  <!-- End of Login page -->
-  <!-- Start of select base dialog template -->
-  <ons-template id="baseSelectDialog.html">
-    <ons-dialog id="baseSelectDialog" cancelable>
-      <div>
-        <ons-list>
-          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-title>
-
-        </ons-list>
-      </div>
-    </ons-dialog>
   </ons-template>
   <!-- End of select event page -->
   <!-- Start of page 1 -->
