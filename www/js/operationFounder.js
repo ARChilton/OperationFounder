@@ -13,6 +13,7 @@
  * @param {string} http whether the couchdb instance is http:// or https://
  * @param {boolean | undefined} verified whether the user is verified
  */
+//dev variables
 
 // global variables
 var eventDescription;
@@ -149,8 +150,6 @@ document.addEventListener("resume", onResume, false);
 function onResume() {
     // Handle the resume event
     console.log('deviceResume');
-
-
 }
 /**
  * Checks the orientation and updates the GUI accordingly, landscape only
@@ -2474,15 +2473,34 @@ ons.ready(function () {
                 /**
                  * a function to update the event banner based upon a file upload
                  * @param {object} inputFile needs to be found using plain js
+                 * @returns {string} returns a url promise
                  */
                 function fileUpload(inputFile) {
-                    //make file into a blob
-                    getFile = inputFile.files[0];
-                    url = URL.createObjectURL(getFile);
-                    console.log(url);
-                    $('#eventBannerImage').attr('src', url);
-                    return url;
+                    return new Promise(function (resolve, reject) {
+                        //make file into a blob
+                        getFile = inputFile.files[0]; //getFile is a blob
+                        url = URL.createObjectURL(getFile); //create URL from the blob
+                        console.log(url);
+                        resolve(url);
+                    });
                 }
+                /**
+                 * a function to downscale an image
+                 * @param {object} imgEl img element if JQuery must be JQuery[0] or other value in the array if using classes
+                 * @param {number} maxWidth the maximum width the image can be
+                 * @param {number} maxHeight the maximum height the image can be
+                 * @returns {object | boolean} returns false if the image is already small enough, else it will return the dimensions the image will be downscaled to
+                 */
+
+                /**
+                 * Downscales an image in steps so that the quality is maintained
+                 * https://stackoverflow.com/questions/19262141/resize-image-with-javascript-canvas-smoothly
+                 * http://jsfiddle.net/180nssw2/
+                 * @param {object} img javascript object (not JQuery) that contains a single image best using an #id
+                 * @param {*} width target width
+                 * @param {*} step how much to scale down default = 0.5
+                 */
+
                 /**
                  * function to add a base before the add base button
                  * @param {number|string} baseCount 
@@ -2586,6 +2604,7 @@ ons.ready(function () {
                     return passwordsOk;
                 }
 
+
                 //Normal code to run
                 if (pageData.edit === true) {
                     if (pageData.eventInfo != undefined) {
@@ -2653,8 +2672,15 @@ ons.ready(function () {
                     var inputFile = document.querySelector('#eventBanner');
                     $('#eventBanner').addClass('evtHandler')
                         .on('change', function () {
-                            console.log('file upload');
-                            return fileUpload(inputFile);
+                            var imgEl = $('#eventBannerImage');
+                            Promise.resolve().then(function () {
+                                console.log('file upload');
+                                return fileUpload(inputFile);
+                            }).then(function (url) {
+                                return imgEl.attr('src', url);
+                            }).catch(function (err) {
+                                console.log(err);
+                            });
                         });
                 }
 
@@ -2914,7 +2940,9 @@ ons.ready(function () {
                             }
                         } else if (editEvent) {
                             //update rather than save
+                            //variables required outside the promises
                             var tempdb = new PouchDB(eventInfo.dbName);
+                            var logo = document.getElementById('eventBannerImage');
                             ons.notification.confirm({
                                 title: 'Update Event',
                                 message: 'Are you sure you want to update ' + eventInfo.eventName,
@@ -2924,6 +2952,34 @@ ons.ready(function () {
                                     throw index;
                                 }
                                 showProgressBar('createEventPage', true);
+
+                                // return downscaleImg(logo, 1922, 240);
+                                return Promise.resolve().then(function () {
+                                    return downscaleImg(logo, 1922, 240);
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    if (doc != false) {
+                                        return stepped_scale(logo, doc.width, 0.5);
+                                    }
+                                    return false;
+                                }).then(function (doc) {
+                                    return getFile = doc;
+                                });
+                                /*  }).then(function (downscale) {
+                                     console.log(downscale);
+                                     if (downscale === false) {
+                                         return false;
+                                     }
+                                     return stepped_scale(logo, 1922, 240);
+                                 }).then(function (blob) {
+                                     console.log(blob);
+                                     if (blob === false) {
+                                         return false;
+                                     }
+                                     getFile = blob;
+                                     return true; */
+                            }).then(function (doc) {
+                                console.log(doc);
                                 return tempdb.get('eventDescription');
                             }).then(function (doc) {
                                 var changeMade = false;
@@ -3621,7 +3677,7 @@ ons.ready(function () {
                                 messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
                                 cancelable: true
                             });
-                        } else if (sqTotalScore > eventInfoBase.baseMaxScore) {
+                        } else if (parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)) {
                             ons.notification.alert({
                                 title: 'Total score',
                                 message: 'the total score entered is greater than the maximum points available at a base',
@@ -4186,3 +4242,141 @@ ons.ready(function () {
     });
 
 });
+
+function downscaleImg(imgEl, maxWidth, maxHeight) {
+    //needs work
+    var stats = imgStats(imgEl);
+    if (stats.width < maxWidth && stats.height < maxHeight) {
+        console.log('img already small enough');
+        return false; //img already small enough
+    }
+    if (stats.height > maxHeight && stats.width > maxWidth) {
+        var difX = stats.height - maxHeight;
+        var difY = stats.width - maxWidth;
+        if (difX > difY) {
+            //greater difference in height
+            console.log('height difference larger');
+            maxWidth = (maxHeight / stats.height) * stats.width;
+        } else {
+            //greater difference in width
+            console.log('width diff larger');
+            maxHeight = (maxWidth / stats.width) * stats.height;
+        }
+    } else if (stats.height > maxHeight) {
+        //too tall
+        console.log('too tall only');
+        maxWidth = (maxHeight / stats.height) * stats.width;
+    } else {
+        //too wide
+        console.log('too wide only');
+        maxHeight = (maxWidth / stats.width) * stats.height;
+    }
+    /* if (stats.width < maxWidth) {
+        return false;
+    } */
+    var dimensions = {
+        width: Math.floor(maxWidth),
+        height: Math.floor(maxHeight)
+    }
+    return dimensions;
+}
+/**
+ * Checks the dimensions of an image and returns the height width and ratio of the image
+ * @param {object} imgEl image element (not JQuery or JQuery[0])
+ * @returns {object} returns the height, width, ratio between height and width as well as whether the image is landscape or not
+ */
+function imgStats(imgEl) {
+    var imgStats;
+    try {
+        var imgHeight = imgEl.naturalHeight,
+            imgWidth = imgEl.naturalWidth,
+            imgRatio = imgWidth / imgHeight,
+            imgLandscape = true;
+
+    } catch (err) {
+        console.log(err);
+    }
+    if (imgHeight > imgWidth) {
+        imgLandscape = false;
+    }
+    imgStats = {
+        height: imgHeight,
+        width: imgWidth,
+        ratio: imgRatio,
+        landscape: imgLandscape
+    };
+    return imgStats;
+}
+
+function stepped_scale(img, width, step) {
+    if (step === undefined) {
+        var step = 0.5;
+    }
+    return Promise.resolve().then(function () {
+        var canvas = document.createElement('canvas'), //canvas the result ends up on
+            ctx = canvas.getContext("2d");
+        var oc = document.createElement('canvas'), //canvas used for intermedary steps
+            octx = oc.getContext('2d');
+
+        // -- stepped scaling --
+        //var start = window.performance.now();
+
+        canvas.width = width; // destination canvas size
+        canvas.height = canvas.width * img.naturalHeight / img.naturalWidth; //width * ratio between image height and width
+
+        if (img.width * step > width) { // For performance avoid unnecessary drawing
+            var mul = 1 / step;
+            var cur = {
+                width: Math.floor(img.width * step),
+                height: Math.floor(img.height * step)
+            }
+
+            oc.width = cur.width;
+            oc.height = cur.height;
+
+            octx.drawImage(img, 0, 0, cur.width, cur.height);
+
+            while (cur.width * step > width) {
+                cur = {
+                    width: Math.floor(cur.width * step),
+                    height: Math.floor(cur.height * step)
+                };
+                octx.drawImage(oc, 0, 0, cur.width * mul, cur.height * mul, 0, 0, cur.width, cur.height);
+            }
+
+            ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+        return canvas;
+    }).then(function (canvas) {
+        //document.getElementById("time-stepped").innerHTML = time_diff(start) + ' ms';
+        // img.src = canvas.toDataURL();
+        console.log('getting blob');
+        return getCanvasBlob(canvas);
+
+
+    }).then(function (blob) {
+        console.log(blob);
+        //getFile = blob;
+        return blob;
+    }).catch(function (err) {
+        console.log(err);
+    });
+    // -- display canvas used for scaling --
+    // document.getElementById("scale-canvas").src = oc.toDataURL();
+
+
+}
+/**
+ * A function to turn canvas.toBlob as a promise
+ * @param {object} canvas a canvas object
+ * @returns {object} returns a blob from the canvas as a promise 
+ */
+function getCanvasBlob(canvas) {
+    return new Promise(function (resolve, reject) {
+        return canvas.toBlob(function (blob) {
+            return resolve(blob);
+        });
+    });
+}
