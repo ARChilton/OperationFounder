@@ -4250,30 +4250,14 @@ function downscaleImg(imgEl, maxWidth, maxHeight) {
         console.log('img already small enough');
         return false; //img already small enough
     }
-    if (stats.height > maxHeight && stats.width > maxWidth) {
-        var difX = stats.height - maxHeight;
-        var difY = stats.width - maxWidth;
-        if (difX > difY) {
-            //greater difference in height
-            console.log('height difference larger');
-            maxWidth = (maxHeight / stats.height) * stats.width;
-        } else {
-            //greater difference in width
-            console.log('width diff larger');
-            maxHeight = (maxWidth / stats.width) * stats.height;
-        }
-    } else if (stats.height > maxHeight) {
-        //too tall
-        console.log('too tall only');
-        maxWidth = (maxHeight / stats.height) * stats.width;
+    var maxWidthForHeight = (maxHeight / stats.height) * stats.width;
+    if (maxWidthForHeight < maxWidth) {
+        console.log('height restricted');
+        maxWidth = maxWidthForHeight;
     } else {
-        //too wide
-        console.log('too wide only');
+        console.log('width restricted');
         maxHeight = (maxWidth / stats.width) * stats.height;
     }
-    /* if (stats.width < maxWidth) {
-        return false;
-    } */
     var dimensions = {
         width: Math.floor(maxWidth),
         height: Math.floor(maxHeight)
