@@ -125,6 +125,74 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 
+/*Cards*/
+
+.card {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    font-size: 16px;
+    font-weight: 400;
+    /* min-height: 200px; */
+    overflow: hidden;
+    /* width: 330px; */
+    z-index: 1;
+    position: relative;
+    background: rgb(255, 255, 255);
+    border-radius: 2px;
+    box-sizing: border-box;
+}
+
+.cardTRButton {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
+.cardIconButton {
+    width: 36px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 24px;
+    /* height: 32px; */
+    margin-left: 0;
+    margin-right: 0;
+    /* min-width: 32px; */
+    padding: 0;
+    overflow: hidden;
+    color: inherit;
+}
+
+#createNewEvent {
+    color: rgba(0, 0, 0, 0.54);
+}
+
+#createNewEvent i {
+    width: 100%;
+    font-size: 5rem;
+    text-align: center;
+}
+
+#createNewEvent .title {
+    font-size: 2rem;
+    text-align: center;
+    margin: 16px auto;
+}
+
+
+/* .cardIconButton .ripple {
+    width: 36px;
+    height: 36px;
+} */
+
+#eventSelectionPage .page__content {
+    background-color: #EDEDED !important;
+}
+
+
 /*flex*/
 
 .flex {
