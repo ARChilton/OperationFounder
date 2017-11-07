@@ -52,7 +52,7 @@
         <ons-list-item id="eventEditor" class="hide" onclick="editEvent()" tappable>
           Edit Event Set-up
         </ons-list-item>
-        <ons-list-item id="eventChanger" class="hide" onclick="changeEvent()" tappable>
+        <ons-list-item id="eventChanger" class="" onclick="changeEvent()" tappable>
           Change Event
         </ons-list-item>
         <ons-list-item id="eventSignOut" onclick="signOut()" tappable>
@@ -414,7 +414,7 @@
   <!-- End of select base dialog template -->
   <!-- Start of eventSelectionPage -->
   <ons-template id="eventSelectionPage.html">
-    <ons-page id="eventSelectionPage">
+    <ons-page id="eventSelectionPage" class="cardBackground">
       <ons-toolbar>
         <div class="left">
           <ons-toolbar-button class="menuButton">
@@ -429,16 +429,32 @@
       <div class="pageDiv marginTop32px">
         <div id="createdEvents">
 
+          <div class="card mdl-shadow--2dp">
+
+            <div class="mdl-card__title">Create New Event</div>
+            <div class="mdl-card__supporting-text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis pellentesque lacus eleifend lacinia...
+            </div>
+            <div class="mdl-card__actions mdl-card--border">
+              <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                Get Started
+              </a>
+            </div>
+            <div class="mdl-card__menu">
+              <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                <i class="material-icons">share</i>
+              </button>
+            </div>
+          </div>
+          <br>
+
+
         </div>
         <div id="createNewEvent">
-          <div class=" mdl-shadow--4dp">
-            <div class="mdl-card__media">
-              <img id="adam" src=".\img\operationFounder.png" style="padding:20px;">
-            </div>
-            <div class="mdl-card__title">Create New Event</div>
-          </div>
+          <ons-button id="createNewEventButton" modifier="large" class="secondaryColorButton">Create New Event</ons-button>
         </div>
       </div>
+      <br>
 
     </ons-page>
   </ons-template>
