@@ -1185,6 +1185,28 @@ function signOut() {
     localStorage.evtOrganiser = 'false';
 }
 /**
+ * go to the change event page
+ */
+function changeEvent() {
+    document.getElementById('menu').toggle();
+    baseNames = [];
+    baseCodes = [];
+
+    closeDatabases();
+    basedb;
+    admindb;
+    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
+    var options = {
+        animation: pageChangeAnimation,
+        data: {
+
+            eventInfo: navi.topPage.data.eventInfo
+        }
+    };
+
+    return navi.resetToPage('eventSelectionPage.html', options);
+}
+/**
  * A function to take you from the menu to the edit event page
  */
 function editEvent() {
@@ -2508,22 +2530,22 @@ ons.ready(function () {
                 function addBase(baseCount) {
                     return $('.addBaseButton').before(
                         `
-                        <div>
-                            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
-                            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
-                            <div class="flex flexRow flexSpaceBetween marginTop">
-                                <div class="caption"><span class="bold">Maximum score available</span>
-                                    <span class="caption marginLeft">(blank = no score input)</span>
-                                </div>
-                            <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
-                            </div>
-                            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-                                <div class="caption bold">Base password *</div>
-                                    <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
-                                </div>
-                            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
-                        </div>
-                        `
+                                        <div>
+                                            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
+                                            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+                                            <div class="flex flexRow flexSpaceBetween marginTop">
+                                                <div class="caption"><span class="bold">Maximum score available</span>
+                                                    <span class="caption marginLeft">(blank = no score input)</span>
+                                                </div>
+                                            <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
+                                            </div>
+                                            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
+                                                <div class="caption bold">Base password *</div>
+                                                    <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
+                                                </div>
+                                            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+                                        </div>
+                                    `
                     );
                 }
                 /**
@@ -2804,6 +2826,23 @@ ons.ready(function () {
                         if (!editEvent) {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
+                            if (getFile != false) {
+                                // return downscaleImg(logo, 1922, 240);
+                                //need to test by creating a new event
+                                var logo = document.getElementById('eventBannerImage');
+                                Promise.resolve().then(function () {
+                                    return downscaleImg(logo, 1922, 240);
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    if (doc != false) {
+                                        return stepped_scale(logo, doc.width, 0.5);
+                                    }
+                                    return false;
+                                }).then(function (doc) {
+                                    return getFile = doc;
+                                });
+                            }
+                            console.log(getFile);
                             if (getFile !== false) {
                                 //adds an image to the description
                                 eventDescription._attachments = {
@@ -2952,32 +2991,21 @@ ons.ready(function () {
                                     throw index;
                                 }
                                 showProgressBar('createEventPage', true);
-
-                                // return downscaleImg(logo, 1922, 240);
-                                return Promise.resolve().then(function () {
-                                    return downscaleImg(logo, 1922, 240);
-                                }).then(function (doc) {
-                                    console.log(doc);
-                                    if (doc != false) {
-                                        return stepped_scale(logo, doc.width, 0.5);
-                                    }
-                                    return false;
-                                }).then(function (doc) {
-                                    return getFile = doc;
-                                });
-                                /*  }).then(function (downscale) {
-                                     console.log(downscale);
-                                     if (downscale === false) {
-                                         return false;
-                                     }
-                                     return stepped_scale(logo, 1922, 240);
-                                 }).then(function (blob) {
-                                     console.log(blob);
-                                     if (blob === false) {
-                                         return false;
-                                     }
-                                     getFile = blob;
-                                     return true; */
+                                if (getFile != false) {
+                                    // return downscaleImg(logo, 1922, 240);
+                                    return Promise.resolve().then(function () {
+                                        return downscaleImg(logo, 1922, 240);
+                                    }).then(function (doc) {
+                                        console.log(doc);
+                                        if (doc != false) {
+                                            return stepped_scale(logo, doc.width, 0.5);
+                                        }
+                                        return false;
+                                    }).then(function (doc) {
+                                        return getFile = doc;
+                                    });
+                                }
+                                return false; //no file upload took place
                             }).then(function (doc) {
                                 console.log(doc);
                                 return tempdb.get('eventDescription');
@@ -3389,7 +3417,78 @@ ons.ready(function () {
                 // end of loginPage.html
                 break;
 
-            case 'selectEventPage.html':
+            case 'eventSelectionPage.html':
+                var createdEvents = $('#createdEvents');
+                var databases = JSON.parse(localStorage.db);
+                console.log(databases);
+
+
+                Promise.all(databases.map(function (event) {
+                    var tempdb = new PouchDB(event);
+                    return tempdb.get('eventDescription')
+                        .then(function (doc) {
+                            console.log(doc);
+                            createdEvents.append(
+                                `
+                                    <div class="card mdl-shadow--2dp" id="` + event + `">                        
+                                        <div class="mdl-card__title">` + doc.eventName + `</div>
+                                        <div class="mdl-card__supporting-text">` + doc.eventDescription.replace(/\n/g, "<br>") + `</div>
+                                        <div class="mdl-card__actions mdl-card--border">
+                                            <ons-button modifier="quiet" class="goToEventButton">Enter event</ons-button>
+                                        </div>
+                                        <div class="cardTRButton">
+                                            <ons-button modifier="quiet" ripple class="cardIconButton"><i class="zmdi zmdi-share"></i></ons-button>
+                                        </div>
+                                    </div>
+                                    <br>
+                                `
+                            );
+                            var eventId = $('#' + event);
+                            eventId.data('eventInfo', doc);
+                            var goToEvents = $('#' + event + ' .goToEventButton');
+
+                            goToEvents.on('click', function () {
+                                var eventInfo = eventId.data('eventInfo');
+                                lastDb = eventInfo.dbName;
+                                localStorage.lastDb = lastDb;
+                                remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                                var options = {
+                                    animation: pageChangeAnimation,
+                                    data: {
+                                        eventInfo: eventInfo
+                                    }
+                                };
+                                navi.resetToPage('loginPage.html', options);
+                            });
+                            return eventLogoGetter(doc);
+                        }).then(function (url) {
+                            if (url != undefined) {
+                                $('#' + event + ' .mdl-card__title').before('<img src="' + url + '" >');
+                                return true;
+                            } else {
+                                console.log('no url');
+                            }
+
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+                }));
+                /*  var goToEvents = $('.goToEventButton');
+                 goToEvents.on('click', function () {
+                     console.log($(this).parents('.card').data('eventInfo'));
+                 }); */
+                var createEventButton = $('#createNewEventButton');
+                if (!(createEventButton.hasClass('evtHandler'))) {
+                    createEventButton.addClass('evtHandler').on('click', function () {
+                        var options = {
+                            animation: pageChangeAnimation,
+                            data: {
+                                edit: false
+                            }
+                        }
+                        navi.bringPageTop('createEventPage.html', options);
+                    });
+                }
                 break;
 
             case 'page1.html':
