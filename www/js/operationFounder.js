@@ -2839,7 +2839,10 @@ ons.ready(function () {
                                     }
                                     return false;
                                 }).then(function (doc) {
-                                    return getFile = doc;
+                                    if (doc != false) {
+                                        return getFile = doc;
+                                    }
+                                    return;
                                 });
                             }
                             console.log(getFile);
@@ -3002,7 +3005,10 @@ ons.ready(function () {
                                         }
                                         return false;
                                     }).then(function (doc) {
-                                        return getFile = doc;
+                                        if (doc != false) {
+                                            return getFile = doc;
+                                        }
+                                        return;
                                     });
                                 }
                                 return false; //no file upload took place
