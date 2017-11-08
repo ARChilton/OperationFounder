@@ -3170,13 +3170,17 @@ ons.ready(function () {
                         console.log(err);
                     });
                     $('#goToEvent').on('click', function () {
-                        navi.resetToPage('loginPage.html', {
+                        lastDb = eventInfo.dbName;
+                        localStorage.lastDb = lastDb;
+                        remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+                        var options = {
                             animation: pageChangeAnimation,
                             data: {
                                 eventInfo: eventInfo,
                                 url: url
                             }
-                        })
+                        };
+                        navi.resetToPage('loginPage.html', options);
                     });
                 }
 
@@ -3424,7 +3428,10 @@ ons.ready(function () {
                 break;
 
             case 'eventSelectionPage.html':
-                var createdEvents = $('#createdEvents');
+                var ongoingEvents = $('#ongoingEvents');
+                var todaysEvents = $('todaysEvents');
+                var upcomingEvents = $('#upcomingEvents');
+                var pastEvents = $('#pastEvents');
                 var databases = JSON.parse(localStorage.db);
                 console.log(databases);
 
@@ -3433,15 +3440,43 @@ ons.ready(function () {
                     var tempdb = new PouchDB(event);
                     return tempdb.get('eventDescription')
                         .then(function (doc) {
-                            console.log(doc);
-                            createdEvents.append(
+                            var dateNow = new Date();
+                            var today = dateNow.getDay();
+                            var month = dateNow.getMonth();
+                            var year = dateNow.getFullYear();
+                            var dateStart = new Date(doc.dateStart);
+                            var dSDay = dateStart.getDay();
+                            var dSMonth = dateStart.getMonth();
+                            var dSYear = dateStart.getFullYear();
+                            var dateEnd = new Date(doc.dateEnd);
+                            var eventTimeline;
+                            if (dateStart < dateNow && dateNow < dateEnd) {
+                                //ongoing
+                                eventTimeline = ongoingEvents;
+                            } else if (dSYear === year && dSMonth === month && dSDay === today && dateNow < dateStart) {
+                                //today but not started
+                                eventTimeline = todaysEvents;
+                            } else if (dateNow < dateStart) {
+                                //upcoming but not today as that is already worked out
+                                eventTimeline = upcomingEvents;
+                            } else if (dateNow > dateEnd) {
+                                //past event
+                                eventTimeline = pastEvents;
+                            } else {
+                                //just in case
+                                eventTimeline = upcomingEvents;
+                            }
+
+
+                            eventTimeline.append(
                                 `
-                                    <div class="card mdl-shadow--2dp" id="` + event + `">                        
+                                    <div class="card mdl-shadow--2dp" id="` + event + `">
+                                    <div class="cardMediaDiv"></div>
                                         <div class="mdl-card__title">` + doc.eventName + `</div>
-                                        <div class="mdl-card__supporting-text">` + doc.eventDescription.replace(/\n/g, "<br>") + `</div>
                                         <div class="mdl-card__actions mdl-card--border">
-                                            <ons-button modifier="quiet" class="goToEventButton">Enter event</ons-button>
+                                            <ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button> <ons-button modifier="quiet" ripple class="cardIconButton rotate270 baseInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button>
                                         </div>
+                                        <div class="mdl-card__supporting-text hide">` + doc.eventDescription.replace(/\n/g, "<br>") + `</div>
                                         <div class="cardTRButton">
                                             <ons-button modifier="quiet" ripple class="cardIconButton"><i class="zmdi zmdi-share"></i></ons-button>
                                         </div>
@@ -3449,10 +3484,13 @@ ons.ready(function () {
                                     <br>
                                 `
                             );
+                            //shows the title of the event timeline grouping
+                            eventTimeline.find('.eventTitle').removeClass('hide');
+                            //eventInfo
                             var eventId = $('#' + event);
                             eventId.data('eventInfo', doc);
+                            //go to event, event handler
                             var goToEvents = $('#' + event + ' .goToEventButton');
-
                             goToEvents.on('click', function () {
                                 var eventInfo = eventId.data('eventInfo');
                                 lastDb = eventInfo.dbName;
@@ -3466,10 +3504,40 @@ ons.ready(function () {
                                 };
                                 navi.resetToPage('loginPage.html', options);
                             });
+                            //event description show hide
+                            var edShowHide = $('#' + event + ' .baseInstructionsShow');
+                            edShowHide.on('click', function () {
+                                edShowHide.toggleClass('rotate90');
+                                $('#' + event + ' .mdl-card__supporting-text').slideToggle(500);
+                            });
+                            var goToSummary = $('#' + event + ' .goToSummary');
+                            goToSummary.on('click', function () {
+                                var eventInfo = eventId.data('eventInfo');
+                                //TODO pick up here
+                                var img = eventId.find()
+                                var options = {
+                                    animation: pageChangeAnimation,
+                                    data: {
+                                        eventInfo: eventInfo
+                                    }
+                                };
+                                navi.bringPageTop('eventSummaryPage.html', options);
+                            });
+                            //return for the logo
                             return eventLogoGetter(doc);
                         }).then(function (url) {
                             if (url != undefined) {
-                                $('#' + event + ' .mdl-card__title').before('<img src="' + url + '" >');
+
+                                //$('#' + event + ' .mdl-card__title').before('<div class="cardMediaDiv"><img class="cardMedia" src="' + url + '" ></div>');
+                                $('#' + event + ' .cardMediaDiv').css({
+
+                                    'background-image': 'url("' + url + '")',
+                                    'background-repeat': 'no-repeat',
+                                    'background-position': 'center top',
+                                    'background-size': 'cover',
+                                    'height': 240,
+                                    'min-height': 100
+                                });
                                 return true;
                             } else {
                                 console.log('no url');
@@ -3507,7 +3575,7 @@ ons.ready(function () {
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270" id="fullEditIcon"></ons-icon></div></ons-list-item></div>');
+                        $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
