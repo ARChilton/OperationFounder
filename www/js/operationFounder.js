@@ -2842,19 +2842,20 @@ ons.ready(function () {
                                     if (doc != false) {
                                         return getFile = doc;
                                     }
-                                    return;
+                                    return getFile;
+                                }).then(function (img) {
+                                    return eventDescription._attachments = {
+                                        evtLogo: {
+                                            data: img,
+                                            content_type: img.type
+                                        }
+                                    };
+
+                                }).catch(function (err) {
+                                    console.log(err);
                                 });
                             }
-                            console.log(getFile);
-                            if (getFile !== false) {
-                                //adds an image to the description
-                                eventDescription._attachments = {
-                                    evtLogo: {
-                                        data: getFile,
-                                        content_type: getFile.type
-                                    }
-                                };
-                            }
+
                             switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '') {
                                 case true:
                                     ons.notification.alert({
