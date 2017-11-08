@@ -1980,7 +1980,7 @@ ons.ready(function () {
                                                 break;
 
                                             default:
-                                                if (lastDb != 'false') {
+                                                if (lastDb != 'false' && lastDb != undefined) {
                                                     page = 'loginPage.html';
                                                     var event = db.indexOf(lastDb);
                                                     if (event > -1) {
