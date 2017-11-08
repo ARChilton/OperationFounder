@@ -1151,7 +1151,8 @@ function baseLogOut() {
     closeDatabases();
     logOutPageChange();
     document.getElementById('menu').toggle();
-    $('#baseLogOut').addClass('hide');
+    menuController();
+
 
     return appdb.get('login_' + username)
         .then(function (doc) {
@@ -1791,18 +1792,7 @@ ons.ready(function () {
         }
 
     }
-    /**
-     * shows and hides the event editor option in the side menu
-     */
-    function menuShowHideEvtEdit() {
-        //allow the eventOrganisers to edit their current event
-        if (localStorage.evtOrganiser === 'true') {
-            console.log(localStorage.evtOrganiser);
-            $('#eventEditor').removeClass('hide');
-        } else {
-            $('#eventEditor').addClass('hide');
-        }
-    }
+
 
 
     //commented out for dev
@@ -3423,7 +3413,7 @@ ons.ready(function () {
                         }
                     });
                 }
-                menuShowHideEvtEdit();
+                menuController('loginPage.html');
                 // end of loginPage.html
                 break;
 
@@ -3563,11 +3553,11 @@ ons.ready(function () {
                         navi.bringPageTop('createEventPage.html', options);
                     });
                 }
+                menuController('eventSelectionPage.html');
                 break;
 
             case 'page1.html':
-                //allow for baseLogOut to be shown in the menu
-                $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
+                menuController('page1.html');
                 //passing through information about the event and the base
 
                 if (navi.topPage.data.eventInfo !== undefined) {
@@ -4070,14 +4060,14 @@ ons.ready(function () {
             case 'admin.html':
                 //declarations
                 var patrolToSearch;
+                menuController('admin.html');
                 // ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
                 if (navi.topPage.data.eventInfo != undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     adminDatabaseName = eventInfo.dbName;
                 }
-                //allow for baseLogOut to be shown in the menu
-                $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
+
 
                 // -- table selection and actions --
                 var adminSpeedDial = document.getElementById('adminSpeedDial');
@@ -4536,4 +4526,44 @@ function getCanvasBlob(canvas) {
             return resolve(blob);
         });
     });
+}
+
+function menuController() {
+    switch (navi.topPage.name) {
+        case 'page1.html':
+            //allow for baseLogOut to be shown in the menu
+            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
+            $('#goToMap').removeClass('hide');
+            break;
+        case 'admin.html':
+            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
+            $('#goToMap').removeClass('hide');
+            break;
+        case 'loginPage.html':
+            menuEvtOrganiser();
+            $('#baseLogOut').addClass('hide');
+            $('#goToMap').removeClass('hide');
+            break;
+        case 'eventSelectionPage.html':
+            $('#baseLogOut , #eventChanger , #eventEditor, #goToMap').addClass('hide');
+            break;
+        default:
+            menuEvtOrganiser();
+            $('#baseLogOut , #goToMap').addClass('hide');
+            break;
+    }
+    console.log(navi.topPage.name + ' menu controller run');
+}
+/**
+ * shows and hides the event editor option in the side menu
+ */
+function menuEvtOrganiser() {
+    //allow the eventOrganisers to edit their current event
+    if (localStorage.evtOrganiser === 'true') {
+        console.log(localStorage.evtOrganiser);
+        $('#eventEditor , #eventChanger').removeClass('hide');
+
+    } else {
+        $('#eventEditor , #eventChanger').addClass('hide');
+    }
 }
