@@ -2827,8 +2827,7 @@ ons.ready(function () {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
                             if (getFile != false) {
-                                // return downscaleImg(logo, 1922, 240);
-                                //need to test by creating a new event
+
                                 var logo = document.getElementById('eventBannerImage');
                                 Promise.resolve().then(function () {
                                     return downscaleImg(logo, 1922, 240);
