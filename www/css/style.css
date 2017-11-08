@@ -128,9 +128,9 @@ Accent Darker color: Orange 800: #EF6C00
 /*Cards*/
 
 .card {
-    display: -webkit-flex;
+    /* display: -webkit-flex;
     display: -ms-flexbox;
-    display: flex;
+    display: flex; 
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
@@ -144,6 +144,19 @@ Accent Darker color: Orange 800: #EF6C00
     background: rgb(255, 255, 255);
     border-radius: 2px;
     box-sizing: border-box;
+}
+
+.cardMediaDiv {
+    width: 100%;
+}
+
+.cardMedia {
+    width: 100%;
+    max-height: 20vh;
+    margin: auto;
+    /* max-width: 150px; */
+    text-align: center;
+    display: block;
 }
 
 .cardTRButton {
@@ -163,7 +176,12 @@ Accent Darker color: Orange 800: #EF6C00
     /* min-width: 32px; */
     padding: 0;
     overflow: hidden;
-    color: inherit;
+    color: #000;
+}
+
+.baseInstructionsShow {
+    position: absolute;
+    right: 16px;
 }
 
 #createNewEvent {
@@ -187,6 +205,24 @@ Accent Darker color: Orange 800: #EF6C00
     width: 36px;
     height: 36px;
 } */
+
+
+/* eventSelectionPage.html */
+
+#createNewEvent {
+    padding: 16px 0px;
+}
+
+.eventTitle {
+    font-weight: bold;
+    margin-bottom: 8px;
+    padding: 8px;
+    /* background: #7986CB; */
+    /* background: #EF6C00; */
+    background: #283593;
+    /* background: #3F51B5 !important; */
+    color: #fff;
+}
 
 #eventSelectionPage .page__content {
     background-color: #EDEDED !important;
