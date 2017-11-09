@@ -29,6 +29,7 @@ var admindb;
 var admindbConnected = false;
 var adminSyncInProgress = false;
 var baseSyncInProgress = false;
+var evtUpdateCheckConnected = false;
 var syncBasedb;
 var adminSync;
 var evtUpdateCheck;
@@ -1179,8 +1180,10 @@ function signOut() {
     baseCodes = [];
     document.getElementById('menu').toggle();
     closeDatabases();
-    basedb;
-    admindb;
+    basedb = undefined;
+    admindb = undefined;
+    remotedb = undefined;
+    remotedbConnected = false;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     localStorage.verified = 'false';
     localStorage.evtOrganiser = 'false';
@@ -1194,15 +1197,13 @@ function changeEvent() {
     baseCodes = [];
 
     closeDatabases();
-    basedb;
-    admindb;
+    basedb = undefined;
+    admindb = undefined;
+    remotedb = undefined;
+    remotedbConnected = false;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     var options = {
-        animation: pageChangeAnimation,
-        data: {
-
-            eventInfo: navi.topPage.data.eventInfo
-        }
+        animation: pageChangeAnimation
     };
 
     return navi.resetToPage('eventSelectionPage.html', options);
@@ -1212,6 +1213,9 @@ function changeEvent() {
  */
 function editEvent() {
     document.getElementById('menu').toggle();
+    closeDatabases();
+    basedb;
+    admindb;
     var options = {
         animation: pageChangeAnimation,
         data: {
@@ -1807,7 +1811,7 @@ ons.ready(function () {
      * @event postpush - when a page is changed or pushed
      */
     document.addEventListener('postpush', function (event) {
-        console.log('page pushed');
+        console.log('page pushed ' + navi.topPage.name);
         console.log(navi.pages);
         switch (navi.topPage.name) {
             //--- Create Event Page ---
@@ -3112,6 +3116,7 @@ ons.ready(function () {
                 } else {
                     var eventInfo = eventDescription;
                 }
+                console.log(eventInfo);
 
                 console.log(url);
                 if (!($('#eventSummaryPage').hasClass('evtLoaded'))) {
@@ -3163,6 +3168,7 @@ ons.ready(function () {
                     });
                     $('#goToEvent').on('click', function () {
                         lastDb = eventInfo.dbName;
+                        console.warn(lastDb);
                         localStorage.lastDb = lastDb;
                         remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                         var options = {
@@ -3191,48 +3197,53 @@ ons.ready(function () {
                     var eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
                     // if (navi.topPage.data.firstPage === true) {
+                    if (!evtUpdateCheckConnected) {
+                        evtUpdateCheckConnected = true;
+                        var db = new PouchDB(eventInfo.dbName);
+                        var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
+                        var options = {
+                            doc_ids: ['eventDescription'],
+                            live: true,
+                            retry: true
+                        };
+                        var messageOpen = false;
+                        evtUpdateCheck = db.replicate.from(tempRemotedb, options)
+                            .on('change', function (doc) {
+                                if (!messageOpen) {
+                                    messageOpen = true;
+                                    ons.notification.alert({
+                                        title: 'Event Updated',
+                                        messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                        cancelable: true
+                                    }).then(function (input) {
+                                        var options = {
+                                            animation: pageChangeAnimation,
+                                            data: {
+                                                event: eventInfo.dbName,
+                                                lastPage: 'loginPage.html'
+                                            }
+                                        };
+                                        navi.resetToPage('updatePage.html', options);
+                                        evtUpdateCheck.cancel();
+                                        messageOpen = false;
+                                        //to stop any further code from taking place
 
-                    var db = new PouchDB(eventInfo.dbName);
-                    var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
-                    var options = {
-                        doc_ids: ['eventDescription'],
-                        live: true,
-                        retry: true
-                    };
-                    var messageOpen = false;
-                    evtUpdateCheck = db.replicate.from(tempRemotedb, options)
-                        .on('change', function (doc) {
-                            if (!messageOpen) {
-                                messageOpen = true;
-                                ons.notification.alert({
-                                    title: 'Event Updated',
-                                    messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
-                                    cancelable: true
-                                }).then(function (input) {
-                                    var options = {
-                                        animation: pageChangeAnimation,
-                                        data: {
-                                            event: eventInfo.dbName,
-                                            lastPage: 'loginPage.html'
-                                        }
-                                    };
-                                    navi.resetToPage('updatePage.html', options);
-                                    evtUpdateCheck.cancel();
-                                    messageOpen = false;
-                                    //to stop any further code from taking place
+                                    });
+                                }
+                            }).on('paused active denied error', function (info) {
+                                console.log(info);
+                            }).on('complete', function (info) {
+                                console.log('evtUpdateCheck complete');
+                                evtUpdateCheckConnected = false;
+                            });
 
-                                });
-                            }
-                        }).on('paused active denied complete error', function (info) {
-                            console.log(info);
-                        });
-
-
+                    }
                     //Event Description update
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd);
                     $('#loginEventDescriptionTitle').after('<p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
+
 
                     //Event Logo update
                     var url = navi.topPage.data.url;
@@ -3249,8 +3260,7 @@ ons.ready(function () {
                     }).catch(function (err) {
                         console.log(err);
                     });
-                    //Title update
-                    $('#loginTitle').html(eventInfo.eventName);
+
 
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
                     if (eventInfo.passwordProtectLogs) {
@@ -3333,6 +3343,9 @@ ons.ready(function () {
                     }
                     //add a welcome message
                     $('#loginWelcome').html(welcomeMessage);
+                    //Title update
+                    console.log('event called ' + eventInfo.eventName);
+                    $('#loginTitle').html(eventInfo.eventName);
                 }
 
                 /*  if (localStorage.evtOrganiser) {
@@ -3485,6 +3498,7 @@ ons.ready(function () {
                             var goToEvents = $('#' + event + ' .goToEventButton');
                             goToEvents.on('click', function () {
                                 var eventInfo = eventId.data('eventInfo');
+                                console.log(eventInfo);
                                 lastDb = eventInfo.dbName;
                                 localStorage.lastDb = lastDb;
                                 remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
@@ -4137,11 +4151,11 @@ ons.ready(function () {
                         remotedb = new PouchDB(remotedbURL);
                         remotedbConnected = true;
                     }
-                    if (adminSyncInProgress == false) {
+                    if (adminSyncInProgress === false) {
                         var syncOptions = {
                             live: true,
                             retry: true
-                        }
+                        };
                         adminSyncInProgress = true;
                         return adminSync = admindb.sync(remotedb, syncOptions)
                             .on('change', function (doc) {
