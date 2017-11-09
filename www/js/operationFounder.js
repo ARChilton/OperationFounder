@@ -54,7 +54,7 @@ var appDatabaseName = 'oppFounderLoginDb';
 var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
 
 //server variables
-var appServer = 'http://127.0.0.1:3000';
+var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; 
 
 // map variables
 var marker;
@@ -201,7 +201,7 @@ function cleanAll() {
         cancelable: true,
         placeholder: 'Enter admin code here',
     }).then(function (input) {
-        if (input.toLowerCase() == baseCodes[0]) {
+        if (input.toLowerCase() === baseCodes[0]) {
             console.log('you have ended the world');
             admindb.allDocs().then(function (doc) {
                 for (var i = 0, l = doc.total_rows; i < l; i++) {
@@ -4060,6 +4060,7 @@ ons.ready(function () {
             case 'admin.html':
                 //declarations
                 var patrolToSearch;
+
                 menuController('admin.html');
                 // ons.disableDeviceBackButtonHandler();
                 // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
@@ -4074,7 +4075,7 @@ ons.ready(function () {
                 adminSpeedDial.hide();
                 adminCurrentlySelected = [];
                 // from loginandrunfunction
-
+                var teams = {};
                 var admin = true;
                 if (admindbConnected == false) {
                     admindb = new PouchDB(adminDatabaseName);
@@ -4129,7 +4130,7 @@ ons.ready(function () {
                     console.log(doc);
                     return updateTableFromFindQuery(doc, true);
 
-                }).then(function () {
+                }).then(function (doc) {
                     if (remotedbConnected === false) {
                         remotedb = new PouchDB(remotedbURL);
                         remotedbConnected = true;
