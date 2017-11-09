@@ -3044,7 +3044,6 @@ ons.ready(function () {
                                     changeMade = true;
                                     return false;
                                 });
-
                                 if (getFile !== false) {
                                     //adds an image to the description
                                     eventDescription._attachments = {
@@ -3065,6 +3064,7 @@ ons.ready(function () {
                                 }
                                 eventDescription._rev = doc._rev;
                                 eventDescription.dbName = eventInfo.dbName;
+                                eventDescription.evtUserPass = eventInfo.evtUserPass;
 
                                 return tempdb.put(eventDescription);
                             }).then(function (doc) {
@@ -3093,6 +3093,8 @@ ons.ready(function () {
 
                                 return navi.resetToPage('eventSummaryPage.html', options);
                             }).then(function (doc) {
+                                var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
+                                tempRemotedb.compact();
                                 return closeDatabases();
                             }).catch(function (err) {
                                 console.log(err);
