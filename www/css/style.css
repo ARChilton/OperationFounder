@@ -397,6 +397,10 @@ Accent Darker color: Orange 800: #EF6C00
     width: 100%;
 }
 
+.mdl-data-table {
+    border: none;
+}
+
 .ad-log--or {
     background: rgba(255, 183, 77, 0.25);
 }
