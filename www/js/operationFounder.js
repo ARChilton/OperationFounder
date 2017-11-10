@@ -4556,10 +4556,12 @@ function menuController() {
             //allow for baseLogOut to be shown in the menu
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
             $('#goToMap').removeClass('hide');
+            menuEvtOrganiser();
             break;
         case 'admin.html':
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
             $('#goToMap').removeClass('hide');
+            menuEvtOrganiser();
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
