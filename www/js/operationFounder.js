@@ -55,7 +55,7 @@ var appDatabaseName = 'oppFounderLoginDb';
 var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
 
 //server variables
-var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; 
+var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 var marker;
@@ -159,9 +159,12 @@ function orientationLandscapeUpdate() {
     if (ons.orientation.isLandscape()) {
         $('.landscapeHide').addClass('hide');
         $('.landscapeShow').removeClass('hide');
+        $('.speed__dial.fab--bottom__right').attr('direction', 'left');
     } else {
         console.log('portrait screen orientation');
+        $('.speed__dial.fab--bottom__right').attr('direction', 'up');
     }
+
 }
 /**
  * For an orientation change this picks up both portrait and landscape
@@ -170,9 +173,11 @@ function orientationUpdates() {
     if (ons.orientation.isLandscape()) {
         $('.landscapeHide').addClass('hide');
         $('.landscapeShow').removeClass('hide');
+        $('.speed__dial.fab--bottom__right').attr('direction', 'left');
     } else {
         $('.landscapeShow').addClass('hide');
         $('.landscapeHide').removeClass('hide');
+        $('.speed__dial.fab--bottom__right').attr('direction', 'up');
     }
 }
 
