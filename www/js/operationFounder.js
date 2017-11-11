@@ -4081,219 +4081,332 @@ ons.ready(function () {
             case 'admin.html':
                 //declarations
                 var patrolToSearch;
+                var patrolSeen = [];
 
                 menuController('admin.html');
-                // ons.disableDeviceBackButtonHandler();
-                // $('#opFounderMenu').append('<ons-list-item onclick="cleanAll()" tappable class= "adminCleanAll">Clean All Databases</ons-list-item>');
-                if (navi.topPage.data.eventInfo != undefined) {
-                    var eventInfo = navi.topPage.data.eventInfo;
-                    adminDatabaseName = eventInfo.dbName;
-                }
 
 
-                // -- table selection and actions --
-                var adminSpeedDial = document.getElementById('adminSpeedDial');
-                adminSpeedDial.hide();
-                adminCurrentlySelected = [];
-                // from loginandrunfunction
-                var teams = {};
-                var admin = true;
-                if (admindbConnected == false) {
-                    admindb = new PouchDB(adminDatabaseName);
-                    admindbConnected = true;
-                }
 
-                admindb.createIndex({
-                    index: {
-                        fields: ['timeOut'],
-                        name: 'timeOutIndex',
-                        ddoc: 'timeOutIndexDDoc',
-                        type: 'json'
+
+
+                document.getElementById('adminTabbar').addEventListener('postchange', function (event) {
+                    console.log('tab changed code will be run');
+                    console.log(event.tabItem.getAttribute('page'));
+
+                    if (navi.topPage.data.eventInfo != undefined) {
+                        var eventInfo = navi.topPage.data.eventInfo;
+                        adminDatabaseName = eventInfo.dbName;
                     }
-                }).then(function (doc) {
-                    console.log(doc);
-                    return admindb.createIndex({
-                        index: {
-                            fields: ['base', 'timeOut'],
-                            name: 'baseTimeOutIndex',
-                            ddoc: 'baseTimeOutIndexDDoc',
-                            type: 'json'
-                        }
-                    });
-                }).then(function (doc) {
-                    return admindb.createIndex({
-                        index: {
-                            fields: ['patrol'],
-                            name: 'patrolIndex',
-                            ddoc: 'patrolIndexDDoc',
-                            type: 'json'
-                        }
-                    });
-                }).then(function (doc) {
-                    return admindb.createIndex({
-                        index: {
-                            fields: ['base'],
-                            name: 'baseIndex',
-                            ddoc: 'baseIndexDDoc',
-                            type: 'json'
-                        }
-                    });
-                }).then(function (doc) {
-                    return admindb.find({
-                        selector: {
-                            timeOut: {
-                                $gt: null
-                            }
-                        },
-                        sort: ['timeOut']
-                    });
-                }).then(function (doc) {
-                    console.log(doc);
-                    return updateTableFromFindQuery(doc, true);
 
-                }).then(function (doc) {
-                    if (remotedbConnected === false) {
-                        remotedb = new PouchDB(remotedbURL);
-                        remotedbConnected = true;
-                    }
-                    if (adminSyncInProgress === false) {
-                        var syncOptions = {
-                            live: true,
-                            retry: true
-                        };
-                        adminSyncInProgress = true;
-                        return adminSync = admindb.sync(remotedb, syncOptions)
-                            .on('change', function (doc) {
-                                // yo, something changed!
 
-                                console.log(doc);
-                                if (doc.direction == 'pull') {
-                                    console.log('change occured in remote updating admindb');
-                                    var change = doc.change;
+                    switch (event.tabItem.getAttribute('page')) {
+                        case 'allLogsPage.html':
+                            var allLogsPage = $('#allLogsPage');
+                            if (!(allLogsPage.hasClass('evtHandler'))) {
+                                allLogsPage.addClass('evtHandler');
 
-                                    updateTableFromFindQuery(change, true, patrolToSearch);
-                                } else {
-                                    console.log('updating remotedb'); //fixme needs to do something with pushes
-                                }
-                            }).on('paused', function (info) {
-                                // replication was paused, usually because of a lost connection
-                                console.log('replication paused because of: ' + info);
 
-                            }).on('active', function (info) {
-                                // replication was resumed
-                                console.log('replication resumed. Info: ' + info);
-
-                            }).on('error', function (err) {
-                                // totally unhandled error (shouldn't happen)
-                                console.log('Replication Error: ' + err);
-                            }).on('complete', function (info) {
-                                console.log('sync disconected from admin database.');
-                                adminSyncInProgress = false;
-                            });
-                    }
-                }).catch(function (err) {
-                    console.log(err);
-                });
-                // end of longinandrunfunction
-
-                $('#adminSpeedDial').removeClass('hide');
-                if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-                    $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
-                        if ($(this).hasClass('tableSelected')) {
-                            $(this).removeClass('tableSelected');
-
-                            var dataInfo = $(this).data('databaseInfo');
-                            var index = adminCurrentlySelected.indexOf(dataInfo);
-                            if (index > -1) {
-                                adminCurrentlySelected.splice(index, 1);
-                            }
-                            console.log(adminCurrentlySelected);
-                            if (!($('tr').hasClass('tableSelected'))) {
+                                // -- table selection and actions --
+                                var adminSpeedDial = document.getElementById('adminSpeedDial');
                                 adminSpeedDial.hide();
+                                adminCurrentlySelected = [];
+                                // from loginandrunfunction
+                                var admin = true;
+                                if (admindbConnected == false) {
+                                    admindb = new PouchDB(adminDatabaseName);
+                                    admindbConnected = true;
+                                }
+
+                                admindb.createIndex({
+                                    index: {
+                                        fields: ['timeOut'],
+                                        name: 'timeOutIndex',
+                                        ddoc: 'timeOutIndexDDoc',
+                                        type: 'json'
+                                    }
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    return admindb.createIndex({
+                                        index: {
+                                            fields: ['base', 'timeOut'],
+                                            name: 'baseTimeOutIndex',
+                                            ddoc: 'baseTimeOutIndexDDoc',
+                                            type: 'json'
+                                        }
+                                    });
+                                }).then(function (doc) {
+                                    return admindb.createIndex({
+                                        index: {
+                                            fields: ['patrol'],
+                                            name: 'patrolIndex',
+                                            ddoc: 'patrolIndexDDoc',
+                                            type: 'json'
+                                        }
+                                    });
+                                }).then(function (doc) {
+                                    return admindb.createIndex({
+                                        index: {
+                                            fields: ['base'],
+                                            name: 'baseIndex',
+                                            ddoc: 'baseIndexDDoc',
+                                            type: 'json'
+                                        }
+                                    });
+                                    // }).then(function (doc) {
+                                    //     return admindb.createIndex({
+                                    //         index: {
+                                    //             fields: ['patrol', 'timeOut'],
+                                    //             name: 'lastSeenIndex',
+                                    //             ddoc: 'lastSeenIndexDDoc',
+                                    //             type: 'json'
+                                    //         }
+                                    //     });
+                                }).then(function (doc) {
+                                    return admindb.find({
+                                        selector: {
+                                            timeOut: {
+                                                $gt: null
+                                            }
+                                        },
+                                        sort: ['timeOut']
+                                    });
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    //updateTeamIndex(doc);
+                                    return updateTableFromFindQuery(doc, true);
+
+                                }).then(function (doc) {
+                                    if (remotedbConnected === false) {
+                                        remotedb = new PouchDB(remotedbURL);
+                                        remotedbConnected = true;
+                                    }
+                                    if (adminSyncInProgress === false) {
+                                        var syncOptions = {
+                                            live: true,
+                                            retry: true
+                                        };
+                                        adminSyncInProgress = true;
+                                        return adminSync = admindb.sync(remotedb, syncOptions)
+                                            .on('change', function (doc) {
+                                                // yo, something changed!
+
+                                                console.log(doc);
+                                                if (doc.direction === 'pull') {
+                                                    console.log('change occured in remote updating admindb');
+                                                    var change = doc.change;
+
+                                                    updateTableFromFindQuery(change, true, patrolToSearch);
+                                                } else {
+                                                    console.log('updating remotedb'); //fixme needs to do something with pushes
+                                                }
+                                            }).on('paused', function (info) {
+                                                // replication was paused, usually because of a lost connection
+                                                console.log('replication paused because of: ' + info);
+
+                                            }).on('active', function (info) {
+                                                // replication was resumed
+                                                console.log('replication resumed. Info: ' + info);
+
+                                            }).on('error', function (err) {
+                                                // totally unhandled error (shouldn't happen)
+                                                console.log('Replication Error: ' + err);
+                                            }).on('complete', function (info) {
+                                                console.log('sync disconected from admin database.');
+                                                adminSyncInProgress = false;
+                                            });
+                                    }
+                                }).catch(function (err) {
+                                    console.log(err);
+                                });
+                                // end of longinandrunfunction
+
+                                $('#adminSpeedDial').removeClass('hide');
+                                if (!($('#adminLogsTable').hasClass('evtHandler'))) {
+                                    $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
+                                        if ($(this).hasClass('tableSelected')) {
+                                            $(this).removeClass('tableSelected');
+
+                                            var dataInfo = $(this).data('databaseInfo');
+                                            var index = adminCurrentlySelected.indexOf(dataInfo);
+                                            if (index > -1) {
+                                                adminCurrentlySelected.splice(index, 1);
+                                            }
+                                            console.log(adminCurrentlySelected);
+                                            if (!($('tr').hasClass('tableSelected'))) {
+                                                adminSpeedDial.hide();
+                                            }
+                                        } else if (e.shiftKey == true) {
+                                            $(this).addClass('tableSelected');
+                                            // $('#adminSpeedDial').removeClass('hide');
+                                            adminSpeedDial.show();
+                                            var dataInfo = $(this).data('databaseInfo');
+                                            adminCurrentlySelected.push(dataInfo);
+                                            console.log(adminCurrentlySelected);
+
+                                        } else {
+                                            $('tr').removeClass('tableSelected');
+                                            $(this).addClass('tableSelected');
+                                            // $('#adminSpeedDial').removeClass('hide');
+                                            adminSpeedDial.show();
+                                            //clear all previously selected items from the array
+                                            adminCurrentlySelected = [];
+                                            // to get the dbId's off the element
+                                            var dataInfo = $(this).data('databaseInfo');
+                                            console.log(dataInfo);
+                                            adminCurrentlySelected.push(dataInfo);
+                                            console.log(adminCurrentlySelected);
+                                        }
+                                    });
+                                }
+                                // button for deleting logs
+                                if (!($('#adminDelete').hasClass('evtHandler'))) {
+                                    $('#adminDelete').addClass('evtHandler');
+                                    /**
+                                     * Deletes the selected rows
+                                     * @event adminDelete clicked
+                                     */
+                                    $('#adminDelete').on('click', function () {
+                                        ons.notification.confirm({
+                                            title: 'Are you sure?',
+                                            message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
+                                            cancelable: true
+                                        }).then(function (input) {
+                                            if (input == 1) {
+                                                deleteRecords(adminCurrentlySelected);
+                                            }
+                                        })
+                                    });
+                                }
+                                //button for locking logs as no longer editable
+                                if (!($('#adminLock').hasClass('evtHandler'))) {
+                                    /**
+                                     * Locks the selected rows
+                                     * @event adminLock clicked
+                                     */
+                                    $('#adminLock').addClass('evtHandler').on('click', function () {
+                                        lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
+                                    });
+                                }
+                                if (!($('#adminUnlock').hasClass('evtHandler'))) {
+                                    $('#adminUnlock').addClass('evtHandler').on('click', function () {
+                                        lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
+
+                                    });
+                                }
+
+                                if (!($('#adminCopyTable').hasClass('evtHandler'))) {
+                                    /**
+                                     * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
+                                     * @event adminCopyTable clicked
+                                     */
+                                    $('#adminCopyTable').addClass('evtHandler').on('click', function () {
+                                        //console.log($('#adminLogsTable').html());
+                                        function copyToClipboard(element) {
+                                            var $temp = $("<input>");
+                                            $("body").append($temp);
+                                            $temp.val($('.copyMe').html()).select();
+                                            document.execCommand("copy");
+                                            $temp.remove();
+                                        }
+                                        copyToClipboard();
+                                        ons.notification.alert({
+                                            title: 'Admin logs table added to clipboard',
+                                            message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
+                                            cancelable: true
+                                        })
+
+                                    });
+
+                                }
                             }
-                        } else if (e.shiftKey == true) {
-                            $(this).addClass('tableSelected');
-                            // $('#adminSpeedDial').removeClass('hide');
-                            adminSpeedDial.show();
-                            var dataInfo = $(this).data('databaseInfo');
-                            adminCurrentlySelected.push(dataInfo);
-                            console.log(adminCurrentlySelected);
+                            //end of allLogsPage.html
+                            break;
+                        case 'lastSeenPage.html':
+                            var lastSeenTable = $('#lastSeenTable');
+                            /**
+                             * updates the lastSeenTable
+                             * @param {[object]} doc object array of documents from pouchdb
+                             * @param {boolean} update 
+                             * @param {object} lastSeenTable JQuery object
+                             */
+                            function lastSeenUpdate(doc, update, lastSeenTable) {
+                                console.log('lastseenupdate function');
+                                console.log(doc);
+                                for (var i = 0, l = doc.docs.length; i < l; i++) {
+                                    var log = doc.docs[i];
 
-                        } else {
-                            $('tr').removeClass('tableSelected');
-                            $(this).addClass('tableSelected');
-                            // $('#adminSpeedDial').removeClass('hide');
-                            adminSpeedDial.show();
-                            //clear all previously selected items from the array
-                            adminCurrentlySelected = [];
-                            // to get the dbId's off the element
-                            var dataInfo = $(this).data('databaseInfo');
-                            console.log(dataInfo);
-                            adminCurrentlySelected.push(dataInfo);
-                            console.log(adminCurrentlySelected);
-                        }
-                    });
-                }
-                // button for deleting logs
-                if (!($('#adminDelete').hasClass('evtHandler'))) {
-                    $('#adminDelete').addClass('evtHandler');
-                    /**
-                     * Deletes the selected rows
-                     * @event adminDelete clicked
-                     */
-                    $('#adminDelete').on('click', function () {
-                        ons.notification.confirm({
-                            title: 'Are you sure?',
-                            message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
-                            cancelable: true
-                        }).then(function (input) {
-                            if (input == 1) {
-                                deleteRecords(adminCurrentlySelected);
+                                    //doc.docs.forEach(function (log) {
+                                    var index = patrolSeen.indexOf(log.patrol);
+                                    if (index > -1 && !update) {
+                                        continue;
+                                    }
+                                    var offOnRoute = 'on route';
+                                    if (log.offRoute) {
+                                        offOnRoute = 'off route'
+                                    }
+                                    var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + log.timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td></tr>';
+                                    if (index > -1) {
+                                        $('#ls-' + log.patrol).remove();
+                                        lastSeenTable.append(lsTableRow);
+                                        continue;
+                                    }
+
+                                    patrolSeen.push(log.patrol);
+                                    lastSeenTable.prepend(lsTableRow);
+
+                                }
+                                console.log('updated ls table');
+                                //});
                             }
-                        })
-                    });
-                }
-                //button for locking logs as no longer editable
-                if (!($('#adminLock').hasClass('evtHandler'))) {
-                    /**
-                     * Locks the selected rows
-                     * @event adminLock clicked
-                     */
-                    $('#adminLock').addClass('evtHandler').on('click', function () {
-                        lockOrUnlockLogFromEdits(adminCurrentlySelected, true);
-                    });
-                }
-                if (!($('#adminUnlock').hasClass('evtHandler'))) {
-                    $('#adminUnlock').addClass('evtHandler').on('click', function () {
-                        lockOrUnlockLogFromEdits(adminCurrentlySelected, false);
+                            /**
+                             * Perfoms a full update of the #lastSeenTable
+                             * Parameters are all passed to the lastSeenUpdate function
+                             * @param {object} lastSeenTable 
+                             * @param {boolean} updateTable 
+                             */
+                            function lastSeenFullUpdate(lastSeenTable, updateTable) {
+                                console.log('full update');
+                                admindb.find({
+                                    selector: {
+                                        timeOut: {
+                                            $gt: null
+                                        }
+                                    },
+                                    fields: ['_id', 'base', 'patrol', 'timeOut', 'offRoute', 'name'],
+                                    sort: [{
+                                        'timeOut': 'desc'
+                                    }]
+                                }).then(function (doc) {
 
-                    });
-                }
+                                    return lastSeenUpdate(doc, updateTable, lastSeenTable);
+                                }).catch(function (err) {
+                                    console.log(err);
+                                });
+                            }
 
-                if (!($('#adminCopyTable').hasClass('evtHandler'))) {
-                    /**
-                     * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
-                     * @event adminCopyTable clicked
-                     */
-                    $('#adminCopyTable').addClass('evtHandler').on('click', function () {
-                        //console.log($('#adminLogsTable').html());
-                        function copyToClipboard(element) {
-                            var $temp = $("<input>");
-                            $("body").append($temp);
-                            $temp.val($('.copyMe').html()).select();
-                            document.execCommand("copy");
-                            $temp.remove();
-                        }
-                        copyToClipboard();
-                        ons.notification.alert({
-                            title: 'Admin logs table added to clipboard',
-                            message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
-                            cancelable: true
-                        })
+                            if (!lastSeenTable.hasClass('evtListener')) {
+                                lastSeenTable.addClass('evtListener');
 
-                    });
+                                lastSeenFullUpdate(lastSeenTable, false);
+                                adminSync.on('change', function (doc) {
 
-                }
+                                    lastSeenTable.empty();
+                                    patrolSeen = [];
+                                    lastSeenFullUpdate(lastSeenTable, false);
+                                });
+
+
+                            }
+                            //end of lastSeenPage.html
+                            break;
+                            //end of switch
+                    }
+
+
+                });
+                console.log('othercoderun');
+
+
                 if (!($('#patrolSearch').hasClass('evtHandler'))) {
                     $('#patrolSearch').addClass('evtHandler');
                     var appended = false;
