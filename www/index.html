@@ -570,17 +570,26 @@
         </div>
       </ons-toolbar>
 
-      <!-- <ons-tabbar swipeable position="auto">
-        <ons-tab page="verificationPage.html" label="Tab 1" icon="ion-home, material:md-home" badge="7" active>
+      <ons-tabbar id="adminTabbar" swipeable position="auto">
+        <ons-tab page="allLogsPage.html" label="All Logs" icon="md-view-headline" active>
         </ons-tab>
-        <ons-tab page="createEventPage.html" label="Tab 2" icon="md-settings" active-icon="md-face">
+        <ons-tab page="lastSeenPage.html" label="Last-Seen" icon="fa-binoculars">
         </ons-tab>
-        <ons-tab page="verificationPage.html" label="Tab 1" icon="ion-home, material:md-home" badge="7">
+
+        <ons-tab page="updatePage.html" label="stats" icon="fa-pie-chart">
         </ons-tab>
-        <ons-tab page="createEventPage.html" label="Tab 2" icon="md-settings" active-icon="md-face">
+        <ons-tab page="updatePage.html" label="Leaderboard" icon="fa-trophy">
         </ons-tab>
-      </ons-tabbar> -->
+
+
+      </ons-tabbar>
       <!--Top half of screen-->
+    </ons-page>
+  </ons-template>
+  <ons-template id="allLogsPage.html">
+    <ons-page id="allLogsPage">
+
+
       <div class="copyMe">
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
@@ -623,6 +632,24 @@
           <ons-icon icon="md-map"></ons-icon>
         </ons-speed-dial-item>-->
       </ons-speed-dial>
+    </ons-page>
+  </ons-template>
+  <ons-template id="lastSeenPage.html">
+    <ons-page id="lastSeenPage">
+      <table class="mdl-data-table mdl-js-data-table logTable">
+        <thead>
+          <tr>
+            <th class="">Patrol</th>
+            <th>Time Last Seen</th>
+            <th>At Base</th>
+
+            <th class="">On/Off Route</th>
+            <th class="hide landscapeShow">Recorded by</th>
+          </tr>
+        </thead>
+        <tbody id="lastSeenTable">
+        </tbody>
+      </table>
     </ons-page>
   </ons-template>
   <ons-template id="map.html">
