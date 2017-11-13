@@ -4080,24 +4080,173 @@ ons.ready(function () {
                 // these look similar but are seperate for admin and base users
             case 'admin.html':
                 //declarations
-                var patrolToSearch;
+                var patrolToSearch = false;
                 var patrolSeen = [];
+                var lastSeenTable;
+                //functions
+                // - lastSeen Page functions
+                /**
+                 * updates the lastSeenTable
+                 * @param {[object]} doc object array of documents from pouchdb
+                 * @param {boolean} update 
+                 * @param {object} lastSeenTable JQuery object
+                 */
+                function lastSeenUpdate(doc, update, lastSeenTable) {
+                    //console.log('lastseenupdate function');
+                    //console.log(doc);
+                    for (var i = 0, l = doc.docs.length; i < l; i++) {
+                        var log = doc.docs[i];
+                        console.log(patrolToSearch);
+                        if (log.patrol !== patrolToSearch && patrolToSearch !== false && patrolToSearch !== undefined) {
+                            //console.log('continue');
+                            continue;
+                        }
+                        //doc.docs.forEach(function (log) {
+                        var index = patrolSeen.indexOf(log.patrol);
+                        if (index > -1 && !update) {
+                            continue;
+                        }
+                        var offOnRoute = 'on route';
+                        if (log.offRoute) {
+                            offOnRoute = 'off route'
+                        }
+                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + log.timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
+                        if (index > -1) {
+                            $('#ls-' + log.patrol).remove();
+                            //console.log('overwritten');
+                            lastSeenTable.append(lsTableRow);
+                            continue;
+                        }
 
+                        patrolSeen.push(log.patrol);
+                        lastSeenTable.prepend(lsTableRow);
+
+
+                    }
+                    orientationLandscapeUpdate();
+                    console.log('updated ls table');
+                    //});
+
+                }
+                /**
+                 * Perfoms a full update of the #lastSeenTable
+                 * Parameters are all passed to the lastSeenUpdate function
+                 * @param {object} lastSeenTable 
+                 * @param {boolean} updateTable 
+                 */
+                function lastSeenFullUpdate(lastSeenTable, updateTable) {
+                    console.log('full update');
+                    admindb.find({
+                        selector: {
+                            timeOut: {
+                                $gt: null
+                            }
+                        },
+                        fields: ['_id', 'base', 'patrol', 'timeOut', 'offRoute', 'username'],
+                        sort: [{
+                            'timeOut': 'desc'
+                        }]
+                    }).then(function (doc) {
+
+                        return lastSeenUpdate(doc, updateTable, lastSeenTable);
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
+                }
+
+                function lastSeenTableFullRefresh() {
+                    if (lastSeenTable !== undefined) {
+                        lastSeenTable.empty();
+                        patrolSeen = [];
+                        lastSeenFullUpdate(lastSeenTable, false);
+                    }
+                }
+                //code to run
                 menuController('admin.html');
+                if (navi.topPage.data.eventInfo != undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo;
+                    adminDatabaseName = eventInfo.dbName;
+                }
+                if (!($('#patrolSearch').hasClass('evtHandler'))) {
+                    $('#patrolSearch').addClass('evtHandler');
+                    var appended = false;
+                    var hidden = false;
+                    /**
+                     * Event handler for the patrol search bar being clicked on the admin page
+                     * @event patrolSearch clicked
+                     */
+                    $('#patrolSearch').on('click', function () {
+                        if (!(appended)) {
+                            $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                            appended = true;
+                            $(document).ready(function () {
+                                $('#patrolSearchInput').focus()
+                                    .on('keyup blur', function (e) {
+                                        if (e.which === 13 || e.type == 'blur') {
+                                            var value = $(this).val();
+                                            if (patrolToSearch != value && value != '') {
 
+                                                patrolToSearch = value;
+                                                admindb.find({
+                                                    selector: {
+                                                        timeOut: {
+                                                            $gt: null
+                                                        },
+                                                        patrol: {
+                                                            $eq: patrolToSearch
+                                                        }
+                                                    },
 
+                                                    sort: ['timeOut']
+                                                }).then(function (doc) {
+                                                    //TODO add a pause variable in here to only update this patrol's records
+                                                    console.log(doc);
+                                                    $('#adminLogsTable').empty();
+                                                    patrolRecordAdmin = [];
+                                                    offRouteIndexAdmin = [];
+                                                    updateTableFromFindQuery(doc, true);
+                                                    if (lastSeenTable != undefined) {
+                                                        patrolSeen = [];
+                                                        lastSeenTable.empty();
+                                                        lastSeenUpdate(doc, true, lastSeenTable);
+                                                    }
+                                                });
+                                            } else if (value === '' && patrolToSearch != value && patrolToSearch != false) {
+                                                //no value
+                                                $(this).toggleClass('hide');
+                                                hidden = true;
+                                                admindb.find({
+                                                    selector: {
+                                                        timeOut: {
+                                                            $gt: null
+                                                        }
 
+                                                    },
 
+                                                    sort: ['timeOut']
+                                                }).then(function (doc) {
+                                                    console.log(doc);
+                                                    patrolToSearch = false;
+                                                    $('#adminLogsTable').empty();
+                                                    patrolRecordAdmin = [];
+                                                    offRouteIndexAdmin = [];
+                                                    updateTableFromFindQuery(doc, true);
+                                                    lastSeenTableFullRefresh();
+                                                });
 
+                                            }
+                                        }
+                                    });
+                            });
+                        } else if (hidden) {
+                            $('#patrolSearchInput').removeClass('hide');
+                        }
+                    });
+                }
+                //tab change event
                 document.getElementById('adminTabbar').addEventListener('postchange', function (event) {
                     console.log('tab changed code will be run');
                     console.log(event.tabItem.getAttribute('page'));
-
-                    if (navi.topPage.data.eventInfo != undefined) {
-                        var eventInfo = navi.topPage.data.eventInfo;
-                        adminDatabaseName = eventInfo.dbName;
-                    }
-
 
                     switch (event.tabItem.getAttribute('page')) {
                         case 'allLogsPage.html':
@@ -4121,7 +4270,7 @@ ons.ready(function () {
                                     index: {
                                         fields: ['timeOut'],
                                         name: 'timeOutIndex',
-                                        ddoc: 'timeOutIndexDDoc',
+                                        ddoc: 'timeOutIndex',
                                         type: 'json'
                                     }
                                 }).then(function (doc) {
@@ -4130,7 +4279,7 @@ ons.ready(function () {
                                         index: {
                                             fields: ['base', 'timeOut'],
                                             name: 'baseTimeOutIndex',
-                                            ddoc: 'baseTimeOutIndexDDoc',
+                                            ddoc: 'baseTimeOutIndex',
                                             type: 'json'
                                         }
                                     });
@@ -4139,7 +4288,7 @@ ons.ready(function () {
                                         index: {
                                             fields: ['patrol'],
                                             name: 'patrolIndex',
-                                            ddoc: 'patrolIndexDDoc',
+                                            ddoc: 'patrolIndex',
                                             type: 'json'
                                         }
                                     });
@@ -4148,20 +4297,35 @@ ons.ready(function () {
                                         index: {
                                             fields: ['base'],
                                             name: 'baseIndex',
-                                            ddoc: 'baseIndexDDoc',
+                                            ddoc: 'baseIndex',
                                             type: 'json'
                                         }
                                     });
-                                    // }).then(function (doc) {
-                                    //     return admindb.createIndex({
-                                    //         index: {
-                                    //             fields: ['patrol', 'timeOut'],
-                                    //             name: 'lastSeenIndex',
-                                    //             ddoc: 'lastSeenIndexDDoc',
-                                    //             type: 'json'
-                                    //         }
-                                    //     });
                                 }).then(function (doc) {
+                                    //leaderboard ddoc
+                                    return admindb.get('_design/leaderboardIndex')
+                                        .then(function (doc) {
+                                            return doc;
+
+                                        }).catch(function (doc) {
+                                            var leaderboardIndex = {
+                                                _id: '_design/leaderboardIndex',
+                                                views: {
+                                                    'leaderboardIndex': {
+                                                        map: function (doc) {
+                                                            if (doc.patrol != undefined && doc.offRoute === '') {
+                                                                emit(doc.patrol, parseInt(doc.totalScore));
+                                                            }
+                                                        }.toString(),
+                                                        reduce: '_sum'
+                                                    }
+                                                }
+                                            };
+                                            return admindb.put(leaderboardIndex);
+                                        });
+
+                                }).then(function (doc) {
+                                    console.log(doc);
                                     return admindb.find({
                                         selector: {
                                             timeOut: {
@@ -4322,73 +4486,30 @@ ons.ready(function () {
                             //end of allLogsPage.html
                             break;
                         case 'lastSeenPage.html':
-                            var lastSeenTable = $('#lastSeenTable');
-                            /**
-                             * updates the lastSeenTable
-                             * @param {[object]} doc object array of documents from pouchdb
-                             * @param {boolean} update 
-                             * @param {object} lastSeenTable JQuery object
-                             */
-                            function lastSeenUpdate(doc, update, lastSeenTable) {
-                                console.log('lastseenupdate function');
-                                console.log(doc);
-                                for (var i = 0, l = doc.docs.length; i < l; i++) {
-                                    var log = doc.docs[i];
-
-                                    //doc.docs.forEach(function (log) {
-                                    var index = patrolSeen.indexOf(log.patrol);
-                                    if (index > -1 && !update) {
-                                        continue;
-                                    }
-                                    var offOnRoute = 'on route';
-                                    if (log.offRoute) {
-                                        offOnRoute = 'off route'
-                                    }
-                                    var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + log.timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td></tr>';
-                                    if (index > -1) {
-                                        $('#ls-' + log.patrol).remove();
-                                        lastSeenTable.append(lsTableRow);
-                                        continue;
-                                    }
-
-                                    patrolSeen.push(log.patrol);
-                                    lastSeenTable.prepend(lsTableRow);
-
-                                }
-                                console.log('updated ls table');
-                                //});
+                            if (lastSeenTable === undefined) {
+                                lastSeenTable = $('#lastSeenTable');
                             }
-                            /**
-                             * Perfoms a full update of the #lastSeenTable
-                             * Parameters are all passed to the lastSeenUpdate function
-                             * @param {object} lastSeenTable 
-                             * @param {boolean} updateTable 
-                             */
-                            function lastSeenFullUpdate(lastSeenTable, updateTable) {
-                                console.log('full update');
-                                admindb.find({
-                                    selector: {
-                                        timeOut: {
-                                            $gt: null
-                                        }
-                                    },
-                                    fields: ['_id', 'base', 'patrol', 'timeOut', 'offRoute', 'name'],
-                                    sort: [{
-                                        'timeOut': 'desc'
-                                    }]
-                                }).then(function (doc) {
-
-                                    return lastSeenUpdate(doc, updateTable, lastSeenTable);
-                                }).catch(function (err) {
-                                    console.log(err);
-                                });
-                            }
-
                             if (!lastSeenTable.hasClass('evtListener')) {
                                 lastSeenTable.addClass('evtListener');
 
                                 lastSeenFullUpdate(lastSeenTable, false);
                                 adminSync.on('change', function (doc) {
+                                    console.log('updating ls table on change');
+                                    console.log(doc.change.docs);
+                                    if (patrolToSearch !== undefined && patrolToSearch !== false) {
+
+                                        var index = doc.change.docs.map(function (log) {
+                                            console.log(log.patrol + ' ' + patrolToSearch);
+
+                                            if (log.patrol === patrolToSearch) {
+                                                return true;
+                                            }
+                                            return false;
+                                        }).indexOf(true);
+                                        if (index < 0) {
+                                            return;
+                                        }
+                                    }
 
                                     lastSeenTable.empty();
                                     patrolSeen = [];
@@ -4399,6 +4520,9 @@ ons.ready(function () {
                             }
                             //end of lastSeenPage.html
                             break;
+                        case 'leaderboard.html':
+
+                            break;
                             //end of switch
                     }
 
@@ -4407,76 +4531,7 @@ ons.ready(function () {
                 console.log('othercoderun');
 
 
-                if (!($('#patrolSearch').hasClass('evtHandler'))) {
-                    $('#patrolSearch').addClass('evtHandler');
-                    var appended = false;
-                    var hidden = false;
-                    /**
-                     * Event handler for the patrol search bar being clicked on the admin page
-                     * @event patrolSearch clicked
-                     */
-                    $('#patrolSearch').on('click', function () {
-                        if (!(appended)) {
-                            $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
-                            appended = true;
-                            $(document).ready(function () {
-                                $('#patrolSearchInput').focus()
-                                    .blur(function () {
-                                        if ($(this).val() === '') {
-                                            $(this).toggleClass('hide');
-                                            hidden = true;
-                                            admindb.find({
-                                                selector: {
-                                                    timeOut: {
-                                                        $gt: null
-                                                    }
 
-                                                },
-
-                                                sort: ['timeOut']
-                                            }).then(function (doc) {
-                                                console.log(doc);
-                                                patrolToSearch = false;
-                                                $('#adminLogsTable').empty();
-                                                patrolRecordAdmin = [];
-                                                offRouteIndexAdmin = [];
-                                                updateTableFromFindQuery(doc, true);
-
-                                            });
-
-                                        }
-                                    });
-                            });
-
-                            $('#patrolSearchInput').on('keydown', function (e) {
-                                if (e.which === 13) {
-                                    patrolToSearch = $(this).val();
-                                    admindb.find({
-                                        selector: {
-                                            timeOut: {
-                                                $gt: null
-                                            },
-                                            patrol: {
-                                                $eq: patrolToSearch
-                                            }
-                                        },
-
-                                        sort: ['timeOut']
-                                    }).then(function (doc) {
-                                        //TODO add a pause variable in here to only update this patrol's records
-                                        console.log(doc);
-                                        $('#adminLogsTable').empty();
-                                        patrolRecordAdmin = [];
-                                        offRouteIndexAdmin = [];
-                                        updateTableFromFindQuery(doc, true);
-                                    });
-                                }
-                            });
-                        } else if (hidden) {
-                            $('#patrolSearchInput').removeClass('hide');
-                        }
-                    });
-                }
 
 
                 // -- end of admin.html --
