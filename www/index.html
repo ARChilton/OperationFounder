@@ -573,12 +573,12 @@
       <ons-tabbar id="adminTabbar" swipeable position="auto">
         <ons-tab page="allLogsPage.html" label="All Logs" icon="md-view-headline" active>
         </ons-tab>
-        <ons-tab page="lastSeenPage.html" label="Last-Seen" icon="fa-binoculars">
+        <ons-tab page="lastSeenPage.html" label="Last Seen" icon="fa-binoculars">
         </ons-tab>
 
-        <ons-tab page="updatePage.html" label="stats" icon="fa-pie-chart">
+        <ons-tab page="updatePage.html" label="Stats" icon="fa-pie-chart">
         </ons-tab>
-        <ons-tab page="updatePage.html" label="Leaderboard" icon="fa-trophy">
+        <ons-tab page="leaderboard.html" label="Leaderboard" icon="fa-trophy">
         </ons-tab>
 
 
@@ -586,6 +586,8 @@
       <!--Top half of screen-->
     </ons-page>
   </ons-template>
+  <!-- End of admin.html -->
+  <!-- Start of allLogsPage.html -->
   <ons-template id="allLogsPage.html">
     <ons-page id="allLogsPage">
 
@@ -634,13 +636,15 @@
       </ons-speed-dial>
     </ons-page>
   </ons-template>
+  <!-- end of allLogsPage.html -->
+  <!-- Start of LastSeenPage.html -->
   <ons-template id="lastSeenPage.html">
     <ons-page id="lastSeenPage">
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
             <th class="">Patrol</th>
-            <th>Time Last Seen</th>
+            <th>Last Seen</th>
             <th>At Base</th>
 
             <th class="">On/Off Route</th>
@@ -652,6 +656,25 @@
       </table>
     </ons-page>
   </ons-template>
+  <!-- End of lastSeenPage.html -->
+  <!-- Start of Leaderboard.html -->
+  <ons-template id="leaderboard.html">
+    <ons-page id="leaderboard">
+      <table class="mdl-data-table mdl-js-data-table logTable">
+        <thead>
+          <tr>
+            <th class="bold">Position</th>
+            <th class="">Patrol</th>
+            <th>Total Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardTable">
+        </tbody>
+      </table>
+    </ons-page>
+  </ons-template>
+  <!-- End of leaderboard.html -->
+  <!-- Start of Map.html -->
   <ons-template id="map.html">
     <ons-page id="mapPage">
       <ons-fab class="fab locOn" id="fabLocate" href="#" position="bottom right">
