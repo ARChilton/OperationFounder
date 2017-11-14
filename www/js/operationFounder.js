@@ -1801,7 +1801,28 @@ ons.ready(function () {
         }
 
     }
+    /**
+     * A sorting function for object arrays
+     * @param {*} field 
+     * @param {*} reverse 
+     * @param {*} primer 
+     */
+    var sort_by = function (field, reverse, primer) {
 
+        var key = primer ?
+            function (x) {
+                return primer(x[field])
+            } :
+            function (x) {
+                return x[field]
+            };
+
+        reverse = !reverse ? 1 : -1;
+
+        return function (a, b) {
+            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+        }
+    }
 
 
     //commented out for dev
@@ -4083,6 +4104,7 @@ ons.ready(function () {
                 var patrolToSearch = false;
                 var patrolSeen = [];
                 var lastSeenTable;
+                var leaderboardTable;
                 //functions
                 // - lastSeen Page functions
                 /**
@@ -4096,7 +4118,7 @@ ons.ready(function () {
                     //console.log(doc);
                     for (var i = 0, l = doc.docs.length; i < l; i++) {
                         var log = doc.docs[i];
-                        console.log(patrolToSearch);
+                        //console.log(patrolToSearch);
                         if (log.patrol !== patrolToSearch && patrolToSearch !== false && patrolToSearch !== undefined) {
                             //console.log('continue');
                             continue;
@@ -4135,7 +4157,7 @@ ons.ready(function () {
                  * @param {boolean} updateTable 
                  */
                 function lastSeenFullUpdate(lastSeenTable, updateTable) {
-                    console.log('full update');
+                    //console.log('full update');
                     admindb.find({
                         selector: {
                             timeOut: {
@@ -4161,6 +4183,35 @@ ons.ready(function () {
                         lastSeenFullUpdate(lastSeenTable, false);
                     }
                 }
+
+                //- leaderboard functions
+                /**
+                 * 
+                 * @param {*} leaderboardTable 
+                 * @param {*} patrolToSearch 
+                 */
+                function leaderboard(leaderboardTable, patrolToSearch) {
+                    leaderboardTable.empty();
+                    admindb.query('leaderboardIndex', {
+                            reduce: true,
+                            group: true
+                        })
+                        .then(function (doc) {
+                            return doc.rows.sort(sort_by('value', true));
+                        }).then(function (doc) {
+                            var i = 1;
+                            return doc.forEach(function (row) {
+                                console.log(row);
+
+                                var tableRow = '<tr><td>' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
+                                i++;
+                                if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
+                                    leaderboardTable.append(tableRow);
+                                }
+                            });
+                        });
+                }
+
                 //code to run
                 menuController('admin.html');
                 if (navi.topPage.data.eventInfo != undefined) {
@@ -4210,6 +4261,9 @@ ons.ready(function () {
                                                         lastSeenTable.empty();
                                                         lastSeenUpdate(doc, true, lastSeenTable);
                                                     }
+                                                    if (leaderboardTable != undefined) {
+                                                        leaderboard(leaderboardTable, patrolToSearch);
+                                                    }
                                                 });
                                             } else if (value === '' && patrolToSearch != value && patrolToSearch != false) {
                                                 //no value
@@ -4231,7 +4285,12 @@ ons.ready(function () {
                                                     patrolRecordAdmin = [];
                                                     offRouteIndexAdmin = [];
                                                     updateTableFromFindQuery(doc, true);
-                                                    lastSeenTableFullRefresh();
+                                                    if (lastSeenTable != undefined) {
+                                                        lastSeenTableFullRefresh();
+                                                    }
+                                                    if (leaderboardTable != undefined) {
+                                                        leaderboard(leaderboardTable, patrolToSearch);
+                                                    }
                                                 });
 
                                             }
@@ -4521,7 +4580,34 @@ ons.ready(function () {
                             //end of lastSeenPage.html
                             break;
                         case 'leaderboard.html':
+                            if (leaderboardTable === undefined) {
+                                leaderboardTable = $('#leaderboardTable');
+                            }
+                            if (!leaderboardTable.hasClass('evtListener')) {
+                                leaderboardTable.addClass('evtListener');
+                                leaderboard(leaderboardTable, patrolToSearch);
 
+                                adminSync.on('change', function (doc) {
+                                    console.log('updating leader table on change');
+                                    console.log(doc.change.docs);
+                                    if (patrolToSearch !== undefined && patrolToSearch !== false) {
+
+                                        var index = doc.change.docs.map(function (log) {
+                                            console.log(log.patrol + ' ' + patrolToSearch);
+
+                                            if (log.patrol === patrolToSearch) {
+                                                return true;
+                                            }
+                                            return false;
+                                        }).indexOf(true);
+                                        if (index < 0) {
+                                            return;
+                                        }
+                                    }
+                                    leaderboard(leaderboardTable, patrolToSearch);
+
+                                });
+                            }
                             break;
                             //end of switch
                     }
