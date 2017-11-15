@@ -1730,9 +1730,11 @@ ons.ready(function () {
         switch (trueOrFalse) {
             case true:
                 $('#' + page + ' .progressBar').removeClass('hide');
+                return true;
                 break;
             case false:
                 $('#' + page + ' .progressBar').addClass('hide');
+                return false;
                 break;
         }
     }
@@ -4105,6 +4107,8 @@ ons.ready(function () {
                 var patrolSeen = [];
                 var lastSeenTable;
                 var leaderboardTable;
+                var patrolSearchIcon = $('#patrolSearch');
+
                 //functions
                 // - lastSeen Page functions
                 /**
@@ -4132,7 +4136,7 @@ ons.ready(function () {
                         if (log.offRoute) {
                             offOnRoute = 'off route'
                         }
-                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + log.timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
+                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + log.timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
                         if (index > -1) {
                             $('#ls-' + log.patrol).remove();
                             //console.log('overwritten');
@@ -4175,7 +4179,9 @@ ons.ready(function () {
                         console.log(err);
                     });
                 }
-
+                /**
+                 * updates the lastSeen table
+                 */
                 function lastSeenTableFullRefresh() {
                     if (lastSeenTable !== undefined) {
                         lastSeenTable.empty();
@@ -4186,9 +4192,9 @@ ons.ready(function () {
 
                 //- leaderboard functions
                 /**
-                 * 
-                 * @param {*} leaderboardTable 
-                 * @param {*} patrolToSearch 
+                 * updates the leaderboard
+                 * @param {object} leaderboardTable table to update 
+                 * @param {string|number} patrolToSearch if there is a patrol to look out for
                  */
                 function leaderboard(leaderboardTable, patrolToSearch) {
                     leaderboardTable.empty();
@@ -4201,13 +4207,21 @@ ons.ready(function () {
                         }).then(function (doc) {
                             var i = 1;
                             return doc.forEach(function (row) {
-                                console.log(row);
+                                var tableRow = '<tr id="lb-' + i + '"><td class="txtCenter bold">' + i + '</td><td class="txtCenter">' + row.key + '</td><td class="txtCenter">' + row.value + '</td></tr>';
 
-                                var tableRow = '<tr><td>' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
-                                i++;
                                 if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
                                     leaderboardTable.append(tableRow);
                                 }
+                                // if (i === 1) {
+                                //     $('#lb-1').addClass('gold');
+                                // }
+                                // if (i === 2) {
+                                //     $('#lb-2').addClass('silver');
+                                // }
+                                // if (i === 3) {
+                                //     $('#lb-3').addClass('bronze');
+                                // }
+                                i++;
                             });
                         });
                 }
@@ -4218,17 +4232,18 @@ ons.ready(function () {
                     var eventInfo = navi.topPage.data.eventInfo;
                     adminDatabaseName = eventInfo.dbName;
                 }
-                if (!($('#patrolSearch').hasClass('evtHandler'))) {
-                    $('#patrolSearch').addClass('evtHandler');
+                if (!(patrolSearchIcon.hasClass('evtHandler'))) {
+                    patrolSearchIcon.addClass('evtHandler');
                     var appended = false;
                     var hidden = false;
                     /**
                      * Event handler for the patrol search bar being clicked on the admin page
                      * @event patrolSearch clicked
                      */
-                    $('#patrolSearch').on('click', function () {
-                        if (!(appended)) {
-                            $(this).append('<ons-input id="patrolSearchInput" type="text" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput">');
+                    patrolSearchIcon.on('click', function () {
+                        if (!appended) {
+                            var patrolSearchBox = '<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput" autofocus></ons-input>';
+                            $(this).prepend(patrolSearchBox);
                             appended = true;
                             $(document).ready(function () {
                                 $('#patrolSearchInput').focus()
@@ -4267,7 +4282,9 @@ ons.ready(function () {
                                                 });
                                             } else if (value === '' && patrolToSearch != value && patrolToSearch != false) {
                                                 //no value
-                                                $(this).toggleClass('hide');
+                                                $(this).addClass('hide');
+                                                // patrolSearchIcon.empty();
+                                                // appended = false;
                                                 hidden = true;
                                                 admindb.find({
                                                     selector: {
@@ -4293,6 +4310,9 @@ ons.ready(function () {
                                                     }
                                                 });
 
+                                            } else if (value === '') {
+                                                $(this).addClass('hide');
+                                                hidden = true;
                                             }
                                         }
                                     });
@@ -4302,6 +4322,8 @@ ons.ready(function () {
                         }
                     });
                 }
+
+
                 //tab change event
                 document.getElementById('adminTabbar').addEventListener('postchange', function (event) {
                     console.log('tab changed code will be run');
@@ -4517,30 +4539,7 @@ ons.ready(function () {
                                     });
                                 }
 
-                                if (!($('#adminCopyTable').hasClass('evtHandler'))) {
-                                    /**
-                                     * Copys the admin table to the clipboard as a full HTML table, this can be imported into MS Excel
-                                     * @event adminCopyTable clicked
-                                     */
-                                    $('#adminCopyTable').addClass('evtHandler').on('click', function () {
-                                        //console.log($('#adminLogsTable').html());
-                                        function copyToClipboard(element) {
-                                            var $temp = $("<input>");
-                                            $("body").append($temp);
-                                            $temp.val($('.copyMe').html()).select();
-                                            document.execCommand("copy");
-                                            $temp.remove();
-                                        }
-                                        copyToClipboard();
-                                        ons.notification.alert({
-                                            title: 'Admin logs table added to clipboard',
-                                            message: 'You have just added the whole admin logs table to your clipboard, paste into Microsoft Excel to view',
-                                            cancelable: true
-                                        })
 
-                                    });
-
-                                }
                             }
                             //end of allLogsPage.html
                             break;
@@ -4550,11 +4549,13 @@ ons.ready(function () {
                             }
                             if (!lastSeenTable.hasClass('evtListener')) {
                                 lastSeenTable.addClass('evtListener');
-
+                                showProgressBar('adminPage', true);
                                 lastSeenFullUpdate(lastSeenTable, false);
+                                showProgressBar('adminPage', false);
                                 adminSync.on('change', function (doc) {
                                     console.log('updating ls table on change');
                                     console.log(doc.change.docs);
+                                    showProgressBar('adminPage', true);
                                     if (patrolToSearch !== undefined && patrolToSearch !== false) {
 
                                         var index = doc.change.docs.map(function (log) {
@@ -4566,13 +4567,14 @@ ons.ready(function () {
                                             return false;
                                         }).indexOf(true);
                                         if (index < 0) {
-                                            return;
+                                            return showProgressBar('adminPage', false);
                                         }
                                     }
 
                                     lastSeenTable.empty();
                                     patrolSeen = [];
                                     lastSeenFullUpdate(lastSeenTable, false);
+                                    showProgressBar('adminPage', false);
                                 });
 
 
@@ -4585,11 +4587,14 @@ ons.ready(function () {
                             }
                             if (!leaderboardTable.hasClass('evtListener')) {
                                 leaderboardTable.addClass('evtListener');
+                                showProgressBar('adminPage', true);
                                 leaderboard(leaderboardTable, patrolToSearch);
+                                showProgressBar('adminPage', false);
 
                                 adminSync.on('change', function (doc) {
                                     console.log('updating leader table on change');
                                     console.log(doc.change.docs);
+                                    showProgressBar('adminPage', true);
                                     if (patrolToSearch !== undefined && patrolToSearch !== false) {
 
                                         var index = doc.change.docs.map(function (log) {
@@ -4601,10 +4606,11 @@ ons.ready(function () {
                                             return false;
                                         }).indexOf(true);
                                         if (index < 0) {
-                                            return;
+                                            return showProgressBar('adminPage', false);
                                         }
                                     }
                                     leaderboard(leaderboardTable, patrolToSearch);
+                                    showProgressBar('adminPage', false);
 
                                 });
                             }
@@ -4621,6 +4627,102 @@ ons.ready(function () {
 
 
                 // -- end of admin.html --
+                break;
+
+            case 'messagesPage.html':
+                var currentBase = navi.topPage.data.currentBase;
+                var eventInfo = navi.topPage.data.eventInfo;
+                var messageWindow = $('#messageWindow');
+                var pouch = basedb;
+                if (currentBase === 0) {
+                    pouch = admindb;
+                }
+                $('#messagesPage ons-toolbar .center').html('Messages: ' + eventInfo.eventName);
+                addOldMessages('message\ufff0', 'message', true, 20, true);
+
+                function addOldMessages(startKey, endKey, descending, limit, prepend) {
+                    console.log(pouch);
+                    var searchLimit = limit + 1;
+                    pouch.allDocs({
+                        include_docs: true,
+                        endkey: endKey,
+                        startkey: startKey,
+                        descending: descending,
+                        limit: searchLimit
+
+                    }).then(function (messages) {
+                        var rows = messages.rows;
+                        console.log(messages);
+                        var lastMessage = false;
+                        var i = 0;
+                        var l = rows.length;
+
+                        return Promise.all(rows.map(function (row) {
+                            console.log(i);
+                            console.log(lastMessage);
+                            var doc = row.doc;
+                            var messageClasses = ' message-text';
+                            var containerClasses = 'bubble';
+                            var lastBubbleContainerClass = 'bubble';
+
+                            if (!lastMessage) {
+                                console.log('continue ' + i)
+                                lastMessage = doc;
+                                i++;
+                                return;
+                            }
+
+                            //message-in or out
+                            if (parseInt(lastMessage.from) === currentBase) {
+                                containerClasses += ' message-out';
+                            } else {
+                                containerClasses += ' message-in'
+                            }
+                            //matches last sender
+                            if (lastMessage.from !== doc.from) {
+                                containerClasses += ' tail';
+                            } else {
+                                containerClasses += ' bubbleGap';
+                            }
+
+                            var bubble = '<div class="msg"><div class="' + containerClasses + '"><div class="' + messageClasses + '">' + lastMessage.message + '</div></div></div>';
+                            lastMessage = doc;
+                            i++;
+                            //for last message that won't have another one
+                            if (i !== searchLimit) {
+                                if (i === searchLimit - 1) {
+                                    if (parseInt(doc.from) === currentBase) {
+                                        lastBubbleContainerClass += ' message-out';
+                                    } else {
+                                        lastBubbleContainerClass += ' message-in'
+                                    }
+                                    lastBubbleContainerClass += ' tail';
+
+                                    var lastBubble = '<div class="msg"><div class="' + lastBubbleContainerClass + '"><div class="' + messageClasses + '">' + doc.message + '</div></div></div>';
+                                    return lastBubble += bubble;
+
+                                }
+                            } else if (i === searchLimit) {
+                                console.log('limit reached');
+                                nextMessageEndKey = doc._id;
+                                return;
+                            }
+                            return bubble;
+                        }));
+                    }).then(function (doc) {
+                        console.log(doc);
+                        if (prepend) {
+                            messageWindow.prepend(doc.reverse());
+                        } else {
+                            messageWindow.append(doc.reverse());
+                        }
+                        return doc;
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
+                }
+
+                //end of messagesPage.html
                 break;
 
             case 'updatePage.html':
@@ -4813,21 +4915,21 @@ function menuController() {
             menuEvtOrganiser();
             break;
         case 'admin.html':
-            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin');
-            $('#goToMap').removeClass('hide');
+            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin Area');
+            $('#goToMap, #copyAllLogs').removeClass('hide');
             menuEvtOrganiser();
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
-            $('#baseLogOut').addClass('hide');
+            $('#baseLogOut, #copyAllLogs').addClass('hide');
             $('#goToMap').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #goToMap').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #goToMap, #copyAllLogs').addClass('hide');
             break;
         default:
             menuEvtOrganiser();
-            $('#baseLogOut , #goToMap').addClass('hide');
+            $('#baseLogOut , #goToMap, #copyAllLogs').addClass('hide');
             break;
     }
     console.log(navi.topPage.name + ' menu controller run');
@@ -4844,4 +4946,35 @@ function menuEvtOrganiser() {
     } else {
         $('#eventEditor , #eventChanger').addClass('hide');
     }
+}
+/**
+ * Copys an element to the clipboard
+ * @param {object} element must be an outer jquery DOM object that contains the information you wish to copy
+ */
+function copyToClipboard(element) {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val(element.html()).select();
+    document.execCommand("copy");
+    $temp.remove();
+}
+
+function copyAllLogs() {
+    copyToClipboard($('#allLogsCopy'));
+    ons.notification.alert({
+        title: 'All logs table added to clipboard',
+        messageHTML: '<p>You have just added the whole admin logs table to your clipboard.</p><p>This is in the form of an html table, paste into Microsoft Excel or HTML file to view.</p>',
+        cancelable: true
+    });
+}
+
+function openMessages() {
+    var options = {
+        animation: pageChangeAnimation,
+        data: {
+            currentBase: getBaseNumber(),
+            eventInfo: navi.topPage.data.eventInfo
+        }
+    }
+    navi.bringPageTop('messagesPage.html', options);
 }
