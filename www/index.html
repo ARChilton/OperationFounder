@@ -46,6 +46,9 @@
         <ons-list-item id="baseLogOut" class="hide" onclick="baseLogOut()" tappable>
           Leave Base
         </ons-list-item>
+        <ons-list-item onclick="copyAllLogs()" id="copyAllLogs" class="hide" tappable>
+          Copy All Logs Table
+        </ons-list-item>
         <ons-list-item onclick="goToMap()" id="goToMap" class="hide" tappable>
           Local Map
         </ons-list-item>
@@ -465,6 +468,11 @@
         </div>
         <div class="center pageTitle">
         </div>
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()"></ons-icon>
+          </ons-toolbar-button>
+        </div>
       </ons-toolbar>
       <!--FAB-->
       <ons-fab class="fab hide" id="fullEditFab" href="#" position="bottom Right">
@@ -530,9 +538,10 @@
       </div>
       <!--Bottom Half-->
       <div class="bottomHalf">
-        <ons-list>
+        <!-- <ons-list>
           <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
-        </ons-list>
+        </ons-list> -->
+        <div class="marginLeft">Previous Logs</div>
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
             <tr>
@@ -567,6 +576,9 @@
           <ons-toolbar-button>
             <ons-icon icon="md-search" id="patrolSearch"></ons-icon>
           </ons-toolbar-button>
+          <ons-toolbar-button>
+            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()"></ons-icon>
+          </ons-toolbar-button>
         </div>
       </ons-toolbar>
 
@@ -576,13 +588,12 @@
         <ons-tab page="lastSeenPage.html" label="Last Seen" icon="fa-binoculars">
         </ons-tab>
 
-        <ons-tab page="updatePage.html" label="Stats" icon="fa-pie-chart">
-        </ons-tab>
+        <!-- <ons-tab page="updatePage.html" label="Stats" icon="fa-pie-chart">
+        </ons-tab> -->
         <ons-tab page="leaderboard.html" label="Leaderboard" icon="fa-trophy">
         </ons-tab>
-
-
       </ons-tabbar>
+      <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
       <!--Top half of screen-->
     </ons-page>
   </ons-template>
@@ -590,9 +601,7 @@
   <!-- Start of allLogsPage.html -->
   <ons-template id="allLogsPage.html">
     <ons-page id="allLogsPage">
-
-
-      <div class="copyMe">
+      <div id="allLogsCopy">
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
             <tr>
@@ -605,7 +614,7 @@
               <th>Time out</th>
               <th class="hide landscapeShow">Wait</th>
               <th class="hide landscapeShow">Off route</th>
-              <th class="hide landscapeShow">Total score</th>
+              <th class="hide landscapeShow">Score</th>
               <th class="hide landscapeShow">Recorded by</th>
               <th class="hide landscapeShow">edit</th>
             </tr>
@@ -627,9 +636,9 @@
         <ons-speed-dial-item id="adminDelete">
           <ons-icon icon="md-delete"></ons-icon>
         </ons-speed-dial-item>
-        <ons-speed-dial-item id="adminCopyTable" class="clipBtn">
+        <!-- <ons-speed-dial-item id="adminCopyTable" class="clipBtn">
           <ons-icon icon="md-copy"></ons-icon>
-        </ons-speed-dial-item>
+        </ons-speed-dial-item> -->
         <!--<ons-speed-dial-item id="adminShowMap">
           <ons-icon icon="md-map"></ons-icon>
         </ons-speed-dial-item>-->
@@ -643,12 +652,12 @@
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
-            <th class="">Patrol</th>
-            <th>Last Seen</th>
-            <th>At Base</th>
+            <th class="class=" txtCenter "">Patrol</th>
+            <th class="txtCenter">Last Seen</th>
+            <th class="txtCenter">At Base</th>
 
-            <th class="">On/Off Route</th>
-            <th class="hide landscapeShow">Recorded by</th>
+            <th class="txtCenter">On/Off Route</th>
+            <th class="hide landscapeShow txtCenter">Recorded by</th>
           </tr>
         </thead>
         <tbody id="lastSeenTable">
@@ -663,9 +672,9 @@
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
-            <th class="bold">Position</th>
-            <th class="">Patrol</th>
-            <th>Total Score</th>
+            <th class="bold txtCenter">Position</th>
+            <th class="txtCenter">Patrol</th>
+            <th class="txtCenter">Total Score</th>
           </tr>
         </thead>
         <tbody id="leaderboardTable">
@@ -674,6 +683,30 @@
     </ons-page>
   </ons-template>
   <!-- End of leaderboard.html -->
+  <!-- Start of MessagesPage.html -->
+  <ons-template id="messagesPage.html">
+    <ons-page id="messagesPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+
+        </div>
+      </ons-toolbar>
+      <div class="" id="messageWindow"></div>
+
+      <div class="messageInputArea">
+        <div class="messageInputContainer">
+          <div class="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
+          <div class="placeholder text-input--material__label">Type a message</div>
+        </div>
+      </div>
+
+
+    </ons-page>
+  </ons-template>
+  <!-- End of MessagesPage.html -->
   <!-- Start of Map.html -->
   <ons-template id="map.html">
     <ons-page id="mapPage">
