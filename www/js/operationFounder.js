@@ -732,7 +732,7 @@ function tableUpdateFunction(path, admin) {
         tableLogId = 'log-';
     }
     if (path.offRoute) { // stops off route logs being updated automatically
-        tableLogId = tableLogId + '-or';
+        tableLogId += '-or';
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
