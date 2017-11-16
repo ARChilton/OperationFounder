@@ -770,6 +770,7 @@ function updateTableFromAllDocs(doc, admin) {
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not 
  */
 function updateTableFromFindQuery(doc, admin, patrolToSearch) {
+    var patt = /_(\d)/g;
 
     console.log('updating from find query');
     //console.log(doc);
@@ -788,9 +789,9 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
                     $('#' + path._id).remove();
                     console.log(path._id + ' removed');
 
+                    var baseAffected = path._id.split(patt)[1];
 
-
-                    if (deleteNotificationCleared) {
+                    if (deleteNotificationCleared && (baseAffected == base || base === 0)) {
                         deleteNotificationCleared = false;
                         ons.notification.alert({
                             title: 'HQ deleted some logs',
@@ -2831,9 +2832,8 @@ ons.ready(function () {
                             //scrolls to the bottom of the page
                             var offset = 1370 + baseCount * (181);
                             var page = $('#createEventPage .page__content');
-                            page.animate({
-                                scrollTop: offset
-                            }, 1000);
+                            scrollToElement(page, offset, 1000);
+
                             //adds the password check event handler to the added base
                             $('#base' + baseCount + 'Password').on('blur', function () {
                                 passwordCheck(this);
@@ -4616,120 +4616,219 @@ ons.ready(function () {
 
 
                 });
-                console.log('othercoderun');
-
-
-
-
 
                 // -- end of admin.html --
                 break;
 
             case 'messagesPage.html':
+                //variables
                 var currentBase = navi.topPage.data.currentBase;
                 var eventInfo = navi.topPage.data.eventInfo;
                 var messageWindow = $('#messageWindow');
                 var pouch = basedb;
-                if (currentBase === 0) {
-                    pouch = admindb;
-                }
-                $('#messagesPage ons-toolbar .center').html('Messages: ' + eventInfo.eventName);
-                addOldMessages('message\ufff0', 'message', true, 20, true);
+                var pouchSync = syncBasedb;
+                var nextMessageEndKey;
+                var nextMessageEndKey2;
+                var scrollTimer;
+                var messagePageContent = $('#messagesPage .page__content');
+                var offset;
+                var messageChk = /message/i;
+                var newestMessage;
 
-                function addOldMessages(startKey, endKey, descending, limit, prepend) {
+
+                //functions
+                /**
+                 * Adds messages starting at the newest and working backwards - endkey is first because it is decending
+                 * @param {object} options
+                 * @param {boolean} prepend whether to add messages before or after the other messages 
+                 * @param {boolean} scroll whether to scroll to the bottom of the page or not
+                 */
+                function addMessages(messageWindow, options, prepend, scroll, offset) {
                     console.log(pouch);
-                    var searchLimit = limit + 1;
-                    pouch.allDocs({
-                        include_docs: true,
-                        endkey: endKey,
-                        startkey: startKey,
-                        descending: descending,
-                        limit: searchLimit
 
-                    }).then(function (messages) {
-                        var rows = messages.rows;
-                        console.log(messages);
-                        var lastMessage = false;
-                        var i = 0;
-                        var l = rows.length;
+                    if (options.limit != undefined) {
+                        if (options.limit !== false) {
+                            options.limit++;
+                        }
+                    }
 
-                        return Promise.all(rows.map(function (row) {
-                            console.log(i);
-                            console.log(lastMessage);
-                            var doc = row.doc;
-                            var messageClasses = ' message-text';
-                            var containerClasses = 'bubble';
-                            var lineClasses = 'msg';
-                            var lastBubbleContainerClass = 'bubble';
-                            doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                            doc.from = parseInt(doc.from);
-                            doc.to = parseInt(doc.to);
-                            doc.msgBaseNo = 'Base ' + doc.from;
-                            if (doc.from === 0) {
-                                doc.msgBaseNo = 'Admin HQ';
-                            }
-                            if (!lastMessage) {
-                                console.log('continue ' + i)
+                    return pouch.allDocs(options)
+                        .then(function (messages) {
+                            var rows = messages.rows;
+                            console.log(messages);
+                            var lastMessage = false;
+                            var i = 0;
+                            var l = rows.length;
+
+                            return Promise.all(rows.map(function (row) {
+                                //console.log(i);
+                                //console.log(lastMessage);
+                                var doc = row.doc;
+                                var messageClasses = ' message-text';
+                                var containerClasses = 'bubble';
+                                var lineClasses = 'msg';
+                                var lastBubbleContainerClass = 'bubble';
+                                doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+                                doc.from = parseInt(doc.from);
+                                doc.to = parseInt(doc.to);
+                                doc.msgBaseNo = 'Base ' + doc.from;
+                                if (doc.from === 0) {
+                                    doc.msgBaseNo = 'Admin HQ';
+                                }
+                                if (!lastMessage) {
+                                    console.log('continue ' + i)
+                                    if (!prepend) {
+                                        newestMessage = doc._id;
+                                    }
+                                    lastMessage = doc;
+                                    i++;
+                                    return;
+                                }
+
+                                //message-in or out
+                                if (lastMessage.from === currentBase) {
+                                    containerClasses += ' message-out';
+                                } else {
+                                    containerClasses += ' message-in'
+                                }
+                                //matches last sender
+                                if (lastMessage.from !== doc.from) {
+                                    containerClasses += ' tail';
+                                } else {
+                                    lineClasses += ' msgContinued';
+                                }
+                                //for dev
+                                if (lastMessage.from === undefined) {
+                                    lastMessage.from = 1;
+                                }
+                                var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
                                 lastMessage = doc;
                                 i++;
-                                return;
-                            }
-
-                            //message-in or out
-                            if (lastMessage.from === currentBase) {
-                                containerClasses += ' message-out';
-                            } else {
-                                containerClasses += ' message-in'
-                            }
-                            //matches last sender
-                            if (lastMessage.from !== doc.from) {
-                                containerClasses += ' tail';
-                            } else {
-                                lineClasses += ' msgContinued';
-                            }
-                            //for dev
-                            if (lastMessage.from === undefined) {
-                                lastMessage.from = 1;
-                            }
-                            var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
-                            lastMessage = doc;
-                            i++;
-                            //for last message that won't have another one
-                            if (i !== searchLimit) {
-                                if (i === searchLimit - 1) {
-                                    if (doc.from === currentBase) {
-                                        lastBubbleContainerClass += ' message-out';
-                                    } else {
-                                        lastBubbleContainerClass += ' message-in'
+                                //for last message that won't have another one
+                                if (i !== options.limit) {
+                                    if (i === options.limit - 1 || (l < options.limit && i === l)) {
+                                        if (doc.from === currentBase) {
+                                            lastBubbleContainerClass += ' message-out';
+                                        } else {
+                                            lastBubbleContainerClass += ' message-in'
+                                        }
+                                        lastBubbleContainerClass += ' tail';
+                                        nextMessageEndKey = doc._id;
+                                        var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
+                                        return lastBubble += bubble;
                                     }
-                                    lastBubbleContainerClass += ' tail';
-
-                                    var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
-                                    return lastBubble += bubble;
-
+                                } else if (i === options.limit) {
+                                    console.log('limit reached');
+                                    nextMessageEndKey = doc._id;
+                                    return;
                                 }
-                            } else if (i === searchLimit) {
-                                console.log('limit reached');
-                                nextMessageEndKey = doc._id;
-                                return;
+                                return bubble;
+                            }));
+                        }).then(function (doc) {
+                            //console.log(doc);
+                            if (prepend) {
+                                return messageWindow.prepend(doc.reverse());
+                            } else {
+                                return messageWindow.append(doc.reverse());
                             }
-                            return bubble;
-                        }));
-                    }).then(function (doc) {
-                        console.log(doc);
-                        if (prepend) {
-                            messageWindow.prepend(doc.reverse());
-                        } else {
-                            messageWindow.append(doc.reverse());
-                        }
-                        return doc;
-                    }).catch(function (err) {
-                        console.log(err);
-                    });
+
+
+                        }).then(function (doc) {
+                            if (scroll) {
+                                offset = messagePageContent[0].scrollHeight;
+                            }
+                            scrollToElement(messagePageContent, offset, 1);
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
                 }
+                /**
+                 * runs the scroll function on the messagesPage
+                 */
+                function handleMsgScroll() {
+                    var scroll = messagePageContent.scrollTop();
+
+                    if (scroll < 50) {
+                        var firstMsg = $('.msg:first');
+                        nextMessageEndKey2 = nextMessageEndKey;
+                        var options = {
+                            include_docs: true,
+                            endkey: 'message',
+                            startkey: nextMessageEndKey,
+                            descending: true,
+                            limit: 5
+                        };
+                        addMessages(messageWindow, options, true, false, firstMsg[0].height);
+                    }
+                }
+
+                function messageChangeHandler(doc) {
+                    console.log('messages being checked');
+                    console.log(doc);
+                    var updateMsgs = false;
+                    var path = doc.change.docs;
+                    var arrLength = path.length;
+                    for (var i = 0, l = arrLength; i < l; i++) {
+                        if (messageChk.test(path[i]._id)) {
+                            updateMsgs = true;
+                            break;
+                        }
+                    }
+                    console.log(updateMsgs);
+                    if (updateMsgs) {
+                        if (navi.topPage.name === 'messagesPage.html') {
+                            //run function for adding messages
+                            var options = {
+                                include_docs: true,
+                                endkey: newestMessage,
+                                startkey: 'message\ufff0',
+                                // inclusive_end: false,
+                                descending: true,
+                                limit: false
+                            };
+                            addMessages(messageWindow, options, false, true);
+                        } else {
+                            //update msg badge
+                        }
+                    }
+                }
+                //code to run
+
+                if (currentBase === 0) {
+                    pouch = admindb;
+                    pouchSync = adminSync;
+                }
+                $('#messagesPage ons-toolbar .center').html('Messages: ' + eventInfo.eventName);
+                var options = {
+                    include_docs: true,
+                    endkey: 'message',
+                    startkey: 'message\ufff0',
+                    descending: true,
+                    limit: 15
+                };
+                addMessages(messageWindow, options, false, true);
+
+                //event handlers
+                messagePageContent.on('scroll', function () {
+                    if (nextMessageEndKey !== nextMessageEndKey2) {
+                        if (scrollTimer) {
+                            clearTimeout(scrollTimer);
+                        }
+                        scrollTimer = setTimeout(handleMsgScroll(), 1000);
+                    } else {
+                        clearTimeout(scrollTimer);
+                    }
+                });
+
+                pouchSync.on('change', function (doc) {
+                    messageChangeHandler(doc);
+                });
+
+
+
 
                 //end of messagesPage.html
                 break;
@@ -4977,6 +5076,19 @@ function copyAllLogs() {
     });
 }
 
+
+/**
+ * scrolls the page up or down by the offset
+ * @param {object} elementToScroll the scrolling object
+ * @param {number} offset the distace to scroll
+ * @param {number} speed the time taken to scroll
+ */
+function scrollToElement(elementToScroll, offset, speed) {
+    elementToScroll.animate({
+        scrollTop: offset
+    }, speed);
+}
+//Message 
 function openMessages() {
     var options = {
         animation: pageChangeAnimation,
