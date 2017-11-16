@@ -9,6 +9,8 @@ Accent Color: Orange A400: #FF9100
 Accent lighter colors: Orange 300:#FFB74D
 Accent Darker color: Orange 800: #EF6C00
  #FF9800
+
+ https://material.io/color/#!/?view.left=1&view.right=0&primary.color=3f50b5&secondary.color=FF9100
  */
 
 
@@ -506,10 +508,14 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* --- Message CSS --- */
 
+#messagesPage .page__background {
+    /* background-color: #EF6C00 !important; */
+    /* background-color: red !important; */
+}
+
 #messageWindow {
     margin-top: 16px;
     margin-bottom: 60px;
-    position: fixed;
 }
 
 .messageInputArea {
@@ -588,6 +594,9 @@ input[type=number]::-webkit-outer-spin-button {
     position: relative;
     box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
     max-width: 90%;
+    /* cursor: text;
+    white-space: pre-wrap;
+    overflow: hidden; */
 }
 
 .message-out {
@@ -596,8 +605,8 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .message-in {
-    background-color: lightblue;
     /* background-color: #fff; */
+    background-color: lightblue;
     float: left;
 }
 
@@ -616,6 +625,9 @@ input[type=number]::-webkit-outer-spin-button {
     line-height: 19px;
     word-wrap: break-word;
     color: #262626;
+    cursor: text;
+    white-space: pre-wrap;
+    overflow: hidden;
 }
 
 .bubble {
@@ -625,7 +637,7 @@ input[type=number]::-webkit-outer-spin-button {
     margin-bottom: 12px;
 }
 
-.bubbleGap {
+.msgContinued {
     margin-top: -8px;
 }
 
@@ -641,7 +653,7 @@ input[type=number]::-webkit-outer-spin-button {
     border-right: 0;
     border-top: 0;
     margin-top: -10px;
-    margin-right: -8px;
+    margin-right: -7px;
 }
 
 .message-in.tail.bubble:after {
@@ -653,10 +665,111 @@ input[type=number]::-webkit-outer-spin-button {
     height: 0;
     border: 8px solid transparent;
     border-right-color: lightblue;
+    /*#fff;*/
     border-left: 0;
     border-top: 0;
     margin-top: -10px;
-    margin-left: -8px;
+    margin-left: -7px;
+}
+
+.msgTimeStamp {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 11px;
+    height: 15px;
+    line-height: 15px;
+    white-space: nowrap;
+}
+
+.bubble-text-meta {
+    position: absolute;
+    bottom: 3px;
+    right: 7px;
+}
+
+.msgFrom {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 22px;
+}
+
+.color-1 {
+    color: #35cd96 !important
+}
+
+.color-2 {
+    color: #6bcbef !important
+}
+
+.color-3 {
+    color: #e542a3 !important
+}
+
+.color-4 {
+    color: #91ab01 !important
+}
+
+.color-5 {
+    color: #ffa97a !important
+}
+
+.color-6 {
+    color: #1f7aec !important
+}
+
+.color-7 {
+    color: #dfb610 !important
+}
+
+.color-8 {
+    color: #029d00 !important
+}
+
+.color-9 {
+    color: #8b7add !important
+}
+
+.color-10 {
+    color: #fe7c7f !important
+}
+
+.color-11 {
+    color: #ba33dc !important
+}
+
+.color-12 {
+    color: #59d368 !important
+}
+
+.color-13 {
+    color: #b04632 !important
+}
+
+.color-14 {
+    color: #fd85d4 !important
+}
+
+.color-15 {
+    color: #8393ca !important
+}
+
+.color-16 {
+    color: #ff8f2c !important
+}
+
+.color-17 {
+    color: #a3e2cb !important
+}
+
+.color-18 {
+    color: #b4876e !important
+}
+
+.color-19 {
+    color: #c90379 !important
+}
+
+.color-20 {
+    color: #ef4b4f !important
 }
 
 
