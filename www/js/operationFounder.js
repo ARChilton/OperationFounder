@@ -4120,6 +4120,8 @@ ons.ready(function () {
                 function lastSeenUpdate(doc, update, lastSeenTable) {
                     //console.log('lastseenupdate function');
                     //console.log(doc);
+                    timeStarting = (Date.now());
+                    var lsTableAppend = [];
                     for (var i = 0, l = doc.docs.length; i < l; i++) {
                         var log = doc.docs[i];
                         //console.log(patrolToSearch);
@@ -4138,18 +4140,19 @@ ons.ready(function () {
                         }
                         var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + log.timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
                         if (index > -1) {
-                            $('#ls-' + log.patrol).remove();
+                            $('#lastSeenTable #ls-' + log.patrol).remove();
                             //console.log('overwritten');
-                            lastSeenTable.append(lsTableRow);
+                            lsTableAppend = lsTableRow;
+                            // lastSeenTable.append(lsTableRow);
                             continue;
                         }
-
                         patrolSeen.push(log.patrol);
-                        lastSeenTable.prepend(lsTableRow);
-
-
+                        // lastSeenTable.prepend(lsTableRow);
+                        lsTableAppend.unshift(lsTableRow);
                     }
+                    lastSeenTable.append(lsTableAppend);
                     orientationLandscapeUpdate();
+                    console.log(Date.now() - timeStarting);
                     console.log('updated ls table');
                     //});
 
@@ -4206,23 +4209,16 @@ ons.ready(function () {
                             return doc.rows.sort(sort_by('value', true));
                         }).then(function (doc) {
                             var i = 1;
-                            return doc.forEach(function (row) {
-                                var tableRow = '<tr id="lb-' + i + '"><td class="txtCenter bold">' + i + '</td><td class="txtCenter">' + row.key + '</td><td class="txtCenter">' + row.value + '</td></tr>';
 
-                                if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
-                                    leaderboardTable.append(tableRow);
-                                }
-                                // if (i === 1) {
-                                //     $('#lb-1').addClass('gold');
-                                // }
-                                // if (i === 2) {
-                                //     $('#lb-2').addClass('silver');
-                                // }
-                                // if (i === 3) {
-                                //     $('#lb-3').addClass('bronze');
-                                // }
+                            return doc.map(function (row) {
+                                var tableRow = '<tr id="lb-' + i + '"><td class="txtCenter bold">' + i + '</td><td class="txtCenter">' + row.key + '</td><td class="txtCenter">' + row.value + '</td></tr>';
                                 i++;
+                                if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
+                                    return tableRow;
+                                }
                             });
+                        }).then(function (doc) {
+                            leaderboardTable.append(doc);
                         });
                 }
 
@@ -4663,8 +4659,18 @@ ons.ready(function () {
                             var doc = row.doc;
                             var messageClasses = ' message-text';
                             var containerClasses = 'bubble';
+                            var lineClasses = 'msg';
                             var lastBubbleContainerClass = 'bubble';
-
+                            doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            doc.from = parseInt(doc.from);
+                            doc.to = parseInt(doc.to);
+                            doc.msgBaseNo = 'Base ' + doc.from;
+                            if (doc.from === 0) {
+                                doc.msgBaseNo = 'Admin HQ';
+                            }
                             if (!lastMessage) {
                                 console.log('continue ' + i)
                                 lastMessage = doc;
@@ -4673,7 +4679,7 @@ ons.ready(function () {
                             }
 
                             //message-in or out
-                            if (parseInt(lastMessage.from) === currentBase) {
+                            if (lastMessage.from === currentBase) {
                                 containerClasses += ' message-out';
                             } else {
                                 containerClasses += ' message-in'
@@ -4682,23 +4688,26 @@ ons.ready(function () {
                             if (lastMessage.from !== doc.from) {
                                 containerClasses += ' tail';
                             } else {
-                                containerClasses += ' bubbleGap';
+                                lineClasses += ' msgContinued';
                             }
-
-                            var bubble = '<div class="msg"><div class="' + containerClasses + '"><div class="' + messageClasses + '">' + lastMessage.message + '</div></div></div>';
+                            //for dev
+                            if (lastMessage.from === undefined) {
+                                lastMessage.from = 1;
+                            }
+                            var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
                             lastMessage = doc;
                             i++;
                             //for last message that won't have another one
                             if (i !== searchLimit) {
                                 if (i === searchLimit - 1) {
-                                    if (parseInt(doc.from) === currentBase) {
+                                    if (doc.from === currentBase) {
                                         lastBubbleContainerClass += ' message-out';
                                     } else {
                                         lastBubbleContainerClass += ' message-in'
                                     }
                                     lastBubbleContainerClass += ' tail';
 
-                                    var lastBubble = '<div class="msg"><div class="' + lastBubbleContainerClass + '"><div class="' + messageClasses + '">' + doc.message + '</div></div></div>';
+                                    var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
                                     return lastBubble += bubble;
 
                                 }
