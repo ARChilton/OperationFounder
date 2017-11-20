@@ -53,6 +53,7 @@ var appDatabaseName = 'oppFounderLoginDb';
 //var remotedbURL = 'https://admin:f80caba00b47@couchdb-335dec.smileupps.com/founder';
 //var remotedbURL = 'http://adam123:adam123@127.0.0.1:5984/adam123';
 var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
+var lastSync;
 
 //server variables
 var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
@@ -790,7 +791,6 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
                     console.log(path._id + ' removed');
 
                     var baseAffected = path._id.split(patt)[1];
-
                     if (deleteNotificationCleared && (baseAffected == base || base === 0)) {
                         deleteNotificationCleared = false;
                         ons.notification.alert({
@@ -3270,7 +3270,8 @@ ons.ready(function () {
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd);
-                    $('#loginEventDescriptionTitle').after('<p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
+                    var version = 'evt';
+                    $('#loginEventDescriptionTitle').after('<span>Ver:' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
 
                     //Event Logo update
@@ -3373,7 +3374,7 @@ ons.ready(function () {
                     $('#loginWelcome').html(welcomeMessage);
                     //Title update
                     console.log('event called ' + eventInfo.eventName);
-                    $('#loginTitle').html(eventInfo.eventName);
+                    $('#loginTitle .normalTitle,#loginTitle .mainTitle').html(eventInfo.eventName);
                 }
 
                 /*  if (localStorage.evtOrganiser) {
@@ -3631,11 +3632,11 @@ ons.ready(function () {
                 //Also work out how to downscale the images saved
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
-                    $('.pageTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
+                    $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
                     $('.quickAddTitle').html('Add new log from base ' + base);
 
                 } else if (base === 'noBase') {
-                    $('.pageTitle').html('On the look out');
+                    $('#page1 .normalTitle,#page1 .mainTitle').html('On the look out');
                     $('.quickAddTitle').html('Record the teams you see');
                     $('#tableTitle').html('Teams seen')
 
@@ -3736,6 +3737,7 @@ ons.ready(function () {
                                 }
                             }).on('paused', function (info) {
                                 // replication was paused, usually because of a lost connection
+                                lastSyncUpdater();
                             }).on('active', function (info) {
                                 // replication was resumed
                             }).on('error', function (err) {
@@ -4442,15 +4444,17 @@ ons.ready(function () {
                                                 }
                                             }).on('paused', function (info) {
                                                 // replication was paused, usually because of a lost connection
-                                                console.log('replication paused because of: ' + info);
+                                                console.log('replication paused because of:');
+                                                lastSyncUpdater();
 
                                             }).on('active', function (info) {
                                                 // replication was resumed
-                                                console.log('replication resumed. Info: ' + info);
-
+                                                console.log('replication resumed. Info: ');
+                                                console.log(info);
                                             }).on('error', function (err) {
                                                 // totally unhandled error (shouldn't happen)
-                                                console.log('Replication Error: ' + err);
+                                                console.log('Replication Error: ');
+                                                console.log(err);
                                             }).on('complete', function (info) {
                                                 console.log('sync disconected from admin database.');
                                                 adminSyncInProgress = false;
@@ -4625,15 +4629,23 @@ ons.ready(function () {
                 var currentBase = navi.topPage.data.currentBase;
                 var eventInfo = navi.topPage.data.eventInfo;
                 var messageWindow = $('#messageWindow');
+                var messageInput = $('#messageInput');
+                var messageInputPlaceholder = $('#messageInputPlaceholder');
                 var pouch = basedb;
                 var pouchSync = syncBasedb;
                 var nextMessageEndKey;
                 var nextMessageEndKey2;
                 var scrollTimer;
                 var messagePageContent = $('#messagesPage .page__content');
+                var page = $('#messagesPage');
                 var offset;
                 var messageChk = /message/i;
                 var newestMessage;
+                var scroll;
+                var scrollingOn = true;
+                var lastRecievedMessages = [];
+
+
 
 
                 //functions
@@ -4644,14 +4656,14 @@ ons.ready(function () {
                  * @param {boolean} scroll whether to scroll to the bottom of the page or not
                  */
                 function addMessages(messageWindow, options, prepend, scroll, offset) {
-                    console.log(pouch);
+                    // console.log(pouch);
 
                     if (options.limit != undefined) {
                         if (options.limit !== false) {
                             options.limit++;
                         }
                     }
-
+                    var messageWindowHeight = messageWindow.height();
                     return pouch.allDocs(options)
                         .then(function (messages) {
                             var rows = messages.rows;
@@ -4685,7 +4697,9 @@ ons.ready(function () {
                                     }
                                     lastMessage = doc;
                                     i++;
+                                    //if (l != 1) {
                                     return;
+                                    //}
                                 }
 
                                 //message-in or out
@@ -4712,8 +4726,10 @@ ons.ready(function () {
                                     if (i === options.limit - 1 || (l < options.limit && i === l)) {
                                         if (doc.from === currentBase) {
                                             lastBubbleContainerClass += ' message-out';
+                                            lineClasses += ' topMsg';
                                         } else {
-                                            lastBubbleContainerClass += ' message-in'
+                                            lastBubbleContainerClass += ' message-in';
+                                            lineClasses += ' topMsg';
                                         }
                                         lastBubbleContainerClass += ' tail';
                                         nextMessageEndKey = doc._id;
@@ -4728,44 +4744,100 @@ ons.ready(function () {
                                 return bubble;
                             }));
                         }).then(function (doc) {
-                            //console.log(doc);
+                            console.log(doc);
+                            // scroll = messagePageContent.scrollTop();
                             if (prepend) {
-                                return messageWindow.prepend(doc.reverse());
+                                return messageWindow.prepend(doc.reverse()).height();
                             } else {
-                                return messageWindow.append(doc.reverse());
+                                return messageWindow.append(doc.reverse()).height();
                             }
+
 
 
                         }).then(function (doc) {
+                            console.log(doc);
+                            // var offset;
+                            // var newMessageContainerHeight = messageWindow.height();
+                            // console.log(newMessageContainerHeight + ' + ' + 100 + ' - ' + messageWindowHeight);
+                            console.log('msgwinheight: ' + messageWindowHeight);
+                            console.log(offset);
                             if (scroll) {
                                 offset = messagePageContent[0].scrollHeight;
+
+                            } else {
+                                // offset = doc - (screenHeight - 128) - (doc - messageWindowHeight);
+                                // offset = (doc + messageWindowHeight) - (doc + 517 + offset);
+                                offset = (doc - messageWindowHeight) + offset;
+                                console.log(messageWindowHeight + '-(517+' + offset + ')');
+                                // console.log(offset + '= (' + doc + ' +  ' + messageWindowHeight + ') - (' + doc + '+' + ' 517 +' + offset + ')');
+                                console.log('offset: ' + offset);
                             }
+
                             scrollToElement(messagePageContent, offset, 1);
+                            // return messagePageContent.scrollTop(offset);
+                            return doc;
+
+
+                        }).then(function (doc) {
+                            return doc;
                         }).catch(function (err) {
                             console.log(err);
+                            return false;
                         });
                 }
                 /**
                  * runs the scroll function on the messagesPage
                  */
                 function handleMsgScroll() {
-                    var scroll = messagePageContent.scrollTop();
+                    scrollingOn = false;
+                    return Promise.resolve().then(function () {
 
-                    if (scroll < 50) {
-                        var firstMsg = $('.msg:first');
-                        nextMessageEndKey2 = nextMessageEndKey;
-                        var options = {
-                            include_docs: true,
-                            endkey: 'message',
-                            startkey: nextMessageEndKey,
-                            descending: true,
-                            limit: 5
-                        };
-                        addMessages(messageWindow, options, true, false, firstMsg[0].height);
-                    }
+                        var scroll1 = messagePageContent.scrollTop();
+                        console.log('s1: ' + scroll1)
+                        if (scroll1 < 120) {
+                            // messagePageContent.off('scroll');
+                            // circleLoader.removeClass('hide');
+
+                            nextMessageEndKey2 = nextMessageEndKey;
+                            var options = {
+                                include_docs: true,
+                                endkey: 'message',
+                                startkey: nextMessageEndKey,
+                                descending: true,
+                                limit: 5
+                            };
+                            return addMessages(messageWindow, options, true, false, scroll1)
+                                .then(function (doc) {
+                                    console.log(doc);
+                                    var scroll2 = messagePageContent.scrollTop();
+                                    console.log('s2: ' + scroll2);
+                                    if (scroll2 < 300 && nextMessageEndKey !== nextMessageEndKey2) {
+                                        console.log('run again');
+                                        return handleMsgScroll();
+                                    }
+                                    // circleLoader.addClass('hide');
+                                    if (nextMessageEndKey === nextMessageEndKey2) {
+                                        return messagePageContent.off('scroll');
+                                    }
+                                    // return messagePageContent.on('scroll', function () {
+                                    //     handleMsgScroll();
+                                    // });
+                                    // scrollingOn = true;
+                                    return scrollingOn = true;
+                                });
+
+                        }
+                        scrollingOn = true;
+                        return true;
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
                 }
-
-                function messageChangeHandler(doc) {
+                /**
+                 * Handles the message update
+                 * @param {object} doc 
+                 */
+                function pullMessageChangeHandler(doc) {
                     console.log('messages being checked');
                     console.log(doc);
                     var updateMsgs = false;
@@ -4774,7 +4846,8 @@ ons.ready(function () {
                     for (var i = 0, l = arrLength; i < l; i++) {
                         if (messageChk.test(path[i]._id)) {
                             updateMsgs = true;
-                            break;
+                            // Something to show messages that were delayed in being sent
+                            lastRecievedMessages.push(path[i]._id);
                         }
                     }
                     console.log(updateMsgs);
@@ -4785,23 +4858,65 @@ ons.ready(function () {
                                 include_docs: true,
                                 endkey: newestMessage,
                                 startkey: 'message\ufff0',
-                                // inclusive_end: false,
                                 descending: true,
                                 limit: false
                             };
                             addMessages(messageWindow, options, false, true);
                         } else {
                             //update msg badge
+                            var badgeNo = lastRecievedMessages.length;
+                            $('.messageBadge').html(badgeNo).removeClass('hide');
                         }
                     }
                 }
-                //code to run
 
+                function sendMessage() {
+                    var date = new Date();
+                    var isoDate = date.toISOString();
+                    var message = {
+                        _id: 'message-' + isoDate,
+                        message: messageInput.html().trim(),
+                        from: currentBase,
+                        time: isoDate,
+                        username: name
+                    };
+                    pouch.put(message).then(function (doc) {
+                        if (doc.ok) {
+                            console.log('message sent');
+                            messageInput.html('');
+                            messageInputPlaceholder.removeClass('hide');
+                            placeholder = true;
+                        } else {
+                            console.log(doc);
+                        }
+                    }).then(function (doc) {
+                        var options = {
+                            include_docs: true,
+                            endkey: newestMessage,
+                            startkey: 'message\ufff0',
+                            descending: true,
+                            limit: false
+                        };
+                        addMessages(messageWindow, options, false, true);
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
+                    if (messageInput.html() === '') {
+                        messageInputPlaceholder.removeClass('hide');
+                        placeholder = true;
+                    }
+                }
+
+
+                //code to run
+                //select which database connection to utilise
                 if (currentBase === 0) {
                     pouch = admindb;
                     pouchSync = adminSync;
                 }
-                $('#messagesPage ons-toolbar .center').html('Messages: ' + eventInfo.eventName);
+                //change page title
+                $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
+                //add messages to screen
                 var options = {
                     include_docs: true,
                     endkey: 'message',
@@ -4810,25 +4925,50 @@ ons.ready(function () {
                     limit: 15
                 };
                 addMessages(messageWindow, options, false, true);
+                //messageInput
+                var placeholder = true;
+                messageInput
+                    .on('keydown', function (e) {
+                        if (placeholder) {
+                            messageInputPlaceholder.addClass('hide');
+                            placeholder = false;
+                        }
+                        if (e.which == 13 && !e.shiftKey) {
+                            e.preventDefault();
+                        }
+                    })
+                    .on('keyup', function (e) {
+                        console.log('keyup');
+                        if (e.which == 13 && !e.shiftKey) {
+                            sendMessage();
+                        }
+
+                    });
+                $('#sendMessage').on('click', function () {
+                    if (messageInput.html() != '') {
+                        sendMessage();
+                    }
+                });
+                lastSyncHandler();
 
                 //event handlers
                 messagePageContent.on('scroll', function () {
-                    if (nextMessageEndKey !== nextMessageEndKey2) {
-                        if (scrollTimer) {
-                            clearTimeout(scrollTimer);
-                        }
-                        scrollTimer = setTimeout(handleMsgScroll(), 1000);
-                    } else {
-                        clearTimeout(scrollTimer);
+                    // console.log('scrolling: ' + nextMessageEndKey + ' ' + nextMessageEndKey2);
+                    if (nextMessageEndKey !== nextMessageEndKey2 && scrollingOn) {
+
+                        handleMsgScroll();
                     }
                 });
 
                 pouchSync.on('change', function (doc) {
-                    messageChangeHandler(doc);
+                    if (change.direction === 'pull') {
+                        pullMessageChangeHandler(doc);
+                    } else {
+                        console.log(doc);
+
+
+                    }
                 });
-
-
-
 
                 //end of messagesPage.html
                 break;
@@ -5039,7 +5179,10 @@ function menuController() {
             menuEvtOrganiser();
             $('#baseLogOut , #goToMap, #copyAllLogs').addClass('hide');
             break;
+
     }
+    //shouldn't really be here but it handles all page changes then
+    lastSyncHandler();
     console.log(navi.topPage.name + ' menu controller run');
 }
 /**
@@ -5098,4 +5241,25 @@ function openMessages() {
         }
     }
     navi.bringPageTop('messagesPage.html', options);
+}
+
+function lastSyncHandler() {
+    if (lastSync !== undefined) {
+        lastSyncUpdater(lastSync);
+    }
+}
+/**
+ * to show the last sync time on pages 
+ * @param {string} timeToShow (optional) a previously defined sync time for continuity 
+ */
+function lastSyncUpdater(timeToShow) {
+    if (timeToShow === undefined) {
+        var date = new Date();
+        lastSync = date.toLocaleTimeString();
+    } else {
+        lastSync = timeToShow;
+    }
+    $('.lastSync').html('last sync: ' + lastSync);
+    $('.normalTitle').addClass('hide');
+    $('.syncTitle').removeClass('hide');
 }
