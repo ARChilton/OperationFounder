@@ -378,7 +378,11 @@
           </ons-toolbar-button>
         </div>
         <div class="center" id="loginTitle">
-          Event homepage
+            <div class="normalTitle"></div>
+            <div class="syncTitle hide">
+              <p class="mainTitle"></p>
+              <p class="lastSync"></p>
+            </div>
         </div>
 
       </ons-toolbar>
@@ -388,7 +392,7 @@
         <p>
           <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput"></ons-input>
         </p>
-        <p id="betweenNameAndBase">This is the short code provided to you by the Operation Founder organisers.</p>
+        <p id="betweenNameAndBase">This is the short code provided to you by the event's organisers.</p>
         <p>
           <ons-input id="baseCode" modifier="underbar" placeholder="Base code" float class="fullWidthInput marginTop"></ons-input>
         </p>
@@ -467,6 +471,11 @@
           </ons-toolbar-button>
         </div>
         <div class="center pageTitle">
+            <div class="normalTitle"></div>
+            <div class="syncTitle hide">
+              <p class="mainTitle"></p>
+              <p class="lastSync"></p>
+            </div>
         </div>
         <div class="right">
           <ons-toolbar-button>
@@ -570,14 +579,20 @@
           </ons-toolbar-button>
         </div>
         <div class="center">
-          Admin
+          <div class="normalTitle">Admin</div>
+          <div class="syncTitle hide">
+            <p class="mainTitle">Admin</p>
+            <p class="lastSync"></p>
+          </div>
         </div>
         <div class="right">
           <ons-toolbar-button>
             <ons-icon icon="md-search" id="patrolSearch"></ons-icon>
           </ons-toolbar-button>
           <ons-toolbar-button>
-            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()"></ons-icon>
+            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()">
+              <span class="messageBadge hide"></span>
+            </ons-icon>
           </ons-toolbar-button>
         </div>
       </ons-toolbar>
@@ -691,16 +706,30 @@
           <ons-back-button>Back</ons-back-button>
         </div>
         <div class="center">
-
+            <div class="normalTitle"></div>
+            <div class="syncTitle hide">
+              <p class="mainTitle"></p>
+              <p class="lastSync"></p>
+            </div>
         </div>
       </ons-toolbar>
       <div class="" id="messageWindow"></div>
 
       <div class="messageInputArea">
         <div class="messageInputContainer">
-          <div class="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
-          <div class="placeholder text-input--material__label">Type a message</div>
+          <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
+          <div id="messageInputPlaceholder" class="placeholder text-input--material__label">Type a message</div>
+
         </div>
+        <ons-fab ripple id="sendMessage" class="fab--mini">
+          <i class="zmdi zmdi-mail-send"></i>
+        </ons-fab>
+
+        <!-- <button id="sendMessage" class="fab fab--mini">
+          <ons-ripple color="#bb8fce" background="#85c1e9"></ons-ripple>
+          <i class="zmdi zmdi-mail-send"></i>
+        </button> -->
+
       </div>
 
 

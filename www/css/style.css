@@ -33,6 +33,41 @@ Accent Darker color: Orange 800: #EF6C00
 }
 
 
+/* Title Bar */
+
+.syncTitle {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    /* width: 300px; */
+    word-wrap: break-word;
+}
+
+.mainTitle {
+    /* height: 50%; */
+    /* vertical-align: middle; */
+    /* position: absolute; */
+    font-size: 18px;
+    text-overflow: ellipsis;
+    /* line-height: 50%; */
+    margin: 0px;
+    padding-top: 8px;
+}
+
+.lastSync {
+    /* height: 50%; */
+    /* position: absolute; */
+    font-size: 12px;
+    /* top: 13px; */
+    font-weight: normal;
+    text-transform: lowercase;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0px;
+    margin-top: -6px;
+}
+
+
 /*signIn page*/
 
 .input70perWidth {
@@ -476,11 +511,6 @@ input[type=number]::-webkit-outer-spin-button {
     color: rgb(255, 255, 255);
 }
 
-
-/* .messagesIcon {
-    margin-left: 16px;
-} */
-
 #adminPage .right {
     max-width: 100%;
 }
@@ -509,6 +539,29 @@ input[type=number]::-webkit-outer-spin-button {
 /* --- Message CSS --- */
 
 
+/* .messagesIcon {
+    
+} */
+
+.newMessages {
+    color: #FF9100;
+}
+
+.messageBadge {
+    background-color: #ff9100;
+    padding: 2px 2px;
+    border-radius: 3px;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-weight: bold;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    font-size: 12px;
+}
+
+
 /* #messagesPage .page__background {
     background-color: #EF6C00 !important;
     background-color: red !important;
@@ -525,24 +578,29 @@ input[type=number]::-webkit-outer-spin-button {
     bottom: 0px;
     left: 0px;
     right: 0px;
-    background-color: #283593
+    background-color: rgba(40, 53, 147, 0.5);
 }
 
 .messageInputContainer {
-    margin: 9px 16px;
+    margin: 9px 55px 9px 8px;
     font-size: 15px;
     line-height: 20px;
     /* width: 90vw; */
-    border-radius: 3px;
+    border-radius: 25px;
     background-color: #fff;
+    /* border: 1px solid #000; */
+    /* box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13); */
+    /* box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4); */
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.14), 0 1px 1px 0 rgba(0, 0, 0, 0.12);
 }
 
-.messageInput {
-    padding-top: 8px;
+#messageInput {
+    padding-top: 9px;
+    padding-bottom: 9px;
     margin: 4px 16px;
     font-weight: normal;
     max-height: 100px;
-    min-height: 30px;
+    min-height: 20px;
     outline: none;
     overflow-x: hidden;
     overflow-y: auto;
@@ -551,13 +609,27 @@ input[type=number]::-webkit-outer-spin-button {
     white-space: pre-wrap;
     word-wrap: break-word;
     z-index: 1;
-    border-left: 0.1px solid transparent;
+    /* border-left: 0.1px solid transparent; */
     user-select: text;
 }
 
+#sendMessage {
+    position: absolute;
+    right: 8px;
+    top: 9px;
+    /* box-shadow: 0 1px 1px rgba(0, 0, 0, 0.13); */
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.14), 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+#sendMessage i {
+    position: absolute;
+    right: 7px;
+    top: 8px;
+}
+
 .placeholder {
-    padding-top: 10px;
-    margin: 4px 32px;
+    padding-top: 12px;
+    margin: 4px 24px;
     font-weight: normal;
     font-size: 15px;
     /* min-height: 30px; */
