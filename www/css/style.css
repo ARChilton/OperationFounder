@@ -161,6 +161,13 @@ Accent Darker color: Orange 800: #EF6C00
     padding: 16px;
 }
 
+#evtVersion {
+    position: absolute;
+    font-size: 12px;
+    right: 16px;
+    top: 0px;
+}
+
 
 /*Cards*/
 

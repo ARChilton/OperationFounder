@@ -3270,8 +3270,9 @@ ons.ready(function () {
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd);
-                    var version = 'evt';
-                    $('#loginEventDescriptionTitle').after('<span>Ver:' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
+                    var pattern = /\W/g;
+                    var version = eventInfo._rev.split(pattern)[0];
+                    $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
 
                     //Event Logo update
