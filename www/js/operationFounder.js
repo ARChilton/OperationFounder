@@ -813,9 +813,12 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
             } else if (path._id === 'eventDescription') {
                 //console.log(path);
                 console.log('event description update');
+                var pattern = /\W/g;
+                var version = path._rev.split(pattern)[0];
+
                 ons.notification.alert({
                     title: 'Event Update',
-                    messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                    messageHTML: '<p>This event has been updated by the event organisers to version: ' + version + '.</p><p>Your device will update once this message closes.</p>',
                     cancelable: true
                 }).then(function () {
                     navi.resetToPage('updatePage.html', {
@@ -3237,11 +3240,15 @@ ons.ready(function () {
                         var messageOpen = false;
                         evtUpdateCheck = db.replicate.from(tempRemotedb, options)
                             .on('change', function (doc) {
+                                console.log(doc);
                                 if (!messageOpen) {
                                     messageOpen = true;
+                                    var pattern = /\W/g;
+                                    var version = doc.docs[0]._rev.split(pattern)[0];
+                                    console.log(version);
                                     ons.notification.alert({
                                         title: 'Event Updated',
-                                        messageHTML: '<p>This event has been updated by the event organisers.</p><p>Your device will update once this message closes.</p>',
+                                        messageHTML: '<p>This event has been updated by the event organisers to version: ' + version + '.</p><p>Your device will update once this message closes.</p>',
                                         cancelable: true
                                     }).then(function (input) {
                                         var options = {
