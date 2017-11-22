@@ -3239,12 +3239,11 @@ ons.ready(function () {
                                 }
                                 return options = {
                                     title: 'Email Sent',
-                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in, please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how enter the event.</p>',
+                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in, please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how enter the app or website.</p>',
                                     cancelable: true
                                 };
                             }).then(function (options) {
                                 return ons.notification.alert(options);
-
                             });
                     });
                     var scrollElement = $('#eventSummaryPage .page__content');
