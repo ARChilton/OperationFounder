@@ -2657,7 +2657,9 @@ ons.ready(function () {
                 if (pageData.edit === true) {
                     if (pageData.eventInfo != undefined) {
                         editEvent = true;
-                        $('#createEventPage .center').html('Edit Event');
+                        var pattern = /\W/g;
+                        var version = parseInt(pageData.eventInfo._rev.split(pattern)[0]) + 1;
+                        $('#createEventPage .center').html('Edit Event - version: ' + version);
                         var eventInfo = pageData.eventInfo;
                         $('#eventName').val(eventInfo.eventName);
                         $('#eventStartDate').val(eventInfo.dateStart);
@@ -3157,8 +3159,14 @@ ons.ready(function () {
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd)
 
-                    $('#evtSummaryStartDate').append(evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString());
-                    $('#evtSummaryEndDate').append(evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString());
+                    $('#evtSummaryStartDate').append(evtStart.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) + ' on ' + evtStart.toDateString());
+                    $('#evtSummaryEndDate').append(evtEnd.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) + ' on ' + evtEnd.toDateString());
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
@@ -3169,19 +3177,19 @@ ons.ready(function () {
 
                     eventInfo.bases.forEach(function (base) {
 
-                        $('#evtSummaryBases').append('<h2 class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '<h2>');
+                        $('#evtSummaryBases').append('<p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>');
                         if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
                             message = 'no score available at this location';
                         } else {
                             message = base.baseMaxScore;
                         }
 
-                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '<p>');
+                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>');
                         if (eventInfo.passwordProtectLogs) {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '<p>');
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '</p>');
                         }
                         if (base.baseInstructions != undefined && base.baseInstructions != "") {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '<p>');
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
                     });
 
@@ -3210,6 +3218,59 @@ ons.ready(function () {
                             }
                         };
                         navi.resetToPage('loginPage.html', options);
+                    });
+                    $('.evtSendEmail').on('click', function () {
+                        //send email
+                        console.log('send email');
+                        var eDUrl = appServer + '/api/event/email';
+                        var dataPackage = {
+                            username: username,
+                            password: password,
+                            db: eventInfo.dbName
+                        };
+                        return $.ajax(apiAjax(eDUrl, dataPackage))
+                            .then(function (response) {
+                                if (response.status !== 200) {
+                                    return options = {
+                                        title: 'Error',
+                                        message: 'There was an issue sending you an email with the event details, please try again later.',
+                                        cancelable: true
+                                    };
+                                }
+                                return options = {
+                                    title: 'Email Sent',
+                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in, please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how enter the event.</p>',
+                                    cancelable: true
+                                };
+                            }).then(function (options) {
+                                return ons.notification.alert(options);
+
+                            });
+                    });
+                    var scrollElement = $('#eventSummaryPage .page__content');
+                    var scrollTo = document.getElementById('sendEventEmailButtonContainer');
+                    var emailFab = document.getElementById('emailEvtDescription');
+                    /**
+                     *returns true if the element is visible, false if not
+                     * @param {object} el element NOT JQUERY 
+                     * @return {boolean} true = visible || false=not visible 
+                     */
+                    function isScrolledIntoView(el) {
+                        var elemTop = el.getBoundingClientRect().top;
+                        var elemBottom = el.getBoundingClientRect().bottom;
+
+                        // Only completely visible elements return true:
+                        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+                        // Partially visible elements return true:
+                        //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+                        return isVisible;
+                    }
+                    scrollElement.on('scroll', function () {
+                        if (isScrolledIntoView(scrollTo)) {
+                            console.log('isVisible');
+                            return emailFab.hide();
+                        }
+                        return emailFab.show();
                     });
                 }
 
