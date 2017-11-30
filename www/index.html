@@ -4,14 +4,15 @@
 <head>
   <title>Incident Hike Manager</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="author" content="Adam Chilton">
   <meta name="keywords" content="operation founder, scouts, tonbridge and malling, guides, hike, base, bases">
   <script src="components/loader.js">
   </script>
-  <script src="lib/onsenui/js/onsenui.min.js"></script>
+  <!-- Need to minify scripts! -->
+  <script src="lib/onsenui/js/onsenui.js"></script>
   <!--<script src="js/mdl/material.js"></script>-->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
   <link rel="stylesheet" href="components/loader.css">
@@ -742,23 +743,24 @@
         </div>
       </ons-toolbar>
       <div class="" id="messageWindow"></div>
+      <ons-bottom-toolbar transparent id="messageInputToolbar">
+        <div class="messageInputArea">
+          <div class="messageInputContainer">
+            <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
+            <div id="messageInputPlaceholder" class="placeholder text-input--material__label">Type a message</div>
 
-      <div class="messageInputArea">
-        <div class="messageInputContainer">
-          <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
-          <div id="messageInputPlaceholder" class="placeholder text-input--material__label">Type a message</div>
+          </div>
+          <ons-fab ripple id="sendMessage" class="fab--mini">
+            <i class="zmdi zmdi-mail-send"></i>
+          </ons-fab>
 
-        </div>
-        <ons-fab ripple id="sendMessage" class="fab--mini">
-          <i class="zmdi zmdi-mail-send"></i>
-        </ons-fab>
-
-        <!-- <button id="sendMessage" class="fab fab--mini">
+          <!-- <button id="sendMessage" class="fab fab--mini">
           <ons-ripple color="#bb8fce" background="#85c1e9"></ons-ripple>
           <i class="zmdi zmdi-mail-send"></i>
         </button> -->
 
-      </div>
+        </div>
+      </ons-bottom-toolbar>
 
 
     </ons-page>
