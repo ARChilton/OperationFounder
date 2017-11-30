@@ -634,10 +634,6 @@ input[type=number]::-webkit-outer-spin-button {
     height: 56px;
 }
 
-.safari44px {
-    margin-bottom: 44px;
-}
-
 .messageInputArea {
     position: absolute;
     bottom: 0px;
