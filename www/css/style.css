@@ -595,6 +595,11 @@ input[type=number]::-webkit-outer-spin-button {
     
 } */
 
+#messagesPage .page__content {
+    border: none;
+    bottom: 56px;
+}
+
 .newMessages {
     color: #FF9100;
 }
@@ -621,12 +626,21 @@ input[type=number]::-webkit-outer-spin-button {
 
 #messageWindow {
     margin-top: 16px;
-    margin-bottom: 60px;
+    margin-bottom: 15px;
     position: relative;
 }
 
+#messageInputToolbar {
+    height: 56px;
+}
+
+.safari44px {
+    margin-bottom: 44px;
+}
+
 .messageInputArea {
-    position: fixed;
+    position: absolute;
+    ;
     bottom: 0px;
     left: 0px;
     right: 0px;
@@ -1133,10 +1147,11 @@ p {
     z-index: -1;
 }
 
-body {
+
+/* body {
     height: 100vh;
     width: 100vw;
-}
+} */
 
 
 /* --- Menu Styling ---*/
