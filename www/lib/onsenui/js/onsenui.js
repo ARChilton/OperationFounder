@@ -1,3 +1,4 @@
+//All modifications are marked by modified by ...
 /*! onsenui v2.0.3 - 2016-10-26 */
 if (!window.CustomEvent) {
   (function() {
@@ -24730,7 +24731,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          var badge = this.getAttribute('badge');
 
          if (typeof icon === 'string') {
-           getIconElement().setAttribute('icon', icon);
+           //ARC fix added from 2.0.5 release of OnsenUI
+          var iconElement = getIconElement();
+          var last = iconElement.getAttribute('icon');
+          iconElement.setAttribute('icon', icon);
+          // dirty fix for https://github.com/OnsenUI/OnsenUI/issues/1654
+          +      getIconElement().attributeChangedCallback('icon', last, icon);
          } else {
            var wrapper = button.querySelector('.tab-bar__icon');
            if (wrapper) {
