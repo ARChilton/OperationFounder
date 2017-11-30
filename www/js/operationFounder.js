@@ -56,7 +56,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'https://adam.localtunnel.me'; //'http://127.0.0.1:3000'; //
 
 // map variables
 var marker;
@@ -1390,127 +1390,127 @@ function compareTwoArrays(arr1, arr2, outputDifferences) {
  * Takes an image element and finds the average pixel value
  * @param {element} imgEl 
  */
-function getAverageRGB(imgEl) {
+// function getAverageRGB(imgEl) {
 
-    var blockSize = 5, // only visit every 5 pixels
-        defaultRGB = {
-            r: 0,
-            g: 0,
-            b: 0
-        }, // for non-supporting envs
-        canvas = document.createElement('canvas'),
-        context = canvas.getContext && canvas.getContext('2d'),
-        data, width, height,
-        i = -4,
-        length,
-        rgb = {
-            r: 0,
-            g: 0,
-            b: 0
-        },
-        count = 0;
+//     var blockSize = 5, // only visit every 5 pixels
+//         defaultRGB = {
+//             r: 0,
+//             g: 0,
+//             b: 0
+//         }, // for non-supporting envs
+//         canvas = document.createElement('canvas'),
+//         context = canvas.getContext && canvas.getContext('2d'),
+//         data, width, height,
+//         i = -4,
+//         length,
+//         rgb = {
+//             r: 0,
+//             g: 0,
+//             b: 0
+//         },
+//         count = 0;
 
-    if (!context) {
-        return defaultRGB;
-    }
+//     if (!context) {
+//         return defaultRGB;
+//     }
 
-    height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-    width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+//     height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+//     width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
 
-    context.drawImage(imgEl, 0, 0);
+//     context.drawImage(imgEl, 0, 0);
 
-    try {
-        data = context.getImageData(0, 0, width, height);
-    } catch (e) {
-        /* security error, img on diff domain */
-        return defaultRGB;
-    }
+//     try {
+//         data = context.getImageData(0, 0, width, height);
+//     } catch (e) {
+//         /* security error, img on diff domain */
+//         return defaultRGB;
+//     }
 
-    length = data.data.length;
+//     length = data.data.length;
 
-    while ((i += blockSize * 4) < length) {
-        ++count;
-        rgb.r += data.data[i];
-        rgb.g += data.data[i + 1];
-        rgb.b += data.data[i + 2];
-    }
+//     while ((i += blockSize * 4) < length) {
+//         ++count;
+//         rgb.r += data.data[i];
+//         rgb.g += data.data[i + 1];
+//         rgb.b += data.data[i + 2];
+//     }
 
-    // ~~ used to floor values
-    rgb.r = ~~(rgb.r / count);
-    rgb.g = ~~(rgb.g / count);
-    rgb.b = ~~(rgb.b / count);
+//     // ~~ used to floor values
+//     rgb.r = ~~(rgb.r / count);
+//     rgb.g = ~~(rgb.g / count);
+//     rgb.b = ~~(rgb.b / count);
 
-    return rgb;
+//     return rgb;
 
-}
-const BW_TRESHOLD = Math.sqrt(1.05 * 0.05) - 0.05;
-const RE_HEX = /^(?:[0-9a-f]{3}){1,2}$/i;
+// }
+// const BW_TRESHOLD = Math.sqrt(1.05 * 0.05) - 0.05;
+// const RE_HEX = /^(?:[0-9a-f]{3}){1,2}$/i;
 
-function padz(str, len) {
-    len = len || 2;
-    return (new Array(len).join('0') + str).slice(-len);
-}
+// function padz(str, len) {
+//     len = len || 2;
+//     return (new Array(len).join('0') + str).slice(-len);
+// }
 
-function toObj(c) {
-    return {
-        r: c[0],
-        g: c[1],
-        b: c[2]
-    };
-}
+// function toObj(c) {
+//     return {
+//         r: c[0],
+//         g: c[1],
+//         b: c[2]
+//     };
+// }
 
-function hexToRGB(hex) {
-    if (hex.slice(0, 1) === '#') hex = hex.slice(1);
-    if (!RE_HEX.test(hex)) throw new Error('Invalid HEX color.');
-    // normalize / convert 3-chars hex to 6-chars.
-    if (hex.length === 3) {
-        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    return [
-        parseInt(hex.slice(0, 2), 16), // r
-        parseInt(hex.slice(2, 4), 16), // g
-        parseInt(hex.slice(4, 6), 16) // b
-    ];
-}
+// function hexToRGB(hex) {
+//     if (hex.slice(0, 1) === '#') hex = hex.slice(1);
+//     if (!RE_HEX.test(hex)) throw new Error('Invalid HEX color.');
+//     // normalize / convert 3-chars hex to 6-chars.
+//     if (hex.length === 3) {
+//         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+//     }
+//     return [
+//         parseInt(hex.slice(0, 2), 16), // r
+//         parseInt(hex.slice(2, 4), 16), // g
+//         parseInt(hex.slice(4, 6), 16) // b
+//     ];
+// }
 
-// c = String (hex) | Array [r, g, b] | Object {r, g, b}
-function toRGB(c) {
-    if (Array.isArray(c)) return c;
-    return typeof c === 'string' ? hexToRGB(c) : [c.r, c.g, c.b];
-}
+// // c = String (hex) | Array [r, g, b] | Object {r, g, b}
+// function toRGB(c) {
+//     if (Array.isArray(c)) return c;
+//     return typeof c === 'string' ? hexToRGB(c) : [c.r, c.g, c.b];
+// }
 
 
-function getLuminance(c) {
-    let i, x;
-    const a = []; // so we don't mutate
-    for (i = 0; i < c.length; i++) {
-        x = c[i] / 255;
-        a[i] = x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
-    }
-    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
-}
+// function getLuminance(c) {
+//     var i, x;
+//     const a = []; // so we don't mutate
+//     for (i = 0; i < c.length; i++) {
+//         x = c[i] / 255;
+//         a[i] = x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+//     }
+//     return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+// }
 
-function invertToBW(color, asArr) {
-    return getLuminance(color) > BW_TRESHOLD ?
-        (asArr ? [0, 0, 0] : '#000000') :
-        (asArr ? [255, 255, 255] : '#ffffff');
-}
+// function invertToBW(color, asArr) {
+//     return getLuminance(color) > BW_TRESHOLD ?
+//         (asArr ? [0, 0, 0] : '#000000') :
+//         (asArr ? [255, 255, 255] : '#ffffff');
+// }
 
-function invert(color, bw) {
-    color = toRGB(color);
-    if (bw) return invertToBW(color);
-    return '#' + color.map(c => padz((255 - c).toString(16))).join('');
-}
+// function invert(color, bw) {
+//     color = toRGB(color);
+//     if (bw) return invertToBW(color);
+//     return '#' + color.map(c => padz((255 - c).toString(16))).join('');
+// }
 
-invert.asRgbArray = (color, bw) => {
-    color = toRGB(color);
-    return bw ? invertToBW(color, true) : color.map(c => 255 - c);
-};
+// invert.asRgbArray = (color, bw) => {
+//     color = toRGB(color);
+//     return bw ? invertToBW(color, true) : color.map(c => 255 - c);
+// };
 
-invert.asRgbObject = (color, bw) => {
-    color = toRGB(color);
-    return toObj(bw ? invertToBW(color, true) : color.map(c => 255 - c));
-};
+// invert.asRgbObject = (color, bw) => {
+//     color = toRGB(color);
+//     return toObj(bw ? invertToBW(color, true) : color.map(c => 255 - c));
+// };
 
 //invert.asRgbObject(getAverageRGB(document.getElementById('loginEventLogo')),true);
 
@@ -2554,25 +2554,8 @@ ons.ready(function () {
                  * @param {number|string} baseCount 
                  */
                 function addBase(baseCount) {
-                    return $('.addBaseButton').before(
-                        `
-                                        <div>
-                                            <p class="txtLeft bold marginTop">Base ` + baseCount + `</p>
-                                            <ons-input id="base` + baseCount + `Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
-                                            <div class="flex flexRow flexSpaceBetween marginTop">
-                                                <div class="caption"><span class="bold">Maximum score available</span>
-                                                    <span class="caption marginLeft">(blank = no score input)</span>
-                                                </div>
-                                            <ons-input id="base` + baseCount + `MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
-                                            </div>
-                                            <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-                                                <div class="caption bold">Base password *</div>
-                                                    <ons-input id="base` + baseCount + `Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input>
-                                                </div>
-                                            <textarea class="textarea marginTop" id="base` + baseCount + `Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
-                                        </div>
-                                    `
-                    );
+                    var baseElToAdd = '<div><p class="txtLeft bold marginTop">Base ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><span class="caption marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
+                    return $('.addBaseButton').before(baseElToAdd);
                 }
                 /**
                  * a function to show or hide the password inputs
@@ -3450,79 +3433,85 @@ ons.ready(function () {
                  } */
 
                 //event handlers
-                if (!($('.loginButton').hasClass('evtHandler'))) {
-                    $('.loginButton').addClass('evtHandler');
-                    $('.loginButton').on('click', function () {
-                        if ($('#baseCode').val != '' && $('#userName').val() != '') {
-                            var baseCodeInput = $('#baseCode').val().toLowerCase();
-                            name = $('#userName').val();
-                            base = baseCodes.indexOf(baseCodeInput);
+                var loginButton = $('#loginButton');
+                var baseCodeEl = $('#baseCode');
+                var usernameEl = $('#userName');
+                if (!(loginButton.hasClass('evtHandler'))) {
+                    loginButton.addClass('evtHandler')
+                        .on('click', function () {
                             var timestamp = new Date().toISOString();
-                            if (base > -1) {
-                                //  code is in the list
-                                ons.enableDeviceBackButtonHandler();
-                                if (base === 0) {
-                                    //admin message
-                                    var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' admin app, here you can view all team scores as they come in. If you are using a mobile device, rotate your screen to see more information.';
-                                } else {
-                                    var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
-                                }
-                                appdb.get('login_' + username).then(function (doc) {
-                                        doc.base = base;
-                                        doc.name = name;
-                                        doc.currentDb = eventInfo.dbName;
-                                        doc.timestamp = timestamp;
-                                        return appdb.put(doc);
-                                    })
-                                    .catch(function (err) {
-                                        //TODO check once the db stuff is sorted
-                                        return appdb.put({
-                                            _id: 'login_' + username,
-                                            base: base,
-                                            name: name,
-                                            currentDb: eventInfo.dbName,
-                                            timestamp: timestamp
-                                        }).then(function () {
-                                            ons.notification.alert({
-                                                title: 'Welcome ' + name,
-                                                message: welcomeMessage,
-                                                cancelable: true
-                                            });
-                                        }).catch(function () {
-                                            ons.notification.alert({
+                            var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
+                            return Promise.resolve()
+                                .then(function () {
+                                    if (baseCodeEl.val() === '' || usernameEl.val() === '') {
+                                        throw {
+                                            message: noBaseSelectedErrorMessage,
+                                            title: 'Missing inputs',
+                                            cancelable: true
+                                        };
+                                    }
+                                    var baseCodeInput = baseCodeEl.val().toLowerCase();
+                                    name = usernameEl.val();
+                                    base = baseCodes.indexOf(baseCodeInput);
+
+                                    if (!(base > -1)) {
+                                        throw {
+                                            message: 'Please try re-entering your base code or contact the event organisers',
+                                            title: 'Incorrect Base Code',
+                                            cancelable: true
+                                        };
+                                    }
+                                    return base;
+                                }).then(function (baseNumber) {
+
+                                    if (baseNumber === 0) {
+                                        return ons.notification.prompt({
+                                            title: 'Enter Admin Code',
+                                            messageHTML: 'To enter the admin area please enter the admin code provided to you by the event organisers:',
+                                            cancelable: true,
+                                            placeholder: 'Enter admin code here'
+                                        }).then(function (input) {
+                                            if (input.toLowerCase() !== eventInfo.adminPassword) {
+                                                throw {
+                                                    title: 'Admin code Error',
+                                                    message: 'Please try re-entering your admin code, the code you entered was incorrect.',
+                                                    cancelable: true
+                                                };
+                                            }
+                                            return baseNumber;
+                                        });
+                                    } else {
+                                        return baseNumber;
+                                    }
+                                }).then(function (baseNumber) {
+                                    return appdb.get('login_' + username)
+                                        .then(function (doc) {
+                                            doc.base = base;
+                                            doc.name = name;
+                                            doc.currentDb = eventInfo.dbName;
+                                            doc.timestamp = timestamp;
+                                            return appdb.put(doc);
+                                        })
+                                        .catch(function (err) {
+                                            console.log(err);
+                                            return ons.notification.alert({
                                                 title: 'Error saving user',
                                                 message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
                                                 cancelable: true
                                             });
                                         });
+                                }).then(function (doc) {
 
-
+                                    loginAndRunFunction(base, {
+                                        eventInfo: eventInfo
                                     });
-                                loginAndRunFunction(base, {
-                                    eventInfo: eventInfo
+                                    evtUpdateCheck.cancel();
+
+                                }).catch(function (err) {
+                                    console.log(err);
+                                    return ons.notification.alert(err);
                                 });
-                                evtUpdateCheck.cancel();
-                                // } else if (base == 7) {
-                                //     // roaming page 
-
-                            } else {
-                                //  bad
-                                ons.notification.alert({
-                                    message: 'Please try re-entering your base code or contact the event organisers',
-                                    title: 'Incorrect Base Code',
-                                    cancelable: true
-                                });
-                            }
-
-                        } else {
-                            ons.notification.alert({
-                                message: noBaseSelectedErrorMessage,
-                                title: 'Missing inputs',
-                                cancelable: true
-                            });
-
-                        }
-                    });
+                        });
                 }
                 menuController('loginPage.html');
                 // end of loginPage.html
@@ -3568,23 +3557,9 @@ ons.ready(function () {
                                 eventTimeline = upcomingEvents;
                             }
 
+                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button> <ons-button modifier="quiet" ripple class="cardIconButton rotate270 baseInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button></div>                                <div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
 
-                            eventTimeline.append(
-                                `
-                                    <div class="card mdl-shadow--2dp" id="` + event + `">
-                                    <div class="cardMediaDiv"></div>
-                                        <div class="mdl-card__title">` + doc.eventName + `</div>
-                                        <div class="mdl-card__actions mdl-card--border">
-                                            <ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button> <ons-button modifier="quiet" ripple class="cardIconButton rotate270 baseInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button>
-                                        </div>
-                                        <div class="mdl-card__supporting-text hide">` + doc.eventDescription.replace(/\n/g, "<br>") + `</div>
-                                        <div class="cardTRButton">
-                                            <ons-button modifier="quiet" ripple class="cardIconButton"><i class="zmdi zmdi-share"></i></ons-button>
-                                        </div>
-                                    </div>
-                                    <br>
-                                `
-                            );
+                            eventTimeline.append(cardToAppend);
                             //shows the title of the event timeline grouping
                             eventTimeline.find('.eventTitle').removeClass('hide');
                             //eventInfo
@@ -4818,9 +4793,6 @@ ons.ready(function () {
                             } else {
                                 return messageWindow.append(doc.reverse()).height();
                             }
-
-
-
                         }).then(function (doc) {
                             console.log(doc);
                             // var offset;
@@ -4926,7 +4898,7 @@ ons.ready(function () {
                                 endkey: newestMessage,
                                 startkey: 'message\ufff0',
                                 descending: true,
-                                limit: false
+                                limit: undefined
                             };
                             addMessages(messageWindow, options, false, true);
                         } else {
@@ -4947,27 +4919,28 @@ ons.ready(function () {
                         time: isoDate,
                         username: name
                     };
-                    pouch.put(message).then(function (doc) {
-                        if (doc.ok) {
-                            console.log('message sent');
-                            messageInput.html('');
-                            messageInputPlaceholder.removeClass('hide');
-                            placeholder = true;
-                        } else {
-                            console.log(doc);
-                        }
-                    }).then(function (doc) {
-                        var options = {
-                            include_docs: true,
-                            endkey: newestMessage,
-                            startkey: 'message\ufff0',
-                            descending: true,
-                            limit: false
-                        };
-                        addMessages(messageWindow, options, false, true);
-                    }).catch(function (err) {
-                        console.log(err);
-                    });
+                    pouch.put(message)
+                        .then(function (doc) {
+                            if (doc.ok) {
+                                console.log('message sent');
+                                messageInput.html('');
+                                messageInputPlaceholder.removeClass('hide');
+                                placeholder = true;
+                            } else {
+                                console.log(doc);
+                            }
+                        }).then(function (doc) {
+                            var options = {
+                                include_docs: true,
+                                endkey: newestMessage,
+                                startkey: 'message\ufff0',
+                                descending: true,
+                                limit: undefined
+                            };
+                            return addMessages(messageWindow, options, false, true);
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
                     if (messageInput.html() === '') {
                         messageInputPlaceholder.removeClass('hide');
                         placeholder = true;
@@ -4983,6 +4956,7 @@ ons.ready(function () {
                 }
                 //change page title
                 $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
+
                 //add messages to screen
                 var options = {
                     include_docs: true,
@@ -5027,13 +5001,10 @@ ons.ready(function () {
                     }
                 });
 
-                pouchSync.on('change', function (doc) {
+                //pouchSync.on('change', function (doc) {
+                pouchSync.on('change', function (change) {
                     if (change.direction === 'pull') {
-                        pullMessageChangeHandler(doc);
-                    } else {
-                        console.log(doc);
-
-
+                        pullMessageChangeHandler(change);
                     }
                 });
 
