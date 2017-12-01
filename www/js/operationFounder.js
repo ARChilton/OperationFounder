@@ -920,63 +920,64 @@ function deleteRecords(deleteDocs) {
     for (var i = 0, l = deletedDocsLength; i < l; i++) {
         var id = deleteDocs[i].dbId;
         var trId = deleteDocs[i].trId;
-
-        /**
-         * Will make 5 attempts to write the edit to the db in the case of conflicts occuring
-         * @param {string} id - _id in the pouch database to be written
-         */
-        function writeUntilWritten(id) {
-
-            admindb.get(id)
-
-                .then(function (doc) {
-                    var origRev = doc._rev;
-                    admindb.put({
-                        _id: id,
-                        _rev: origRev,
-                        username: name,
-                        timestamp: timestamp,
-                        _deleted: true
-                    })
-                }).catch(function (err) {
-                    if (err.status === 404) {
-                        admindb.put({
-                            _id: id,
-                            _rev: origRev,
-                            username: name,
-                            timestamp: timestamp,
-                            _deleted: true
-                        });
-                    }
-                    if (err.status === 409) {
-
-                        if (attemptCount < 5) {
-                            attemptCount++
-                            return writeUntilWritten(id);
-                        } else {
-                            console.log('409 could not be written');
-                        }
-                    }
-
-                    //else if (err.status == 404) {
-                    //     ons.notification.alert({
-                    //         title: '404 not found',
-                    //         message: 'The record you are trying to delete was not found, this might be because someone else has just deleted it.'
-                    //     })
-                });
-        }
+        attemptCount = 0;
         writeUntilWritten(id);
         $('#' + trId).remove();
     }
 
     ons.notification.alert({
         title: deletedDocsLength + ' logs deleted',
-        message: 'You have set ' + deletedDocsLength + ' to deleted. This has updated the record to deleted but has not removed all previous records from the database. To undo the deletion will require database admin privaledges.',
+        message: 'You have deleted ' + deletedDocsLength + ' logs. This has updated the record in the database to deleted and will sync up with other users now.',
         cancelable: true
     });
 
 }
+/**
+ * Will make 5 attempts to write the edit to the db in the case of conflicts occuring
+ * @param {string} id - _id in the pouch database to be written
+ */
+function writeUntilWritten(id) {
 
+    admindb.get(id)
+
+        .then(function (doc) {
+            var origRev = doc._rev;
+            admindb.put({
+                _id: id,
+                _rev: origRev,
+                username: name,
+                timestamp: timestamp,
+                _deleted: true
+            });
+        }).then(function (doc) {
+            return true;
+        }).catch(function (err) {
+            if (err.status === 404) {
+                admindb.put({
+                    _id: id,
+                    _rev: origRev,
+                    username: name,
+                    timestamp: timestamp,
+                    _deleted: true
+                }).then(function (doc) {
+                    return true;
+                }).catch(function (err) {
+                    console.log(err);
+                });
+            }
+            if (err.status === 409) {
+
+                if (attemptCount < 5) {
+                    attemptCount++
+                    return writeUntilWritten(id);
+                } else {
+                    console.log('409 could not be written');
+                    return false;
+                }
+            }
+
+        });
+}
 
 
 
