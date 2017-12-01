@@ -921,7 +921,7 @@ function deleteRecords(deleteDocs) {
         var id = deleteDocs[i].dbId;
         var trId = deleteDocs[i].trId;
         attemptCount = 0;
-        writeUntilWritten(id);
+        writeUntilWrittenDelete(id);
         $('#' + trId).remove();
     }
 
@@ -936,7 +936,7 @@ function deleteRecords(deleteDocs) {
  * Will make 5 attempts to write the edit to the db in the case of conflicts occuring
  * @param {string} id - _id in the pouch database to be written
  */
-function writeUntilWritten(id) {
+function writeUntilWrittenDelete(id) {
 
     admindb.get(id)
 
@@ -969,7 +969,7 @@ function writeUntilWritten(id) {
 
                 if (attemptCount < 5) {
                     attemptCount++
-                    return writeUntilWritten(id);
+                    return writeUntilWrittenDelete(id);
                 } else {
                     console.log('409 could not be written');
                     return false;
