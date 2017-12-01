@@ -3476,7 +3476,7 @@ ons.ready(function () {
                                     return base;
                                 }).then(function (baseNumber) {
 
-                                    if (baseNumber === 0) {
+                                    if (baseNumber === 0 && !eventInfo.passwordProtectLogs) {
                                         return ons.notification.prompt({
                                             title: 'Enter Admin Code',
                                             messageHTML: 'To enter the admin area please enter the admin code provided to you by the event organisers:',
