@@ -1576,7 +1576,9 @@ ons.ready(function () {
 
     // --- login function ---
     if (appdbConnected === false) {
-        appdb = new PouchDB(appDatabaseName);
+        appdb = new PouchDB(appDatabaseName, {
+            auto_compaction: true
+        });
         appdbConnected = true;
     }
     //the user has an event they previously signed into and were in a previous db
