@@ -56,7 +56,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://adam.localtunnel.me'; //'http://127.0.0.1:3000'; //
+var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 var marker;
@@ -138,6 +138,7 @@ document.addEventListener("pause", onPause, false);
 function onPause() {
     // Handle the pause event
     console.log('devicePaused');
+    alert('device paused');
 
 
 }
@@ -152,6 +153,7 @@ document.addEventListener("resume", onResume, false);
 function onResume() {
     // Handle the resume event
     console.log('deviceResume');
+    alert('device resumed');
 }
 /**
  * Checks the orientation and updates the GUI accordingly, landscape only
@@ -723,6 +725,16 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
  */
 function tableUpdateFunction(path, admin) {
+    var tIn = new Date(path.timeIn);
+    var timeIn = tIn.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    var tOut = new Date(path.timeOut);
+    var timeOut = tOut.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
     console.log(path.patrol + ' ' + path.base + ' ' + path._id);
     if (admin == true) {
@@ -737,16 +749,16 @@ function tableUpdateFunction(path, admin) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            updateAdminExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         } else {
-            updateAdminTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         }
 
     } else if (path.base === getBaseNumber()) {
         if (patrolRecordUpdate(path._id, path.offRoute, false)) {
-            updateExisting(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+            updateExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         } else {
-            updateTable(path._id, path.patrol, path.timeIn, path.timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+            updateTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         }
 
     }
@@ -3915,7 +3927,27 @@ ons.ready(function () {
                         var now = Date.now();
                         var time = new Date();
                         var timestamp = time.toISOString();
+                        //time conversions to date object
+                        if (sqTimeIn === "") {
+                            var sqTimeIn = new Date();
 
+                        } else if (sqTimeIn.length == 5) {
+                            var tIn = sqTimeIn.split(':');
+                            sqTimeIn = new Date();
+                            sqTimeIn.setHours(tIn[0]);
+                            sqTimeIn.setMinutes(tIn[1]);
+                            sqTimeIn.setSeconds(0);
+                            console.log(sqTimeIn);
+                        }
+                        if (sqTimeOut === "") {
+
+                            sqTimeOut = new Date();
+                        } else if (sqTimeOut.length == 5) {
+                            var tOut = sqTimeOut.split(':');
+                            sqTimeOut = new Date();
+                            sqTimeOut.setHours(tOut[0]);
+                            sqTimeOut.setMinutes(tOut[1]);
+                        }
                         if (sqPatrol === "") {
                             missingInformationMessage = '<p>Patrol number</p>';
                         }
@@ -3931,9 +3963,16 @@ ons.ready(function () {
                         } else if (parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)) {
                             ons.notification.alert({
                                 title: 'Total score',
-                                message: 'the total score entered is greater than the maximum points available at a base',
+                                message: 'The total score entered is greater than the maximum points available at a base.',
                                 cancelable: true
                             });
+                        } else if (sqTimeIn > sqTimeOut) {
+                            ons.notification.alert({
+                                title: 'Time input',
+                                message: 'The time out must be after the time in.',
+                                cancelable: true
+                            });
+
                         } else if (sqTotalScore != "" && sqOffRoute) {
 
                             ons.notification.confirm({
@@ -3971,18 +4010,7 @@ ons.ready(function () {
                             // if (sqPatrol < 10) {
                             //     sqPatrol = '0' + sqPatrol;
                             // }
-                            if (sqTimeIn === "") {
-                                var date = new Date();
-                                sqTimeIn = date.toLocaleTimeString();
-                            } else if (sqTimeIn.length == 5) {
-                                sqTimeIn = sqTimeIn + ':00';
-                            }
-                            if (sqTimeOut === "") {
-                                var date = new Date();
-                                sqTimeOut = date.toLocaleTimeString();
-                            } else if (sqTimeOut.length == 5) {
-                                sqTimeOut = sqTimeOut + ':00';
-                            }
+
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
@@ -4013,24 +4041,13 @@ ons.ready(function () {
                             switch (sqOffRoute) {
                                 case true:
                                     console.log(base);
-                                    var offRoutePatrolLog = {
-                                        _id: sqPatrol + '_base_' + base + '_offRoute_' + now,
-                                        patrol: sqPatrol,
-                                        base: base,
-                                        username: name,
-                                        timeIn: sqTimeIn,
-                                        timeOut: sqTimeOut,
-                                        timeWait: sqWait,
-                                        offRoute: sqOffRoute,
-                                        totalScore: sqTotalScore,
-                                        editable: true,
-                                        timestamp: timestamp
-                                    }
-
-                                    tableUpdateFunction(offRoutePatrolLog, false);
+                                    patrolLog._id = sqPatrol + '_base_' + base + '_offRoute_' + now;
+                                    patrolLog.offRoute = sqOffRoute;
+                                    tableUpdateFunction(patrolLog, false);
                                     orientationLandscapeUpdate();
                                     clearQuickAddInputs();
-                                    basedb.put(offRoutePatrolLog);
+                                    console.log(patrolLog);
+                                    basedb.put(patrolLog);
                                     break;
                                 default:
                                     basedb.get(patrolLog._id)
@@ -4044,23 +4061,12 @@ ons.ready(function () {
                                                     }).then(function (input) {
                                                         if (input === 1) {
                                                             clearQuickAddInputs();
-                                                            var patrolLogUpdate = {
-                                                                _id: doc._id,
-                                                                _rev: doc._rev,
-                                                                patrol: sqPatrol,
-                                                                base: base,
-                                                                username: name,
-                                                                timeIn: sqTimeIn,
-                                                                timeOut: sqTimeOut,
-                                                                timeWait: sqWait,
-                                                                offRoute: '',
-                                                                totalScore: sqTotalScore,
-                                                                editable: true,
-                                                                timestamp: timestamp
-                                                            }
-                                                            return basedb.put(patrolLogUpdate)
+                                                            patrolLog._rev = doc._rev;
+                                                            patrolLog._id = doc._id;
+
+                                                            return basedb.put(patrolLog)
                                                                 .then(function (doc) {
-                                                                    tableUpdateFunction(patrolLogUpdate, false);
+                                                                    tableUpdateFunction(patrolLog, false);
                                                                     return orientationLandscapeUpdate();
                                                                 });
                                                         }
@@ -4182,7 +4188,12 @@ ons.ready(function () {
                         if (log.offRoute) {
                             offOnRoute = 'off route'
                         }
-                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + log.timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
+                        var tOut = new Date(log.timeOut);
+                        var timeOut = tOut.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
                         if (index > -1) {
                             $('#lastSeenTable #ls-' + log.patrol).remove();
                             //console.log('overwritten');
@@ -4497,6 +4508,12 @@ ons.ready(function () {
                                                 // totally unhandled error (shouldn't happen)
                                                 console.log('Replication Error: ');
                                                 console.log(err);
+                                                ons.notification.alert({
+                                                    title: error,
+                                                    message: 'A connection error has occured please, refresh the app or web page',
+                                                    cancelable: true
+
+                                                });
                                             }).on('complete', function (info) {
                                                 console.log('sync disconected from admin database.');
                                                 adminSyncInProgress = false;
