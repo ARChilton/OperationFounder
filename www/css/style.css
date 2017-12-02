@@ -336,13 +336,18 @@ Accent Darker color: Orange 800: #EF6C00
     z-index: -10;
 }
 
-.maxScore {
+
+/* .maxScore {
     flex: auto;
 }
 
 .maxScoreInput {
     flex: auto;
     text-align: right;
+} */
+
+#createEventPage .baseSetUp .caption {
+    text-align: left;
 }
 
 .addBaseButton {
