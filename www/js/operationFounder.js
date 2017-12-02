@@ -2600,6 +2600,7 @@ ons.ready(function () {
                         eventDescription: $('#eventDescription').val().trim(),
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
+                        autoTime: $('#autoTimeSwitch').prop("checked"),
                         adminPassword: $('#adminPassword').val(),
                         evtUsername: $('#evtUsername').val(),
                         bases: [{
@@ -2666,6 +2667,7 @@ ons.ready(function () {
                         $('#pReference').val(eventInfo.pRef);
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
+                        $('#autoTimeSwitch').prop("checked", eventInfo.autoTime);
                         $('#adminPassword').val(eventInfo.adminPassword);
                         $('#evtUsername').val(eventInfo.evtUsername).prop('disabled', true);
                         //base handling
@@ -2765,13 +2767,25 @@ ons.ready(function () {
                 }
                 if (!($('#offRouteLogs').hasClass('evtHandler'))) {
                     $('#offRouteLogs').addClass('evtHandler');
-                    $('.offRouteLogs').on('click', function () {
+                    $('#offRouteLogs .offRouteLogs').on('click', function () {
                         switch ($('#offRouteLogsSwitch').prop("checked")) {
                             case true:
                                 $('#offRouteLogsSwitch').prop('checked', false);
                                 break;
                             case false:
                                 $('#offRouteLogsSwitch').prop('checked', true);
+                        }
+                    });
+                }
+                if (!($('#automateTimeEntry').hasClass('evtHandler'))) {
+                    $('#automateTimeEntry').addClass('evtHandler');
+                    $('#automateTimeEntry .autoTime').on('click', function () {
+                        switch ($('#autoTimeSwitch').prop("checked")) {
+                            case true:
+                                $('#autoTimeSwitch').prop('checked', false);
+                                break;
+                            case false:
+                                $('#autoTimeSwitch').prop('checked', true);
                         }
                     });
                 }
@@ -3683,13 +3697,18 @@ ons.ready(function () {
             case 'page1.html':
                 menuController('page1.html');
                 //passing through information about the event and the base
-
+                //stops the FAB button showing before a table element is selected
+                //TODO 3/10/2017 make fulledit fab have multiple options including removing the log
+                var editFab = document.getElementById('fullEditFab');
+                editFab.hide();
+                userCurrentlySelected = [];
+                $('#fullEditFab').removeClass('hide');
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('#p1topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
+                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
@@ -3702,7 +3721,9 @@ ons.ready(function () {
                     } else {
                         $('#total').attr('placeholder', 'Total score (max ' + eventInfoBase.baseMaxScore + ')');
                     }
-
+                    if (eventInfo.autoTime == true) {
+                        $('#p1TopHalf .page1Time').hide();
+                    }
                     baseDatabaseName = eventInfo.dbName;
                 }
                 //TODO 3/10/2017
@@ -3862,12 +3883,7 @@ ons.ready(function () {
                     //hides the log off route option
                     $('#offRouteCheckbox').addClass('logOffRouteFalse');
                 }
-                //stops the FAB button showing before a table element is selected
-                //TODO 3/10/2017 make fulledit fab have multiple options including removing the log
-                var editFab = document.getElementById('fullEditFab');
-                editFab.hide();
-                userCurrentlySelected = [];
-                $('#fullEditFab').removeClass('hide');
+
 
                 if (!($('#logsTable').hasClass('evtHandler'))) {
                     $('#logsTable').addClass('evtHandler');
