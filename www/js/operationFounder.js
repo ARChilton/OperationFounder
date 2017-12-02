@@ -3273,7 +3273,7 @@ ons.ready(function () {
                                 }
                                 return options = {
                                     title: 'Email Sent',
-                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in, please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how enter the app or website.</p>',
+                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the app or website.</p>',
                                     cancelable: true
                                 };
                             }).then(function (options) {
