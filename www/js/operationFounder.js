@@ -4963,7 +4963,7 @@ ons.ready(function () {
                                 descending: true,
                                 limit: undefined
                             };
-                            addMessages(messageWindow, options, false, true);
+                           return addMessages(messageWindow, options, false, true);
                         } else {
                             //update msg badge
                             var badgeNo = lastRecievedMessages.length;
