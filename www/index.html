@@ -220,7 +220,7 @@
             autofocus></ons-input>
 
           <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
-          <p class="txtLeft bold marginTop">Event date</p>
+
           <div class="flex flexRow flexSpaceBetween flexWrap">
             <div class="bold caption">Start *
               <ons-input id="eventStartDate" type="datetime-local" class="marginLeft marginRight" required></ons-input>
@@ -229,7 +229,12 @@
               <ons-input id="eventEndDate" type="datetime-local" class="marginLeft" required></ons-input>
             </div>
           </div>
-
+          <div class="flex flexRow flexSpaceBetween marginTop32px">
+            <div class="eventItemTitle bold h3NoStyling">Participant type</div>
+            <ons-input id="pReference" modifier="underbar" placeholder="Team / Patrol / Other" float type="text" class="" value="Team"
+              required></ons-input>
+          </div>
+          <div class="caption txtLeft">How the participants in the event will be referred to (default: Team).</div>
           <div class="bigEventSetUpButtons">
             <div id="passwordProtectLogs" class="marginTop">
               <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
@@ -518,15 +523,15 @@
       </ons-fab>
       <!--Top half of screen-->
 
-      <div class="topHalf">
+      <div id="p1topHalf">
         <ons-list>
-          <ons-list-header class="quickAddTitle">Add new log from base </ons-list-header>
+          <ons-list-header id="quickAddTitle">Add new log from base </ons-list-header>
           <ons-list-item>
-            <div class="center">
-              Patrol No.
+            <div class="center participantRef">
+              Team No.
             </div>
             <div class="right">
-              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Patrol" float class="quickAddInput">
+              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Team No." float class="quickAddInput">
               </ons-input>
             </div>
           </ons-list-item>
@@ -575,7 +580,7 @@
         </p>
       </div>
       <!--Bottom Half-->
-      <div class="bottomHalf">
+      <div id="p1bottomHalf">
         <!-- <ons-list>
           <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
         </ons-list> -->
@@ -583,7 +588,7 @@
         <table class="mdl-data-table mdl-js-data-table logTable">
           <thead>
             <tr>
-              <th id="thPatrol">Patrol</th>
+              <th id="thPatrol" class="participantRef">Team</th>
               <th id="thTimeIn">Time in</th>
               <th id="thTimeOut">Time out</th>
               <th id="thWait" class="hide landscapeShow">Wait</th>
@@ -653,7 +658,7 @@
               <ons-input type='checkbox' id="selectAll"></ons-input>
             </th>-->
               <th>Base</th>
-              <th>Patrol</th>
+              <th class="participantRef">Team</th>
               <th>Time in</th>
               <th>Time out</th>
               <th class="hide landscapeShow">Wait</th>
@@ -696,7 +701,7 @@
       <table class="mdl-data-table mdl-js-data-table logTable">
         <thead>
           <tr>
-            <th class="txtCenter">Patrol</th>
+            <th class="txtCenter participantRef">Team</th>
             <th class="txtCenter">Last Seen</th>
             <th class="txtCenter">At Base</th>
 
@@ -717,7 +722,7 @@
         <thead>
           <tr>
             <th class="bold txtCenter">Position</th>
-            <th class="txtCenter">Patrol</th>
+            <th class="txtCenter participantRef">Team</th>
             <th class="txtCenter">Total Score</th>
           </tr>
         </thead>

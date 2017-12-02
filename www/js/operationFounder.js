@@ -2596,6 +2596,7 @@ ons.ready(function () {
                         eventName: $('#eventName').val().trim(),
                         dateStart: $('#eventStartDate').val(),
                         dateEnd: $('#eventEndDate').val(),
+                        pRef: $('#pReference').val().trim(),
                         eventDescription: $('#eventDescription').val().trim(),
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
@@ -2650,7 +2651,6 @@ ons.ready(function () {
                     return passwordsOk;
                 }
 
-
                 //Normal code to run
                 if (pageData.edit === true) {
                     if (pageData.eventInfo != undefined) {
@@ -2663,6 +2663,7 @@ ons.ready(function () {
                         $('#eventStartDate').val(eventInfo.dateStart);
                         $('#eventEndDate').val(eventInfo.dateEnd);
                         $('#eventDescription').val(eventInfo.eventDescription);
+                        $('#pReference').val(eventInfo.pRef);
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
                         $('#adminPassword').val(eventInfo.adminPassword);
@@ -2851,6 +2852,13 @@ ons.ready(function () {
                         if (!editEvent) {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
+                            if (eventDescription.dateStart > eventDescription.dateEnd) {
+                                return onscroll.notification.alert({
+                                    title: 'Check event dates',
+                                    message: 'Event set to end before it starts.',
+                                    cancelable: true
+                                });
+                            }
                             if (getFile != false) {
 
                                 var logo = document.getElementById('eventBannerImage');
@@ -3016,7 +3024,9 @@ ons.ready(function () {
                                 cancelable: true
                             }).then(function (index) {
                                 if (!index === 1) {
-                                    throw index;
+                                    throw {
+                                        canceled: true
+                                    };
                                 }
                                 showProgressBar('createEventPage', true);
                                 if (getFile != false) {
@@ -3043,7 +3053,9 @@ ons.ready(function () {
                             }).then(function (doc) {
                                 var changeMade = false;
                                 createEventDescription();
-
+                                if (eventDescription.dateStart > eventDescription.dateEnd) {
+                                    throw 'Event set to end before it starts.';
+                                }
                                 if (!addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
                                     throw 'password not set';
                                 }
@@ -3133,6 +3145,16 @@ ons.ready(function () {
                                 return closeDatabases();
                             }).catch(function (err) {
                                 console.log(err);
+                                showProgressBar('createEventPage', false);
+                                if (err.canceled === true) {
+                                    return false;
+                                }
+                                var options = {
+                                    title: 'Input Error',
+                                    message: err,
+                                    cancelable: true
+                                };
+                                ons.notification.alert(options);
                             });
                         }
                     });
@@ -3667,7 +3689,7 @@ ons.ready(function () {
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('.topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
+                        $('#p1topHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
@@ -3690,11 +3712,13 @@ ons.ready(function () {
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
                     $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
-                    $('.quickAddTitle').html('Add new log from base ' + base);
+                    $('#quickAddTitle').html('Add new log from base ' + base);
+                    participantReference(eventInfo.pRef, 'page1');
+
 
                 } else if (base === 'noBase') {
                     $('#page1 .normalTitle,#page1 .mainTitle').html('On the look out');
-                    $('.quickAddTitle').html('Record the teams you see');
+                    $('#quickAddTitle').html('Record the teams you see');
                     $('#tableTitle').html('Teams seen')
 
                 }
@@ -4386,6 +4410,7 @@ ons.ready(function () {
                     switch (event.tabItem.getAttribute('page')) {
                         case 'allLogsPage.html':
                             var allLogsPage = $('#allLogsPage');
+                            participantReference(eventInfo.pRef, 'allLogsPage');
                             if (!(allLogsPage.hasClass('evtHandler'))) {
                                 allLogsPage.addClass('evtHandler');
 
@@ -4612,6 +4637,7 @@ ons.ready(function () {
                             if (!lastSeenTable.hasClass('evtListener')) {
                                 lastSeenTable.addClass('evtListener');
                                 showProgressBar('adminPage', true);
+                                participantReference(eventInfo.pRef, 'lastSeenPage');
                                 lastSeenFullUpdate(lastSeenTable, false);
                                 showProgressBar('adminPage', false);
                                 adminSync.on('change', function (doc) {
@@ -4650,6 +4676,7 @@ ons.ready(function () {
                             if (!leaderboardTable.hasClass('evtListener')) {
                                 leaderboardTable.addClass('evtListener');
                                 showProgressBar('adminPage', true);
+                                participantReference(eventInfo.pRef, 'leaderboard');
                                 leaderboard(leaderboardTable, patrolToSearch);
                                 showProgressBar('adminPage', false);
 
@@ -5255,6 +5282,22 @@ function menuEvtOrganiser() {
     } else {
         $('#eventEditor , #eventChanger').addClass('hide');
     }
+}
+
+function participantReference(pRef, page) {
+    if (pRef === '' || pRef === undefined) {
+        return false;
+    }
+    var elements = $('#' + page + ' .participantRef');
+    elements.each(function (ref) {
+        var str = elements[ref].innerHTML;
+        elements[ref].innerHTML = str.replace(/team/i, pRef);
+    });
+    if (page === 'page1') {
+        $('#patrolNo').attr('placeholder', pRef + ' No.')
+    }
+
+
 }
 /**
  * Copys an element to the clipboard

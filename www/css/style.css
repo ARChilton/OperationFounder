@@ -362,12 +362,12 @@ Accent Darker color: Orange 800: #EF6C00
 
 /*Page 1*/
 
-.topHalf {
+#p1topHalf {
     /*height: 50%;*/
     width: 100%;
 }
 
-.bottomHalf {
+#p1bottomHalf {
     width: 100%;
 }
 
@@ -463,6 +463,10 @@ Accent Darker color: Orange 800: #EF6C00
     color: #a30d0d;
     background-color: rgba(255, 255, 255, 0.5);
     z-index: 999999;
+}
+
+.participantRef {
+    text-transform: capitalize;
 }
 
 
