@@ -4196,7 +4196,7 @@ ons.ready(function () {
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow txtCenter">' + log.username + '</td></tr>';
+                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
                         if (index > -1) {
                             $('#lastSeenTable #ls-' + log.patrol).remove();
                             //console.log('overwritten');
@@ -4269,7 +4269,7 @@ ons.ready(function () {
                             var i = 1;
 
                             return doc.map(function (row) {
-                                var tableRow = '<tr id="lb-' + i + '"><td class="txtCenter bold">' + i + '</td><td class="txtCenter">' + row.key + '</td><td class="txtCenter">' + row.value + '</td></tr>';
+                                var tableRow = '<tr id="lb-' + i + '"><td class="bold">' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
                                 i++;
                                 if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
                                     return tableRow;
