@@ -4196,7 +4196,7 @@ ons.ready(function () {
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
+                        var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold txtCenter">' + log.patrol + '</td><td class="txtCenter">' + timeOut + '</td><td class="txtCenter">' + log.base + '</td><td class="txtCenter">' + offOnRoute + '</td><td class="hide landscapeShow txtCenter">' + log.username + '</td></tr>';
                         if (index > -1) {
                             $('#lastSeenTable #ls-' + log.patrol).remove();
                             //console.log('overwritten');
