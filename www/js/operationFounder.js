@@ -601,13 +601,28 @@ function removePatrolRecord(id, admin) {
  * @param {string} trId - #Id of the html to be edited - refers to a table record
  */
 function editableStyling(editable, trId) {
-    if (!(editable)) {
-        $('#' + trId).addClass('lockedLog');
-        $('#' + trId + ' > .lockImage').addClass('padlockLocked');
-
+    //trId defines whether the element is updated or loaded in
+    if (trId === undefined) {
+        if (editable) {
+            return {
+                tr: '',
+                td: ''
+            };
+        }
+        return {
+            tr: ' lockedLog',
+            td: ' padlockLocked'
+        };
     } else {
-        $('#' + trId).removeClass('lockedLog');
-        $('#' + trId + ' > .lockImage').removeClass('padlockLocked');
+        //easiest way to handle simple updates
+        if (!(editable)) {
+            $('#' + trId).addClass('lockedLog');
+            $('#' + trId + ' > .lockImage').addClass('padlockLocked');
+
+        } else {
+            $('#' + trId).removeClass('lockedLog');
+            $('#' + trId + ' > .lockImage').removeClass('padlockLocked');
+        }
     }
 }
 
@@ -636,6 +651,7 @@ function removeExisiting(id, admin) {
  */
 function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     var trId = dbId;
+
     $('#' + trId).html("<td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 
     //add editable styling
@@ -681,13 +697,17 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
 function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
-    $(tableId).prepend("<tr id='" + trId + "'class=" + tableLogId + "'><td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
-    $('#' + trId).data('databaseInfo', {
-        dbId: dbId,
-        trId: trId,
-    });
+    var editableStyle = editableStyling(editable);
+    var trClasses = tableLogId + editableStyle.tr;
+    var tdClasses = 'bold lockImage' + editableStyle.td;
+    var log = '<tr id="' + trId + '"class="' + trClasses + '"><td class="' + tdClasses + '">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td class="hide landscapeShow">' + wait + '</td><td class="hide landscapeShow">' + offRoute + '</td><td>' + totalScore + '</td><td class="hide landscapeShow editable">' + editable + '</td></tr>';
+    return log;
+    // $('#' + trId).data('databaseInfo', {
+    //     dbId: dbId,
+    //     trId: trId,
+    // });
     //add editable styling
-    editableStyling(editable, trId);
+    //editableStyling(editable, trId);
 
 }
 /**
@@ -706,25 +726,30 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
 function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
     console.log(dbId);
     var trId = dbId;
+    var editableStyle = editableStyling(editable);
+    var trClasses = tableLogId + editableStyle.tr;
+    var tdClasses = 'lockImage' + editableStyle.td;
     // without checkboxes
-    $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
+    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="' + tdClasses + '">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td class="hide landscapeShow">' + wait + '</td><td class="hide landscapeShow">' + offRoute + '</td><td class="hide landscapeShow">' + totalScore + '</td><td class="hide landscapeShow">' + recordedBy + '</td><td class="hide landscapeShow editable">' + editable + '</td></tr>';
+    return log;
     //with checkboxes
 
     // $(tableId).prepend("<tr id='" + trId + "' class='" + tableLogId + "'><td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td></tr>");
-    $('#' + trId).data('databaseInfo', {
-        dbId: dbId,
-        trId: trId,
-    });
+    // $('#' + trId).data('databaseInfo', {
+    //     dbId: dbId,
+    //     trId: trId,
+    // });
 
     //add editable styling
-    editableStyling(editable, trId);
+    //editableStyling(editable, trId);
 }
 /**
  * Standardised update table or update exisiting row calling function (was previously two functions)
  * @param {object} path - determines the route into the JSON database document to get to the documents values, this differs in an alldocs request and a find function or sync input
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
+ * @returns {string}
  */
-function tableUpdateFunction(path, admin) {
+function tableUpdateFunction(path, admin, array) {
     var tIn = new Date(path.timeIn);
     var timeIn = tIn.toLocaleTimeString([], {
         hour: '2-digit',
@@ -749,16 +774,16 @@ function tableUpdateFunction(path, admin) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
         } else {
-            updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId));
         }
 
     } else if (path.base === getBaseNumber()) {
         if (patrolRecordUpdate(path._id, path.offRoute, false)) {
-            updateExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+            return updateExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
         } else {
-            updateTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId);
+            return array.push(updateTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, '#logsTable', tableLogId));
         }
 
     }
@@ -770,10 +795,19 @@ function tableUpdateFunction(path, admin) {
  */
 function updateTableFromAllDocs(doc, admin) {
     console.log('updating from all docs on local db');
+    var tableUpdate = [];
     for (var i = 0, l = doc.total_rows; i < l; i++) {
 
         var path = doc.rows[i].doc;
-        tableUpdateFunction(path, admin);
+        tableUpdateFunction(path, admin, tableUpdate);
+    }
+    if (tableUpdate.length > 0) {
+        if (admin) {
+            var table = $('#adminLogsTable');
+        } else {
+            var table = $('#logsTable');
+        }
+        table.prepend(tableUpdate.reverse());
     }
     orientationLandscapeUpdate();
 }
@@ -784,7 +818,7 @@ function updateTableFromAllDocs(doc, admin) {
  */
 function updateTableFromFindQuery(doc, admin, patrolToSearch) {
     var patt = /_(\d)/g;
-
+    var tableUpdate = [];
     console.log('updating from find query');
     //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
@@ -819,7 +853,8 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
             } else if (path.patrol != undefined) {
                 if (path.patrol.length > 0) {
                     if (path.patrol === patrolToSearch || !patrolToSearch || patrolToSearch === undefined) {
-                        tableUpdateFunction(path, admin);
+                        tableUpdateFunction(path, admin, tableUpdate);
+
                     }
                 }
             } else if (path._id === 'eventDescription') {
@@ -844,14 +879,22 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
                 }).catch(function (err) {
                     console.log(err);
                 });
-                //break;
+
             }
         } catch (err) {
             console.log(err);
         }
     }
+    //code after the loop
+    if (tableUpdate.length > 0) {
+        if (admin) {
+            var table = $('#adminLogsTable');
+        } else {
+            var table = $('#logsTable');
+        }
+        table.prepend(tableUpdate.reverse());
+    }
     orientationLandscapeUpdate();
-
 }
 
 
@@ -874,8 +917,8 @@ function editLog(logs) {
     var timestamp = new Date().toISOString();
 
     for (var i = 0, l = logsLength; i < l; i++) {
-        var id = logs[i].dbId;
-        var trId = logs[i].trId;
+        var id = logs[i];
+
         basedb.get(id)
             .then(function (doc) {
                 switch (doc.editable) {
@@ -887,9 +930,17 @@ function editLog(logs) {
                         });
                         break;
                     case true:
+                        var tIn = new Date(doc.timeIn);
+                        var tOut = new Date(doc.timeOut)
                         $('#patrolNo').val(doc.patrol);
-                        $('#timeIn').val(doc.timeIn);
-                        $('#timeOut').val(doc.timeOut);
+                        $('#timeIn').val(tIn.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }));
+                        $('#timeOut').val(tOut.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }));
                         $('#wait').val(doc.timeWait);
                         $('#total').val(doc.totalScore);
                         switch (doc.offRoute) {
@@ -918,11 +969,12 @@ function deleteRecords(deleteDocs) {
     var timestamp = new Date().toISOString();
     //deleteDocs should be an array of database _id values for updating to status deleted = true
     for (var i = 0, l = deletedDocsLength; i < l; i++) {
-        var id = deleteDocs[i].dbId;
-        var trId = deleteDocs[i].trId;
+        var id = deleteDocs[i];
+        console.log(id);
+
         attemptCount = 0;
-        writeUntilWrittenDelete(id);
-        $('#' + trId).remove();
+        writeUntilWrittenDelete(id, timestamp);
+        $('#' + id).remove();
     }
 
     ons.notification.alert({
@@ -936,22 +988,25 @@ function deleteRecords(deleteDocs) {
  * Will make 5 attempts to write the edit to the db in the case of conflicts occuring
  * @param {string} id - _id in the pouch database to be written
  */
-function writeUntilWrittenDelete(id) {
+function writeUntilWrittenDelete(id, timestamp) {
 
     admindb.get(id)
 
         .then(function (doc) {
-            var origRev = doc._rev;
-            admindb.put({
-                _id: id,
-                _rev: origRev,
+            console.log(doc);
+
+            return admindb.put({
+                _id: doc._id,
+                _rev: doc._rev,
                 username: name,
                 timestamp: timestamp,
                 _deleted: true
             });
         }).then(function (doc) {
+            console.log(doc);
             return true;
         }).catch(function (err) {
+            console.log(err);
             if (err.status === 404) {
                 admindb.put({
                     _id: id,
@@ -960,6 +1015,7 @@ function writeUntilWrittenDelete(id) {
                     timestamp: timestamp,
                     _deleted: true
                 }).then(function (doc) {
+
                     return true;
                 }).catch(function (err) {
                     console.log(err);
@@ -983,7 +1039,7 @@ function writeUntilWrittenDelete(id) {
 
 /**
  * Lock from editing any further function
- * @param {object[]} lockDocs - array of ids that have been user selected from the table to be locked
+ * @param {object []} lockDocs - array of ids that have been user selected from the table to be locked
  * @param {boolean} lock - true = lock the document from edits, false = unlock the doc from edits
  */
 function lockOrUnlockLogFromEdits(lockDocs, lock) {
@@ -1004,8 +1060,8 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
             break;
     }
     for (var i = 0, l = lockDocsLength; i < l; i++) {
-        var id = lockDocs[i].dbId;
-        var trId = lockDocs[i].trId;
+        var id = lockDocs[i];
+
         admindb.get(id)
             .then(function (doc) {
                 console.log(doc);
@@ -1018,13 +1074,14 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                         break;
                 }
                 doc.timestamp = timestamp;
+                //updates an exsiting row therefore doesn't require an array to prepend
                 tableUpdateFunction(doc, true)
                 switch (lock) {
                     case true:
-                        $('#' + trId).addClass('lockedLog');
+                        $('#' + id).addClass('lockedLog');
                         break;
                     case false:
-                        $('#' + trId).removeClass('lockedLog');
+                        $('#' + id).removeClass('lockedLog');
                         break;
                 }
 
@@ -1053,16 +1110,15 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
  * @param {any[]} locations - array of user selected locations to be shown on map
  * @todo finish the function to add pins of the selected rows on the map
  */
-function showOnMap(locations) {
-    var locationsLength = locations.length;
-    for (var i = 0, l = locationsLength; i < l; i++) {
-        var id = locations[i].dbId;
+// function showOnMap(locations) {
+//     var locationsLength = locations.length;
+//     for (var i = 0, l = locationsLength; i < l; i++) {
+//         var id = locations[i].dbId;
 
-    }
+//     }
 
-}
+// }
 
-//show locked logs
 
 /**
  * network connection information
@@ -3703,6 +3759,7 @@ ons.ready(function () {
                 editFab.hide();
                 userCurrentlySelected = [];
                 $('#fullEditFab').removeClass('hide');
+                var baseTable = $('#logsTable');
                 if (navi.topPage.data.eventInfo !== undefined) {
                     var eventInfo = navi.topPage.data.eventInfo;
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
@@ -3833,9 +3890,7 @@ ons.ready(function () {
                                     updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
                                 } else {
                                     console.log('updating remotedb');
-                                    //the comment below would update the table only if they sync action occurs - left only in case another solution is not found
-                                    // var change = doc.change;
-                                    // updateTableFromFindQuery(change, false);
+
                                 }
                             }).on('paused', function (info) {
                                 // replication was paused, usually because of a lost connection
@@ -3892,7 +3947,8 @@ ons.ready(function () {
                             if ($(this).hasClass('tableSelected')) {
                                 $(this).removeClass('tableSelected');
 
-                                var dataInfo = $(this).data('databaseInfo');
+                                //var dataInfo = $(this).data('databaseInfo');
+                                var dataInfo = $(this).attr('id');
                                 var index = userCurrentlySelected.indexOf(dataInfo);
                                 if (index > -1) {
                                     userCurrentlySelected.splice(index, 1);
@@ -3917,7 +3973,7 @@ ons.ready(function () {
                                 //clear all previously selected items from the array
                                 userCurrentlySelected = [];
                                 // to get the dbId's off the element
-                                var dataInfo = $(this).data('databaseInfo');
+                                var dataInfo = $(this).attr('id');
                                 userCurrentlySelected.push(dataInfo);
                                 console.log(userCurrentlySelected);
                             }
@@ -3952,6 +4008,15 @@ ons.ready(function () {
                         });
                     });
                 }
+
+                function baseTableInput(tableUpdate) {
+                    console.log(tableUpdate);
+                    if (tableUpdate.length > 0) {
+                        baseTable.prepend(tableUpdate);
+                    }
+                    orientationLandscapeUpdate();
+                    clearQuickAddInputs();
+                }
                 // Quick submit code
                 if (!($('#submitQuick').hasClass('evtHandler'))) {
                     // Add the event handler only once when the page is first loaded.
@@ -3970,6 +4035,7 @@ ons.ready(function () {
                         var now = Date.now();
                         var time = new Date();
                         var timestamp = time.toISOString();
+                        var tableUpdate = [];
                         //time conversions to date object
                         if (sqTimeIn === "") {
                             var sqTimeIn = new Date();
@@ -4086,9 +4152,8 @@ ons.ready(function () {
                                     console.log(base);
                                     patrolLog._id = sqPatrol + '_base_' + base + '_offRoute_' + now;
                                     patrolLog.offRoute = sqOffRoute;
-                                    tableUpdateFunction(patrolLog, false);
-                                    orientationLandscapeUpdate();
-                                    clearQuickAddInputs();
+                                    tableUpdateFunction(patrolLog, false, tableUpdate);
+                                    baseTableInput(tableUpdate)
                                     console.log(patrolLog);
                                     basedb.put(patrolLog);
                                     break;
@@ -4097,20 +4162,20 @@ ons.ready(function () {
                                         .then(function (doc) {
                                             switch (doc.editable) {
                                                 case true:
-                                                    ons.notification.confirm({
+                                                    return ons.notification.confirm({
                                                         title: 'Update',
                                                         message: 'Are you sure you want to update patrol number ' + sqPatrol,
                                                         cancelable: true
                                                     }).then(function (input) {
                                                         if (input === 1) {
-                                                            clearQuickAddInputs();
+                                                            //clearQuickAddInputs();
                                                             patrolLog._rev = doc._rev;
                                                             patrolLog._id = doc._id;
 
                                                             return basedb.put(patrolLog)
                                                                 .then(function (doc) {
-                                                                    tableUpdateFunction(patrolLog, false);
-                                                                    return orientationLandscapeUpdate();
+                                                                    return tableUpdateFunction(patrolLog, false, tableUpdate);
+                                                                    //return orientationLandscapeUpdate();
                                                                 });
                                                         }
                                                     }).catch(function (err) {
@@ -4118,7 +4183,7 @@ ons.ready(function () {
                                                     });
                                                     break;
                                                 case false:
-                                                    ons.notification.alert({
+                                                    return ons.notification.alert({
                                                         title: 'No longer editable',
                                                         message: 'This record has been updated by HQ and cannot be edited',
                                                         cancelable: true
@@ -4132,16 +4197,16 @@ ons.ready(function () {
 
                                             if (err.status == 404) {
                                                 console.log('404 no prior record putting a new record');
-                                                tableUpdateFunction(patrolLog, false);
-                                                orientationLandscapeUpdate();
-                                                clearQuickAddInputs();
+                                                tableUpdateFunction(patrolLog, false, tableUpdate);
+                                                //orientationLandscapeUpdate();
+                                                //clearQuickAddInputs();
                                                 return basedb.put(patrolLog);
 
                                             } else if (err.status == 409) {
                                                 switch (doc.editable) {
                                                     case true:
                                                         console.log('409 putting anyway');
-                                                        clearQuickAddInputs();
+                                                        //clearQuickAddInputs();
                                                         var patrolLogUpdate = {
                                                             _id: doc._id,
                                                             _rev: doc._rev,
@@ -4157,8 +4222,8 @@ ons.ready(function () {
                                                             timestamp: timestamp
                                                         }
                                                         basedb.put(patrolLogUpdate).then(function () {
-                                                            tableUpdateFunction(patrolLogUpdate, false);
-                                                            orientationLandscapeUpdate();
+                                                            return tableUpdateFunction(patrolLogUpdate, false, tableUpdate);
+                                                            // orientationLandscapeUpdate();
                                                         });
                                                         break;
                                                     case false:
@@ -4168,13 +4233,16 @@ ons.ready(function () {
                                                             message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
                                                             cancelable: true
                                                         });
-                                                        clearQuickAddInputs();
+                                                        // clearQuickAddInputs();
                                                         break;
                                                 }
                                             }
+                                        }).then(function (doc) {
+                                            baseTableInput(tableUpdate)
                                         });
                                     break;
                             }
+
                         }
                     });
                 }
@@ -4574,7 +4642,7 @@ ons.ready(function () {
                                         if ($(this).hasClass('tableSelected')) {
                                             $(this).removeClass('tableSelected');
 
-                                            var dataInfo = $(this).data('databaseInfo');
+                                            var dataInfo = $(this).attr('id');
                                             var index = adminCurrentlySelected.indexOf(dataInfo);
                                             if (index > -1) {
                                                 adminCurrentlySelected.splice(index, 1);
@@ -4587,7 +4655,7 @@ ons.ready(function () {
                                             $(this).addClass('tableSelected');
                                             // $('#adminSpeedDial').removeClass('hide');
                                             adminSpeedDial.show();
-                                            var dataInfo = $(this).data('databaseInfo');
+                                            var dataInfo = $(this).attr('id');
                                             adminCurrentlySelected.push(dataInfo);
                                             console.log(adminCurrentlySelected);
 
@@ -4599,7 +4667,7 @@ ons.ready(function () {
                                             //clear all previously selected items from the array
                                             adminCurrentlySelected = [];
                                             // to get the dbId's off the element
-                                            var dataInfo = $(this).data('databaseInfo');
+                                            var dataInfo = $(this).attr('id');
                                             console.log(dataInfo);
                                             adminCurrentlySelected.push(dataInfo);
                                             console.log(adminCurrentlySelected);
@@ -4963,7 +5031,7 @@ ons.ready(function () {
                                 descending: true,
                                 limit: undefined
                             };
-                           return addMessages(messageWindow, options, false, true);
+                            return addMessages(messageWindow, options, false, true);
                         } else {
                             //update msg badge
                             var badgeNo = lastRecievedMessages.length;
