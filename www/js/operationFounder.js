@@ -816,7 +816,7 @@ function updateTableFromAllDocs(doc, admin) {
  * @param {object} doc - the document from the database
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not 
  */
-function updateTableFromFindQuery(doc, admin, patrolToSearch) {
+function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     var patt = /_(\d)/g;
     var tableUpdate = [];
     console.log('updating from find query');
@@ -827,8 +827,6 @@ function updateTableFromFindQuery(doc, admin, patrolToSearch) {
         //console.log(path);
         try {
             if (path._deleted > 0) {
-
-
                 console.log(path._id + ' has been set to deleted in remotedb');
                 //if the record is the array of IDs in the table
                 if (removePatrolRecord(path._id, admin)) {
@@ -3850,7 +3848,7 @@ ons.ready(function () {
                     });
                 }).then(function (doc) {
                     console.log(doc);
-                    return updateTableFromFindQuery(doc, false);
+                    return dbUpdateFromFindOrChange(doc, false);
                 }).then(function (doc) {
                     return basedb.createIndex({
                         index: {
@@ -3887,7 +3885,7 @@ ons.ready(function () {
                                 if (doc.direction === 'pull') {
                                     console.log('change occured in remote updating basedb');
                                     var change = doc.change;
-                                    updateTableFromFindQuery(change, false); // fixme needs to add to table before sync as it might not sync
+                                    dbUpdateFromFindOrChange(change, false);
                                 } else {
                                     console.log('updating remotedb');
 
@@ -4432,7 +4430,7 @@ ons.ready(function () {
                                                     $('#adminLogsTable').empty();
                                                     patrolRecordAdmin = [];
                                                     offRouteIndexAdmin = [];
-                                                    updateTableFromFindQuery(doc, true);
+                                                    dbUpdateFromFindOrChange(doc, true);
                                                     if (lastSeenTable != undefined) {
                                                         patrolSeen = [];
                                                         lastSeenTable.empty();
@@ -4463,7 +4461,7 @@ ons.ready(function () {
                                                     $('#adminLogsTable').empty();
                                                     patrolRecordAdmin = [];
                                                     offRouteIndexAdmin = [];
-                                                    updateTableFromFindQuery(doc, true);
+                                                    dbUpdateFromFindOrChange(doc, true);
                                                     if (lastSeenTable != undefined) {
                                                         lastSeenTableFullRefresh();
                                                     }
@@ -4581,7 +4579,7 @@ ons.ready(function () {
                                 }).then(function (doc) {
                                     console.log(doc);
                                     //updateTeamIndex(doc);
-                                    return updateTableFromFindQuery(doc, true);
+                                    return dbUpdateFromFindOrChange(doc, true);
 
                                 }).then(function (doc) {
                                     if (remotedbConnected === false) {
@@ -4603,7 +4601,7 @@ ons.ready(function () {
                                                     console.log('change occured in remote updating admindb');
                                                     var change = doc.change;
 
-                                                    updateTableFromFindQuery(change, true, patrolToSearch);
+                                                    dbUpdateFromFindOrChange(change, true, patrolToSearch);
                                                 } else {
                                                     console.log('updating remotedb'); //fixme needs to do something with pushes
                                                 }
