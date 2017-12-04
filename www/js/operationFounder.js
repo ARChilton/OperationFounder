@@ -4121,7 +4121,7 @@ ons.ready(function () {
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
-                            if (base === 'noBase' || sqOffRoute && sqTotalScore != "") {
+                            if (sqOffRoute && sqTotalScore != "" || base === 'noBase') {
                                 sqTotalScore = '';
                             }
                             //if logging off route is not enabled
