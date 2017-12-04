@@ -3648,7 +3648,7 @@ ons.ready(function () {
                             if (dateStart < dateNow && dateNow < dateEnd) {
                                 //ongoing
                                 eventTimeline = ongoingEvents;
-                            } else if (dateNow < dateStart &&  dSDay === today && dSMonth === month && dSYear === year) {
+                            } else if (dateNow < dateStart && dSDay === today && dSMonth === month && dSYear === year) {
                                 //today but not started
                                 eventTimeline = todaysEvents;
                             } else if (dateNow < dateStart) {
@@ -4058,7 +4058,7 @@ ons.ready(function () {
                         if (sqPatrol === "") {
                             missingInformationMessage = '<p>Patrol number</p>';
                         }
-                        if (!sqOffRoute && sqTotalScore === "" &&  eventInfoBase.baseMaxScore !== '') {
+                        if (!sqOffRoute && sqTotalScore === "" && eventInfoBase.baseMaxScore !== '') {
                             missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
                         }
                         if (missingInformationMessage !== "") {
@@ -4121,7 +4121,7 @@ ons.ready(function () {
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
-                            if (base === 'noBase' || sqOffRoute && sqTotalScore != "" ) {
+                            if (base === 'noBase' || sqOffRoute && sqTotalScore != "") {
                                 sqTotalScore = '';
                             }
                             //if logging off route is not enabled
@@ -4284,7 +4284,7 @@ ons.ready(function () {
                     for (var i = 0, l = doc.docs.length; i < l; i++) {
                         var log = doc.docs[i];
                         //console.log(patrolToSearch);
-                        if (typeof patrolToSearch === 'number'&& log.patrol !== patrolToSearch) {
+                        if (typeof patrolToSearch === 'number' && log.patrol !== patrolToSearch) {
                             //console.log('continue');
                             continue;
                         }
@@ -4410,7 +4410,7 @@ ons.ready(function () {
                                     .on('keyup blur', function (e) {
                                         if (e.which === 13 || e.type == 'blur') {
                                             var value = $(this).val();
-                                            if (patrolToSearch != value && value != '') {
+                                            if (patrolToSearch != value && value !== '') {
 
                                                 patrolToSearch = value;
                                                 admindb.find({
@@ -4440,7 +4440,7 @@ ons.ready(function () {
                                                         leaderboard(leaderboardTable, patrolToSearch);
                                                     }
                                                 });
-                                            } else if (value === '' && patrolToSearch != value && patrolToSearch != false) {
+                                            } else if (value === '' && patrolToSearch != value && patrolToSearch !== false) {
                                                 //no value
                                                 $(this).addClass('hide');
                                                 // patrolSearchIcon.empty();
