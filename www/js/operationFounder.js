@@ -923,7 +923,7 @@ function editLog(logs) {
                     case false:
                         ons.notification.alert({
                             title: 'No longer editable',
-                            message: 'This record has been locked by HQ and cannot be edited',
+                            message: 'This record has been locked by the event admins and cannot be edited',
                             cancelable: true
                         });
                         break;
