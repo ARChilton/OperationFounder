@@ -1714,7 +1714,7 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
-                if (doc.lastBase != undefined && doc.lastBase !== '' && doc.lastBase !== 'logOut') {
+                if (typeof doc.lastBase === 'number') {
                     if (doc.lastBase === 0) {
                         var pageDestination = 'admin.html';
                     } else {
@@ -1958,7 +1958,7 @@ ons.ready(function () {
                                 console.log('sign in sent back status: ' + doc.status);
                                 if (doc.status === 200) {
                                     console.log(doc);
-                                    if (typeof (localStorage) !== undefined) {
+                                    if (typeof localStorage !== 'undefined') {
                                         localStorage.couchdb = doc.couchdb;
                                         localStorage.http = doc.http;
                                         localStorage.username = username;
@@ -2375,7 +2375,7 @@ ons.ready(function () {
                                                 //store username & password as accessable variables
                                                 username = emailSignUp;
                                                 password = passwordSignUp;
-                                                if (typeof (localStorage) !== undefined) {
+                                                if (typeof localStorage !== 'undefined') {
                                                     //localstorage available save username and password for next time
                                                     localStorage.username = emailSignUp;
                                                     localStorage.password = passwordSignUp;
@@ -2445,7 +2445,7 @@ ons.ready(function () {
                                     switch (doc.status) {
                                         case 200:
                                             navi.replacePage('createEventPage.html');
-                                            if (typeof (localStorage) !== undefined) {
+                                            if (typeof localStorage !== 'undefined') {
                                                 //localstorage available save username and password for next time
                                                 localStorage.verified = true;
                                             }
@@ -3276,7 +3276,7 @@ ons.ready(function () {
                         if (eventInfo.passwordProtectLogs) {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '</p>');
                         }
-                        if (base.baseInstructions != undefined && base.baseInstructions != "") {
+                        if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
                     });
@@ -3369,7 +3369,7 @@ ons.ready(function () {
                 //loginPage.html
                 // ons.disableDeviceBackButtonHandler();
                 var db, tempRemotedb, options, messageOpen;
-                if (name != undefined && name != 'undefined') {
+                if (typeof name === 'string' && name !== 'undefined') {
                     $('#userName').val(name);
                 }
                 if (navi.topPage.data.eventInfo !== undefined) {
@@ -3648,7 +3648,7 @@ ons.ready(function () {
                             if (dateStart < dateNow && dateNow < dateEnd) {
                                 //ongoing
                                 eventTimeline = ongoingEvents;
-                            } else if (dSYear === year && dSMonth === month && dSDay === today && dateNow < dateStart) {
+                            } else if (dateNow < dateStart &&  dSDay === today && dSMonth === month && dSYear === year) {
                                 //today but not started
                                 eventTimeline = todaysEvents;
                             } else if (dateNow < dateStart) {
@@ -3923,7 +3923,7 @@ ons.ready(function () {
                 // -- QuickAdd --
 
                 // Control for the on or off route button
-                if ((!($('#offRouteCheckbox').hasClass('evtHandler'))) && eventInfo.logOffRoute) {
+                if (eventInfo.logOffRoute && (!($('#offRouteCheckbox').hasClass('evtHandler')))) {
                     $('#offRouteCheckbox').addClass('evtHandler').removeClass('logOffRouteFalse');
                     $('.checkbox').on('click', '.checkbox__input', function () {
                         if ($('#offRoute.checkbox__input').is('.checkbox__input:checked')) {
@@ -4058,10 +4058,10 @@ ons.ready(function () {
                         if (sqPatrol === "") {
                             missingInformationMessage = '<p>Patrol number</p>';
                         }
-                        if (sqTotalScore === "" && sqOffRoute === false && eventInfoBase.baseMaxScore != '') {
+                        if (!sqOffRoute && sqTotalScore === "" &&  eventInfoBase.baseMaxScore !== '') {
                             missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
                         }
-                        if (missingInformationMessage != "") {
+                        if (missingInformationMessage !== "") {
                             ons.notification.alert({
                                 title: 'Missing fields',
                                 messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
@@ -4080,7 +4080,7 @@ ons.ready(function () {
                                 cancelable: true
                             });
 
-                        } else if (sqTotalScore != "" && sqOffRoute) {
+                        } else if (sqOffRoute && sqTotalScore != "") {
 
                             ons.notification.confirm({
                                     title: 'Confirm off route or log score',
@@ -4121,7 +4121,7 @@ ons.ready(function () {
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
-                            if (sqTotalScore != "" && sqOffRoute || base === 'noBase') {
+                            if (base === 'noBase' || sqOffRoute && sqTotalScore != "" ) {
                                 sqTotalScore = '';
                             }
                             //if logging off route is not enabled
@@ -4284,13 +4284,13 @@ ons.ready(function () {
                     for (var i = 0, l = doc.docs.length; i < l; i++) {
                         var log = doc.docs[i];
                         //console.log(patrolToSearch);
-                        if (log.patrol !== patrolToSearch && patrolToSearch !== false && patrolToSearch !== undefined) {
+                        if (typeof patrolToSearch === 'number'&& log.patrol !== patrolToSearch) {
                             //console.log('continue');
                             continue;
                         }
                         //doc.docs.forEach(function (log) {
                         var index = patrolSeen.indexOf(log.patrol);
-                        if (index > -1 && !update) {
+                        if (!update && index > -1) {
                             continue;
                         }
                         var offOnRoute = 'on route';
@@ -4726,7 +4726,7 @@ ons.ready(function () {
                                     console.log('updating ls table on change');
                                     console.log(doc.change.docs);
                                     showProgressBar('adminPage', true);
-                                    if (patrolToSearch !== undefined && patrolToSearch !== false) {
+                                    if (typeof patrolToSearch === 'number') {
 
                                         var index = doc.change.docs.map(function (log) {
                                             console.log(log.patrol + ' ' + patrolToSearch);
@@ -4766,7 +4766,7 @@ ons.ready(function () {
                                     console.log('updating leader table on change');
                                     console.log(doc.change.docs);
                                     showProgressBar('adminPage', true);
-                                    if (patrolToSearch !== undefined && patrolToSearch !== false) {
+                                    if (typeof patrolToSearch === 'number') {
 
                                         var index = doc.change.docs.map(function (log) {
                                             console.log(log.patrol + ' ' + patrolToSearch);
@@ -5124,8 +5124,7 @@ ons.ready(function () {
                 //event handlers
                 messagePageContent.on('scroll', function () {
                     // console.log('scrolling: ' + nextMessageEndKey + ' ' + nextMessageEndKey2);
-                    if (nextMessageEndKey !== nextMessageEndKey2 && scrollingOn) {
-
+                    if (scrollingOn && nextMessageEndKey !== nextMessageEndKey2) {
                         handleMsgScroll();
                     }
                 });
