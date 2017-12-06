@@ -12,8 +12,10 @@
  * @param {boolean | undefined} evtOrganiser event organiser
  * @param {string} http whether the couchdb instance is http:// or https://
  * @param {boolean | undefined} verified whether the user is verified
+ * @param {number} dbSeqNumber
  */
 //dev variables
+// var arcGlobal = {};
 
 // global variables
 var eventDescription;
@@ -37,6 +39,12 @@ var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
 var attemptCount = 0;
+//message variables
+var nextMessageEndKey;
+var nextMessageEndKey2;
+var newestMessage;
+var dbSeqNumber = parseInt(localStorage.dbSeqNumber);
+var nextSeq = 0;
 //user variables
 var username = localStorage.username;
 var password = localStorage.password;
@@ -123,9 +131,7 @@ function onDeviceReady() {
     console.log('deviceready');
     if (cordova.platformId == 'android') {
         StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
-
     }
-
 }
 /**
  * Device paused i.e. is no longer the top app on view, this can be used to run functions in the background
@@ -138,9 +144,7 @@ document.addEventListener("pause", onPause, false);
 function onPause() {
     // Handle the pause event
     console.log('devicePaused');
-    alert('device paused');
-
-
+    // alert('device paused');
 }
 /**
  * Resume event listener, listens for the app to be brought back into focus
@@ -153,7 +157,192 @@ document.addEventListener("resume", onResume, false);
 function onResume() {
     // Handle the resume event
     console.log('deviceResume');
-    alert('device resumed');
+    // alert('device resumed');
+}
+/**
+ * Function to check the number of messages since the last time a base was opened
+ * Note: changes output not using include_docs:true doesnt use _id only id
+ * @param {object} db db object
+ * @param {number} seqNo 
+ */
+function checkForMessagesSinceSeqNo(db, seqNo) {
+    var options = {
+        since: seqNo
+    };
+    var messageChk = /message/i;
+    return db.changes(options)
+        .then(function (doc) {
+            nextSeq = doc.last_seq;
+            return doc.results.filter(function (result) {
+                return messageChk.test(result.id);
+            });
+        });
+}
+/**
+ * Updates the message badge with a new value
+ * @param {number | string} badgeNo
+ * @param {boolean} reset resets the message badge to 0 and hidden
+ */
+function updateMsgBadgeNo(badgeNo, reset) {
+    console.log(badgeNo);
+    if (reset) {
+        return $('#messageBadge').html(0).addClass('hide');
+    }
+    return $('#messageBadge').html(badgeNo).removeClass('hide');
+}
+/**
+ * checks for messages and updates the message badge for when the base or admin page loads
+ * @param {object} db 
+ * @param {number} seqNo 
+ */
+function checkForNewMessagesOnPageLoad(db, seqNo) {
+    Promise.resolve().then(function () {
+        return checkForMessagesSinceSeqNo(db, seqNo);
+    }).then(function (messages) {
+        if (messages.length < 1) {
+            return false;
+        }
+        return updateMsgBadgeNo(messages.length);
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+/**
+ * Adds messages starting at the newest and working backwards - endkey is first because it is decending
+ * @param {object} db the pouchdb to search in
+ * @param {object} messageWindow the message window element to add to
+ * @param {object} messagePageContent the jQuery el that contains the messages page .page__content
+ * @param {object} options
+ * @param {boolean} prepend whether to add messages before or after the other messages 
+ * @param {boolean} scroll whether to scroll at all
+ * @param {boolean} scrollToBottom whether to scroll to the bottom of the page or not
+ * @param {number} offset the amount to offset the scroll if scroll to bottom is false
+ */
+function addMessages(db, messageWindow, messagePageContent, options, prepend, scroll, scrollToBottom, offset) {
+    if (options.limit != undefined) {
+        if (options.limit !== false) {
+            options.limit++;
+        }
+    }
+    var messageWindowHeight = messageWindow.height();
+    return db.allDocs(options)
+        .then(function (messages) {
+            var rows = messages.rows;
+            console.log(messages);
+            return formBubbleMessages(rows, options.limit, prepend);
+        }).then(function (doc) {
+            //console.log(doc);
+            // scroll = messagePageContent.scrollTop();
+            if (prepend) {
+                return messageWindow.prepend(doc.reverse()).height();
+            } else {
+                return messageWindow.append(doc.reverse()).height();
+            }
+        }).then(function (doc) {
+            if (scroll) {
+                if (scrollToBottom) {
+                    offset = messagePageContent[0].scrollHeight;
+                } else {
+                    // offset = doc - (screenHeight - 128) - (doc - messageWindowHeight);
+                    // offset = (doc + messageWindowHeight) - (doc + 517 + offset);
+                    offset = (doc - messageWindowHeight) + offset;
+                    console.log(messageWindowHeight + '-(517+' + offset + ')');
+                    // console.log(offset + '= (' + doc + ' +  ' + messageWindowHeight + ') - (' + doc + '+' + ' 517 +' + offset + ')');
+                    //console.log('offset: ' + offset);
+                }
+                scrollToElement(messagePageContent, offset, 1);
+            }
+            // return messagePageContent.scrollTop(offset);
+            return doc;
+            // }).then(function (doc) {
+            //     return doc;
+        }).catch(function (err) {
+            console.log(err);
+            return false;
+        });
+}
+/**
+ * a function that takes rows as an array of messages and forms the bubbles and conversation direction for the messages page
+ * @param {[object]} rows array of messages
+ * @param {object} limit the limit of the number of db rows returned 
+ * @param {boolean} prepend add above or below, important for saving newestMessage information
+ */
+function formBubbleMessages(rows, limit, prepend) {
+    var lastMessage = false;
+    var i = 0;
+    var l = rows.length;
+    var currentBase = getBaseNumber();
+    return Promise.all(rows.map(function (row) {
+        //console.log(i);
+        //console.log(lastMessage);
+        var doc = row.doc;
+        var messageClasses = ' message-text';
+        var containerClasses = 'bubble';
+        var lineClasses = 'msg';
+        var lastBubbleContainerClass = 'bubble';
+        doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        doc.from = parseInt(doc.from);
+        doc.to = parseInt(doc.to);
+        doc.msgBaseNo = 'Base ' + doc.from;
+        if (doc.from === 0) {
+            doc.msgBaseNo = 'Admin HQ';
+        }
+        if (!lastMessage) {
+            console.log('continue ' + i)
+            if (!prepend) {
+                newestMessage = doc._id;
+            }
+            lastMessage = doc;
+            i++;
+            //if (l != 1) {
+            return;
+            //}
+        }
+
+        //message-in or out
+        if (lastMessage.from === currentBase) {
+            containerClasses += ' message-out';
+        } else {
+            containerClasses += ' message-in'
+        }
+        //matches last sender
+        if (lastMessage.from !== doc.from) {
+            containerClasses += ' tail';
+        } else {
+            lineClasses += ' msgContinued';
+        }
+        //for dev
+        if (lastMessage.from === undefined) {
+            lastMessage.from = 1;
+        }
+        var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
+        lastMessage = doc;
+        i++;
+        //for last message that won't have another one
+        if (i !== limit) {
+            if (i === limit - 1 || (l < limit && i === l)) {
+                if (doc.from === currentBase) {
+                    lastBubbleContainerClass += ' message-out';
+                    lineClasses += ' topMsg';
+                } else {
+                    lastBubbleContainerClass += ' message-in';
+                    lineClasses += ' topMsg';
+                }
+                lastBubbleContainerClass += ' tail';
+                nextMessageEndKey = doc._id;
+                var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
+                return lastBubble += bubble;
+            }
+        } else if (i === limit) {
+            console.log('limit reached');
+            nextMessageEndKey = doc._id;
+            return;
+        }
+        return bubble;
+    }));
 }
 /**
  * Checks the orientation and updates the GUI accordingly, landscape only
@@ -167,7 +356,6 @@ function orientationLandscapeUpdate() {
         console.log('portrait screen orientation');
         $('.speed__dial.fab--bottom__right').attr('direction', 'up');
     }
-
 }
 /**
  * For an orientation change this picks up both portrait and landscape
@@ -819,6 +1007,10 @@ function updateTableFromAllDocs(doc, admin) {
 function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     var patt = /_(\d)/g;
     var tableUpdate = [];
+    var messagesAdded = 0;
+    var messages = [];
+    var page = navi.topPage.name;
+    var last_seq = doc.last_seq;
     console.log('updating from find query');
     //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
@@ -854,6 +1046,11 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                         tableUpdateFunction(path, admin, tableUpdate);
 
                     }
+                }
+            } else if (/message/i.test(path._id)) {
+                messagesAdded++;
+                if (page === 'messagesPage.html') {
+                    messages.push(path);
                 }
             } else if (path._id === 'eventDescription') {
                 //console.log(path);
@@ -891,6 +1088,49 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
             var table = $('#logsTable');
         }
         table.prepend(tableUpdate.reverse());
+    }
+    if (messagesAdded > 0) {
+        if (page === 'messagesPage.html') {
+            var options = {
+                include_docs: true,
+                endkey: newestMessage,
+                startkey: 'message\ufff0',
+                descending: true,
+                limit: undefined
+            };
+            var db = basedb;
+            if (admin) {
+                db = admindb;
+            }
+            var messagePageContent = $('#messagesPage .page__content');
+            Promise.resolve().then(function () {
+                return addMessages(db, $('#messageWindow'), messagePageContent, options, false, false);
+            }).then(function () {
+                if ($('#scrollToBottomFab').prop('visible')) {
+                    var currentBadgeNumber = parseInt($('#scrollMessageBadge').html()) || 0;
+                    var badgeNo = currentBadgeNumber + messagesAdded;
+                    var statement = ' new message';
+                    if (badgeNo > 1) {
+                        statement += 's';
+                    }
+                    $('#scrollMessageBadge').html(badgeNo + statement).removeClass('hide');
+                } else {
+                    scrollToElement(messagePageContent, messagePageContent[0].scrollHeight, 1);
+                }
+                //     return db.info();
+                // }).then(function (doc) {
+                dbSeqNumber += messagesAdded;
+                nextSeq = dbSeqNumber;
+                localStorage.dbSeqNumber = dbSeqNumber;
+            }).catch(function (err) {
+                console.log(err);
+            });
+        } else {
+            var currentBadgeNumber = parseInt($('#messageBadge').html()) || 0;
+            var badgeNo = currentBadgeNumber + messagesAdded;
+            updateMsgBadgeNo(badgeNo);
+            nextSeq += messagesAdded;
+        }
     }
     orientationLandscapeUpdate();
 }
@@ -3337,21 +3577,7 @@ ons.ready(function () {
                     var scrollElement = $('#eventSummaryPage .page__content');
                     var scrollTo = document.getElementById('sendEventEmailButtonContainer');
                     var emailFab = document.getElementById('emailEvtDescription');
-                    /**
-                     *returns true if the element is visible, false if not
-                     * @param {object} el element NOT JQUERY 
-                     * @return {boolean} true = visible || false=not visible 
-                     */
-                    function isScrolledIntoView(el) {
-                        var elemTop = el.getBoundingClientRect().top;
-                        var elemBottom = el.getBoundingClientRect().bottom;
 
-                        // Only completely visible elements return true:
-                        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
-                        // Partially visible elements return true:
-                        //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
-                        return isVisible;
-                    }
                     scrollElement.on('scroll', function () {
                         if (isScrolledIntoView(scrollTo)) {
                             console.log('isVisible');
@@ -3914,6 +4140,7 @@ ons.ready(function () {
                 }).catch(function (err) {
                     return console.log(err);
                 });
+                checkForNewMessagesOnPageLoad(basedb, dbSeqNumber);
 
 
 
@@ -4372,20 +4599,24 @@ ons.ready(function () {
                         .then(function (doc) {
                             return doc.rows.sort(sort_by('value', true));
                         }).then(function (doc) {
-                            var i = 1;
-
-                            return doc.map(function (row) {
-                                var tableRow = '<tr id="lb-' + i + '"><td class="bold">' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
-                                i++;
-                                if (patrolToSearch === row.key || !patrolToSearch || patrolToSearch === undefined) {
-                                    return tableRow;
-                                }
-                            });
+                            return leaderboardRowCreator(doc, patrolToSearch);
                         }).then(function (doc) {
                             leaderboardTable.append(doc);
+                        }).catch(function (err) {
+                            console.log(err);
                         });
                 }
 
+                function leaderboardRowCreator(rows, patrolToSearch) {
+                    var i = 1;
+                    return rows.map(function (row) {
+                        var tableRow = '<tr id="lb-' + i + '"><td class="bold">' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
+                        i++;
+                        if (!patrolToSearch || patrolToSearch === row.key || patrolToSearch === undefined) {
+                            return tableRow;
+                        }
+                    });
+                }
                 //code to run
                 menuController('admin.html');
                 if (navi.topPage.data.eventInfo != undefined) {
@@ -4707,6 +4938,8 @@ ons.ready(function () {
 
                                     });
                                 }
+                                checkForNewMessagesOnPageLoad(admindb, dbSeqNumber);
+
 
 
                             }
@@ -4726,17 +4959,14 @@ ons.ready(function () {
                                     console.log('updating ls table on change');
                                     console.log(doc.change.docs);
                                     showProgressBar('adminPage', true);
-                                    if (typeof patrolToSearch === 'number') {
-
-                                        var index = doc.change.docs.map(function (log) {
-                                            console.log(log.patrol + ' ' + patrolToSearch);
-
+                                    if (typeof patrolToSearch === 'string') {
+                                        var index = doc.change.docs.filter(function (log) {
                                             if (log.patrol === patrolToSearch) {
                                                 return true;
                                             }
                                             return false;
-                                        }).indexOf(true);
-                                        if (index < 0) {
+                                        });
+                                        if (index.length === 0) {
                                             return showProgressBar('adminPage', false);
                                         }
                                     }
@@ -4766,20 +4996,21 @@ ons.ready(function () {
                                     console.log('updating leader table on change');
                                     console.log(doc.change.docs);
                                     showProgressBar('adminPage', true);
-                                    if (typeof patrolToSearch === 'number') {
-
-                                        var index = doc.change.docs.map(function (log) {
-                                            console.log(log.patrol + ' ' + patrolToSearch);
-
+                                    console.log(patrolToSearch);
+                                    console.log(typeof patrolToSearch);
+                                    if (typeof patrolToSearch === 'string') {
+                                        var index = doc.change.docs.filter(function (log) {
                                             if (log.patrol === patrolToSearch) {
                                                 return true;
                                             }
                                             return false;
-                                        }).indexOf(true);
-                                        if (index < 0) {
+                                        });
+                                        console.log(index);
+                                        if (index.length === 0) {
                                             return showProgressBar('adminPage', false);
                                         }
                                     }
+                                    console.log('got here');
                                     leaderboard(leaderboardTable, patrolToSearch);
                                     showProgressBar('adminPage', false);
 
@@ -4801,243 +5032,30 @@ ons.ready(function () {
                 var eventInfo = navi.topPage.data.eventInfo;
                 var messageWindow = $('#messageWindow');
                 var messageInput = $('#messageInput');
+                var newMessages = document.getElementById('newMessages');
                 var messageInputPlaceholder = $('#messageInputPlaceholder');
                 var pouch = basedb;
                 var pouchSync = syncBasedb;
-                var nextMessageEndKey;
-                var nextMessageEndKey2;
+
                 var scrollTimer;
                 var messagePageContent = $('#messagesPage .page__content');
                 var page = $('#messagesPage');
                 var offset;
                 var messageChk = /message/i;
-                var newestMessage;
+
                 var scroll;
                 var scrollingOn = true;
-                var lastRecievedMessages = [];
+                var scrollToBottomFab = $('#scrollToBottomFab');
+                var scrollMessageBadge = $('#scrollMessageBadge');
 
-
-
+                dbSeqNumber = nextSeq;
+                localStorage.dbSeqNumber = nextSeq;
 
                 //functions
+
                 /**
-                 * Adds messages starting at the newest and working backwards - endkey is first because it is decending
-                 * @param {object} options
-                 * @param {boolean} prepend whether to add messages before or after the other messages 
-                 * @param {boolean} scroll whether to scroll to the bottom of the page or not
+                 * sends a message by putting the doc into the db then doing an alldocs for the latest messages
                  */
-                function addMessages(messageWindow, options, prepend, scroll, offset) {
-                    // console.log(pouch);
-
-                    if (options.limit != undefined) {
-                        if (options.limit !== false) {
-                            options.limit++;
-                        }
-                    }
-                    var messageWindowHeight = messageWindow.height();
-                    return pouch.allDocs(options)
-                        .then(function (messages) {
-                            var rows = messages.rows;
-                            console.log(messages);
-                            var lastMessage = false;
-                            var i = 0;
-                            var l = rows.length;
-
-                            return Promise.all(rows.map(function (row) {
-                                //console.log(i);
-                                //console.log(lastMessage);
-                                var doc = row.doc;
-                                var messageClasses = ' message-text';
-                                var containerClasses = 'bubble';
-                                var lineClasses = 'msg';
-                                var lastBubbleContainerClass = 'bubble';
-                                doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                });
-                                doc.from = parseInt(doc.from);
-                                doc.to = parseInt(doc.to);
-                                doc.msgBaseNo = 'Base ' + doc.from;
-                                if (doc.from === 0) {
-                                    doc.msgBaseNo = 'Admin HQ';
-                                }
-                                if (!lastMessage) {
-                                    console.log('continue ' + i)
-                                    if (!prepend) {
-                                        newestMessage = doc._id;
-                                    }
-                                    lastMessage = doc;
-                                    i++;
-                                    //if (l != 1) {
-                                    return;
-                                    //}
-                                }
-
-                                //message-in or out
-                                if (lastMessage.from === currentBase) {
-                                    containerClasses += ' message-out';
-                                } else {
-                                    containerClasses += ' message-in'
-                                }
-                                //matches last sender
-                                if (lastMessage.from !== doc.from) {
-                                    containerClasses += ' tail';
-                                } else {
-                                    lineClasses += ' msgContinued';
-                                }
-                                //for dev
-                                if (lastMessage.from === undefined) {
-                                    lastMessage.from = 1;
-                                }
-                                var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
-                                lastMessage = doc;
-                                i++;
-                                //for last message that won't have another one
-                                if (i !== options.limit) {
-                                    if (i === options.limit - 1 || (l < options.limit && i === l)) {
-                                        if (doc.from === currentBase) {
-                                            lastBubbleContainerClass += ' message-out';
-                                            lineClasses += ' topMsg';
-                                        } else {
-                                            lastBubbleContainerClass += ' message-in';
-                                            lineClasses += ' topMsg';
-                                        }
-                                        lastBubbleContainerClass += ' tail';
-                                        nextMessageEndKey = doc._id;
-                                        var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
-                                        return lastBubble += bubble;
-                                    }
-                                } else if (i === options.limit) {
-                                    console.log('limit reached');
-                                    nextMessageEndKey = doc._id;
-                                    return;
-                                }
-                                return bubble;
-                            }));
-                        }).then(function (doc) {
-                            console.log(doc);
-                            // scroll = messagePageContent.scrollTop();
-                            if (prepend) {
-                                return messageWindow.prepend(doc.reverse()).height();
-                            } else {
-                                return messageWindow.append(doc.reverse()).height();
-                            }
-                        }).then(function (doc) {
-                            console.log(doc);
-                            // var offset;
-                            // var newMessageContainerHeight = messageWindow.height();
-                            // console.log(newMessageContainerHeight + ' + ' + 100 + ' - ' + messageWindowHeight);
-                            console.log('msgwinheight: ' + messageWindowHeight);
-                            console.log(offset);
-                            if (scroll) {
-                                offset = messagePageContent[0].scrollHeight;
-
-                            } else {
-                                // offset = doc - (screenHeight - 128) - (doc - messageWindowHeight);
-                                // offset = (doc + messageWindowHeight) - (doc + 517 + offset);
-                                offset = (doc - messageWindowHeight) + offset;
-                                console.log(messageWindowHeight + '-(517+' + offset + ')');
-                                // console.log(offset + '= (' + doc + ' +  ' + messageWindowHeight + ') - (' + doc + '+' + ' 517 +' + offset + ')');
-                                console.log('offset: ' + offset);
-                            }
-
-                            scrollToElement(messagePageContent, offset, 1);
-                            // return messagePageContent.scrollTop(offset);
-                            return doc;
-
-
-                        }).then(function (doc) {
-                            return doc;
-                        }).catch(function (err) {
-                            console.log(err);
-                            return false;
-                        });
-                }
-                /**
-                 * runs the scroll function on the messagesPage
-                 */
-                function handleMsgScroll() {
-                    scrollingOn = false;
-                    return Promise.resolve().then(function () {
-
-                        var scroll1 = messagePageContent.scrollTop();
-                        console.log('s1: ' + scroll1)
-                        if (scroll1 < 120) {
-                            // messagePageContent.off('scroll');
-                            // circleLoader.removeClass('hide');
-
-                            nextMessageEndKey2 = nextMessageEndKey;
-                            var options = {
-                                include_docs: true,
-                                endkey: 'message',
-                                startkey: nextMessageEndKey,
-                                descending: true,
-                                limit: 5
-                            };
-                            return addMessages(messageWindow, options, true, false, scroll1)
-                                .then(function (doc) {
-                                    console.log(doc);
-                                    var scroll2 = messagePageContent.scrollTop();
-                                    console.log('s2: ' + scroll2);
-                                    if (scroll2 < 300 && nextMessageEndKey !== nextMessageEndKey2) {
-                                        console.log('run again');
-                                        return handleMsgScroll();
-                                    }
-                                    // circleLoader.addClass('hide');
-                                    if (nextMessageEndKey === nextMessageEndKey2) {
-                                        return messagePageContent.off('scroll');
-                                    }
-                                    // return messagePageContent.on('scroll', function () {
-                                    //     handleMsgScroll();
-                                    // });
-                                    // scrollingOn = true;
-                                    return scrollingOn = true;
-                                });
-
-                        }
-                        scrollingOn = true;
-                        return true;
-                    }).catch(function (err) {
-                        console.log(err);
-                    });
-                }
-                /**
-                 * Handles the message update
-                 * @param {object} doc 
-                 */
-                function pullMessageChangeHandler(doc) {
-                    console.log('messages being checked');
-                    console.log(doc);
-                    var updateMsgs = false;
-                    var path = doc.change.docs;
-                    var arrLength = path.length;
-                    for (var i = 0, l = arrLength; i < l; i++) {
-                        if (messageChk.test(path[i]._id)) {
-                            updateMsgs = true;
-                            // Something to show messages that were delayed in being sent
-                            lastRecievedMessages.push(path[i]._id);
-                        }
-                    }
-                    console.log(updateMsgs);
-                    if (updateMsgs) {
-                        if (navi.topPage.name === 'messagesPage.html') {
-                            //run function for adding messages
-                            var options = {
-                                include_docs: true,
-                                endkey: newestMessage,
-                                startkey: 'message\ufff0',
-                                descending: true,
-                                limit: undefined
-                            };
-                            return addMessages(messageWindow, options, false, true);
-                        } else {
-                            //update msg badge
-                            var badgeNo = lastRecievedMessages.length;
-                            $('.messageBadge').html(badgeNo).removeClass('hide');
-                        }
-                    }
-                }
-
                 function sendMessage() {
                     var date = new Date();
                     var isoDate = date.toISOString();
@@ -5055,6 +5073,9 @@ ons.ready(function () {
                                 messageInput.html('');
                                 messageInputPlaceholder.removeClass('hide');
                                 placeholder = true;
+                                dbSeqNumber++;
+                                nextSeq = dbSeqNumber;
+                                localStorage.dbSeqNumber = dbSeqNumber;
                             } else {
                                 console.log(doc);
                             }
@@ -5066,7 +5087,7 @@ ons.ready(function () {
                                 descending: true,
                                 limit: undefined
                             };
-                            return addMessages(messageWindow, options, false, true);
+                            return addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
                         }).catch(function (err) {
                             console.log(err);
                         });
@@ -5075,6 +5096,56 @@ ons.ready(function () {
                         placeholder = true;
                     }
                 }
+                /**
+                 * runs the scroll function on the messagesPage
+                 */
+                function handleMsgScroll() {
+                    scrollingOn = false;
+
+                    return Promise.resolve()
+                        .then(function () {
+                            var scroll1 = messagePageContent.scrollTop();
+                            console.log('s1: ' + scroll1)
+                            if (scroll1 < 120) {
+                                // messagePageContent.off('scroll');
+                                // circleLoader.removeClass('hide');
+
+                                nextMessageEndKey2 = nextMessageEndKey;
+                                var options = {
+                                    include_docs: true,
+                                    endkey: 'message',
+                                    startkey: nextMessageEndKey,
+                                    descending: true,
+                                    limit: 5
+                                };
+                                return addMessages(pouch, messageWindow, messagePageContent, options, true, true, false, scroll1)
+                                    .then(function (doc) {
+                                        console.log(doc);
+                                        var scroll2 = messagePageContent.scrollTop();
+                                        console.log('s2: ' + scroll2);
+                                        if (scroll2 < 300 && nextMessageEndKey !== nextMessageEndKey2) {
+                                            console.log('run again');
+                                            return handleMsgScroll();
+                                        }
+                                        // circleLoader.addClass('hide');
+                                        if (nextMessageEndKey === nextMessageEndKey2) {
+                                            return messagePageContent.off('scroll');
+                                        }
+                                        // return messagePageContent.on('scroll', function () {
+                                        //     handleMsgScroll();
+                                        // });
+                                        // scrollingOn = true;
+                                        return scrollingOn = true;
+                                    });
+
+                            }
+                            scrollingOn = true;
+                            return true;
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+                }
+
 
 
                 //code to run
@@ -5085,16 +5156,17 @@ ons.ready(function () {
                 }
                 //change page title
                 $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
-
+                //hides the scrollToBottomFab
+                scrollToBottomFab[0].hide();
                 //add messages to screen
                 var options = {
                     include_docs: true,
                     endkey: 'message',
                     startkey: 'message\ufff0',
                     descending: true,
-                    limit: 15
+                    limit: 25
                 };
-                addMessages(messageWindow, options, false, true);
+                addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
                 //messageInput
                 var placeholder = true;
                 messageInput
@@ -5120,6 +5192,12 @@ ons.ready(function () {
                     }
                 });
                 lastSyncHandler();
+                scrollToBottomFab.on('click', function () {
+                    var offset = messagePageContent[0].scrollHeight;
+                    scrollToElement(messagePageContent, offset, 1);
+                });
+                //update message badge
+                updateMsgBadgeNo(0, true);
 
                 //event handlers
                 messagePageContent.on('scroll', function () {
@@ -5127,14 +5205,23 @@ ons.ready(function () {
                     if (scrollingOn && nextMessageEndKey !== nextMessageEndKey2) {
                         handleMsgScroll();
                     }
+                    //TODO add fab after message load for the first time?
+                    if (isScrolledIntoView(newMessages)) {
+                        console.log('At Bottom');
+                        scrollToBottomFab[0].hide()
+                        scrollMessageBadge.html(0).addClass('hide');
+                        return;
+                    }
+                    return scrollToBottomFab[0].show();
                 });
 
-                //pouchSync.on('change', function (doc) {
+                /*
                 pouchSync.on('change', function (change) {
                     if (change.direction === 'pull') {
                         pullMessageChangeHandler(change);
                     }
                 });
+                */
 
                 //end of messagesPage.html
                 break;
@@ -5444,4 +5531,19 @@ function lastSyncUpdater(timeToShow) {
     $('.lastSync').html('last sync: ' + lastSync);
     $('.normalTitle').addClass('hide');
     $('.syncTitle').removeClass('hide');
+}
+/**
+ *returns true if the element is visible, false if not
+ * @param {object} el element NOT JQUERY 
+ * @return {boolean} true = visible || false=not visible 
+ */
+function isScrolledIntoView(el) {
+    var elemTop = el.getBoundingClientRect().top;
+    var elemBottom = el.getBoundingClientRect().bottom;
+
+    // Only completely visible elements return true:
+    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    // Partially visible elements return true:
+    //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+    return isVisible;
 }
