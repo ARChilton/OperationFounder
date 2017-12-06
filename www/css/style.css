@@ -612,6 +612,14 @@ input[type=number]::-webkit-outer-spin-button {
     
 } */
 
+#scrollToBottomFab {
+    bottom: 85px;
+}
+
+#scrollToBottomFab ons-icon {
+    vertical-align: middle;
+}
+
 #messagesPage .page__content {
     border: none;
     bottom: 56px;
@@ -633,6 +641,13 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: bold;
     font-family: 'Roboto', 'Noto', sans-serif;
     font-size: 12px;
+}
+
+#scrollMessageBadge {
+    position: fixed;
+    bottom: 58px;
+    right: 6px;
+    top: auto;
 }
 
 
@@ -764,7 +779,9 @@ input[type=number]::-webkit-outer-spin-button {
 
 .message-in {
     /* background-color: #fff; */
-    background-color: lightblue;
+    /* background-color: lightblue; */
+    /* background-color: rgba(0, 0, 0, 0.05); */
+    background-color: #efefef;
     float: left;
 }
 
@@ -827,7 +844,9 @@ input[type=number]::-webkit-outer-spin-button {
     width: 0;
     height: 0;
     border: 8px solid transparent;
-    border-right-color: lightblue;
+    /* border-right-color: lightblue; */
+    /* border-right-color: rgba(0, 0, 0, 0.05); */
+    border-right-color: #efefef;
     /*#fff;*/
     border-left: 0;
     border-top: 0;
@@ -1241,6 +1260,11 @@ ons-splitter-mask {
     background-color: #fff;
     border: 0px solid currentColor;
     z-index: 99999;
+}
+
+.secondaryFab {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 
