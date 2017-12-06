@@ -777,8 +777,14 @@
           </div>
         </div>
       </ons-toolbar>
+
+      <ons-fab position="bottom right" ripple id="scrollToBottomFab" class="secondaryFab fab--mini">
+        <ons-icon icon="fa-angle-double-down"></ons-icon>
+      </ons-fab>
       <div class="" id="messageWindow"></div>
+      <div id="newMessages"></div>
       <ons-bottom-toolbar transparent id="messageInputToolbar">
+
         <div class="messageInputArea">
           <div class="messageInputContainer">
             <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
@@ -796,7 +802,7 @@
 
         </div>
       </ons-bottom-toolbar>
-
+      <span id="scrollMessageBadge" class="messageBadge hide"></span>
 
     </ons-page>
   </ons-template>
