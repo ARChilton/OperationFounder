@@ -64,7 +64,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'https://vps490460.ovh.net/app'; // 'http://127.0.0.1:3000'; //'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 var marker;
@@ -441,11 +441,11 @@ function goToMap() {
     navi.bringPageTop('map.html', {
         animation: pageChangeAnimation
     }).then(function () {
-        map.invalidateSize();
+        return map.invalidateSize();
     }).catch(function (err) {
         createMap();
         setTimeout(function () {
-            map.invalidateSize()
+            return map.invalidateSize()
         }, 1000);
     });
 
@@ -3161,7 +3161,7 @@ ons.ready(function () {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
                             if (eventDescription.dateStart > eventDescription.dateEnd) {
-                                return onscroll.notification.alert({
+                                return ons.notification.alert({
                                     title: 'Check event dates',
                                     message: 'Event set to end before it starts.',
                                     cancelable: true
@@ -3651,7 +3651,13 @@ ons.ready(function () {
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd);
                     var pattern = /\W/g;
-                    var version = eventInfo._rev.split(pattern)[0];
+                    var version;
+                    if (typeof eventInfo._rev === 'string') {
+                        version = eventInfo._rev.split(pattern)[0];
+                    } else {
+                        version = 1;
+                    }
+
                     $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
 
 
@@ -4475,14 +4481,14 @@ ons.ready(function () {
 
                 // --- map page ---
             case 'map.html':
-
-                ons.disableDeviceBackButtonHandler();
-                if (!$('#mapBackButton').hasClass('evtHandler')) {
-                    $('#mapBackButton').addClass('evtHandler');
-                    $('#mapBackButton').on('click', function () {
-                        mapBackButton();
-                    });
-                }
+                // createMap();
+                // ons.disableDeviceBackButtonHandler();
+                // if (!$('#mapBackButton').hasClass('evtHandler')) {
+                //     $('#mapBackButton').addClass('evtHandler');
+                //     $('#mapBackButton').on('click', function () {
+                //         mapBackButton();
+                //     });
+                // }
                 break;
 
                 // --- Admin page ---
