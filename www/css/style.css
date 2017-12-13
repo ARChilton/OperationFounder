@@ -223,7 +223,7 @@ Accent Darker color: Orange 800: #EF6C00
     color: #000;
 }
 
-.baseInstructionsShow {
+.evtInstructionsShow {
     position: absolute;
     right: 16px;
 }
@@ -400,6 +400,13 @@ Accent Darker color: Orange 800: #EF6C00
     -o-transition: all 500ms ease-in-out;
     -ms-transition: all 500ms ease-in-out;
     transition: all 500ms ease-in-out;
+}
+
+.baseInstructions {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.8);
+    margin-right: 16px;
+    margin-left: 32px;
 }
 
 .logOffRouteFalse {
