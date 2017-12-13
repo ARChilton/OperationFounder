@@ -3894,7 +3894,7 @@ ons.ready(function () {
                                 eventTimeline = upcomingEvents;
                             }
 
-                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 baseInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
+                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
 
                             eventTimeline.append(cardToAppend);
                             //shows the title of the event timeline grouping
@@ -3919,7 +3919,7 @@ ons.ready(function () {
                                 navi.resetToPage('loginPage.html', options);
                             });
                             //event description show hide
-                            var edShowHide = $('#' + event + ' .baseInstructionsShow');
+                            var edShowHide = $('#' + event + ' .evtInstructionsShow');
                             edShowHide.on('click', function () {
                                 edShowHide.toggleClass('rotate90');
                                 $('#' + event + ' .mdl-card__supporting-text').slideToggle(500);
@@ -3996,7 +3996,7 @@ ons.ready(function () {
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
                         $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
-                        $('#instructions').append('<div id="baseInstructions" class="marginLeft marginRight hide">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
+                        $('#instructions').append('<div id="baseInstructions" class="hide baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
                             $('#baseInstructions').slideToggle(500);
@@ -4070,7 +4070,7 @@ ons.ready(function () {
                     return basedb.find({
                         selector: {
                             timeOut: {
-                                $gt: null
+                                $gt: 0
                             },
                             base: {
                                 $eq: base
@@ -4124,6 +4124,7 @@ ons.ready(function () {
                                 }
                             }).on('paused', function (info) {
                                 // replication was paused, usually because of a lost connection
+                                console.log('basedb pasused');
                                 lastSyncUpdater();
                             }).on('active', function (info) {
                                 // replication was resumed
@@ -4565,7 +4566,7 @@ ons.ready(function () {
                     admindb.find({
                         selector: {
                             timeOut: {
-                                $gt: null
+                                $gt: 0
                             }
                         },
                         fields: ['_id', 'base', 'patrol', 'timeOut', 'offRoute', 'username'],
@@ -4653,7 +4654,7 @@ ons.ready(function () {
                                                 admindb.find({
                                                     selector: {
                                                         timeOut: {
-                                                            $gt: null
+                                                            $gt: 0
                                                         },
                                                         patrol: {
                                                             $eq: patrolToSearch
@@ -4686,7 +4687,7 @@ ons.ready(function () {
                                                 admindb.find({
                                                     selector: {
                                                         timeOut: {
-                                                            $gt: null
+                                                            $gt: 0
                                                         }
 
                                                     },
@@ -4808,7 +4809,7 @@ ons.ready(function () {
                                     return admindb.find({
                                         selector: {
                                             timeOut: {
-                                                $gt: null
+                                                $gt: 0
                                             }
                                         },
                                         sort: ['timeOut']
@@ -4845,6 +4846,7 @@ ons.ready(function () {
                                             }).on('paused', function (info) {
                                                 // replication was paused, usually because of a lost connection
                                                 console.log('replication paused because of:');
+                                                console.log(info);
                                                 lastSyncUpdater();
 
                                             }).on('active', function (info) {
