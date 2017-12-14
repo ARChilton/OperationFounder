@@ -4603,7 +4603,6 @@ ons.ready(function () {
                  * @param {string|number} patrolToSearch if there is a patrol to look out for
                  */
                 function leaderboard(leaderboardTable, patrolToSearch) {
-                    console.log('lb run');
                     leaderboardTable.empty();
                     admindb.query('leaderboardIndex', {
                         reduce: true,
@@ -4656,7 +4655,6 @@ ons.ready(function () {
                             $(document).ready(function () {
                                 $('#patrolSearchInput').focus()
                                     .on('keyup blur', function (e) {
-                                        console.log(e);
                                         if (e.which === 13 || e.type === 'blur') {
                                             var value = $(this).val();
                                             if (patrolToSearch != value && value !== '') {
@@ -4704,7 +4702,7 @@ ons.ready(function () {
                                                     },
                                                     sort: ['timeOut']
                                                 }).then(function (doc) {
-                                                    console.log(doc);
+                                                    //console.log(doc);
                                                     patrolToSearch = false;
                                                     $('#adminLogsTable').empty();
                                                     patrolRecordAdmin = [];
