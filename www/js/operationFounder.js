@@ -3377,17 +3377,17 @@ ons.ready(function () {
                                 $.each(eventDescription, function (key, value) {
                                     console.log('key: ' + key + ' value: ' + value);
                                     if (key != 'bases') {
-                                        if (value === eventInfo[key]) {
+                                        if (value === doc[key]) {
                                             return true;
                                         }
                                     } else {
                                         return value.forEach(function (base) {
-                                            if (eventInfo.bases[base.baseNo] === undefined) {
+                                            if (doc.bases[base.baseNo] === undefined) {
                                                 console.log('new base added');
                                                 changeMade = true;
                                                 return false;
                                             }
-                                            var testAgainst = eventInfo.bases[base.baseNo];
+                                            var testAgainst = doc.bases[base.baseNo];
                                             console.log(testAgainst);
                                             return $.each(base, function (key2, value2) {
                                                 if (value2 === testAgainst[key2]) {
@@ -3413,8 +3413,8 @@ ons.ready(function () {
                                         }
                                     };
                                     changeMade = true;
-                                } else if (eventInfo._attachments != undefined) {
-                                    eventDescription._attachments = eventInfo._attachments;
+                                } else if (typeof doc._attachments === 'object') {
+                                    eventDescription._attachments = doc._attachments;
                                 }
                                 if (!changeMade) {
 
@@ -3423,13 +3423,14 @@ ons.ready(function () {
                                     }; //no change made so cancel out
                                 }
                                 eventDescription._rev = doc._rev;
-                                eventDescription.dbName = eventInfo.dbName;
-                                eventDescription.evtUserPass = eventInfo.evtUserPass;
+                                eventDescription.dbName = doc.dbName;
+                                eventDescription.evtUserPass = doc.evtUserPass;
 
                                 return tempdb.put(eventDescription);
                             }).then(function (doc) {
                                 console.log(doc);
                                 if (doc.ok) {
+                                    eventDescription._rev = doc.rev;
                                     return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
                                 } else {
                                     return ons.notification.alert({
@@ -3477,7 +3478,7 @@ ons.ready(function () {
             case 'eventSummaryPage.html':
                 var eventName = navi.topPage.data.eventName;
                 var url = navi.topPage.data.url;
-                if (navi.topPage.data.eventInfo != undefined) {
+                if (typeof navi.topPage.data.eventInfo === 'object') {
                     var eventInfo = navi.topPage.data.eventInfo
                 } else {
                     var eventInfo = eventDescription;
@@ -3899,7 +3900,7 @@ ons.ready(function () {
                                 eventTimeline = upcomingEvents;
                             }
 
-                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow"><i class="zmdi zmdi-chevron-left"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
+                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
 
                             eventTimeline.append(cardToAppend);
                             //shows the title of the event timeline grouping
@@ -4000,7 +4001,7 @@ ons.ready(function () {
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Base instructions</div><div class="right"><ons-icon id="instructionChevron" icon="md-chevron-left" class="secondaryColor rotate270"></ons-icon></div></ons-list-item></div>');
+                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Show base instructions</div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="hide baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
