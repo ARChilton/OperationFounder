@@ -2951,9 +2951,14 @@ ons.ready(function () {
                     if (pageData.eventInfo != undefined) {
                         editEvent = true;
                         var pattern = /\W/g;
-                        var version = parseInt(pageData.eventInfo._rev.split(pattern)[0]) + 1;
-                        $('#createEventPage .center').html('Edit Event - version: ' + version);
+                        var version;
                         var eventInfo = pageData.eventInfo;
+                        if (typeof eventInfo._rev === 'string') {
+                            version = parseInt(eventInfo._rev.split(pattern)[0]) + 1;
+                        } else {
+                            version = 2;
+                        }
+                        $('#createEventPage .center').html('Edit Event - version: ' + version);
                         $('#eventName').val(eventInfo.eventName);
                         $('#eventStartDate').val(eventInfo.dateStart);
                         $('#eventEndDate').val(eventInfo.dateEnd);
@@ -4041,7 +4046,7 @@ ons.ready(function () {
                     index: {
                         fields: ['timeOut'],
                         name: 'timeOutIndex',
-                        ddoc: 'timeOutIndexDDoc',
+                        ddoc: 'timeOutIndex',
                         type: 'json'
                     }
                 }).then(function (doc) {
@@ -4050,7 +4055,7 @@ ons.ready(function () {
                         index: {
                             fields: ['base', 'timeOut'],
                             name: 'baseTimeOutIndex',
-                            ddoc: 'baseTimeOutIndexDDoc',
+                            ddoc: 'baseTimeOutIndex',
                             type: 'json'
                         }
                     })
@@ -4059,7 +4064,7 @@ ons.ready(function () {
                         index: {
                             fields: ['patrol'],
                             name: 'patrolIndex',
-                            ddoc: 'patrolIndexDDoc',
+                            ddoc: 'patrolIndex',
                             type: 'json'
                         }
                     });
@@ -4086,7 +4091,7 @@ ons.ready(function () {
                         index: {
                             fields: ['base'],
                             name: 'baseIndex',
-                            ddoc: 'baseIndexDDoc',
+                            ddoc: 'baseIndex',
                             type: 'json'
                         }
                     });
@@ -4598,31 +4603,36 @@ ons.ready(function () {
                  * @param {string|number} patrolToSearch if there is a patrol to look out for
                  */
                 function leaderboard(leaderboardTable, patrolToSearch) {
+                    console.log('lb run');
                     leaderboardTable.empty();
                     admindb.query('leaderboardIndex', {
-                            reduce: true,
-                            group: true
-                        })
-                        .then(function (doc) {
-                            return doc.rows.sort(sort_by('value', true));
-                        }).then(function (doc) {
-                            return leaderboardRowCreator(doc, patrolToSearch);
-                        }).then(function (doc) {
-                            leaderboardTable.append(doc);
-                        }).catch(function (err) {
-                            console.log(err);
-                        });
+                        reduce: true,
+                        group: true
+                    }).then(function (doc) {
+                        return doc.rows.sort(sort_by('value', true));
+                    }).then(function (doc) {
+                        return leaderboardRowCreator(doc, patrolToSearch);
+                    }).then(function (doc) {
+                        leaderboardTable.append(doc);
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
                 }
 
                 function leaderboardRowCreator(rows, patrolToSearch) {
                     var i = 1;
-                    return rows.map(function (row) {
+                    var lastScore = '';
+                    return Promise.all(rows.map(function (row) {
+                        if (lastScore === row.value) {
+                            i--;
+                        }
                         var tableRow = '<tr id="lb-' + i + '"><td class="bold">' + i + '</td><td>' + row.key + '</td><td>' + row.value + '</td></tr>';
                         i++;
+                        lastScore = row.value;
                         if (!patrolToSearch || patrolToSearch === row.key || patrolToSearch === undefined) {
                             return tableRow;
                         }
-                    });
+                    }));
                 }
                 //code to run
                 menuController('admin.html');
@@ -4646,7 +4656,8 @@ ons.ready(function () {
                             $(document).ready(function () {
                                 $('#patrolSearchInput').focus()
                                     .on('keyup blur', function (e) {
-                                        if (e.which === 13 || e.type == 'blur') {
+                                        console.log(e);
+                                        if (e.which === 13 || e.type === 'blur') {
                                             var value = $(this).val();
                                             if (patrolToSearch != value && value !== '') {
 
@@ -4678,7 +4689,7 @@ ons.ready(function () {
                                                         leaderboard(leaderboardTable, patrolToSearch);
                                                     }
                                                 });
-                                            } else if (value === '' && patrolToSearch != value && patrolToSearch !== false) {
+                                            } else if (value === '' && patrolToSearch != value && patrolToSearch !== false && e.type === 'blur') {
                                                 //no value
                                                 $(this).addClass('hide');
                                                 // patrolSearchIcon.empty();
@@ -4691,7 +4702,6 @@ ons.ready(function () {
                                                         }
 
                                                     },
-
                                                     sort: ['timeOut']
                                                 }).then(function (doc) {
                                                     console.log(doc);
@@ -4793,8 +4803,8 @@ ons.ready(function () {
                                                 views: {
                                                     'leaderboardIndex': {
                                                         map: function (doc) {
-                                                            if (doc.patrol != undefined && doc.offRoute === '') {
-                                                                emit(doc.patrol, parseInt(doc.totalScore));
+                                                            if (typeof doc.patrol === 'string') {
+                                                                emit(doc.patrol, parseInt(doc.totalScore) || 0);
                                                             }
                                                         }.toString(),
                                                         reduce: '_sum'
