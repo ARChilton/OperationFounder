@@ -67,7 +67,8 @@ var lastSync;
 var appServer = 'https://vps490460.ovh.net/app'; //'http://127.0.0.1:3000'; // 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
-var marker;
+//commented out to remove map from app
+/* var marker;
 var accuracyCircle;
 var locationFoundCount = 0;
 var followGPS;
@@ -95,7 +96,7 @@ var bingOS = L.tileLayer.bing({
     useCache: turnCachingOn,
     crossOrigin: true,
     cacheMaxAge: reCacheAfter
-})
+}); */
 // var currentLocation;
 // var location;
 // login variables
@@ -437,7 +438,7 @@ function cleanAll() {
 /**
  * show map page
  */
-function goToMap() {
+/* function goToMap() {
     navi.bringPageTop('map.html', {
         animation: pageChangeAnimation
     }).then(function () {
@@ -458,11 +459,11 @@ function goToMap() {
         enableHighAccuracy: true
     });
 
-}
+} */
 /**
  * A function that runs on the map page when the map back button is pressed. This stops the map page being taken out of the page stack and therefore breaking leaflet
  */
-function mapBackButton() {
+/* function mapBackButton() {
     map.stopLocate();
     ons.enableDeviceBackButtonHandler();
     var index = getBaseNumber();
@@ -489,179 +490,180 @@ function mapBackButton() {
             });
             break;
     }
-}
+} */
 /**
  * Creates the map on the map page behind the scenes
  */
-function createMap() {
-    if (!(mapMade)) {
-        //map centred on Hadlow // pick up here   
-        try {
-            setTimeout(function () {
-                map = L.map('map', {
-                    center: [
-                        51.22435656415686, 0.3305253983853618
-                    ],
-                    zoom: 16,
-                    layers: [bingOS],
-                    zoomControl: false
-                });
-                // Adds a marker to the centre of the map before the GPS changes it's location
-                var currentLatLon = map.getCenter();
-                var currentLat = currentLatLon.lat;
-                var currentLng = currentLatLon.lng;
-                var startRadius = 3;
-                if (locationFoundCount == 0) {
-                    accuracyCircle = L.circle(currentLatLon, {
-                        radius: startRadius,
-                        fillColor: '#aaf29f',
-                        fillOpacity: 0.4,
-                        stroke: true,
-                        color: '#37e21d',
-                        weight: 1
+// function createMap() {
+//     if (!(mapMade)) {
+//         //map centred on Hadlow // pick up here   
+//         try {
+//             setTimeout(function () {
+//                 map = L.map('map', {
+//                     center: [
+//                         51.22435656415686, 0.3305253983853618
+//                     ],
+//                     zoom: 16,
+//                     layers: [bingOS],
+//                     zoomControl: false
+//                 });
+//                 // Adds a marker to the centre of the map before the GPS changes it's location
+//                 var currentLatLon = map.getCenter();
+//                 var currentLat = currentLatLon.lat;
+//                 var currentLng = currentLatLon.lng;
+//                 var startRadius = 3;
+//                 if (locationFoundCount == 0) {
+//                     accuracyCircle = L.circle(currentLatLon, {
+//                         radius: startRadius,
+//                         fillColor: '#aaf29f',
+//                         fillOpacity: 0.4,
+//                         stroke: true,
+//                         color: '#37e21d',
+//                         weight: 1
 
-                    }).addTo(map);
-                    marker = L.circleMarker(currentLatLon, {
-                        radius: 8,
-                        fill: true,
-                        fillOpacity: 1,
-                        fillColor: '#009688',
-                        stroke: true,
-                        color: '#ffffff',
-                        weight: 3
-                    }).addTo(map);
-                    locationFoundCount++;
-                }
-                var followGPS = false;
-
-
-                /**
-                 * On the success of the location function, this will locate you on the map and add a marker to show where you are
-                 * @param {*} e - location passed by the location function
-                 * @param {*} e.accuracy - the accuracy of the location
-                 * @param {any[]} e.latlng - the lat lng array of the location
-                 */
-                function onLocationFound(e) {
+//                     }).addTo(map);
+//                     marker = L.circleMarker(currentLatLon, {
+//                         radius: 8,
+//                         fill: true,
+//                         fillOpacity: 1,
+//                         fillColor: '#009688',
+//                         stroke: true,
+//                         color: '#ffffff',
+//                         weight: 3
+//                     }).addTo(map);
+//                     locationFoundCount++;
+//                 }
+//                 var followGPS = false;
 
 
-                    accRadius = e.accuracy / 2;
-
-                    //L.marker(e.latlng).addTo(map)
-                    //.bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-                    marker.setLatLng(e.latlng);
-                    accuracyCircle.setLatLng(e.latlng);
-                    accuracyCircle.setRadius(accRadius);
-
-                    // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
-                    //console.log('followGPS = ' + followGPS);
-                    currentLatLon = e.latlng;
-
-                    if (followGPS) {
-                        //map.setView(marker.getLatLng(),map.getZoom());
-                        map.flyTo(marker.getLatLng(), map.getZoom());
-                        console.log('I have moved because followGPS = ' + followGPS);
-                    }
-                }
-                /**
-                 * 
-                 * @param {*} e - error message passed by the location function
-                 */
-                function onLocationError(e) {
-                    //alert(e.message);
-                    $('#fabLocate').hide();
-
-                    // Raven.captureException(e);
-                }
-
-                map.on('locationfound', onLocationFound);
-                map.on('locationerror', onLocationError);
-
-                /**
-                 * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
-                 * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
-                 */
-                function locateButton(press) {
-                    switch (press) {
-                        case 1:
-
-                            /*This updates the map to the current GPS location*/
-                            map.setView(marker.getLatLng(), map.getZoom());
-                            /* This will update the variable which defines if the map follows the GPS marker */
-                            followGPS = true;
-                            /* This will change the styling of the fabLocate button */
-                            $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-                            /*For testing*/
-                            console.log('following marker');
-
-                            break;
-
-                        case 2:
-
-                            /* This updates whether the map follows the marker's GPS movements */
-                            followGPS = false;
-                            /*This will change the styling of the fabLocate button*/
-                            $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-                            /* For testing */
-                            console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
-
-                            break;
-                    }
-                }
+//                 /**
+//                  * On the success of the location function, this will locate you on the map and add a marker to show where you are
+//                  * @param {*} e - location passed by the location function
+//                  * @param {*} e.accuracy - the accuracy of the location
+//                  * @param {any[]} e.latlng - the lat lng array of the location
+//                  */
+//                 function onLocationFound(e) {
 
 
-                /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
-                if (!($('.locOn').hasClass('evtHandler'))) {
-                    $('.locOn').addClass('evtHandler');
-                    $('.locOn').on("click", function (e) {
+//                     accRadius = e.accuracy / 2;
 
-                        /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
-                        if (followGPS) {
-                            locateButton(2);
-                        } else {
-                            locateButton(1);
-                        }
+//                     //L.marker(e.latlng).addTo(map)
+//                     //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-                    })
+//                     marker.setLatLng(e.latlng);
+//                     accuracyCircle.setLatLng(e.latlng);
+//                     accuracyCircle.setRadius(accRadius);
 
-                    /*On any movement of the map:
-                    - the follow GPS setting and locate button is turned off
-                    - the autocomplete options are updated*/
-                    /**
-                     * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
-                     * utilised followGPS as a global variable
-                     */
-                    function mapMove() {
-                        /*This updates the fab icon*/
-                        if (followGPS) {
-                            /*This updates the locate button by passing in the second switch option that turns the button off*/
-                            locateButton(2);
-                            /*For testing*/
-                            // console.log('toggling locate button');
-                        }
-                    }
+//                     // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+//                     //console.log('followGPS = ' + followGPS);
+//                     currentLatLon = e.latlng;
 
-                    $('#map').on("swipe tap click taphold", function () {
-                        //console.log('map touched in some way');
-                        mapMove();
-                    })
-                    //This does the same but when the map is scrolled
-                    map.on('dragstart', function () {
-                        // console.log('map dragged');
-                        mapMove();
+//                     if (followGPS) {
+//                         //map.setView(marker.getLatLng(),map.getZoom());
+//                         map.flyTo(marker.getLatLng(), map.getZoom());
+//                         console.log('I have moved because followGPS = ' + followGPS);
+//                     }
+//                 }
+//                 /**
+//                  * 
+//                  * @param {*} e - error message passed by the location function
+//                  */
+//                 function onLocationError(e) {
+//                     //alert(e.message);
+//                     $('#fabLocate').hide();
 
-                    });
-                }
+//                     // Raven.captureException(e);
+//                 }
 
-            }, 500);
+//                 map.on('locationfound', onLocationFound);
+//                 map.on('locationerror', onLocationError);
 
-            mapMade = true;
-        } catch (err) {
-            console.log(err);
-            createMap();
-        }
-    }
-}
+//                 /**
+//                  * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
+//                  * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
+//                  */
+//                 function locateButton(press) {
+//                     switch (press) {
+//                         case 1:
+
+//                             /*This updates the map to the current GPS location*/
+//                             map.setView(marker.getLatLng(), map.getZoom());
+//                             /* This will update the variable which defines if the map follows the GPS marker */
+//                             followGPS = true;
+//                             /* This will change the styling of the fabLocate button */
+//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+//                             /*For testing*/
+//                             console.log('following marker');
+
+//                             break;
+
+//                         case 2:
+
+//                             /* This updates whether the map follows the marker's GPS movements */
+//                             followGPS = false;
+//                             /*This will change the styling of the fabLocate button*/
+//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+//                             /* For testing */
+//                             console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
+
+//                             break;
+//                     }
+//                 }
+
+
+//                 /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
+//                 if (!($('.locOn').hasClass('evtHandler'))) {
+//                     $('.locOn').addClass('evtHandler');
+//                     $('.locOn').on("click", function (e) {
+
+//                         /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
+//                         if (followGPS) {
+//                             locateButton(2);
+//                         } else {
+//                             locateButton(1);
+//                         }
+
+//                     })
+
+//                     /*On any movement of the map:
+//                     - the follow GPS setting and locate button is turned off
+//                     - the autocomplete options are updated*/
+//                     /**
+//                      * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
+//                      * utilised followGPS as a global variable
+//                      */
+//                     function mapMove() {
+//                         /*This updates the fab icon*/
+//                         if (followGPS) {
+//                             /*This updates the locate button by passing in the second switch option that turns the button off*/
+//                             locateButton(2);
+//                             /*For testing*/
+//                             // console.log('toggling locate button');
+//                         }
+//                     }
+
+//                     $('#map').on("swipe tap click taphold", function () {
+//                         //console.log('map touched in some way');
+//                         mapMove();
+//                     })
+//                     //This does the same but when the map is scrolled
+//                     map.on('dragstart', function () {
+//                         // console.log('map dragged');
+//                         mapMove();
+
+//                     });
+//                 }
+
+//             }, 500);
+
+//             mapMade = true;
+//         } catch (err) {
+//             console.log(err);
+//             createMap();
+//         }
+//     }
+// }
+
 // GPS location
 // function getGeolocation() {
 //     var geolocationOptions = {
@@ -4487,16 +4489,16 @@ ons.ready(function () {
                 break;
 
                 // --- map page ---
-            case 'map.html':
-                // createMap();
-                // ons.disableDeviceBackButtonHandler();
-                // if (!$('#mapBackButton').hasClass('evtHandler')) {
-                //     $('#mapBackButton').addClass('evtHandler');
-                //     $('#mapBackButton').on('click', function () {
-                //         mapBackButton();
-                //     });
-                // }
-                break;
+                /* case 'map.html':
+                    // createMap();
+                    // ons.disableDeviceBackButtonHandler();
+                    // if (!$('#mapBackButton').hasClass('evtHandler')) {
+                    //     $('#mapBackButton').addClass('evtHandler');
+                    //     $('#mapBackButton').on('click', function () {
+                    //         mapBackButton();
+                    //     });
+                    // }
+                    break; */
 
                 // --- Admin page ---
                 // these look similar but are seperate for admin and base users
