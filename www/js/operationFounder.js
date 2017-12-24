@@ -1171,7 +1171,7 @@ function editLog(logs) {
                         break;
                     case true:
                         var tIn = new Date(doc.timeIn);
-                        var tOut = new Date(doc.timeOut)
+                        var tOut = new Date(doc.timeOut);
                         $('#patrolNo').val(doc.patrol);
                         $('#timeIn').val(tIn.toLocaleTimeString([], {
                             hour: '2-digit',
@@ -1191,6 +1191,8 @@ function editLog(logs) {
                             case false:
                                 $('#offRoute').prop('checked', false);
                         }
+                        var page = $('#page1 .page__content');
+                        scrollToElement(page, 0, 400);
                         break;
                 }
             });
