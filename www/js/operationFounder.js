@@ -64,7 +64,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://vps490460.ovh.net/app'; // 'http://127.0.0.1:3000'; //'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'https://vps490460.ovh.net/app'; //'http://127.0.0.1:3000'; // 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 var marker;
@@ -4976,18 +4976,20 @@ ons.ready(function () {
                                     console.log('updating ls table on change');
                                     console.log(doc.change.docs);
                                     showProgressBar('adminPage', true);
+                                    var index;
                                     if (typeof patrolToSearch === 'string') {
-                                        var index = doc.change.docs.filter(function (log) {
-                                            if (log.patrol === patrolToSearch) {
-                                                return true;
-                                            }
-                                            return false;
+                                        index = doc.change.docs.filter(function (log) {
+                                            return (log.patrol === patrolToSearch);
                                         });
-                                        if (index.length === 0) {
-                                            return showProgressBar('adminPage', false);
-                                        }
-                                    }
 
+                                    } else {
+                                        index = doc.change.docs.filter(function (log) {
+                                            return (typeof log.patrol === 'string');
+                                        });
+                                    }
+                                    if (index.length === 0) {
+                                        return showProgressBar('adminPage', false);
+                                    }
                                     lastSeenTable.empty();
                                     patrolSeen = [];
                                     lastSeenFullUpdate(lastSeenTable, false);
@@ -5015,17 +5017,19 @@ ons.ready(function () {
                                     showProgressBar('adminPage', true);
                                     console.log(patrolToSearch);
                                     console.log(typeof patrolToSearch);
+                                    var index;
                                     if (typeof patrolToSearch === 'string') {
-                                        var index = doc.change.docs.filter(function (log) {
-                                            if (log.patrol === patrolToSearch) {
-                                                return true;
-                                            }
-                                            return false;
+                                        index = doc.change.docs.filter(function (log) {
+                                            return (log.patrol === patrolToSearch);
                                         });
-                                        console.log(index);
-                                        if (index.length === 0) {
-                                            return showProgressBar('adminPage', false);
-                                        }
+
+                                    } else {
+                                        index = doc.change.docs.filter(function (log) {
+                                            return (typeof log.patrol === 'string');
+                                        });
+                                    }
+                                    if (index.length === 0) {
+                                        return showProgressBar('adminPage', false);
                                     }
                                     console.log('got here');
                                     leaderboard(leaderboardTable, patrolToSearch);
