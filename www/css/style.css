@@ -830,6 +830,31 @@ input[type=number]::-webkit-outer-spin-button {
     margin-bottom: 12px;
 }
 
+.dateBubble {
+    background-color: rgba(255, 183, 77, 0.8);
+    border-radius: 7.5px;
+    border-top-left-radius: 7.5px;
+    border-top-right-radius: 7.5px;
+    border-bottom-right-radius: 7.5px;
+    border-bottom-left-radius: 7.5px;
+    position: relative;
+    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+    max-width: 90%;
+    width: fit-content;
+    min-width: 30px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 11.6px;
+    line-height: 19px;
+    word-wrap: break-word;
+    color: #262626;
+    cursor: text;
+    white-space: pre-wrap;
+    overflow: hidden;
+    font-weight: bold;
+}
+
 .msgContinued {
     margin-top: -8px;
 }

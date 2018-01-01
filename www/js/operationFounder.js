@@ -273,6 +273,9 @@ function formBubbleMessages(rows, limit, prepend) {
     var i = 0;
     var l = rows.length;
     var currentBase = getBaseNumber();
+    var today = new Date();
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
     return Promise.all(rows.map(function (row) {
         //console.log(i);
         //console.log(lastMessage);
@@ -281,7 +284,8 @@ function formBubbleMessages(rows, limit, prepend) {
         var containerClasses = 'bubble';
         var lineClasses = 'msg';
         var lastBubbleContainerClass = 'bubble';
-        doc.time = new Date(doc._id.replace('message-', '')).toLocaleTimeString([], {
+        doc.date = new Date(doc._id.replace('message-', ''));
+        doc.time = doc.date.toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -319,7 +323,23 @@ function formBubbleMessages(rows, limit, prepend) {
         if (lastMessage.from === undefined) {
             lastMessage.from = 1;
         }
+
         var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
+
+        if (lastMessage.date.toDateString() !== doc.date.toDateString()) {
+            var dateTxt;
+
+            if (lastMessage.date.toDateString() === today.toDateString()) {
+                dateTxt = 'Today';
+            } else if (lastMessage.date.toDateString() === yesterday.toDateString()) {
+                dateTxt = 'Yesterday';
+            } else {
+                dateTxt = lastMessage.date.toDateString();
+            }
+            var dateBubble = '<div class="msg"><div class="bubble dateBubble">' + dateTxt + '</div></div>';
+            bubble = dateBubble + bubble;
+        }
+
         lastMessage = doc;
         i++;
         //for last message that won't have another one
