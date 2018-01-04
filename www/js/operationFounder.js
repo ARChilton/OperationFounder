@@ -5177,7 +5177,7 @@ ons.ready(function () {
                     return Promise.resolve()
                         .then(function () {
                             var scroll1 = messagePageContent.scrollTop();
-                            console.log('s1: ' + scroll1)
+                            // console.log('s1: ' + scroll1)
                             if (scroll1 < 120) {
                                 // messagePageContent.off('scroll');
                                 // circleLoader.removeClass('hide');
@@ -5192,16 +5192,16 @@ ons.ready(function () {
                                 };
                                 return addMessages(pouch, messageWindow, messagePageContent, options, true, true, false, scroll1)
                                     .then(function (doc) {
-                                        console.log(doc);
+                                        // console.log(doc);
                                         var scroll2 = messagePageContent.scrollTop();
-                                        console.log('s2: ' + scroll2);
+                                        // console.log('s2: ' + scroll2);
                                         if (scroll2 < 300 && nextMessageEndKey !== nextMessageEndKey2) {
-                                            console.log('run again');
+                                            // console.log('run again');
                                             return handleMsgScroll();
                                         }
                                         // circleLoader.addClass('hide');
                                         if (nextMessageEndKey === nextMessageEndKey2) {
-                                            return messagePageContent.off('scroll');
+                                            return scrollingOn = false;
                                         }
                                         // return messagePageContent.on('scroll', function () {
                                         //     handleMsgScroll();
