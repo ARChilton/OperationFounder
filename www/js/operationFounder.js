@@ -232,7 +232,7 @@ function addMessages(db, messageWindow, messagePageContent, options, prepend, sc
             console.log(messages);
             return formBubbleMessages(rows, options.limit, prepend);
         }).then(function (doc) {
-            //console.log(doc);
+            console.log(doc);
             // scroll = messagePageContent.scrollTop();
             if (prepend) {
                 return messageWindow.prepend(doc.reverse()).height();
@@ -280,6 +280,10 @@ function formBubbleMessages(rows, limit, prepend) {
         //console.log(i);
         //console.log(lastMessage);
         var doc = row.doc;
+        //to prevent any bugs from showing up
+        if (typeof doc.message !== 'string') {
+            return;
+        }
         var messageClasses = ' message-text';
         var containerClasses = 'bubble';
         var lineClasses = 'msg';
@@ -295,16 +299,20 @@ function formBubbleMessages(rows, limit, prepend) {
         if (doc.from === 0) {
             doc.msgBaseNo = 'Admin HQ';
         }
-        if (!lastMessage) {
+
+        if (!lastMessage && l > 1) {
             console.log('continue ' + i)
             if (!prepend) {
                 newestMessage = doc._id;
             }
             lastMessage = doc;
             i++;
-            //if (l != 1) {
+
             return;
-            //}
+
+        } else if (l === 1) {
+            lastMessage = doc;
+            doc.date.setDate(1);
         }
 
         //message-in or out
@@ -324,27 +332,19 @@ function formBubbleMessages(rows, limit, prepend) {
             lastMessage.from = 1;
         }
 
-        var bubble = '<div class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
+        var bubble = '<div id="' + lastMessage._id + '" class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
 
         if (lastMessage.date.toDateString() !== doc.date.toDateString()) {
-            var dateTxt;
-
-            if (lastMessage.date.toDateString() === today.toDateString()) {
-                dateTxt = 'Today';
-            } else if (lastMessage.date.toDateString() === yesterday.toDateString()) {
-                dateTxt = 'Yesterday';
-            } else {
-                dateTxt = lastMessage.date.toDateString();
-            }
-            var dateBubble = '<div class="msg"><div class="bubble dateBubble">' + dateTxt + '</div></div>';
-            bubble = dateBubble + bubble;
+            bubble = dateBubble(lastMessage.date, today, yesterday) + bubble;
         }
+        //need to remove date placed previously when scrolling up
 
         lastMessage = doc;
         i++;
         //for last message that won't have another one
         if (i !== limit) {
-            if (i === limit - 1 || (l < limit && i === l)) {
+
+            if (i === limit - 1 || (l < limit && i === l && l > 1)) {
                 if (doc.from === currentBase) {
                     lastBubbleContainerClass += ' message-out';
                     lineClasses += ' topMsg';
@@ -354,8 +354,10 @@ function formBubbleMessages(rows, limit, prepend) {
                 }
                 lastBubbleContainerClass += ' tail';
                 nextMessageEndKey = doc._id;
-                var lastBubble = '<div class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
-                return lastBubble += bubble;
+                var lastBubble = '<div id="' + doc._id + '" class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
+                document.getElementById('topDateMsgBubble').innerHTML = dateString(doc.date, today, yesterday);
+                return lastBubble + bubble;
+                // return lastBubble;
             }
         } else if (i === limit) {
             console.log('limit reached');
@@ -364,6 +366,31 @@ function formBubbleMessages(rows, limit, prepend) {
         }
         return bubble;
     }));
+}
+
+function dateString(date, today, yesterday) {
+
+    var dateString = date.toDateString();
+    console.log('datebubble');
+    if (dateString === today.toDateString()) {
+        return 'Today';
+    } else if (dateString === yesterday.toDateString()) {
+        return 'Yesterday';
+    } else {
+        return dateString;
+    }
+}
+/**
+ * returns today||yesterday||dateString in a bubble
+ * @param {date} date 
+ * @param {date} today 
+ * @param {date} yesterday
+ * @returns {string} today||yesterday||dateString
+ */
+function dateBubble(date, today, yesterday) {
+    var dateTxt = dateString(date, today, yesterday);
+    var dateBubble = '<div class="msg dateMsgDivider"><div class="bubble dateBubble">' + dateTxt + '</div></div>';
+    return dateBubble;
 }
 /**
  * Checks the orientation and updates the GUI accordingly, landscape only
