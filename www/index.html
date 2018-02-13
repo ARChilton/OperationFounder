@@ -34,7 +34,7 @@
     <ons-splitter-side id="menu" side="left" page="menu.html" swipe-target-width="1px" collapse swipeable>
     </ons-splitter-side>
     <ons-splitter-content id="content"></ons-splitter-content>
-    <ons-navigator id="navi"></ons-navigator>
+    <ons-navigator id="navi" page="splashScreen.html"></ons-navigator>
   </ons-splitter>
   <!-- End of page navigation -->
   <!-- Menu page -->
@@ -72,12 +72,25 @@
     </ons-page>
   </ons-template>
   <!-- End of Menu Page -->
+  <!-- Start of Splash Screen -->
+  <ons-template id="splashScreen.html">
+    <ons-page id="splashScreen">
+      <div class="updateFiller">
+        <ons-progress-bar indeterminate class="progressBar"></ons-progress-bar>
+      </div>
+      <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
+      <div class="updateFiller"></div>
+    </ons-page>
+
+  </ons-template>
+  <!-- End of splash screen -->
   <!-- Start of Sign In page -->
   <ons-template id="signInPage.html">
     <ons-page id="signInPage">
       <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
       <div class="logoBackground">
-        <img src="img/operationFounder.png" class="loginLogo " id="signInLogo">
+        <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
+
       </div>
 
       <div class="pageDiv">
@@ -375,11 +388,13 @@
         <div id="evtSummaryBanner"></div>
         <div id="evtSummaryEvtUser">
           <div id="evtSummaryEvtUserContents">
-            <div id="evtSummaryUsername" class="">
+            <div id="" class="">
               <span class="bold sentanceCase">base user username: </span>
+              <span id="evtSummaryUsername" class="copyableArea passwordFont"></span>
             </div>
-            <div id="evtSummaryPassword" class="">
+            <div id="" class="">
               <span class="bold sentanceCase">base user password: </span>
+              <span id="evtSummaryPassword" class="copyableArea passwordFont"></span>
             </div>
             <div class="caption">Other users of your event will use these log in details to sign into the event.</div>
           </div>
@@ -404,8 +419,9 @@
           <div id="evtSummaryAdminContainer">
             <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
             <div id="evtSummaryAdminDetails">
-              <p id="evtSummaryAdminPass" class="">
+              <p id="" class="">
                 <span class="bold sentanceCase">Admin passcode: </span>
+                <span id="evtSummaryAdminPass" class="passwordFont"></span>
               </p>
             </div>
           </div>
@@ -809,6 +825,27 @@
 
     </ons-page>
   </ons-template>
+  <ons-template id="testPage.html">
+    <ons-page id="testPage">
+      <div class="pageDiv">
+        <form action="/charge" method="post" id="payment-form">
+          <div class="form-row">
+            <label for="card-element">
+              Credit or debit card
+            </label>
+            <div id="card-element">
+              <!-- a Stripe Element will be inserted here. -->
+            </div>
+
+            <!-- Used to display Element errors -->
+            <div id="card-errors" role="alert"></div>
+          </div>
+
+          <button>Submit Payment</button>
+        </form>
+      </div>
+    </ons-page>
+  </ons-template>
   <!-- End of MessagesPage.html -->
   <!-- Start of Map.html -->
   <!-- <ons-template id="map.html">
@@ -832,7 +869,7 @@
       </div>
       <img src="./img/bingLogo/bing_maps_logo_gray.png" class="bingLogo" id="bingGrey">
     </ons-page>
-  </ons-template>
+  </ons-template> -->
   <ons-template id="updatePage.html">
     <ons-page id="updatePage">
       <div class="updateFiller">
@@ -842,7 +879,7 @@
       <div class="updateFiller"></div>
     </ons-page>
 
-  </ons-template> -->
+  </ons-template>
 </body>
 <!-- JQuery -->
 <script src="js/JQuery/jquery-3.1.1.min.js "></script>
@@ -883,6 +920,9 @@
 <!--<script src="js/leaflet-control.js"></script>-->
 <!-- JQuery Control -->
 <!--<script src="js/tracking.js"></script>-->
+<!-- TestScripts -->
+<script src="https://js.stripe.com/v3/"></script>
+<!-- My scripts -->
 <script src="js/operationFounder.js"></script>
 
 </html>
