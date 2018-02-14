@@ -320,6 +320,9 @@ function formBubbleMessages(rows, limit, prepend) {
             containerClasses += ' message-out';
         } else {
             containerClasses += ' message-in'
+            // if (lastMessage.from === 0) {
+            //     containerClasses += ' adminMsg';
+            // }
         }
         //matches last sender
         if (lastMessage.from !== doc.from) {
@@ -465,7 +468,7 @@ function cleanAll() {
                             deletedRecord,
                             options
                         ).catch(function (err) {
-                            console.log(err);
+                            console.warn(err);
                         });
 
                     }
@@ -474,7 +477,7 @@ function cleanAll() {
                 admindb.compact().then(function (doc) {
                     console.log(doc);
                 }).catch(function (err) {
-                    console.log(err);
+                    console.warn(err);
                 });
             });
         }
@@ -1112,16 +1115,24 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                     messageHTML: '<p>This event has been updated by the event organisers to version: ' + version + '.</p><p>Your device will update once this message closes.</p>',
                     cancelable: true
                 }).then(function () {
+                    var lastPage;
+                    if (navi.topPage.name === 'messagesPage.html') {
+                        var id = navi.pages.length - 2;
+                        lastPage = navi.pages[id].name;
+                    } else {
+                        lastPage = navi.topPage.name;
+                    }
+
                     navi.resetToPage('updatePage.html', {
                         animation: pageChangeAnimation,
                         data: {
                             eventInfo: path,
-                            lastPage: navi.topPage.name
+                            lastPage: lastPage
                         }
                     });
 
                 }).catch(function (err) {
-                    console.log(err);
+                    console.warn(err);
                 });
 
             }
@@ -1172,7 +1183,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                 nextSeq = dbSeqNumber;
                 localStorage.dbSeqNumber = dbSeqNumber;
             }).catch(function (err) {
-                console.log(err);
+                console.warn(err);
             });
         } else {
             var currentBadgeNumber = parseInt($('#messageBadge').html()) || 0;
@@ -1295,7 +1306,7 @@ function writeUntilWrittenDelete(id, timestamp) {
             console.log(doc);
             return true;
         }).catch(function (err) {
-            console.log(err);
+            console.warn(err);
             if (err.status === 404) {
                 admindb.put({
                     _id: id,
@@ -1307,7 +1318,7 @@ function writeUntilWrittenDelete(id, timestamp) {
 
                     return true;
                 }).catch(function (err) {
-                    console.log(err);
+                    console.warn(err);
                 });
             }
             if (err.status === 409) {
@@ -1316,7 +1327,7 @@ function writeUntilWrittenDelete(id, timestamp) {
                     attemptCount++
                     return writeUntilWrittenDelete(id);
                 } else {
-                    console.log('409 could not be written');
+                    console.warn('409 could not be written');
                     return false;
                 }
             }
@@ -1379,7 +1390,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                 orientationLandscapeUpdate();
             })
             .catch(function (err) {
-                console.log(err);
+                console.warn(err);
             })
 
     }
@@ -1459,7 +1470,7 @@ function logOutPageChange() {
         deleteIndexes();
         return doc;
     }).catch(function (err) {
-        console.log(err);
+        console.warn(err);
     });
 }
 /**
@@ -1531,7 +1542,7 @@ function baseLogOut() {
             return appdb.put(doc);
         })
         .catch(function (err) {
-            console.log(err);
+            console.warn(err);
             throw err;
         });
 }
@@ -1713,7 +1724,7 @@ function addAppdbLoginDb(dbName) {
                     timestamp: new Date().toISOString()
                 });
             }
-            console.log(err);
+            console.warn(err);
             err.message = 'issue saving event to device';
             throw err;
         });
@@ -1731,12 +1742,12 @@ function compareTwoArrays(arr1, arr2, outputDifferences) {
         return $(arr1).not(arr2).get();
     } else {
 
-        if (arr1.length != arr2.length) {
+        if (arr1.length !== arr2.length) {
             return false;
         }
         for (var i = 0, l = arr1.length; i < l; i++) {
 
-            if (arr1[i] != arr2[i]) {
+            if (arr1[i] !== arr2[i]) {
                 return false;
             }
         }
@@ -1942,19 +1953,31 @@ ons.ready(function () {
                 };
                 return $.ajax(apiAjax(signInUrl, dataPackage))
                     .then(function (user) {
-                        if (compareTwoArrays(user.user.roles.sort(), doc.db.sort(), false) === false) {
+                        var usrRolesSorted = user.user.roles.sort();
+                        var loginEvtsSorted = doc.db.sort();
+                        console.log(loginEvtsSorted);
+                        console.log(usrRolesSorted);
+                        if (compareTwoArrays(usrRolesSorted, loginEvtsSorted, false) === false) {
                             //updated db array with the authorative source from couchdb
-                            doc.db = user.user.roles;
-
+                            doc.db = usrRolesSorted;
+                            console.log(loginEvtsSorted);
                             // doc.currentDb = lastDb;
                             appdb.put(doc)
                                 .then(function (info) {
                                     return appdb.compact();
-                                })
-                                .catch(function (err) {
-                                    console.log(err);
+                                }).then(function (info) {
+                                    //TODO ARC 04/01/2018 event description not downloading
+                                    var event = compareTwoArrays(usrRolesSorted, loginEvtsSorted, true);
+                                    console.log(event);
+                                    return Promise.all(event.map(function (evt) {
+                                        console.log(evt);
+                                        return replicateOnce(evt, ['eventDescription'], false);
+                                    }));
+                                }).catch(function (err) {
+                                    console.warn(err);
                                 });
                             localStorage.db = JSON.stringify(doc.db); //need to return this info to login
+
                             var index = doc.db.indexOf(lastDb);
                             if (index > -1) {
                                 console.log('dbs updated and last exists');
@@ -3571,7 +3594,7 @@ ons.ready(function () {
 
                         $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>');
                         if (eventInfo.passwordProtectLogs) {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span>' + base.basePassword + '</p>');
+                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>');
                         }
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
@@ -3592,7 +3615,7 @@ ons.ready(function () {
                     });
                     $('#goToEvent').on('click', function () {
                         lastDb = eventInfo.dbName;
-                        console.warn(lastDb);
+                        console.log(lastDb);
                         localStorage.lastDb = lastDb;
                         remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                         var options = {
@@ -3731,7 +3754,7 @@ ons.ready(function () {
                             imageContainer.hide().removeClass('hide').fadeIn(1500);
                         }
                     }).catch(function (err) {
-                        console.log(err);
+                        console.warn(err);
                     });
 
 
@@ -3799,7 +3822,7 @@ ons.ready(function () {
                                             });
                                             dialog.show();
                                         }).catch(function (err) {
-                                            console.log(err);
+                                            console.warn(err);
                                         });
 
                                 } else {
@@ -3887,7 +3910,7 @@ ons.ready(function () {
                                             return appdb.put(doc);
                                         })
                                         .catch(function (err) {
-                                            console.log(err);
+                                            console.warn(err);
                                             return ons.notification.alert({
                                                 title: 'Error saving user',
                                                 message: 'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
@@ -3902,7 +3925,7 @@ ons.ready(function () {
                                     evtUpdateCheck.cancel();
 
                                 }).catch(function (err) {
-                                    console.log(err);
+                                    console.warn(err);
                                     return ons.notification.alert(err);
                                 });
                         });
@@ -4015,7 +4038,7 @@ ons.ready(function () {
                             }
 
                         }).catch(function (err) {
-                            console.log(err);
+                            console.warn(err);
                         });
                 }));
                 /*  var goToEvents = $('.goToEventButton');
@@ -4202,7 +4225,7 @@ ons.ready(function () {
                             });
                     }
                 }).catch(function (err) {
-                    return console.log(err);
+                    return console.warn(err);
                 });
                 checkForNewMessagesOnPageLoad(basedb, dbSeqNumber);
 
@@ -4393,7 +4416,7 @@ ons.ready(function () {
                                     }
                                 })
                                 .catch(function (err) {
-                                    console.log(err);
+                                    console.warn(err);
                                 });
 
                         }
@@ -4468,7 +4491,7 @@ ons.ready(function () {
                                                                 });
                                                         }
                                                     }).catch(function (err) {
-                                                        console.log(err);
+                                                        console.warn(err);
                                                     });
                                                     break;
                                                 case false:
@@ -4525,6 +4548,8 @@ ons.ready(function () {
                                                         // clearQuickAddInputs();
                                                         break;
                                                 }
+                                            } else {
+                                                console.warn(err);
                                             }
                                         }).then(function (doc) {
                                             baseTableInput(tableUpdate)
@@ -4634,7 +4659,7 @@ ons.ready(function () {
 
                         return lastSeenUpdate(doc, updateTable, lastSeenTable);
                     }).catch(function (err) {
-                        console.log(err);
+                        console.warn(err);
                     });
                 }
                 /**
@@ -4666,7 +4691,7 @@ ons.ready(function () {
                     }).then(function (doc) {
                         leaderboardTable.append(doc);
                     }).catch(function (err) {
-                        console.log(err);
+                        console.warn(err);
                     });
                 }
 
@@ -4929,7 +4954,7 @@ ons.ready(function () {
                                             });
                                     }
                                 }).catch(function (err) {
-                                    console.log(err);
+                                    console.warn(err);
                                 });
                                 // end of longinandrunfunction
 
@@ -5161,7 +5186,7 @@ ons.ready(function () {
                             };
                             return addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
                         }).catch(function (err) {
-                            console.log(err);
+                            console.warn(err);
                         });
                     if (messageInput.html() === '') {
                         messageInputPlaceholder.removeClass('hide');
@@ -5214,7 +5239,7 @@ ons.ready(function () {
                             scrollingOn = true;
                             return true;
                         }).catch(function (err) {
-                            console.log(err);
+                            console.warn(err);
                         });
                 }
 
@@ -5333,7 +5358,7 @@ ons.ready(function () {
                 }).then(function (info) {
                     navi.resetToPage(pageChange, options);
                 }).catch(function (err) {
-                    console.log(err);
+                    console.warn(err);
                     ons.notification.alert({
                         title: 'Issue Updating',
                         message: 'There was an issue updating, please sign in again to fix',
@@ -5345,6 +5370,66 @@ ons.ready(function () {
                 });
 
                 //-- end of updatePage.html --
+                break;
+
+                //Start of test area
+            case 'testPage.html':
+                var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
+                var elements = stripe.elements();
+
+                // Custom styling can be passed to options when creating an Element.
+                var style = {
+                    base: {
+                        // Add your base input styles here. For example:
+                        fontSize: '16px',
+                        color: "#32325d",
+                    }
+                };
+
+                // Create an instance of the card Element
+                var card = elements.create('card', {
+                    style: style
+                });
+
+                function stripeTokenHandler(token) {
+                    // Insert the token ID into the form so it gets submitted to the server
+                    var form = document.getElementById('payment-form');
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.setAttribute('type', 'hidden');
+                    hiddenInput.setAttribute('name', 'stripeToken');
+                    hiddenInput.setAttribute('value', token.id);
+                    form.appendChild(hiddenInput);
+
+                    // Submit the form
+                    form.submit();
+                }
+                card.addEventListener('change', function (event) {
+                    var displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+                // Create a token or display an error when the form is submitted.
+                var form = document.getElementById('payment-form');
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    stripe.createToken(card).then(function (result) {
+                        if (result.error) {
+                            // Inform the customer that there was an error
+                            var errorElement = document.getElementById('card-errors');
+                            errorElement.textContent = result.error.message;
+                        } else {
+                            // Send the token to your server
+                            stripeTokenHandler(result.token);
+                        }
+                    });
+                });
+
+                // Add an instance of the card Element into the `card-element` <div>
+                card.mount('#card-element');
                 break;
 
                 //to help debug issues
@@ -5459,7 +5544,7 @@ function stepped_scale(img, width, step) {
         //getFile = blob;
         return blob;
     }).catch(function (err) {
-        console.log(err);
+        console.warn(err);
     });
     // -- display canvas used for scaling --
     // document.getElementById("scale-canvas").src = oc.toDataURL();
