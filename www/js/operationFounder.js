@@ -64,7 +64,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://vps490460.ovh.net/app'; //'http://127.0.0.1:3000'; // 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'http://127.0.0.1:3000'; //'https://vps490460.ovh.net/app'; 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 //commented out to remove map from app
@@ -817,7 +817,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the admin array of logs');
                 return false;
             }
-            //  break; //removed as the returns make this unreachable
+        //  break; //removed as the returns make this unreachable
         case false:
             var deleteIndex = patrolRecord.indexOf(id);
             var offRouteDeleteIndex = offRouteIndex.indexOf(id);
@@ -831,7 +831,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the base logs');
                 return false;
             }
-            // break; //removed as the returns make this unreachable
+        // break; //removed as the returns make this unreachable
     }
 
 }
@@ -2503,7 +2503,7 @@ ons.ready(function () {
 
                 break;
 
-                // --- sign up page ---
+            // --- sign up page ---
             case 'signUpPage.html':
                 var errorMessageOpen = false;
                 var emailSignUp = false;
@@ -3669,7 +3669,7 @@ ons.ready(function () {
 
                 break;
 
-                // --- Log in Page ---
+            // --- Log in Page ---
 
             case 'loginPage.html':
                 //loginPage.html
@@ -3795,7 +3795,7 @@ ons.ready(function () {
                         //change welcome text
                         var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
                         //change the code input to a button and select
-                        $('#baseCode').replaceWith('<ons-button modifier="large" id="baseCode">Select a base</ons-button>');
+                        $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
                         var baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('click', function () {
@@ -4397,24 +4397,24 @@ ons.ready(function () {
                         } else if (sqOffRoute && sqTotalScore != "") {
 
                             ons.notification.confirm({
-                                    title: 'Confirm off route or log score',
-                                    messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
-                                    cancelable: true,
-                                    buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
-                                }).then(function (input) {
-                                    //button index
-                                    console.log(input);
-                                    switch (input) {
-                                        case 0:
-                                            $('#total').val('');
-                                            $('#submitQuick').click();
-                                            break;
-                                        case 1:
-                                            $('#offRoute').prop('checked', false);
-                                            $('#submitQuick').click();
-                                            break;
-                                    }
-                                })
+                                title: 'Confirm off route or log score',
+                                messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
+                                cancelable: true,
+                                buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
+                            }).then(function (input) {
+                                //button index
+                                console.log(input);
+                                switch (input) {
+                                    case 0:
+                                        $('#total').val('');
+                                        $('#submitQuick').click();
+                                        break;
+                                    case 1:
+                                        $('#offRoute').prop('checked', false);
+                                        $('#submitQuick').click();
+                                        break;
+                                }
+                            })
                                 .catch(function (err) {
                                     console.warn(err);
                                 });
@@ -4562,20 +4562,20 @@ ons.ready(function () {
                 }
                 break;
 
-                // --- map page ---
-                /* case 'map.html':
-                    // createMap();
-                    // ons.disableDeviceBackButtonHandler();
-                    // if (!$('#mapBackButton').hasClass('evtHandler')) {
-                    //     $('#mapBackButton').addClass('evtHandler');
-                    //     $('#mapBackButton').on('click', function () {
-                    //         mapBackButton();
-                    //     });
-                    // }
-                    break; */
+            // --- map page ---
+            /* case 'map.html':
+                // createMap();
+                // ons.disableDeviceBackButtonHandler();
+                // if (!$('#mapBackButton').hasClass('evtHandler')) {
+                //     $('#mapBackButton').addClass('evtHandler');
+                //     $('#mapBackButton').on('click', function () {
+                //         mapBackButton();
+                //     });
+                // }
+                break; */
 
-                // --- Admin page ---
-                // these look similar but are seperate for admin and base users
+            // --- Admin page ---
+            // these look similar but are seperate for admin and base users
             case 'admin.html':
                 //declarations
                 var patrolToSearch = false;
@@ -5114,7 +5114,7 @@ ons.ready(function () {
                                 });
                             }
                             break;
-                            //end of switch
+                        //end of switch
                     }
 
 
@@ -5372,7 +5372,7 @@ ons.ready(function () {
                 //-- end of updatePage.html --
                 break;
 
-                //Start of test area
+            //Start of test area
             case 'testPage.html':
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
@@ -5432,7 +5432,7 @@ ons.ready(function () {
                 card.mount('#card-element');
                 break;
 
-                //to help debug issues
+            //to help debug issues
             default:
                 console.log('the following page has been pushed and has no reference in the push page switch ' + navi.topPage.name);
                 break;

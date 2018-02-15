@@ -15,13 +15,21 @@ Accent Darker color: Orange 800: #EF6C00
 
 
 /*Operation Founder CSS*/
-
+.primaryColorButton{
+    background-color:#000;
+}
+.primaryColorButton:active{
+    /* background-color:#FF9100; */
+    background-color:#000;
+}
 .secondaryColorButton {
-    background-color: #FF9100;
+    /* background-color: #FF9100; */
+    background-color:#ef6c00;
 }
 
 .secondaryColorButton:active {
-    background-color: #FF9100;
+    /* background-color: #FF9100; */
+    background-color:#ef6c00;
 }
 
 .primaryColor {
@@ -69,14 +77,32 @@ Accent Darker color: Orange 800: #EF6C00
 
 
 /*signIn page*/
+.section{
+ padding:5% 16px;
+ border-top:3px solid #EF6C00;
+}
+.sectionGray{
+background-color:#efefef;
+}
 
+
+#highlights .col-sm-4{
+    padding:16px;
+}
+
+#highlights ons-icon{
+    margin:auto;
+    width:100%;
+    font-size:50px;
+    text-align:center;
+}
 .input70perWidth {
     width: 70%;
     max-width: 300px;
 }
 
 .bottomDiv {
-    background-color: #283593;
+    background-color: #000;
     color: #fff;
     padding-right: 16px;
 }
@@ -96,7 +122,11 @@ Accent Darker color: Orange 800: #EF6C00
     padding: 32px 16px 0px
 }
 
-@media screen and (min-width: 650px) {
+.signInFormDiv{
+    padding:5% 16px;
+}
+
+/* @media screen and (min-width: 650px) {
     .logoBackground {
         width: 100%;
         background-image: url(../img/background.jpg);
@@ -118,7 +148,7 @@ Accent Darker color: Orange 800: #EF6C00
         display: block;
         margin: 0px auto 0px 16px;
     }
-}
+} */
 
 
 /*sign Up page*/
@@ -263,8 +293,9 @@ Accent Darker color: Orange 800: #EF6C00
     padding: 8px;
     /* background: #7986CB; */
     /* background: #EF6C00; */
-    background: #283593;
+    /* background: #283593; */
     /* background: #3F51B5 !important; */
+    background-color:#2c2c2c;
     color: #fff;
 }
 
@@ -498,12 +529,15 @@ Accent Darker color: Orange 800: #EF6C00
 */
 }
 
-input[type:number]::-webkit-inner-spin-button,
-input[type:number]::-webkit-outer-spin-button {
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
+ons-tab{
+    background-color:#000;
+}
 .padlockLocked {
     width: 16px;
     background-image: url(../img/hq-lock.png);
@@ -512,9 +546,9 @@ input[type:number]::-webkit-outer-spin-button {
 }
 
 .tableSelected {
-    background-color: #3F51B5;
+    /* background-color: #3F51B5; */
     color: #fff;
-    /*background-color: #FFB74D;*/
+    background-color: #FFB74D;
 }
 
 .logTable thead th,
@@ -527,8 +561,9 @@ input[type:number]::-webkit-outer-spin-button {
 
 @media(hover:hover) {
     .mdl-data-table tbody tr:hover {
-        background-color: #7986CB;
+        /* background-color: #7986CB; */
         color: #fff;
+        background-color:#aaa;
     }
 }
 
@@ -684,7 +719,8 @@ input[type:number]::-webkit-outer-spin-button {
     bottom: 0px;
     left: 0px;
     right: 0px;
-    background-color: rgba(40, 53, 147, 0.5);
+    /* background-color: rgba(40, 53, 147, 0.5); */
+    background-color: #3e3e3e;
 }
 
 .messageInputContainer {
@@ -831,7 +867,8 @@ input[type:number]::-webkit-outer-spin-button {
 }
 
 .dateBubble {
-    background-color: #7986CB;
+    /* background-color: #7986CB; */
+    background-color:#FFB74D;
     border-radius: 7.5px;
     border-top-left-radius: 7.5px;
     border-top-right-radius: 7.5px;
@@ -1054,7 +1091,7 @@ h1 {
 }
 
 h2 {
-    font-size: 16px;
+    font-size: 1.2em;
 }
 
 h3 {
@@ -1085,6 +1122,9 @@ p {
 
 .txtLeft {
     text-align: left !important;
+}
+.txtJustify{
+    text-align:justify !important;
 }
 
 .relative {
@@ -1211,11 +1251,15 @@ p {
     right: 16px;
 }
 
-.navigation-bar__title {
+.navigation-bar__title,.navigation-bar__right,.navigation-bar__left {
     /* text-transform: lowercase; */
     text-transform: capitalize;
+    background-color:#000;
 }
 
+.button,ons-list-item{
+    cursor: pointer;
+}
 
 /*
 .navigation-bar__title:first-letter {
@@ -1260,6 +1304,7 @@ p {
 #menu {
     width: 80%;
     max-width: 295px;
+    
 }
 
 .menuShadow {
@@ -1273,10 +1318,22 @@ ons-splitter-mask {
 .menuTopBox {
     width: 100%;
     height: 100px;
+    background-color: #000;
+    
 }
 
 .menuTopBoxContent {
     width: 100%;
+    margin:auto;
+    padding:8px;
+    border-bottom: 1px solid #ccc;
+}
+
+#opFounderMenu{
+    cursor: pointer;
+}
+#opFounderMenu :hover{
+    background-color:#aaa;
 }
 
 
