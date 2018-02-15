@@ -2,13 +2,20 @@
 <html>
 
 <head>
-  <title>Incident Hike Manager</title>
+  <title>Checkpoint Live</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="author" content="Adam Chilton">
-  <meta name="keywords" content="operation founder, scouts, tonbridge and malling, guides, hike, base, bases">
+  <meta name="keywords" content="checkpoint live,monitoring, orienteering, bike, hike, cars, checkpoint, scouts, guides, base, bases">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9100">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
   <script src="components/loader.js">
   </script>
   <!-- Need to minify scripts! -->
@@ -25,6 +32,8 @@
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
   <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+
 </head>
 
 <body>
@@ -41,7 +50,7 @@
   <ons-template id="menu.html">
     <ons-page id="sideMenu">
       <div class="">
-        <img src="img/operationFounder-compass-logo.jpg" class="menuTopBoxContent">
+        <img src="img/largeLogo.svg" class="menuTopBoxContent">
       </div>
       <ons-list id="opFounderMenu">
         <ons-list-item id="baseLogOut" class="hide" onclick="baseLogOut()" tappable>
@@ -88,12 +97,14 @@
   <ons-template id="signInPage.html">
     <ons-page id="signInPage">
       <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
-      <div class="logoBackground">
-        <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
-      </div>
 
-      <div class="pageDiv">
-        <div class="signInFormDiv">
+
+      <div class="">
+
+        <div class="signInFormDiv row">
+          <div class="logoBackground">
+            <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
+          </div>
           <form id="signInForm" class="txtCenter">
             <p>
               <ons-input id="signInUserName" modifier="underbar" placeholder="Username/email" float class="input70perWidth marginTop32px"></ons-input>
@@ -102,40 +113,91 @@
               <ons-input id="signInPassword" modifier="underbar" placeholder="Password" float type="password" class="input70perWidth "></ons-input>
             </p>
             <p>
-              <ons-button class="signInButton input70perWidth">Sign In</ons-button>
+              <ons-button class="signInButton primaryColorButton input70perWidth">Sign In</ons-button>
             </p>
             <ons-button class="signUpButton secondaryColorButton maxWidth" modifier="large">Event Organiser Sign Up</ons-button>
           </form>
         </div>
-        <div>
-          <h1 class="txtLeft bold borderBottom">As used by</h1>
-          <img src="img/operationFounder.png" class="asUsedByLogo">
-          <h1 class="txtLeft bold borderBottom">What is Event Hike Manager?</h1>
-          <p>
-            Event Hike Manager was developed initially for the Scout and Guide communities to enable real time updates on where the teams
-            of young people are as they participate in orienteering activities.
-          </p>
-          <p>
-            Event Hike Manager can be used via the app or website to record when, where and who visited a specific location/base. With
-            the added ability to record any scores taken at that location.
-          </p>
 
-          <p>
-            Replacing the need for radio updates or sending messangers to collect records of team sightings from accross the countryside.
-          </p>
-          <h2 class="txtLeft bold borderBottom">What if I have bad mobile reception?</h2>
-          <p>Being out in the countyside means there is no guarentee of mobile reception. While this situation is improving,
-            Event Hike Manager has taken an 'offline first' approach.</p>
-          <p>
-            Offline first means that this app/webapp will continue to work even when your mobile internet signal is intermittent. It
-            does this by storing the recorded base logs to your mobile device before synchronising them with other event
-            users when the mobile device re-connects to the internet.
-          </p>
+        <div class="row section sectionGray" id="highlights">
+          <div class="col-sm-4" id="safer">
+            <ons-icon icon="fa-users" class="secondaryColor"></ons-icon>
+            <h2 class="txtCenter bold">Make your event safer</h2>
+            <p class="txtJustify">
+              Receiving updates from all checkpoints simultaneously in real-time means you know which teams were last seen when and where,
+              or more importantly which teams haven't been seen for some time!
+            </p>
+          </div>
+          <div class="col-sm-4" id="burden">
+            <ons-icon icon="fa-mobile-phone" class="secondaryColor"></ons-icon>
+            <h2 class="txtCenter bold">Enjoy monitoring the event</h2>
+            <p class="txtJustify">
+              Designed for use on any mobile device, using Checkpoint Live means you can be on the move and still monitor the event.
+            </p>
+            <p>
+              Need to be flexible during the event? Add new checkpoints for transports or ad-hoc locations and everyone connected to the
+              event will be updated.
+            </p>
+          </div>
+          <div class="col-sm-4" id="safer">
+            <ons-icon icon="fa-comments" class="secondaryColor"></ons-icon>
+            <h2 class="txtCenter bold">Easy communication</h1>
+              <p class="txtJustify">
+                Gone are the days of mishearing via radio or misinterpreting handwriting. Inputs are made by individuals at the checkpoint
+                and distributed to everyone in a readable format, in real-time.
+              </p>
+              <p>With a chat-room included for every event you can contact all of your checkpoint marshals and they can contact
+                you, clearly and transparently.</p>
+          </div>
+        </div>
+
+        <div class="row section">
+          <div class="col-xs-12">
+            <h2 class="txtCenter bold">What is Checkpoint Live?</h2>
+            <div class="txtJustified col-md-4 col-md-push-2">
+              <p>
+                Checkpoint Live was developed initially for the Scout and Guide communities to enable real time updates on where the teams
+                of young people are as they participate in orienteering activities. Now it can be used by any event with
+                manned checkpoints/bases.
+              </p>
+              <p>
+                Checkpoint Live can be used via the website to record when, where and who visited a specific checkpoint/base. With the added
+                ability to record any scores taken at that location.
+              </p>
+              <p>
+                This replaces the need for radio updates or sending messengers to collect records of team sightings from across the countryside.
+              </p>
+              <p>Importantly for the organisers it removes the data entry into the HQ system as all logs are entered by the
+                checkpoints. This data can even be copied into Microsoft Excel&trade;</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row section">
+          <div class="col-xs-12">
+            <h2 class="txtCenter bold">What if I have bad mobile reception?</h2>
+            <div class="col-md-4 col-md-push-2 txtJustified">
+              <p>Being out in the county side means there is no guarantee of mobile reception. While this situation is improving,
+                Checkpoint Live has taken an 'offline first' approach.</p>
+              <p>
+                Offline first means that this app/web-app will continue to work even when your mobile internet signal is intermittent. It
+                does this by storing the recorded base logs to your mobile device before synchronising them with other event
+                users when the mobile device re-connects to the internet.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row section sectionGray">
+          <div class="col-xs-12">
+            <h2 class="txtCenter bold">As used by</h1>
+              <img src="img/operationFounder.png" class="asUsedByLogo">
+          </div>
         </div>
 
 
       </div>
-      <div class="caption txtRight bottomDiv">© 2017 Adam Chilton</div>
+      <div class="caption txtRight bottomDiv row">© 2018 Adam Chilton</div>
 
     </ons-page>
   </ons-template>
@@ -223,7 +285,7 @@
         <form id="createEventForm" class="marginTop">
           <input type="file" accept="image/*" id="eventBanner" class="inputFile hide"></input>
           <label id="eventBannerInputLabel" for="eventBanner">
-            <img src="img/operationFounder.png" class="loginLogo" id="eventBannerImage">
+            <img src="img/largeLogo.svg" class="loginLogo" id="eventBannerImage">
             <ons-button modifier="large" class="marginTop secondaryColorButton">
               CHANGE BANNER IMAGE
             </ons-button>
@@ -456,7 +518,7 @@
       </ons-toolbar>
       <div class="pageDiv marginTop32px">
         <div>
-          <img src="img/operationFounder.png" class="loginLogo hide" id="loginEventLogo">
+          <img src="img/largeLogo.svg" class="loginLogo hide" id="loginEventLogo">
         </div>
         <div>
           <p class="marginTop" id="loginWelcome">Please enter your name and base code below:</p>
@@ -621,7 +683,7 @@
         </ons-list>
         <p class="txtRight marginTop">
           <ons-button modifier="" class="" id="cancelSubmitQuick">clear</ons-button>
-          <ons-button class="" id="submitQuick">Submit</ons-button>
+          <ons-button class="secondaryColorButton" id="submitQuick">Submit</ons-button>
         </p>
       </div>
       <!--Bottom Half-->
