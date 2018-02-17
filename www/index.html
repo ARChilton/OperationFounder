@@ -27,13 +27,12 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="js/mdl/material.css">
   <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
-  <link rel="stylesheet" href="js/leaflet/leaflet.css">
+  <!-- <link rel="stylesheet" href="js/leaflet/leaflet.css"> -->
   <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
   <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
-  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -287,7 +286,7 @@
           <label id="eventBannerInputLabel" for="eventBanner">
             <img src="img/largeLogo.svg" class="loginLogo" id="eventBannerImage">
             <ons-button modifier="large" class="marginTop secondaryColorButton">
-              CHANGE BANNER IMAGE
+              Change banner image
             </ons-button>
           </label>
           <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop"
@@ -390,12 +389,13 @@
           <h2 class="txtLeft bold borderBottom">Admin</h2>
           <div class="flex flexRow flexSpaceBetween marginTop">
             <div class="caption bold">Event Username *</div>
-            <ons-input id="evtUsername" modifier="underbar" placeholder="Username" float type="text" class="eventUsername" required></ons-input>
+            <ons-input id="evtUsername" modifier="underbar" placeholder="Username" float type="text" class="eventUsername maxWidth50per"
+              required></ons-input>
           </div>
           <p class="caption txtLeft">Username for all of the other users of the event. (A password will be auto-generated.)</p>
           <div class="flex flexRow flexSpaceBetween marginTop">
             <div class="caption bold">Admin password *</div>
-            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="text" class="adminPassword eventPassword"
+            <ons-input id="adminPassword" modifier="underbar" placeholder="Password" float type="text" class="adminPassword eventPassword maxWidth50per"
               required></ons-input>
           </div>
           <p class="caption txtLeft">Passcode required to enter the admin area of the event, to be able to view all logs from all bases and administrate
@@ -407,19 +407,20 @@
             <div class="flex flexRow flexSpaceBetween marginTop">
               <div class="caption">
                 <span class="bold">Maximum score available</span>
+                <br/>
                 <span class="marginLeft">(blank = no score input)</span>
               </div>
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
               <div class="caption bold">Base password *</div>
-              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword"
+              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword maxWidth50per"
                 required></ons-input>
             </div>
             <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
 
-          <ons-button modifier="large" class="addBaseButton marginTop marginBottom">Add Another Base</ons-button>
+          <ons-button modifier="large" class="addBaseButton secondaryColorButton marginTop marginBottom">Add Another Base</ons-button>
 
         </form>
       </div>
@@ -682,7 +683,7 @@
           </ons-list-item>
         </ons-list>
         <p class="txtRight marginTop">
-          <ons-button modifier="" class="" id="cancelSubmitQuick">clear</ons-button>
+          <ons-button modifier="" class="" id="cancelSubmitQuick">Clear</ons-button>
           <ons-button class="secondaryColorButton" id="submitQuick">Submit</ons-button>
         </p>
       </div>
@@ -719,7 +720,7 @@
             <ons-icon icon="md-menu"></ons-icon>
           </ons-toolbar-button>
         </div>
-        <div class="center">
+        <div id="adminTitleDiv" class="center">
           <div class="normalTitle">Admin</div>
           <div class="syncTitle hide">
             <p class="mainTitle">Admin</p>
@@ -847,9 +848,9 @@
           <ons-back-button>Back</ons-back-button>
         </div>
         <div class="center">
-          <div class="normalTitle"></div>
+          <div class="normalTitle">Messages</div>
           <div class="syncTitle hide">
-            <p class="mainTitle"></p>
+            <p class="mainTitle">Messages</p>
             <p class="lastSync"></p>
           </div>
         </div>
