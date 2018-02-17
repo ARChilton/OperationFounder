@@ -64,7 +64,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://vps490460.ovh.net/app'; //'http://127.0.0.1:3000'; // 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'https:checkpointlive.com/app'; //'https://vps490460.ovh.net/app'; 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
 
 // map variables
 //commented out to remove map from app
@@ -817,7 +817,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the admin array of logs');
                 return false;
             }
-            //  break; //removed as the returns make this unreachable
+        //  break; //removed as the returns make this unreachable
         case false:
             var deleteIndex = patrolRecord.indexOf(id);
             var offRouteDeleteIndex = offRouteIndex.indexOf(id);
@@ -831,7 +831,7 @@ function removePatrolRecord(id, admin) {
                 console.log('record isnt in the base logs');
                 return false;
             }
-            // break; //removed as the returns make this unreachable
+        // break; //removed as the returns make this unreachable
     }
 
 }
@@ -1891,7 +1891,10 @@ ons.ready(function () {
 
     console.log('ons-ready function fired');
     //make every device and webpage android styled for familiarity
-    ons.forcePlatformStyling('android');
+    if (!ons.platform.isIOS()) {
+        ons.forcePlatformStyling('android');
+    }
+
     // if the user has their phone set landscape on starting
     orientationLandscapeUpdate();
     // orientation event listener
@@ -2503,7 +2506,7 @@ ons.ready(function () {
 
                 break;
 
-                // --- sign up page ---
+            // --- sign up page ---
             case 'signUpPage.html':
                 var errorMessageOpen = false;
                 var emailSignUp = false;
@@ -2937,7 +2940,7 @@ ons.ready(function () {
                  * @param {number|string} baseCount 
                  */
                 function addBase(baseCount) {
-                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Base ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span> <span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
+                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Base ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword maxWidth50per" required></ons-input></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
                 /**
@@ -3669,7 +3672,7 @@ ons.ready(function () {
 
                 break;
 
-                // --- Log in Page ---
+            // --- Log in Page ---
 
             case 'loginPage.html':
                 //loginPage.html
@@ -3795,7 +3798,7 @@ ons.ready(function () {
                         //change welcome text
                         var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
                         //change the code input to a button and select
-                        $('#baseCode').replaceWith('<ons-button modifier="large" id="baseCode">Select a base</ons-button>');
+                        $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
                         var baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('click', function () {
@@ -3974,7 +3977,7 @@ ons.ready(function () {
                                 eventTimeline = upcomingEvents;
                             }
 
-                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
+                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow button--material button--material--flat"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
 
                             eventTimeline.append(cardToAppend);
                             //shows the title of the event timeline grouping
@@ -4397,24 +4400,24 @@ ons.ready(function () {
                         } else if (sqOffRoute && sqTotalScore != "") {
 
                             ons.notification.confirm({
-                                    title: 'Confirm off route or log score',
-                                    messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
-                                    cancelable: true,
-                                    buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
-                                }).then(function (input) {
-                                    //button index
-                                    console.log(input);
-                                    switch (input) {
-                                        case 0:
-                                            $('#total').val('');
-                                            $('#submitQuick').click();
-                                            break;
-                                        case 1:
-                                            $('#offRoute').prop('checked', false);
-                                            $('#submitQuick').click();
-                                            break;
-                                    }
-                                })
+                                title: 'Confirm off route or log score',
+                                messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
+                                cancelable: true,
+                                buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
+                            }).then(function (input) {
+                                //button index
+                                console.log(input);
+                                switch (input) {
+                                    case 0:
+                                        $('#total').val('');
+                                        $('#submitQuick').click();
+                                        break;
+                                    case 1:
+                                        $('#offRoute').prop('checked', false);
+                                        $('#submitQuick').click();
+                                        break;
+                                }
+                            })
                                 .catch(function (err) {
                                     console.warn(err);
                                 });
@@ -4562,20 +4565,20 @@ ons.ready(function () {
                 }
                 break;
 
-                // --- map page ---
-                /* case 'map.html':
-                    // createMap();
-                    // ons.disableDeviceBackButtonHandler();
-                    // if (!$('#mapBackButton').hasClass('evtHandler')) {
-                    //     $('#mapBackButton').addClass('evtHandler');
-                    //     $('#mapBackButton').on('click', function () {
-                    //         mapBackButton();
-                    //     });
-                    // }
-                    break; */
+            // --- map page ---
+            /* case 'map.html':
+                // createMap();
+                // ons.disableDeviceBackButtonHandler();
+                // if (!$('#mapBackButton').hasClass('evtHandler')) {
+                //     $('#mapBackButton').addClass('evtHandler');
+                //     $('#mapBackButton').on('click', function () {
+                //         mapBackButton();
+                //     });
+                // }
+                break; */
 
-                // --- Admin page ---
-                // these look similar but are seperate for admin and base users
+            // --- Admin page ---
+            // these look similar but are seperate for admin and base users
             case 'admin.html':
                 //declarations
                 var patrolToSearch = false;
@@ -4583,6 +4586,7 @@ ons.ready(function () {
                 var lastSeenTable;
                 var leaderboardTable;
                 var patrolSearchIcon = $('#patrolSearch');
+                var pageTitle = $('#adminTitleDiv');
 
                 //functions
                 // - lastSeen Page functions
@@ -4726,6 +4730,7 @@ ons.ready(function () {
                      */
                     patrolSearchIcon.on('click', function () {
                         if (!appended) {
+                            pageTitle.addClass('adminHide');
                             var patrolSearchBox = '<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput" autofocus></ons-input>';
                             $(this).prepend(patrolSearchBox);
                             appended = true;
@@ -4767,6 +4772,7 @@ ons.ready(function () {
                                             } else if (value === '' && patrolToSearch != value && patrolToSearch !== false && e.type === 'blur') {
                                                 //no value
                                                 $(this).addClass('hide');
+                                                 pageTitle.removeClass('adminHide');
                                                 // patrolSearchIcon.empty();
                                                 // appended = false;
                                                 hidden = true;
@@ -4795,6 +4801,7 @@ ons.ready(function () {
 
                                             } else if (value === '') {
                                                 $(this).addClass('hide');
+                                                pageTitle.removeClass('adminHide');
                                                 hidden = true;
                                             }
                                         }
@@ -4802,6 +4809,7 @@ ons.ready(function () {
                             });
                         } else if (hidden) {
                             $('#patrolSearchInput').removeClass('hide');
+                            pageTitle.addClass('adminHide');
                         }
                     });
                 }
@@ -5114,7 +5122,7 @@ ons.ready(function () {
                                 });
                             }
                             break;
-                            //end of switch
+                        //end of switch
                     }
 
 
@@ -5252,7 +5260,7 @@ ons.ready(function () {
                     pouchSync = adminSync;
                 }
                 //change page title
-                $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
+                // $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
                 //hides the scrollToBottomFab
                 scrollToBottomFab[0].hide();
                 //add messages to screen
@@ -5372,7 +5380,7 @@ ons.ready(function () {
                 //-- end of updatePage.html --
                 break;
 
-                //Start of test area
+            //Start of test area
             case 'testPage.html':
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
@@ -5432,7 +5440,7 @@ ons.ready(function () {
                 card.mount('#card-element');
                 break;
 
-                //to help debug issues
+            //to help debug issues
             default:
                 console.log('the following page has been pushed and has no reference in the push page switch ' + navi.topPage.name);
                 break;
