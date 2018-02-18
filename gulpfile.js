@@ -45,7 +45,7 @@ gulp.task('minify-css', () => {
       cascade: false
     }))
     .pipe(cleanCSS({ compatibility: 'ie8', rebase: false }))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist/css'));
 });
 
 gulp.task('minify-html', function () {
