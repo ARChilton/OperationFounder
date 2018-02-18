@@ -506,7 +506,7 @@ background-color:#efefef;
     /*    opacity: 0.7;*/
     /*    border: solid 1px;*/
     margin-right: 16px;
-    border: 1px solid #FF9100;
+    border: 1px solid #ccc;
 }
 #cancelSubmitQuick.button--material{
     border:0px;
@@ -716,7 +716,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .messageBadge {
-    background-color: rgba(255, 145, 0, 0.85);
+    background-color: rgba(204, 204, 204, 0.85);
     padding: 2px 2px;
     border-radius: 3px;
     text-align: center;
@@ -727,6 +727,10 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: bold;
     font-family: 'Roboto', 'Noto', sans-serif;
     font-size: 12px;
+}
+
+.messagesIcon[modifier="material"] .messageBadge{
+    background-color: rgba(255, 145, 0, 0.85);
 }
 
 #scrollMessageBadge {
@@ -1306,6 +1310,7 @@ p {
 
 .navigation-bar, .navigation-bar__center, .navigation-bar__left, .navigation-bar__right{
     height:50px;
+    line-height: 56px;
 }
 
 .navigation-bar__right{
