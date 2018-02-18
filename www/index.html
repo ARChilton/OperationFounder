@@ -576,10 +576,7 @@
         <div class="center" id="selectEventTitle">
           Select Event
         </div>
-
       </ons-toolbar>
-
-
 
       <div class="pageDiv">
         <div id="createNewEvent" class="">
@@ -947,8 +944,14 @@
       <ons-icon icon="md-refresh-sync" id="updateEventUpdate"></ons-icon>
       <div class="updateFiller"></div>
     </ons-page>
-
   </ons-template>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(function () { console.log("Service Worker Registered"); });
+    }
+  </script>
 </body>
 <!-- JQuery -->
 <script src="js/JQuery/jquery-3.1.1.min.js "></script>

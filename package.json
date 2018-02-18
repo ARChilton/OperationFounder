@@ -1,0 +1,42 @@
+{
+  "name": "checkpointlive",
+  "version": "1.0.0",
+  "description": "checkpoint monitoring",
+  "main": "www",
+  "dependencies": {
+    "sw-precache": "^5.2.1"
+  },
+  "devDependencies": {
+    "gulp-clean-css": "^3.9.2",
+    "gulp-htmlmin": "^4.0.0",
+    "gulp-svgmin": "^1.2.4",
+    "gulp-uglify": "^3.0.0",
+    "pump": "^3.0.0",
+    "sw-precache": "^5.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ARChilton/OperationFounder.git"
+  },
+  "keywords": [
+    "hike",
+    "bike",
+    "cars",
+    "checkpoint",
+    "monitor",
+    "real-time",
+    "safety",
+    "communication",
+    "scouting",
+    "guiding"
+  ],
+  "author": "Adam Chilton",
+  "license": "SEE LICENCE IN licence.txt",
+  "bugs": {
+    "url": "https://github.com/ARChilton/OperationFounder/issues"
+  },
+  "homepage": "https://github.com/ARChilton/OperationFounder#readme"
+}
