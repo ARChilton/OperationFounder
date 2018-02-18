@@ -1,18 +1,19 @@
-var gulp = require('gulp');
-var swPrecache = require('sw-precache');
-var uglify = require('gulp-uglify');
-var pump = require('pump');
-var cleanCSS = require('gulp-clean-css');
-var htmlmin = require('gulp-htmlmin');
-var svgmin = require('gulp-svgmin');
+const gulp = require('gulp');
+const swPrecache = require('sw-precache');
+const uglify = require('gulp-uglify');
+const pump = require('pump');
+const cleanCSS = require('gulp-clean-css');
+const htmlmin = require('gulp-htmlmin');
+const svgmin = require('gulp-svgmin');
+const autoprefixer = require('gulp-autoprefixer');
 
 gulp.task('generate-service-worker', function (callback) {
-  var path = require('path');
-  var swPrecache = require('sw-precache');
-  var rootDir = 'dist';
+  const path = require('path');
+  const swPrecache = require('sw-precache');
+  const rootDir = 'dist';
 
   swPrecache.write(path.join(rootDir, 'sw.js'), {
-    staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,svg,jpg,gif}'],
+    staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,svg,jpg,gif,woff2,woff,ttf,eot,otf}'],
     stripPrefix: rootDir
   }, callback);
 });
@@ -38,8 +39,12 @@ gulp.task('minify-js', function (cb) {
 });
 
 gulp.task('minify-css', () => {
-  return gulp.src('www/**/*.css')
-    .pipe(cleanCSS({ compatibility: 'ie8' }))
+  return gulp.src('www/css/*.css')
+    .pipe(autoprefixer({
+      browsers: ['last 2 versions'],
+      cascade: false
+    }))
+    .pipe(cleanCSS({ compatibility: 'ie8', rebase: false }))
     .pipe(gulp.dest('dist'));
 });
 
@@ -55,7 +60,17 @@ gulp.task('minify-svg', function () {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('move-images', function () {
-  return gulp.src('www/**/*.{png,jpeg,gif}')
+gulp.task('move-static', function () {
+  return gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf}')
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('onsenui', function () {
+  return gulp.src('www/lib/onsenui/css/{font_awesome,ionicons,material-design-iconic-font}/**/*.*')
+    .pipe(gulp.dest('dist/lib/onsenui/css'));
+});
+
+gulp.task('minify-onsenui-css', function () {
+  return gulp.src('www/lib/onsenui/css/*.css')
+    .pipe(gulp.dest('dist/lib/onsenui/css'));
 });

@@ -7,6 +7,7 @@
     "sw-precache": "^5.2.1"
   },
   "devDependencies": {
+    "gulp-autoprefixer": "^4.1.0",
     "gulp-clean-css": "^3.9.2",
     "gulp-htmlmin": "^4.0.0",
     "gulp-svgmin": "^1.2.4",
