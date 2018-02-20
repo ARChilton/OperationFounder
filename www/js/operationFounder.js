@@ -42,7 +42,7 @@ var attemptCount = 0;
 //message variables
 var nextMessageEndKey;
 var nextMessageEndKey2;
-var newestMessage;
+var newestMessage = 'message';
 var dbSeqNumber = parseInt(localStorage.dbSeqNumber);
 var nextSeq = 0;
 //user variables
@@ -277,9 +277,11 @@ function formBubbleMessages(rows, limit, prepend) {
     var today = new Date();
     var yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    console.log(rows);
     return Promise.all(rows.map(function (row) {
         //console.log(i);
         //console.log(lastMessage);
+        console.log(l);
         var doc = row.doc;
         //to prevent any bugs from showing up
         if (typeof doc.message !== 'string') {
@@ -312,8 +314,11 @@ function formBubbleMessages(rows, limit, prepend) {
             return;
 
         } else if (l === 1) {
-            lastMessage = doc;
-            doc.date.setDate(1);
+            console.log('only message');
+            lastMessage = Object.assign({},doc);
+            doc.from = 'n/a';
+            console.log('only message was from '+lastMessage.from);
+            // doc.date.setDate(1);
         }
 
         //message-in or out
@@ -332,8 +337,8 @@ function formBubbleMessages(rows, limit, prepend) {
             lineClasses += ' msgContinued';
         }
         //for dev
-        if (lastMessage.from === undefined) {
-            lastMessage.from = 1;
+        if (typeof lastMessage.from === 'undefined') {
+            lastMessage.from = 'unknown';
         }
 
         var bubble = '<div id="' + lastMessage._id + '" class="' + lineClasses + '"><div class="' + containerClasses + '"><div class="msgFrom color-' + lastMessage.from + '">' + lastMessage.username + ' @ ' + lastMessage.msgBaseNo + '</div><div class="' + messageClasses + '">' + lastMessage.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + lastMessage.time + '</div></div></div>';
@@ -342,13 +347,15 @@ function formBubbleMessages(rows, limit, prepend) {
             bubble = dateBubble(lastMessage.date, today, yesterday) + bubble;
         }
         //need to remove date placed previously when scrolling up
-
+        console.log(lastMessage);
+        console.log(bubble);
         lastMessage = doc;
         i++;
         //for last message that won't have another one
         if (i !== limit) {
 
             if (i === limit - 1 || (l < limit && i === l && l > 1)) {
+                console.log('lastMessage section entered');
                 if (doc.from === currentBase) {
                     lastBubbleContainerClass += ' message-out';
                     lineClasses += ' topMsg';
@@ -367,7 +374,8 @@ function formBubbleMessages(rows, limit, prepend) {
             console.log('limit reached');
             nextMessageEndKey = doc._id;
             return;
-        }
+        } 
+        console.log('about to return bubble');
         return bubble;
     }));
 }
@@ -5305,12 +5313,14 @@ ons.ready(function () {
                     .on('keyup', function (e) {
                         console.log('keyup');
                         if (e.which == 13 && !e.shiftKey) {
-                            sendMessage();
+                            if (messageInput.html().trim() !== '') {
+                                sendMessage();
+                            }
                         }
 
                     });
                 $('#sendMessage').on('click', function () {
-                    if (messageInput.html() != '') {
+                    if (messageInput.html().trim() !== '') {
                         sendMessage();
                     }
                 });
