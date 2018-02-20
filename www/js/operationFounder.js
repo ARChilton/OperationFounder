@@ -3978,7 +3978,7 @@ ons.ready(function () {
                                 eventTimeline = upcomingEvents;
                             }
 
-                            var cardToAppend = '<div class="card mdl-shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="mdl-card__title">' + doc.eventName + '</div><div class="mdl-card__actions mdl-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow button--material button--material--flat"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="mdl-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
+                            var cardToAppend = '<div class="card shadow--2dp" id="' + event + '"><div class="cardMediaDiv"></div><div class="material-card__title">' + doc.eventName + '</div><div class="material-card__actions material-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow button--material button--material--flat"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="material-card__supporting-text hide">' + doc.eventDescription.replace(/\n/g, "<br>") + '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>';
 
                             eventTimeline.append(cardToAppend);
                             //shows the title of the event timeline grouping
@@ -4006,7 +4006,7 @@ ons.ready(function () {
                             var edShowHide = $('#' + event + ' .evtInstructionsShow');
                             edShowHide.on('click', function () {
                                 edShowHide.toggleClass('rotate90');
-                                $('#' + event + ' .mdl-card__supporting-text').slideToggle(500);
+                                $('#' + event + ' .material-card__supporting-text').slideToggle(500);
                             });
                             var goToSummary = $('#' + event + ' .goToSummary');
                             goToSummary.on('click', function () {
@@ -4026,7 +4026,7 @@ ons.ready(function () {
                         }).then(function (url) {
                             if (url != undefined) {
 
-                                //$('#' + event + ' .mdl-card__title').before('<div class="cardMediaDiv"><img class="cardMedia" src="' + url + '" ></div>');
+                                //$('#' + event + ' .material-card__title').before('<div class="cardMediaDiv"><img class="cardMedia" src="' + url + '" ></div>');
                                 $('#' + event + ' .cardMediaDiv').css({
 
                                     'background-image': 'url("' + url + '")',
@@ -4773,7 +4773,7 @@ ons.ready(function () {
                                             } else if (value === '' && patrolToSearch != value && patrolToSearch !== false && e.type === 'blur') {
                                                 //no value
                                                 $(this).addClass('hide');
-                                                 pageTitle.removeClass('adminHide');
+                                                pageTitle.removeClass('adminHide');
                                                 // patrolSearchIcon.empty();
                                                 // appended = false;
                                                 hidden = true;

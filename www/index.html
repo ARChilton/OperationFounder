@@ -25,7 +25,7 @@
   <!-- <link rel="stylesheet" href="components/loader.css"> -->
   <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
-  <link rel="stylesheet" href="js/mdl/material.css">
+  <!-- <link rel="stylesheet" href="js/mdl/material.css"> -->
   <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
   <!-- <link rel="stylesheet" href="js/leaflet/leaflet.css"> -->
   <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
@@ -584,19 +584,19 @@
         </div>
 
         <div id="ongoingEvents">
-          <div class="hide card mdl-shadow--2dp eventTitle">Ongoing Events</div>
+          <div class="hide card shadow--2dp eventTitle">Ongoing Events</div>
         </div>
 
         <div id="todaysEvents">
-          <div class="hide card mdl-shadow--2dp eventTitle">Today's Upcoming Events</div>
+          <div class="hide card shadow--2dp eventTitle">Today's Upcoming Events</div>
         </div>
 
         <div id="upcomingEvents">
-          <div class="hide card mdl-shadow--2dp eventTitle">Upcoming Events</div>
+          <div class="hide card shadow--2dp eventTitle">Upcoming Events</div>
         </div>
 
         <div id="pastEvents">
-          <div class="hide card mdl-shadow--2dp eventTitle">Past Events</div>
+          <div class="hide card shadow--2dp eventTitle">Past Events</div>
         </div>
       </div>
     </ons-page>
@@ -697,7 +697,7 @@
           <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
         </ons-list>
         <!-- <div class="marginLeft">Previous Logs</div> -->
-        <table class="mdl-data-table mdl-js-data-table logTable">
+        <table class="data-table logTable">
           <thead>
             <tr>
               <th id="thPatrol" class="participantRef">Team</th>
@@ -748,7 +748,6 @@
         </ons-tab>
         <ons-tab page="lastSeenPage.html" label="Last Seen" icon="fa-binoculars">
         </ons-tab>
-
         <!-- <ons-tab page="updatePage.html" label="Stats" icon="fa-pie-chart">
         </ons-tab> -->
         <ons-tab page="leaderboard.html" label="Leaderboard" icon="fa-trophy">
@@ -763,7 +762,7 @@
   <ons-template id="allLogsPage.html">
     <ons-page id="allLogsPage">
       <div id="allLogsCopy">
-        <table class="mdl-data-table mdl-js-data-table logTable">
+        <table class="data-table logTable">
           <thead>
             <tr>
               <!--<th class="hide landscapeShow">
@@ -810,7 +809,7 @@
   <!-- Start of LastSeenPage.html -->
   <ons-template id="lastSeenPage.html">
     <ons-page id="lastSeenPage">
-      <table class="mdl-data-table mdl-js-data-table logTable">
+      <table class="data-table logTable">
         <thead>
           <tr>
             <th class="txtCenter participantRef">Team</th>
@@ -830,7 +829,7 @@
   <!-- Start of Leaderboard.html -->
   <ons-template id="leaderboard.html">
     <ons-page id="leaderboard">
-      <table class="mdl-data-table mdl-js-data-table logTable">
+      <table class="data-table logTable">
         <thead>
           <tr>
             <th class="bold txtCenter">Position</th>
