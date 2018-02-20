@@ -1567,6 +1567,17 @@ function signOut() {
     localStorage.verified = 'false';
     localStorage.evtOrganiser = 'false';
 }
+
+function goToEventSummary() {
+    var data = navi.topPage.data;
+
+    navi.bringPageTop('eventSummaryPage.html', {
+        animation: pageChangeAnimation,
+        data: data,
+    }).then(function () {
+        document.getElementById('menu').toggle();
+    });
+}
 /**
  * go to the change event page
  */
@@ -3624,51 +3635,58 @@ ons.ready(function () {
                         remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                         var options = {
                             animation: pageChangeAnimation,
-                            data: {
-                                eventInfo: eventInfo,
-                                url: url
-                            }
+                            data: navi.topPage.data,
                         };
-                        navi.resetToPage('loginPage.html', options);
+                        
+                        var originPage = navi.pages[0].name;
+                        if ( originPage === 'loginPage.html' || originPage === 'admin.html') {
+                            return navi.popPage();
+                        } else {
+                            return navi.resetToPage('loginPage.html', options);
+                        }
                     });
-                    $('.evtSendEmail').on('click', function () {
-                        //send email
-                        console.log('send email');
-                        var eDUrl = appServer + '/api/event/email';
-                        var dataPackage = {
-                            username: username,
-                            password: password,
-                            db: eventInfo.dbName
-                        };
-                        return $.ajax(apiAjax(eDUrl, dataPackage))
-                            .then(function (response) {
-                                if (response.status !== 200) {
+                    if (localStorage.evtOrganiser === 'true') {
+                        $('.evtSendEmail').on('click', function () {
+                            //send email
+                            console.log('send email');
+                            var eDUrl = appServer + '/api/event/email';
+                            var dataPackage = {
+                                username: username,
+                                password: password,
+                                db: eventInfo.dbName
+                            };
+                            return $.ajax(apiAjax(eDUrl, dataPackage))
+                                .then(function (response) {
+                                    if (response.status !== 200) {
+                                        return options = {
+                                            title: 'Error',
+                                            message: 'There was an issue sending you an email with the event details, please try again later.',
+                                            cancelable: true
+                                        };
+                                    }
                                     return options = {
-                                        title: 'Error',
-                                        message: 'There was an issue sending you an email with the event details, please try again later.',
+                                        title: 'Email Sent',
+                                        messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the app or website.</p>',
                                         cancelable: true
                                     };
-                                }
-                                return options = {
-                                    title: 'Email Sent',
-                                    messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the app or website.</p>',
-                                    cancelable: true
-                                };
-                            }).then(function (options) {
-                                return ons.notification.alert(options);
-                            });
-                    });
-                    var scrollElement = $('#eventSummaryPage .page__content');
-                    var scrollTo = document.getElementById('sendEventEmailButtonContainer');
-                    var emailFab = document.getElementById('emailEvtDescription');
+                                }).then(function (options) {
+                                    return ons.notification.alert(options);
+                                });
+                        });
+                        var scrollElement = $('#eventSummaryPage .page__content');
+                        var scrollTo = document.getElementById('sendEventEmailButtonContainer');
+                        var emailFab = document.getElementById('emailEvtDescription');
 
-                    scrollElement.on('scroll', function () {
-                        if (isScrolledIntoView(scrollTo)) {
-                            console.log('isVisible');
-                            return emailFab.hide();
-                        }
-                        return emailFab.show();
-                    });
+                        scrollElement.on('scroll', function () {
+                            if (isScrolledIntoView(scrollTo)) {
+                                console.log('isVisible');
+                                return emailFab.hide();
+                            }
+                            return emailFab.show();
+                        });
+                    } else {
+                        $('.evtSendEmail').addClass('hide');
+                    }
                 }
 
                 break;
@@ -3764,7 +3782,6 @@ ons.ready(function () {
 
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
                     if (eventInfo.passwordProtectLogs) {
-
 
                         //if bases have a password
                         eventInfo.bases.forEach(function (base) {
@@ -5583,20 +5600,20 @@ function menuController() {
             break;
         case 'admin.html':
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin Area');
-            $('#goToMap, #copyAllLogs').removeClass('hide');
             menuEvtOrganiser();
+            $('#copyAllLogs, #goToEventSummary').removeClass('hide');
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
             $('#baseLogOut, #copyAllLogs').addClass('hide');
-            $('#goToMap').removeClass('hide');
+            // $('#goToMap').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #goToMap, #copyAllLogs').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs').addClass('hide');
             break;
         default:
             menuEvtOrganiser();
-            $('#baseLogOut , #goToMap, #copyAllLogs').addClass('hide');
+            $('#baseLogOut, #copyAllLogs').addClass('hide');
             break;
 
     }
@@ -5611,10 +5628,10 @@ function menuEvtOrganiser() {
     //allow the eventOrganisers to edit their current event
     if (localStorage.evtOrganiser === 'true') {
         console.log(localStorage.evtOrganiser);
-        $('#eventEditor , #eventChanger').removeClass('hide');
+        $('#eventEditor , #eventChanger, #goToEventSummary').removeClass('hide');
 
     } else {
-        $('#eventEditor , #eventChanger').addClass('hide');
+        $('#eventEditor , #eventChanger, #goToEventSummary').addClass('hide');
     }
 }
 
