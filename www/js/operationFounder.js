@@ -281,6 +281,7 @@ function formBubbleMessages(rows, limit, prepend) {
     return Promise.all(rows.map(function (row) {
         //console.log(i);
         //console.log(lastMessage);
+        console.warn(nextMessageEndKey);
         console.log(l);
         var doc = row.doc;
         //to prevent any bugs from showing up
@@ -308,7 +309,7 @@ function formBubbleMessages(rows, limit, prepend) {
             if (!prepend) {
                 newestMessage = doc._id;
             }
-            lastMessage = doc;
+            lastMessage = Object.assign({},doc);
             i++;
 
             return;
@@ -318,6 +319,10 @@ function formBubbleMessages(rows, limit, prepend) {
             lastMessage = Object.assign({},doc);
             doc.from = 'n/a';
             console.log('only message was from '+lastMessage.from);
+            if (doc._id === nextMessageEndKey){
+                console.log('matched end key, returning');
+                return;
+            }
             // doc.date.setDate(1);
         }
 
@@ -349,7 +354,7 @@ function formBubbleMessages(rows, limit, prepend) {
         //need to remove date placed previously when scrolling up
         console.log(lastMessage);
         console.log(bubble);
-        lastMessage = doc;
+        lastMessage = Object.assign({},doc);
         i++;
         //for last message that won't have another one
         if (i !== limit) {
@@ -363,7 +368,10 @@ function formBubbleMessages(rows, limit, prepend) {
                     lastBubbleContainerClass += ' message-in';
                     lineClasses += ' topMsg';
                 }
-                lastBubbleContainerClass += ' tail';
+                if(l<limit){
+                    lastBubbleContainerClass += ' tail';
+                }
+                
                 nextMessageEndKey = doc._id;
                 var lastBubble = '<div id="' + doc._id + '" class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
                 document.getElementById('topDateMsgBubble').innerHTML = dateString(doc.date, today, yesterday);
@@ -5295,7 +5303,7 @@ ons.ready(function () {
                     endkey: 'message',
                     startkey: 'message\ufff0',
                     descending: true,
-                    limit: 25
+                    limit: 10
                 };
                 addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
                 //messageInput
