@@ -175,7 +175,8 @@ function checkForMessagesSinceSeqNo(db, seqNo) {
         .then(function (doc) {
             nextSeq = doc.last_seq;
             return doc.results.filter(function (result) {
-                return messageChk.test(result.id);
+                console.log(result);
+                return messageChk.test(result.id) && !result.deleted; //tests the id has message in it
             });
         });
 }
