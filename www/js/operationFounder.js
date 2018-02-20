@@ -3308,9 +3308,9 @@ ons.ready(function () {
                                                 username: username,
                                                 password: password,
                                                 eventName: eventDescription.eventName,
-                                                evtUsername: eventDescription.evtUsername
+                                                eventUsername: eventDescription.evtUsername
                                             };
-                                            //TODO add done and fail and authentication to the request
+                                            
                                             $.ajax(apiAjax(apiAddress, eventCreationData))
                                                 .then(function (doc) {
                                                     console.log(doc);
