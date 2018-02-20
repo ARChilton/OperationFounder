@@ -40,6 +40,78 @@ Accent Darker color: Orange 800: #EF6C00
     color: #FF9100;
 }
 
+/* General OnsenUI CSS */
+
+.text-page {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+}
+
+.navigation-bar, .navigation-bar__center, .navigation-bar__left, .navigation-bar__right{
+    height:50px;
+    line-height: 56px;
+}
+
+.navigation-bar__right{
+    float:right;
+}
+.navigation-bar--material, .navigation-bar--material__center,.navigation-bar--material__right,.navigation-bar--material__left{
+    height:56px;
+    background-color:#000;
+    text-transform: capitalize;
+}
+
+.navigation-bar + .page__background + .page__content{
+    top:50px;
+}
+.navigation-bar--material + .page__background + .page__content{
+    top:56px;
+}
+
+.toolbar-button, :checked + .tab-bar__button, .back-button{
+    color:#FF9100;
+}
+.toolbar-button--material,:checked + .tab-bar--material__button, .back-button--material{
+    color:#fff;
+}
+input:checked + .switch__toggle{
+    -webkit-box-shadow: inset 0 0 0 2px #FF9100;
+    box-shadow: inset 0 0 0 2px #FF9100;
+    background-color: #FF9100;
+}
+/* .checkbox__input:checked{
+    color: #FF9100;
+} */
+
+.checkbox__checkmark:before{
+    border:1px solid #FF9100;
+}
+.checkbox--material__checkmark:before {
+  border: 2px solid #717171;
+}
+
+.checkbox__input:checked {
+  background: #ff9100;
+}
+.checkbox__input:checked + .checkbox__checkmark:before {
+  background: #ff9100;
+  border: 1px solid #ff9100;
+}
+
+.button,ons-list-item{
+    cursor: pointer;
+}
+
+.ons-icon{
+    font-size:22px;
+}
+
+/*
+.navigation-bar__title:first-letter {
+    text-transform: uppercase;
+} */
+
 /* material design */
 
 .shadow--2dp {
@@ -318,6 +390,7 @@ Accent Darker color: Orange 800: #EF6C00
     /* line-height: 50%; */
     margin: 0px;
     padding-top: 8px;
+    line-height:24px;
 }
 
 .lastSync {
@@ -330,7 +403,7 @@ Accent Darker color: Orange 800: #EF6C00
     text-overflow: ellipsis;
     overflow: hidden;
     margin: 0px;
-    margin-top: -6px;
+    line-height:24px;
 }
 
 
@@ -1551,79 +1624,6 @@ p {
     margin-left: 1px;
     margin-right: 1px;
 }
-
-
-/* General OnsenUI CSS */
-
-.text-page {
-    position: absolute;
-    left: 16px;
-    right: 16px;
-}
-
-.navigation-bar, .navigation-bar__center, .navigation-bar__left, .navigation-bar__right{
-    height:50px;
-    line-height: 56px;
-}
-
-.navigation-bar__right{
-    float:right;
-}
-.navigation-bar--material, .navigation-bar--material__center,.navigation-bar--material__right,.navigation-bar--material__left{
-    height:56px;
-    background-color:#000;
-    text-transform: capitalize;
-}
-
-.navigation-bar + .page__background + .page__content{
-    top:50px;
-}
-.navigation-bar--material + .page__background + .page__content{
-    top:56px;
-}
-
-.toolbar-button, :checked + .tab-bar__button, .back-button{
-    color:#FF9100;
-}
-.toolbar-button--material,:checked + .tab-bar--material__button, .back-button--material{
-    color:#fff;
-}
-input:checked + .switch__toggle{
-    -webkit-box-shadow: inset 0 0 0 2px #FF9100;
-    box-shadow: inset 0 0 0 2px #FF9100;
-    background-color: #FF9100;
-}
-/* .checkbox__input:checked{
-    color: #FF9100;
-} */
-
-.checkbox__checkmark:before{
-    border:1px solid #FF9100;
-}
-.checkbox--material__checkmark:before {
-  border: 2px solid #717171;
-}
-
-.checkbox__input:checked {
-  background: #ff9100;
-}
-.checkbox__input:checked + .checkbox__checkmark:before {
-  background: #ff9100;
-  border: 1px solid #ff9100;
-}
-
-.button,ons-list-item{
-    cursor: pointer;
-}
-
-.ons-icon{
-    font-size:22px;
-}
-
-/*
-.navigation-bar__title:first-letter {
-    text-transform: uppercase;
-} */
 
 
 /* alerts */
