@@ -7,16 +7,19 @@
     "sw-precache": "^5.2.1"
   },
   "devDependencies": {
+    "del": "^3.0.0",
     "gulp-autoprefixer": "^4.1.0",
     "gulp-clean-css": "^3.9.2",
     "gulp-htmlmin": "^4.0.0",
     "gulp-svgmin": "^1.2.4",
     "gulp-uglify": "^3.0.0",
     "pump": "^3.0.0",
+    "run-sequence": "^2.2.1",
     "sw-precache": "^5.2.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
