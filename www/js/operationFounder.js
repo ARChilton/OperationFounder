@@ -293,10 +293,11 @@ function formBubbleMessages(rows, limit, prepend) {
         var lineClasses = 'msg';
         var lastBubbleContainerClass = 'bubble';
         doc.date = new Date(doc._id.replace('message-', ''));
-        doc.time = doc.date.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        // doc.time = doc.date.toLocaleTimeString([], {
+        //     hour: '2-digit',
+        //     minute: '2-digit'
+        // });
+        doc.time = addZero(doc.date.getHours()) + ':' + addZero(doc.date.getMinutes());
         doc.from = parseInt(doc.from);
         doc.to = parseInt(doc.to);
         doc.msgBaseNo = 'Base ' + doc.from;
@@ -1008,15 +1009,9 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
  */
 function tableUpdateFunction(path, admin, array) {
     var tIn = new Date(path.timeIn);
-    var timeIn = tIn.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    var timeIn = addZero(tIn.getHours()) + ':' + addZero(tIn.getMinutes());
     var tOut = new Date(path.timeOut);
-    var timeOut = tOut.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    var timeOut = addZero(tOut.getHours()) + ':' + addZero(tOut.getMinutes());
 
     console.log(path.patrol + ' ' + path.base + ' ' + path._id);
     if (admin == true) {
@@ -1248,14 +1243,8 @@ function editLog(logs) {
                         var tIn = new Date(doc.timeIn);
                         var tOut = new Date(doc.timeOut);
                         $('#patrolNo').val(doc.patrol);
-                        $('#timeIn').val(tIn.toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }));
-                        $('#timeOut').val(tOut.toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }));
+                                               $('#timeIn').val(addZero(tIn.getHours()) + ':' + addZero(tIn.getMinutes()));
+                        $('#timeOut').val(addZero(tOut.getHours()) + ':' + addZero(tOut.getMinutes()));
                         $('#wait').val(doc.timeWait);
                         $('#total').val(doc.totalScore);
                         switch (doc.offRoute) {
@@ -3598,14 +3587,8 @@ ons.ready(function () {
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd)
 
-                    $('#evtSummaryStartDate').append(evtStart.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) + ' on ' + evtStart.toDateString());
-                    $('#evtSummaryEndDate').append(evtEnd.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) + ' on ' + evtEnd.toDateString());
+                    $('#evtSummaryStartDate').append(addZero(evtStart.getHours()) + ':' +addZero(evtStart.getMinutes()) + ' on ' + evtStart.toDateString());
+                    $('#evtSummaryEndDate').append(addZero(evtEnd.getHours()) + ':' + addZero(evtEnd.getMinutes()) + ' on ' + evtEnd.toDateString());
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
@@ -3783,7 +3766,7 @@ ons.ready(function () {
                         version = 1;
                     }
 
-                    $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + evtStart.toLocaleTimeString() + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + evtEnd.toLocaleTimeString() + '</p>');
+                    $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + addZero(evtStart.getHours()) + ':' + addZero(evtStart.getMinutes()) + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + addZero(evtEnd.getHours()) + ':' + addZero(evtEnd.getMinutes()) + '</p>');
 
 
                     //Event Logo update
@@ -4659,10 +4642,12 @@ ons.ready(function () {
                             offOnRoute = 'off route'
                         }
                         var tOut = new Date(log.timeOut);
-                        var timeOut = tOut.toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
+                        // var timeOut = tOut.toLocaleTimeString([], {
+                        //     hour: '2-digit',
+                        //     minute: '2-digit'
+                        // });
+                        var timeOut = addZero(tOut.getHours()) + ':' + addZero(tOut.getMinutes());
+
                         var lsTableRow = '<tr id="ls-' + log.patrol + '"><td class="bold">' + log.patrol + '</td><td>' + timeOut + '</td><td>' + log.base + '</td><td>' + offOnRoute + '</td><td class="hide landscapeShow">' + log.username + '</td></tr>';
                         if (index > -1) {
                             $('#lastSeenTable #ls-' + log.patrol).remove();
@@ -5732,7 +5717,8 @@ function lastSyncHandler() {
 function lastSyncUpdater(timeToShow) {
     if (timeToShow === undefined) {
         var date = new Date();
-        lastSync = date.toLocaleTimeString();
+        // lastSync = date.toLocaleTimeString();
+        lastSync = addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
     } else {
         lastSync = timeToShow;
     }
@@ -5754,4 +5740,11 @@ function isScrolledIntoView(el) {
     // Partially visible elements return true:
     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
     return isVisible;
+}
+
+function addZero(i) {
+    if (i < 10) {
+        i = '0' + i;
+    }
+    return i;
 }
