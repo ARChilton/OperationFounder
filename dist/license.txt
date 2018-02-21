@@ -1,0 +1,428 @@
+© 2017 Adam Chilton
+All Rights Reserved
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Images:
+
+Images were provided with the permission of the Tonbridge District Operation Founder team.
+
+
+
+This package includes software with the following licenses:
+
+Onsen UI version 2.0:
+
+        Copyright 2013-2016 ASIAL CORPORATION
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+       
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+GitHub Licence link: https://github.com/OnsenUI/OnsenUI/blob/master/LICENSE
+
+
+
+JQuery version 1.12.4:
+
+        Copyright JS Foundation and other contributors, https://js.foundation/
+        This software consists of voluntary contributions made by many
+        individuals. For exact contribution history, see the revision history
+        available at https://github.com/jquery/jquery
+        The following license applies to all parts of this software except as
+        documented below:
+        ====
+        Permission is hereby granted, free of charge, to any person obtaining
+        a copy of this software and associated documentation files (the
+        "Software"), to deal in the Software without restriction, including
+        without limitation the rights to use, copy, modify, merge, publish,
+        distribute, sublicense, and/or sell copies of the Software, and to
+        permit persons to whom the Software is furnished to do so, subject to
+        the following conditions:
+        The above copyright notice and this permission notice shall be
+        included in all copies or substantial portions of the Software.
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+        NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+        LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+        OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+        WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+GitHub licence link: https://github.com/jquery/jquery/blob/master/LICENSE.txt
+
+
+Leaflet 1.0.2:
+
+        Copyright (c) 2010-2016, Vladimir Agafonkin 	
+		Copyright (c) 2010-2011, CloudMade
+		All rights reserved.
+
+		Redistribution and use in source and binary forms, with or without modification, are 
+		permitted provided that the following conditions are met: 
+		1. Redistributions of source code must retain the above copyright notice, this list of 
+		conditions and the following disclaimer. 
+		2. Redistributions in binary form must reproduce the above copyright notice, this list 
+		of conditions and the following disclaimer in the documentation and/or other materials 
+		provided with the distribution. 
+		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+		EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+		MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+		COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+		EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+		SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+		HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
+		TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+GitHub licence link: https://github.com/Leaflet/Leaflet/blob/master/LICENSE
+
+
+Pouchdb 6.3.4:
+
+        Apache License
+                            Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+    1. Definitions.
+
+        "License" shall mean the terms and conditions for use, reproduction,
+        and distribution as defined by Sections 1 through 9 of this document.
+
+        "Licensor" shall mean the copyright owner or entity authorized by
+        the copyright owner that is granting the License.
+
+        "Legal Entity" shall mean the union of the acting entity and all
+        other entities that control, are controlled by, or are under common
+        control with that entity. For the purposes of this definition,
+        "control" means (i) the power, direct or indirect, to cause the
+        direction or management of such entity, whether by contract or
+        otherwise, or (ii) ownership of fifty percent (50%) or more of the
+        outstanding shares, or (iii) beneficial ownership of such entity.
+
+        "You" (or "Your") shall mean an individual or Legal Entity
+        exercising permissions granted by this License.
+
+        "Source" form shall mean the preferred form for making modifications,
+        including but not limited to software source code, documentation
+        source, and configuration files.
+
+        "Object" form shall mean any form resulting from mechanical
+        transformation or translation of a Source form, including but
+        not limited to compiled object code, generated documentation,
+        and conversions to other media types.
+
+        "Work" shall mean the work of authorship, whether in Source or
+        Object form, made available under the License, as indicated by a
+        copyright notice that is included in or attached to the work
+        (an example is provided in the Appendix below).
+
+        "Derivative Works" shall mean any work, whether in Source or Object
+        form, that is based on (or derived from) the Work and for which the
+        editorial revisions, annotations, elaborations, or other modifications
+        represent, as a whole, an original work of authorship. For the purposes
+        of this License, Derivative Works shall not include works that remain
+        separable from, or merely link (or bind by name) to the interfaces of,
+        the Work and Derivative Works thereof.
+
+        "Contribution" shall mean any work of authorship, including
+        the original version of the Work and any modifications or additions
+        to that Work or Derivative Works thereof, that is intentionally
+        submitted to Licensor for inclusion in the Work by the copyright owner
+        or by an individual or Legal Entity authorized to submit on behalf of
+        the copyright owner. For the purposes of this definition, "submitted"
+        means any form of electronic, verbal, or written communication sent
+        to the Licensor or its representatives, including but not limited to
+        communication on electronic mailing lists, source code control systems,
+        and issue tracking systems that are managed by, or on behalf of, the
+        Licensor for the purpose of discussing and improving the Work, but
+        excluding communication that is conspicuously marked or otherwise
+        designated in writing by the copyright owner as "Not a Contribution."
+
+        "Contributor" shall mean Licensor and any individual or Legal Entity
+        on behalf of whom a Contribution has been received by Licensor and
+        subsequently incorporated within the Work.
+
+    2. Grant of Copyright License. Subject to the terms and conditions of
+        this License, each Contributor hereby grants to You a perpetual,
+        worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+        copyright license to reproduce, prepare Derivative Works of,
+        publicly display, publicly perform, sublicense, and distribute the
+        Work and such Derivative Works in Source or Object form.
+
+    3. Grant of Patent License. Subject to the terms and conditions of
+        this License, each Contributor hereby grants to You a perpetual,
+        worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+        (except as stated in this section) patent license to make, have made,
+        use, offer to sell, sell, import, and otherwise transfer the Work,
+        where such license applies only to those patent claims licensable
+        by such Contributor that are necessarily infringed by their
+        Contribution(s) alone or by combination of their Contribution(s)
+        with the Work to which such Contribution(s) was submitted. If You
+        institute patent litigation against any entity (including a
+        cross-claim or counterclaim in a lawsuit) alleging that the Work
+        or a Contribution incorporated within the Work constitutes direct
+        or contributory patent infringement, then any patent licenses
+        granted to You under this License for that Work shall terminate
+        as of the date such litigation is filed.
+
+    4. Redistribution. You may reproduce and distribute copies of the
+        Work or Derivative Works thereof in any medium, with or without
+        modifications, and in Source or Object form, provided that You
+        meet the following conditions:
+
+        (a) You must give any other recipients of the Work or
+            Derivative Works a copy of this License; and
+
+        (b) You must cause any modified files to carry prominent notices
+            stating that You changed the files; and
+
+        (c) You must retain, in the Source form of any Derivative Works
+            that You distribute, all copyright, patent, trademark, and
+            attribution notices from the Source form of the Work,
+            excluding those notices that do not pertain to any part of
+            the Derivative Works; and
+
+        (d) If the Work includes a "NOTICE" text file as part of its
+            distribution, then any Derivative Works that You distribute must
+            include a readable copy of the attribution notices contained
+            within such NOTICE file, excluding those notices that do not
+            pertain to any part of the Derivative Works, in at least one
+            of the following places: within a NOTICE text file distributed
+            as part of the Derivative Works; within the Source form or
+            documentation, if provided along with the Derivative Works; or,
+            within a display generated by the Derivative Works, if and
+            wherever such third-party notices normally appear. The contents
+            of the NOTICE file are for informational purposes only and
+            do not modify the License. You may add Your own attribution
+            notices within Derivative Works that You distribute, alongside
+            or as an addendum to the NOTICE text from the Work, provided
+            that such additional attribution notices cannot be construed
+            as modifying the License.
+
+        You may add Your own copyright statement to Your modifications and
+        may provide additional or different license terms and conditions
+        for use, reproduction, or distribution of Your modifications, or
+        for any such Derivative Works as a whole, provided Your use,
+        reproduction, and distribution of the Work otherwise complies with
+        the conditions stated in this License.
+
+    5. Submission of Contributions. Unless You explicitly state otherwise,
+        any Contribution intentionally submitted for inclusion in the Work
+        by You to the Licensor shall be under the terms and conditions of
+        this License, without any additional terms or conditions.
+        Notwithstanding the above, nothing herein shall supersede or modify
+        the terms of any separate license agreement you may have executed
+        with Licensor regarding such Contributions.
+
+    6. Trademarks. This License does not grant permission to use the trade
+        names, trademarks, service marks, or product names of the Licensor,
+        except as required for reasonable and customary use in describing the
+        origin of the Work and reproducing the content of the NOTICE file.
+
+    7. Disclaimer of Warranty. Unless required by applicable law or
+        agreed to in writing, Licensor provides the Work (and each
+        Contributor provides its Contributions) on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+        implied, including, without limitation, any warranties or conditions
+        of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+        PARTICULAR PURPOSE. You are solely responsible for determining the
+        appropriateness of using or redistributing the Work and assume any
+        risks associated with Your exercise of permissions under this License.
+
+    8. Limitation of Liability. In no event and under no legal theory,
+        whether in tort (including negligence), contract, or otherwise,
+        unless required by applicable law (such as deliberate and grossly
+        negligent acts) or agreed to in writing, shall any Contributor be
+        liable to You for damages, including any direct, indirect, special,
+        incidental, or consequential damages of any character arising as a
+        result of this License or out of the use or inability to use the
+        Work (including but not limited to damages for loss of goodwill,
+        work stoppage, computer failure or malfunction, or any and all
+        other commercial damages or losses), even if such Contributor
+        has been advised of the possibility of such damages.
+
+    9. Accepting Warranty or Additional Liability. While redistributing
+        the Work or Derivative Works thereof, You may choose to offer,
+        and charge a fee for, acceptance of support, warranty, indemnity,
+        or other liability obligations and/or rights consistent with this
+        License. However, in accepting such obligations, You may act only
+        on Your own behalf and on Your sole responsibility, not on behalf
+        of any other Contributor, and only if You agree to indemnify,
+        defend, and hold each Contributor harmless for any liability
+        incurred by, or claims asserted against, such Contributor by reason
+        of your accepting any such warranty or additional liability.
+
+GitHub licence link: https://github.com/pouchdb/pouchdb/blob/master/LICENSE
+
+
+leaflet-bing-layer v3.0.1:
+
+    MIT licence
+
+GitHub licence link: https://github.com/gmaclennan/leaflet-bing-layer#license
+
+
+
+Leaflet.TileLayer.PouchDBCached v0.1.0:
+
+    
+
+    Copyright (c) 2015 Iván Sánchez Ortega <ivan@mazemap.no>
+
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,   and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
+Leaflet.EdgeBuffer v1.0.2:
+
+		Copyright (c) 2015 Alex Paterson	
+		Permission is hereby granted, free of charge, to any person obtaining a copy
+		of this software and associated documentation files (the "Software"), to deal
+		in the Software without restriction, including without limitation the rights
+		to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		copies of the Software, and to permit persons to whom the Software is
+		furnished to do so, subject to the following conditions:
+		The above copyright notice and this permission notice shall be included in all
+		copies or substantial portions of the Software.
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		SOFTWARE.
+		
+GitHub licence link: https://github.com/TolonUK/Leaflet.EdgeBuffer/blob/master/LICENSE
+
+
+Bing Maps API:
+
+        1. What does this Contract cover? This is a contract between you and Microsoft Corporation ("Microsoft"). Sometimes you are referred to as "Company", "you" or "your" and Microsoft is referred to as "we," "us" or "our". This Microsoft Bing Maps Platform APIs’ Terms of Use (the "TOU") applies to the Microsoft Bing Maps Platform APIs listed here and the Maps Platform APIs for the Universal Windows Platform ("UWP") listed here (collectively, the "Services").
+        The rights and obligations that you have under this TOU depend on your use of the Services as follows:
+
+        If you are using the Services as part of a Bing Maps Agreement that incorporates this TOU by reference, Sections 1, 2 and 3 apply. If you would like to find out more about a Bing Maps Agreement, please contact us here.
+        If you are using the Services as part of a Volume Licensing Agreement, Sections 1, 2 and 4 apply. If you would like to find out more about a Volume Licensing Agreement, please contact us here.
+        If you are using the Services only for Education or Non-Profit Organization Use (as defined in Section 2), Sections 1, 2, 5 and 8 apply.
+        If you are using the Services only for Limited Website and Consumer App Use (as defined in Section 2), Sections 1, 2, 6 and 8 apply.
+        If you are using the Services only for Limited Commercial Windows App Use (as defined in Section 2), Sections 1, 2, 8 and 9 apply.
+        If you are using the Services only for Windows App and Windows Phone App Development (as defined in Section 2), Sections 1, 2, 8 and 10 apply.
+        If you are using the Services only for Broadcast, the Bing Maps Media, Entertainment and Broadcast Use Terms of Use apply.
+        If you are using the Services as part of an Azure Marketplace subscription, Sections 1, 2 and 12 apply.
+        2. Definitions.Wherever used in this TOU with the first letter capitalized, these terms have the following defined meanings:
+        "Access Credentials"means the unique credentials provided to Company by Microsoft for use with the Services.
+        "Affiliate"means, with respect to an entity, any person or entity that directly or indirectly owns, is owned by, or is under common ownership with that entity. For purposes of this definition, ownership means control of more than a 50% interest in an entity.
+        "Agreement"means the Bing Maps Agreement and/or Volume Licensing Agreement.
+        "Asset"means one of any of the following classes: vehicle, device or other mobile object.
+        "Billable Transaction" means any of the following (with all capitalized terms as defined in the Bing Maps Platform SDKs or the Microsoft Bing Maps Platform APIs’ Terms of Use): (a) web services methods including but not limited to Imagery, Route, Geocode, Spatial Data and Search Services; (b) a session in the Bing Maps AJAX Control API, Bing Maps Windows Presentation Foundation API, or Bing Maps Silverlight Control API, where a session begins with the load of any of the aforementioned controls into a user’s browser and includes all transactions until the browser is closed or the user moves to a different page for up to 50 transactions (thereafter each otherwise Billable Transaction in a session will be charged as a separate Billable Transaction as set forth in Sections (a) and (c) herein; and (c) any new Services functionalities may constitute a Billable Transaction as described in the SDKs. All use of the Services in Company Applications under Section 4.9(a)(i) and/or (ii) by agents or franchisees of Company, must be controlled and branded by Company including all use of the Bing Maps Platform APIs.
+        "Bing Maps Agreement"means a separately executed Bing Maps agreement(s) that incorporates this TOU including the Microsoft Service Order under the Bing Maps Platform API’s Terms of Use, Microsoft Service Agreement for Bing Maps Platform APIs and Microsoft Service Order for Bing Maps Platform APIs and all predecessor or future agreements, including agreements formerly known as the Microsoft License Agreement for MapPoint Web Services, Microsoft Service Agreement for the Virtual Earth Map Control and the MapPoint Web Service, Microsoft MapPoint Web Service Agreement – Service Order, and Service Order for Microsoft Virtual Earth Map Control and the MapPoint Web Service.
+        "Bing Maps AJAX Control API"means the Bing Maps Java Script API that enables developers to create Web sites and mobile Company Applications with imagery and location functionality, as described in greater detail in the SDKs.
+        "Bing Maps iOS Control API"means the Objective-C control that enables developers to embed maps directly into native iOS Company Applications, as described in greater detail in the SDKs.
+        "Bing Maps Platform APIs"means collectively the following APIs: Bing Maps AJAX Control API, Bing Maps iOS Control API, Bing Maps REST Services API, Bing Maps Silverlight Control API, Bing Maps Silverlight Control for Windows Phone API, Bing Maps SOAP Services API, Bing Maps Windows Presentation Foundation Control API, and Bing Spatial Data Services API, including any successors or future versions of such APIs, and any other Bing Maps Platform APIs that Microsoft may offer via the SDKs.
+        "Bing Maps REST Services API"means the services that enable the use of REST URLs to perform tasks such as creating a map with pushpins, geocoding an address, retrieving imagery metadata or calculating a route, all as part of Company Applications, as described in greater detail in the SDKs.
+        "Bing Maps for Windows Store Apps API"means the programmable control that enables developers to create immersive Windows Apps Company Applications for Windows offered through the Windows Store, as described in greater detail in the SDKs.
+        "Bing Maps Silverlight Control API"means the programmable control that enables developers to create an immersive mapping experience with Silverlight in Company Applications, as described in greater detail in the SDKs.
+        "Bing Maps Silverlight Control for Windows Phone API"means the programmable control that enables developers to create immersive mapping experiences with Silverlight in Company Applications on Windows Phone, as described in greater detail in the SDKs.
+        "Bing Maps SOAP Services API"means the programmable SOAP services that enable developers to integrate maps and imagery, driving directions, distance calculations and other location intelligence into Company Applications, as described in greater detail in the SDKs.
+        "Bing Maps TOU"is the Bing Maps End User Terms of Use located here or such other locations as Microsoft may specify from time to time, that apply to end users of your Company Application.
+        "Bing Maps Windows Presentation Foundation Control API"means the programmable control that enables developers to integrate Bing Maps into Company Applications that use Windows Presentation Foundation, as described in greater detail in the SDKs.
+        "Bing Spatial Data Services API"means the services that enable the use of REST URLs to geocode and reverse-geocode large sets of spatial data and to create and query data sources in Company Applications, as described in greater detail in the SDKs.
+        "Company Application"means the Company’s software application(s) for online services that use the Services as may be further defined in your Agreement.
+        "Content"means the maps, images and other data and third party content that Company is authorized to access via the Services.
+        "Education or Non-Profit Organization Use"means using the Services with a Company Application that displays results for education or non-profit use, where non-profit organization means a tax exempt organization and education means use by public or private K-12 schools, universities, community colleges or other collegiate level institutions such as vocational schools, trade schools or career colleges, including their faculty, staff, and students, provided that your use is consistent with the terms of Section 5. Further your Company Application must be one of the following: publicly available without restriction (for example, login or password must not be required), available only to current students of your education organization via your private network in order to provide education related services, available internally for free instructional use, or available internally for non-commercial research use. Commercially funded research projects and commercial company use for educational purposes are excluded from Education or Non-Profit Organization Use.
+        "Geofence"means one or more coordinates used to determine whether the location of an Asset has intersected a line or entered or exited a polygon. Examples include a radius of a point, a polyline or a polygon.
+        "Geofencing Alert"means the notification generated when an Asset enters, intersects or exits a Geofence.
+        "Known User"is a user that is provisioned and/or authenticated by Company Application (but not necessarily Company web site or network), for example through the use of usernames, passwords, digital certificates, unique IDs, smart cards, or other identification technology.
+        "Known User Subscription License"means the license granted to a Known User pursuant to an Agreement.
+        "Limited Commercial Windows App Use"means using the Services in a Windows App or Windows Phone App for commercial or government use over a private network under the TOU without entering into an Agreement, provided that (i) your use is consistent with the terms of Section 9; and (ii) your Company Application does not exceed 125,000 cumulative Billable Transactions (which will be free of charge) as defined in the SDK’s, per calendar year.
+        "Limited Website and Consumer App Use"means using the Services for commercial, non-commercial or government use (provided that such use is not considered Education or Non-Profit Organization Use as defined in this section) under the TOU without entering into an Agreement, provided that (i) your use is consistent with the terms of Section 6; (ii) your Company Application is available on a web site, mobile web site or a mobile app running in a non-Windows operating system; and (iii) you do not exceed 125,000 cumulative Billable Transactions (which will be free of charge) as defined in the SDKs, per calendar year.
+        "SDKs"means the software development kits applicable to the Services, located here, including all updated and replacement development kits.
+        "Services"means, the Bing Maps Platform APIs and UWP Maps Platform APIs to be provided by Microsoft.
+        "Volume Licensing Agreement"means a separately executed Microsoft Volume Licensing Agreement (such as an Enterprise Agreement or Microsoft Business and Services Agreement) that includes licensing of the Services and incorporates this TOU.
+        "Windows App"means using the Services in a Company Application (i) built upon the UWP which runs exclusively across Windows platforms and/or (ii) which runs exclusively on the Windows 8.x and earlier operating systems.
+        "Windows Phone App"means using the Services in a Company Application which runs exclusively on the Windows Phone 8.x and earlier operating systems.
+        6. Limited Website and Consumer App Use. Subject to your compliance with Sections 1, 2, 6 and 8 of this TOU, you may develop or host a Company Application that uses the Services for Limited Website Use and Consumer App Use (as defined in Section 2). You may use the Services solely in conjunction with and integrated into Company Applications using only methods and means of access that are documented in the SDKs. Your use of the Content in the Services is subject to the Bing Maps Branding Guidelines. If you will exceed the Limited Website and Consumer App Use transaction limits or limits on use of the Bing Spatial Data Services API, please contact us here to discuss how you can license additional transactions. Please note that we do not provide warranties for the Services for Limited Website Use under this Section 6. This TOU also limits our liability. These terms are in Sections 8.8 and 8.9 and we ask you to read them carefully.
+        8. General Terms for use of the Services under TOU Sections 5, 6, 7, 9 and 10. If you use the Services under Sections 5 (Education or Non-Profit Organization Use), 6 (Limited Public Website Use), 9 (Limited Commercial Windows App Development) or 10 (Windows App and Windows Phone App Development) the terms in this Section 8 apply to your use of the Services.
+        8.1. General Limitations and Conditions of the Services. In using the Services and developing Company Applications you must: obey the law (including local, state, federal or other applicable consumer privacy regulations); not violate the rights of any third party; and obey any codes of conduct or other notices we provide. We may use technology or other means to protect the Services that you will not circumvent. These means may include, for example, filtering to increase security. Microsoft may, in its sole discretion, limit the: (i) rate at which the Services, or any subset of it, may be called, (ii) amount of storage made available to each Services account, or (iii) length of individual content segments that may be uploaded to, or served from, the Services (all of the foregoing being forms of "Throttling"). You will set the user region parameter in the Services in compliance with applicable laws, including those regarding mapping, of the country where the Content is made available.
+        8.2. General Restrictions. We do have some restrictions on your use of the Services. In developing Company Applications, and in using the Services, you may not, nor may you permit your customers to:
+        Upload any content to the Services, or use the Services to display or perform in your Company Application, any content:
+        for which you do not have all necessary permissions from the copyright holder(s);
+        which includes nudity or is obscene, indecent, pornographic or libelous;
+        which is intended to exploit minors in any way;
+        which incites, advocates, or expresses hatred, bigotry, racism, or gratuitous violence; or
+        which is intended to threaten, harass, stalk, defame, defraud, degrade, victimize, or intimidate an individual or group of individuals for any reason, including on the basis of age, gender, disability, ethnicity, sexual orientation, race, or religion, or to incite or encourage anyone else to do so.
+        Copy, store, archive, or create a database of the Content, except that geocodes may be stored locally only for use with your Company Applications.
+        Exceed 50,000 cumulative billable transactions (which will be free of charge) as defined in the SDKs, within any 24 hour period. Exceed a total of 50,000 batch geocode entities non-billable transactions or 100,000 non-billable transactions total using the Bing Spatial Data Services API per calendar year.
+        Use Content, including geocodes, other than via an authenticated call to the Services and/or in conjunction with a Bing Map.
+        Present or alert an end user to individual maneuvers of a route in any way that is synchronized with the end-user’s sensor-based position along the route (e.g. turn by turn navigation that tracks end-user’s position using GPS and communicates a maneuver as the end-user approaches the location for such maneuver).
+        Change, obscure, or minimize any logo, trademark, copyright or other notice of Microsoft or its suppliers; digital watermarks in the Content; or any search box, portion of the results, or advertisement; except that we may make alternative logo, trademark, and copyright attribution requirements available for use with small maps or on small devices; if available you will find them here.
+        Use the Services for business asset tracking, fleet management, or dispatch including, without limitation, to monitor or track the location or movement of Asset(s), including to provide guidance based on the position or routing of multiple objects tracked using GPS or other sensor-generated methods.
+        Use bird’s eye aerial imagery (except you may use bird’s eye aerial imagery if your use of the Services is under Section 7 and consistent with Section 7.1 accordingly).
+        Use Content that consists of points of interest data to generate sales leads information in the form of ASCII or other text-formatted lists of category-specific business listings which (i) include complete mailing address for each business; and (ii) contain a substantial portion of such listings for a particular country, city, state or zip code region.
+        Use Content other than in combination with the Services and not separately.
+        Use the Services in a way that harms us or our Affiliates or suppliers.
+        Transmit, sell, license or deliver any infringing, defamatory, offensive, or illegal products, services or materials.
+        Violate any applicable U.S. Export Administration Regulations or end-user, end-use and destination restrictions issued by U.S. and other governments. The Services are subject to U.S. export jurisdiction.
+        Use the Services in any way that threatens the integrity, performance, or reliability of the Services including performance or stress testing, or in any manner that works around any technical limitations in the Services.
+        Syndicate, redistribute, resell or sublicense access to the Services or Content on a standalone basis.
+        Falsify or alter any unique referral identifier in, or assigned to, a Company Application, or otherwise obscure or alter the source of queries coming from a Company Application.
+        Use any automated process or service to access and/or use the Services (such as a BOT, a spider, periodic caching of information stored by Microsoft, or "meta-searching").
+        Reverse engineer, decompile or disassemble the Services, except and only to the extent that applicable law expressly permits, despite this limitation.
+        Integrate road maps from the Services with road maps supplied by any third party. You may not replace aerial imagery from the Services with imagery supplied by any other mapping platform. Notwithstanding the foregoing, you may overlay aerial imagery that you have the rights to use, provided that such imagery does not substantially replace the base aerial imagery provided by the Services. You may incorporate various data layers of types not available through the Services, in the Company Applications (for example, demographic or school location data). You may combine or overlay Ordnance Survey's United Kingdom mapping data or data derived from Ordnance Survey’s United Kingdom mapping data (but not Ordnance Survey roads data) with the Services, provided that you have procured all such rights to the Ordnance Survey United Kingdom mapping data, that such use of the Ordnance Survey United Kingdom mapping data with the Services is consistent with your Ordnance Survey license, and that you indemnify Microsoft for such use pursuant to this TOU.
+        Use Content from Ordnance Survey for non-publicly available Company Applications.
+        Use the Services or Content with a vehicle’s dashboard, or a device connected to a vehicle’s dashboard, systems or sensors, except that the device may be connected to the vehicle power source for charging purposes.
+        Additional restrictions may apply to use of particular Content or functionalities, as set forth in the SDKs from time to time. We reserve the right to include a search box or advertising in the Content served through the Services. You will not intentionally omit or obscure such advertising, search box or search results including advertising when displaying such Content to end users.
+
+        8.3. Account Access. We require use of Access Credentials to use the Services, and require use of transaction tracking and/or session tracking methods for all uses of the Services, as described in the applicable SDKs. Company will use the Access Credentials to: (a) access the Services, and (b) access an administrative customer service site. Company will not make its Access Credentials available to any third party except a third party authorized to act on its behalf. Company is responsible for all use of the Services through its Access Credentials. Company will promptly notify us if it learns of a security breach related to your Access Credentials and use of the Services.
+        8.4. Bing Maps TOU. You must provide a hypertext link to the Bing Maps TOU: (i) at the bottom of each page in your Company Application where the Services can be viewed or accessed, or (ii) within the terms of use of your Company Application. Microsoft may change the Bing Maps TOU from time to time. Company is responsible for notifying its end users of changes as appropriate and will comply with Microsoft’s reasonable instructions in doing so. You may not encourage or require any end user to breach the terms of the Bing Maps TOU.
+        8.5. Privacy. Microsoft may collect information such as, but not limited to, an end user’s IP address, requests, time of submissions and the results returned to the user, in connection with transaction requests to the Services. All access to and use of the Services is subject to the data practices set forth in the then-current Privacy Statement, a current copy of which is available at http://aka.ms/BingMapsMicrosoftPrivacy. You are responsible for providing end users with adequate notice of the privacy practices applicable to your Company Application.
+        8.6. Intellectual Property and Reservation of Rights. Microsoft and its suppliers retain all right, title and interest in and to the Services, Content, the SDKs and all intellectual property rights therein, except for the limited rights expressly granted herein. This TOU does not grant Microsoft any right or license to any Company Application or Company intellectual property including intellectual property that Company has licensed from third parties.
+        Except for material that we may license to you, we do not claim ownership of the content you post or otherwise provide to us, that is hosted by Microsoft or a third party hosting provider on Microsoft’s behalf, related to the Services (called a "Submission"). However, by posting or otherwise providing your Submission (and for the avoidance of doubt, where Microsoft hosts content on your behalf including by a third party hosting provider, this constitutes a Submission, but where you host or a third party hosts content on your behalf, other than Microsoft or a third party hosting provider on behalf of Microsoft, this does not constitute a Submission), you are granting to Microsoft free permission to use, copy, distribute, display, publish, transcode and otherwise modify your Submission, each in connection with the Services, and sublicense these rights to others in order to provide the Services. We may refuse to publish and may remove your Submission from the Services at any time. For every Submission you make, you must have all rights necessary for you to grant the permissions in this section. You may agree to grant Microsoft additional rights under this section by way of the process detailed in the SDKs.
+
+        8.7. Your Responsibility. You will indemnify and hold the Microsoft parties harmless from and against any and all loss, liability, and expense (including reasonable attorneys' fees) suffered or incurred by reason of any claims, proceedings or suits based on or arising out of any breach by you of any obligation or warranty under this TOU. You will be solely responsible for defending any claim, subject to Microsoft's right to participate with counsel it selects, and you will not agree to any settlement that imposes any obligation or liability on the Microsoft parties without Microsoft's prior written consent.
+        8.8. We Make No Warranty. Microsoft and its suppliers provide the Services and Content "as-is," "with all faults", "as available" and without warranty of any kind. To the maximum extent permitted by law, any and all representations, warranties or conditions of any kind whatsoever (including, but not limited to, implied or statutory warranties of merchantability, fitness for a particular purpose, title, non-infringement, accuracy or satisfactory quality), all with regard to the Services and any Content, are expressly excluded by Microsoft and its suppliers. Microsoft and its suppliers make no warranty that the Services will operate properly as integrated with the Company Applications, that the Services will be uninterrupted, or that any Content will be accurate or complete. Microsoft and its suppliers specifically disclaim any liability for end users’ reliance on the Services. Without limiting the foregoing, Microsoft and its suppliers shall have no liability for harm to end users resulting from reliance on any map or direction provided hereunder.
+        8.9. Liability Limitation. You can recover from Microsoft and its suppliers only direct damages up to an amount equal to fees you have paid Microsoft for the Services for one month. Neither party nor its suppliers will be liable for any indirect damages, (including, without limitation, consequential, special or incidental damages, damages for loss of profits or revenues, business interruption, or loss of business information) arising out of or related to the Services, Content, or TOU even if advised of the possibility of such damages or if the possibility was reasonably foreseeable.
+        8.10. Changes to the Services; Cancellation or Suspension of the Services; Audit. We may change, cancel or suspend your use of the Services at any time. Some changes to the Services may cause existing Company Applications to stop working. Our cancellation or suspension may be without cause and/or without notice. Upon Services cancellation, your right to use the Services stops right away. Once the Services are cancelled or suspended, any data you have stored on the Services may not be retrieved later. Microsoft reserves the right to verify your compliance with this TOU.
+        8.11. General Legal Terms.
+        How We May Change the Contract. We may update the TOU from time to time. If we change this TOU, then we will provide notice as provided in Section 8.11(g). If you do not agree to these changes, then you must stop using the Services. If you do not stop using the Services, then your use of the Services will continue under the changed TOU. In the future we may choose to charge for all use of the Services, or change the requirements for use free of charge. If we choose to change the fee requirements for the Services, Microsoft will provide notice of such terms as provided in Section 8.11(g), and you may elect to stop using the Services rather than incurring fees.
+        Term. This TOU will become effective on your first use of the Services. This TOU may be terminated immediately for any reason and without notice by Microsoft. If this TOU terminates, all rights granted to you by this TOU will automatically terminate and you will cease to have any rights to use the Services.
+        Force Majeure. Microsoft and Company will not be in default of this TOU if performance is delayed or prevented for reasons beyond its control, so long as it resumes performance as soon as practical.
+        Survival. Sections 8.1, 8.2 and 8.6 through and including 8.11 will survive the termination or expiration of this TOU for any reason.
+        Assignment. We may assign the TOU, in whole or in part, at any time with notice to you.
+        Enforceability and Interpreting the TOU. All parts of this TOU apply to the maximum extent permitted by law. If any provision of the TOU is unenforceable, the parties (or, if the parties cannot agree, a court) will revise it so that it can be enforced. Even if no revision is possible, the rest of the TOU will remain in place. This TOU constitutes the entire agreement between you and us regarding your use of the Services.
+        Notices; Consent Regarding Electronic Information. This TOU is in electronic form. We have promised to send you certain information in connection with the Services and have the right to send you certain additional information, including legal notices and that which may be required by law, which we may send in electronic form. You are responsible for keeping your contact information up to date.
+        We may provide required information to you:
+
+        at the e-mail address you specified when you signed up for the Services or any email address you specified via www.bingmapsportal.com (you are responsible for keeping your contact information up to date); or
+        by posting on any portion of this TOU or to another Microsoft web site that will be designated in advance for this purpose.
+        Notices provided to you via e-mail will be deemed given and received on the transmission date of the e-mail. If you do not consent to receive notices electronically, you must stop using the Services. Any notice from you will be sent electronically to: maplic@microsoft.com.
+
+        Claim Must Be Filed Within One Year. Any claim related to this TOU or the Services may not be brought unless brought within one year. The one-year period begins on the date when the claim first could be filed. If it is not filed within the one-year period, then that claim is permanently barred. This applies to both parties.
+        Choice of Law and Location for Resolving Disputes. If you are headquartered anywhere other than Europe, Washington State law governs the interpretation of this TOU and applies to claims for breach, regardless of conflict of laws principles. You and we irrevocably consent to the exclusive jurisdiction and venue of the state or federal courts in King County, Washington, USA, for all disputes arising out of or relating to this TOU. If you are headquartered in Europe, the TOU will be construed and governed by the substantive laws of England and Wales. The parties waive all defenses of lack of personal jurisdiction and forum non conveniens. Process may be served on either party in the manner authorized by applicable law or court rule. In any dispute relating to the TOU the prevailing party will be entitled to recover reasonable attorneys' fees and costs.
+        No Third Party Beneficiaries. This TOU is solely for your and our benefit. It is not for the benefit of any other person, except for permitted successors and assigns.
+        No Joint Venture/Independent Development. The parties are operating as independent contractors, and nothing in this TOU will be construed as creating a partnership, franchise, joint venture, employer-employee or agency relationship.
+        Waiver. Any delay or failure of either party to exercise a right or remedy will not result in a waiver of that, or any other, right or remedy. No waiver will be effective unless made in writing and signed by an authorized representative of the waiving party.
+        Logos; Marketing. Except as otherwise agreed to by the parties in writing, neither party will use any logo or trademark of the other party for marketing or any other purpose without the other party’s prior written approval.
+        Print Rights. If print rights are available for the Services, such rights will be included here.

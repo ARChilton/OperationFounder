@@ -55,7 +55,7 @@ gulp.task('minify-service-worker', (cb) => {
 gulp.task('minify-js', (cb) => {
   pump([
     gulp.src('www/**/*.js'),
-    uglify(),
+    uglify({ compress: { drop_console: true } }),
     gulp.dest(buildFolder)
   ],
     cb
@@ -99,7 +99,7 @@ gulp.task('minify-svg', () => {
 });
 
 gulp.task('move-static', () => {
-  return gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf}')
+  return gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf,xml,webmanifest,ico,md}')
     .pipe(gulp.dest(buildFolder));
 });
 

@@ -64,7 +64,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https:checkpointlive.com/app'; //'https://vps490460.ovh.net/app'; 'http://54.37.228.20:3000'; //'http://127.0.0.1:3000'; //'https://adam.localtunnel.me'; //
+var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
@@ -309,17 +309,17 @@ function formBubbleMessages(rows, limit, prepend) {
             if (!prepend) {
                 newestMessage = doc._id;
             }
-            lastMessage = Object.assign({},doc);
+            lastMessage = Object.assign({}, doc);
             i++;
 
             return;
 
         } else if (l === 1) {
             console.log('only message');
-            lastMessage = Object.assign({},doc);
+            lastMessage = Object.assign({}, doc);
             doc.from = 'n/a';
-            console.log('only message was from '+lastMessage.from);
-            if (doc._id === nextMessageEndKey){
+            console.log('only message was from ' + lastMessage.from);
+            if (doc._id === nextMessageEndKey) {
                 console.log('matched end key, returning');
                 return;
             }
@@ -354,7 +354,7 @@ function formBubbleMessages(rows, limit, prepend) {
         //need to remove date placed previously when scrolling up
         console.log(lastMessage);
         console.log(bubble);
-        lastMessage = Object.assign({},doc);
+        lastMessage = Object.assign({}, doc);
         i++;
         //for last message that won't have another one
         if (i !== limit) {
@@ -368,10 +368,10 @@ function formBubbleMessages(rows, limit, prepend) {
                     lastBubbleContainerClass += ' message-in';
                     lineClasses += ' topMsg';
                 }
-                if(l<limit){
+                if (l < limit) {
                     lastBubbleContainerClass += ' tail';
                 }
-                
+
                 nextMessageEndKey = doc._id;
                 var lastBubble = '<div id="' + doc._id + '" class="' + lineClasses + '"><div class="' + lastBubbleContainerClass + '"><div class="msgFrom color-' + doc.from + '">' + doc.username + ' @ ' + doc.msgBaseNo + '</div><div class="' + messageClasses + '">' + doc.message + '</div><div class="bubble-text-meta msgTimeStamp ">' + doc.time + '</div></div></div>';
                 document.getElementById('topDateMsgBubble').innerHTML = dateString(doc.date, today, yesterday);
@@ -382,7 +382,7 @@ function formBubbleMessages(rows, limit, prepend) {
             console.log('limit reached');
             nextMessageEndKey = doc._id;
             return;
-        } 
+        }
         console.log('about to return bubble');
         return bubble;
     }));
@@ -3326,7 +3326,7 @@ ons.ready(function () {
                                                 eventName: eventDescription.eventName,
                                                 eventUsername: eventDescription.evtUsername
                                             };
-                                            
+
                                             $.ajax(apiAjax(apiAddress, eventCreationData))
                                                 .then(function (doc) {
                                                     console.log(doc);
@@ -3613,24 +3613,31 @@ ons.ready(function () {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     }
                     $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
-
+                    var evtSummaryBasesArray = [];
                     eventInfo.bases.forEach(function (base) {
 
-                        $('#evtSummaryBases').append('<p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>');
+                        var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>';
+
+                        // $('#evtSummaryBases').append('<p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>');
                         if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
                             message = 'no score available at this location';
                         } else {
                             message = base.baseMaxScore;
                         }
-
-                        $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>');
+                        baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
+                        // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>');
                         if (eventInfo.passwordProtectLogs) {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>');
+                            baseInformationSection += '<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
+                            // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>');
                         }
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
-                            $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
+                            baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
+                            // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
+                        baseInformationSection += '</div>';
+                        evtSummaryBasesArray.push(baseInformationSection);
                     });
+                    $('#evtSummaryBases').append(evtSummaryBasesArray);
 
                     //eventLogo update
                     Promise.resolve().then(function () {
@@ -3653,9 +3660,9 @@ ons.ready(function () {
                             animation: pageChangeAnimation,
                             data: navi.topPage.data,
                         };
-                        
+
                         var originPage = navi.pages[0].name;
-                        if ( originPage === 'loginPage.html' || originPage === 'admin.html') {
+                        if (originPage === 'loginPage.html' || originPage === 'admin.html') {
                             return navi.popPage();
                         } else {
                             return navi.resetToPage('loginPage.html', options);
@@ -3854,7 +3861,7 @@ ons.ready(function () {
                                                     //base names are put into array
                                                     baseNames.push(baseName);
                                                     //adds an option in the dropdown
-                                                    loginSelect.append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>')
+                                                    loginSelect.append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>');
                                                 });
                                             });
                                             dialog.show();
@@ -3904,7 +3911,7 @@ ons.ready(function () {
                                             cancelable: true
                                         };
                                     }
-                                    var baseCodeInput = baseCodeEl.val().toLowerCase();
+                                    var baseCodeInput = baseCodeEl.val().toLowerCase().trim();
                                     name = usernameEl.val();
                                     base = baseCodes.indexOf(baseCodeInput);
 
@@ -3925,7 +3932,7 @@ ons.ready(function () {
                                             cancelable: true,
                                             placeholder: 'Enter admin code here'
                                         }).then(function (input) {
-                                            if (input.toLowerCase() !== eventInfo.adminPassword) {
+                                            if (input.toLowerCase().trim() !== eventInfo.adminPassword) {
                                                 throw {
                                                     title: 'Admin code Error',
                                                     message: 'Please try re-entering your admin code, the code you entered was incorrect.',
@@ -5255,7 +5262,7 @@ ons.ready(function () {
                                     endkey: 'message',
                                     startkey: nextMessageEndKey,
                                     descending: true,
-                                    limit: 5
+                                    limit: 10
                                 };
                                 return addMessages(pouch, messageWindow, messagePageContent, options, true, true, false, scroll1)
                                     .then(function (doc) {
@@ -5297,13 +5304,13 @@ ons.ready(function () {
                 // $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
                 //hides the scrollToBottomFab
                 scrollToBottomFab[0].hide();
-                //add messages to screen
+                //add messages to screen on page change
                 var options = {
                     include_docs: true,
                     endkey: 'message',
                     startkey: 'message\ufff0',
                     descending: true,
-                    limit: 10
+                    limit: 25
                 };
                 addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
                 //messageInput

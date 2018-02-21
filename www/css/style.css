@@ -98,6 +98,14 @@ input:checked + .switch__toggle{
   background: #ff9100;
   border: 1px solid #ff9100;
 }
+.checkbox__checkmark:after{
+    top: 7.5px;
+    left: 5.5px;
+}
+.checkbox--material__input:checked + .checkbox--material__checkmark:after{
+    top:5px;
+    left:4px;
+}
 
 .button,ons-list-item{
     cursor: pointer;
@@ -105,6 +113,15 @@ input:checked + .switch__toggle{
 
 .ons-icon{
     font-size:22px;
+}
+
+.list__item__left:empty, .list__item__center{
+    margin:0px;
+    min-height:52px;
+}
+.list__item__right{
+    margin:0px;
+    min-height:52px;
 }
 
 /*
@@ -403,7 +420,7 @@ input:checked + .switch__toggle{
     text-overflow: ellipsis;
     overflow: hidden;
     margin: 0px;
-    line-height:24px;
+    line-height:18px;
 }
 
 
@@ -524,6 +541,10 @@ background-color:#efefef;
 
 #baseSelectDialog {
     padding: 16px;
+}
+
+#loginBaseSelect{
+    padding:0px;
 }
 
 #evtVersion {
@@ -974,6 +995,14 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Event Summary */
 
+#eventSummaryPage *:not(input):not(textarea):not(select){
+    user-select: text;
+}
+
+#eventSummaryPage .evtSendEmail {
+    user-select: none;
+}
+
 #evtSummaryEvtUser {
     margin-top: 16px;
     /* border: 1px #000 solid; */
@@ -1013,7 +1042,11 @@ input[type=number]::-webkit-outer-spin-button {
 .evtSummaryBasesTitle {
     margin-bottom: 6px;
     margin-top: 16px;
-    font-size: 15px;
+    font-size: 16px;
+}
+
+.baseSummaryInfo{
+    border-bottom:solid 1px #e2e2e2;
 }
 
 
