@@ -395,6 +395,35 @@
                 <div class="eventItemSpacer"></div>
               </div>
             </div>
+            <div id="enabletracking">
+              <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
+              <div class="flex flexRow flexAlignFlexStart">
+
+                <div class="eventItemTitle bold h3NoStyling tracking">
+                  Tracking server
+                </div>
+
+                <div class="eventItemSwitch">
+                  <ons-switch id="trackingSwitch"></ons-switch>
+                </div>
+
+              </div>
+              <div class="flex flexRow flexAlignFlexStart tracking">
+                <div class="eventItemCaption">
+                  <p class="caption">
+                    Turning this on will enable the use of location services when creating a log, this remains at the user's discretion and only
+                    applies to checkpoints which have geolocation turned on below.
+                  </p>
+                  <p class="caption">
+                    Enter the url of your tracking server below to receive tracking updates via the OsmAnd protocol:
+                  </p>
+                </div>
+
+                <div class="eventItemSpacer"></div>
+              </div>
+            </div>
+            <ons-input id="trackingUrl" modifier="underbar" placeholder="http://yourdomain:portnumber" float type="text" class="fullWidthInput"
+              disabled></ons-input>
           </div>
           <h2 class="txtLeft bold borderBottom">Admin</h2>
           <div class="flex flexRow flexSpaceBetween marginTop">
@@ -410,10 +439,10 @@
           </div>
           <p class="caption txtLeft">Passcode required to enter the admin area of the event, to be able to view all logs from all bases and administrate
             the event. </p>
-          <h2 class="txtLeft bold borderBottom">Bases</h2>
+          <h2 class="txtLeft bold borderBottom">Checkpoints</h2>
           <div class="baseSetUp">
-            <p class="txtLeft bold">Base 1</p>
-            <ons-input id="base1Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input>
+            <p class="txtLeft bold">Checkpoint 1</p>
+            <ons-input id="base1Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input>
             <div class="flex flexRow flexSpaceBetween marginTop">
               <div class="caption">
                 <span class="bold">Maximum score available</span>
@@ -430,7 +459,7 @@
             <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
 
-          <ons-button modifier="large" class="addBaseButton secondaryColorButton marginTop marginBottom">Add Another Base</ons-button>
+          <ons-button modifier="large" class="addBaseButton secondaryColorButton marginTop marginBottom">Add Another Checkpoint</ons-button>
 
         </form>
       </div>
