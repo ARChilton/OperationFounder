@@ -4103,7 +4103,7 @@ ons.ready(function () {
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
                         $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Show base instructions</div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
-                        $('#instructions').append('<div id="baseInstructions" class="hide baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
+                        $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
                             $('#baseInstructions').slideToggle(500);
