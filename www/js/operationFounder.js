@@ -117,6 +117,7 @@ var patrolRecord = [];
 var patrolRecordAdmin = [];
 var offRouteIndex = [];
 var offRouteIndexAdmin = [];
+var geolocation = localStorage.geolocation;
 //page change animation
 var pageChangeAnimation = 'none';
 /**
@@ -175,7 +176,7 @@ function checkForMessagesSinceSeqNo(db, seqNo) {
         .then(function (doc) {
             nextSeq = doc.last_seq;
             return doc.results.filter(function (result) {
-                console.log(result);
+                // console.log(result);
                 return messageChk.test(result.id) && !result.deleted; //tests the id has message in it
             });
         });
@@ -2960,21 +2961,16 @@ ons.ready(function () {
                     var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Base ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword maxWidth50per" required></ons-input></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
-                /**
-                 * a function to show or hide the password inputs
-                 * @param {Bool} trueOrFalse 
-                 */
-                function hidePasswordEntry(trueOrFalse) {
-                    switch (trueOrFalse) {
-                        //hides the password input
-                        case true:
-                            $('.basePasswordShowHide').addClass('hide');
-                            break;
-                        case false:
-                            $('.basePasswordShowHide').removeClass('hide');
-                            break;
-                    }
+
+                function switchAndHideToggle(elementSwitch, elementsToHide, trueOrFalse) {
+                    toggleProp(elementSwitch, 'checked', trueOrFalse);
+                    hideElement(!trueOrFalse, elementsToHide);
                 }
+
+                function toggleProp(element, prop, trueOrFalse) {
+                    return element.prop(prop, trueOrFalse);
+                }
+
                 /**
                  * creates the eventDescription variable in the higher scope
                  */
@@ -2989,6 +2985,8 @@ ons.ready(function () {
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
                         autoTime: $('#autoTimeSwitch').prop("checked"),
+                        tracking: $('#trackingSwitch').prop("checked"),
+                        trackingUrl: $('#trackingUrl').val().trim(),
                         adminPassword: $('#adminPassword').val(),
                         evtUsername: $('#evtUsername').val(),
                         bases: [{
@@ -3061,6 +3059,8 @@ ons.ready(function () {
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
                         $('#autoTimeSwitch').prop("checked", eventInfo.autoTime);
+                        $('#trackingSwitch').prop("checked", eventInfo.tracking);
+                        $('#trackingUrl').val(eventInfo.trackingUrl).prop("disabled", !eventInfo.tracking);
                         $('#adminPassword').val(eventInfo.adminPassword);
                         $('#evtUsername').val(eventInfo.evtUsername).prop('disabled', true);
                         //base handling
@@ -3107,7 +3107,7 @@ ons.ready(function () {
                             console.log(err);
                         });
                         //lastly update whether password entries show or not
-                        hidePasswordEntry(!eventInfo.passwordProtectLogs);
+                        hideElement(!eventInfo.passwordProtectLogs, '.basePasswordShowHide');
                     }
                 }
                 //Other Event Handlers
@@ -3132,23 +3132,27 @@ ons.ready(function () {
                 if (!($('.passwordProtectLogs').hasClass('evtHandler'))) {
                     $('.passwordProtectLogs').addClass('evtHandler').on('click', function () {
                         var passwordSwitch = $('#passwordSwitch');
-                        switch (passwordSwitch.prop("checked")) {
-                            //changes the switch and hides the password input
-                            case true:
-                                passwordSwitch.prop('checked', false);
-                                $('.basePasswordShowHide').addClass('hide');
-                                break;
-                            case false:
-                                passwordSwitch.prop('checked', true);
-                                $('.basePasswordShowHide').removeClass('hide');
-                                break;
-                        }
+                        var elementsToHide = '.basePasswordShowHide';
+                        switchAndHideToggle(passwordSwitch, elementsToHide, !passwordSwitch.prop("checked"));
                     });
                 }
 
                 if (!($('#passwordSwitch').hasClass('evtHandler'))) {
                     $('#passwordSwitch').addClass('evtHandler').on('change', function () {
-                        hidePasswordEntry(!$('#passwordSwitch').prop("checked"));
+                        hideElement(!$('#passwordSwitch').prop("checked"), '.basePasswordShowHide');
+                    });
+                }
+                if (!($('.tracking').hasClass('evtHandler'))) {
+                    $('.tracking').addClass('evtHandler').on('click', function () {
+                        var elSwitch = $('#trackingSwitch');
+                        var trackingUrl = $('#trackingUrl');
+                        toggleProp(elSwitch, 'checked', !elSwitch.prop('checked'));
+                        toggleProp(trackingUrl, 'disabled', !trackingUrl.prop('disabled'));
+                    });
+                }
+                if (!($('#trackingSwitch').hasClass('evtHandler'))) {
+                    $('#trackingSwitch').addClass('evtHandler').on('change', function () {
+                        hideElement(!$('#trackingSwitch').prop("checked"), '.trackingShowHide');
                     });
                 }
 
@@ -3182,6 +3186,7 @@ ons.ready(function () {
                         }
                     });
                 }
+
                 if (!($('#evtUsername').hasClass('evtHandler'))) {
                     $('#evtUsername').addClass('evtHandler').on('blur', function () {
 
@@ -3672,7 +3677,7 @@ ons.ready(function () {
                                     }
                                     return options = {
                                         title: 'Email Sent',
-                                        messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the app or website.</p>',
+                                        messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the website.</p>',
                                         cancelable: true
                                     };
                                 }).then(function (options) {
@@ -4259,6 +4264,49 @@ ons.ready(function () {
                     return console.warn(err);
                 });
                 checkForNewMessagesOnPageLoad(basedb, dbSeqNumber);
+
+                if (eventInfoBase.geolocation && typeof geolocation === 'undefined') {
+                    var options = {
+                        title: 'Location',
+                        messageHTML: '<p class="txtJustify">The event organiser has set this base to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
+                        cancelable: true
+                    };
+                    ons.notification.alert(options)
+                        .then(function () {
+                            return getPosition();
+                        })
+                        .then(function (location) {
+                            console.log(location);
+                            var options = {
+                                title: 'Your current location',
+                                messageHTML: '<p class="txtJustify">Thank you for accepting geolocation privaldges, your current location is shown below:</p><div><p class="txtCenter">lat: ' + location.coords.latitude + '</p><p class="txtCenter">lon: ' + location.coords.longitude + '</p><p class="txtCenter">Accuracy: ' + location.coords.accuracy + 'm</p></div>',
+                                cancelable: true
+                            };
+                            if (location.coords.accuracy > 100) {
+                                options.messageHTML += '<p class="caption txtJustify">Accuracy will improve as the GPS finds satelites.</p>'
+                            }
+                            return options;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                            return options = {
+                                title: 'Location Failed',
+                                message: 'If you did not accept to allow for locations, if you change your mind you can do so from your browser settings. If not then it seems your browser cannot utilise geolocation.',
+                                cancelable: true
+                            };
+
+                        }).then(function (options) {
+                            if (options.title === 'Location Failed') {
+                                geolocation = 'rejected';
+                                localStorage.geolocation = 'rejected';
+                            } else {
+                                geolocation = 'accepted';
+                                localStorage.geolocation = 'accepted';
+                            }
+
+                            return ons.notification.alert(options);
+                        });
+                }
 
 
 
@@ -5745,10 +5793,44 @@ function isScrolledIntoView(el) {
     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
     return isVisible;
 }
-
+/**
+ * Adds a zero for times under 10
+ * @param {number} i 
+ */
 function addZero(i) {
     if (i < 10) {
         i = '0' + i;
     }
     return i;
+}
+
+/**
+ * @param {object} options
+ */
+var getPosition = function (options) {
+    return new Promise(function (resolve, reject) {
+        var options = {
+            // timeout: 10,
+            enableHighAccuracy: true,
+            // maximumAge: Infinity
+        };
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+}
+
+/**
+ * a function to show or hide the password inputs
+ * @param {Bool} trueOrFalse
+ * @param {object} elementRef the jquery element reference to be hidden or shown
+ */
+function hideElement(trueOrFalse, elementRef) {
+    switch (trueOrFalse) {
+        //hides the password input
+        case true:
+            $(elementRef).addClass('hide');
+            break;
+        case false:
+            $(elementRef).removeClass('hide');
+            break;
+    }
 }
