@@ -453,8 +453,14 @@
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
               <div class="caption bold">Base password *</div>
-              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword maxWidth50per"
+              <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword"
                 required></ons-input>
+            </div>
+            <div class="flex flexRow flexSpaceBetween marginTop">
+              <div class="caption bold">Record location with logs</div>
+              <div class="geolocationSwitch">
+                <ons-switch id="base1GeolocationSwitch"></ons-switch>
+              </div>
             </div>
             <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
@@ -510,14 +516,14 @@
               <span class="bold sentanceCase">End Date: </span>
             </p>
             <p id="evtSummaryBaseCount" class="">
-              <span class="bold sentanceCase">Bases: </span>
+              <span class="bold sentanceCase">Number of Checkpoints: </span>
             </p>
             <p id="evtSummaryDescription" class="">
               <span class="bold sentanceCase">Event Description: </span>
               <br>
             </p>
           </div>
-          <div id="evtSummaryAdminContainer">
+          <!-- <div id="evtSummaryAdminContainer">
             <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
             <div id="evtSummaryAdminDetails">
               <p id="" class="">
@@ -525,9 +531,9 @@
                 <span id="evtSummaryAdminPass" class="passwordFont"></span>
               </p>
             </div>
-          </div>
+          </div> -->
           <div id="evtSummaryBasesContainer">
-            <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Bases</h2>
+            <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryBasesTitle">Checkpoints</h2>
             <div id="evtSummaryBases"></div>
           </div>
         </div>

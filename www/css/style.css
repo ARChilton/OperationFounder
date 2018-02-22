@@ -1055,9 +1055,26 @@ input[type=number]::-webkit-outer-spin-button {
 
 .baseSummaryInfo{
     border-bottom:solid 1px #e2e2e2;
+    position:relative;
+}
+
+.baseSummaryIcons{
+    position: absolute;
+    top:0px;
+    right:0px;
+    color:#ccc;
+    font-size: 25px;
+    line-height:25px;
+}
+.baseSummaryIcons ons-icon{
+    padding-left:4px;
 }
 
 
+.baseSummaryIconActive{
+    /* color:#FF9100; */
+    color:#FFB74D;
+}
 /* --- Message CSS --- */
 
 
