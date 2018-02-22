@@ -1243,7 +1243,7 @@ function editLog(logs) {
                         var tIn = new Date(doc.timeIn);
                         var tOut = new Date(doc.timeOut);
                         $('#patrolNo').val(doc.patrol);
-                                               $('#timeIn').val(addZero(tIn.getHours()) + ':' + addZero(tIn.getMinutes()));
+                        $('#timeIn').val(addZero(tIn.getHours()) + ':' + addZero(tIn.getMinutes()));
                         $('#timeOut').val(addZero(tOut.getHours()) + ':' + addZero(tOut.getMinutes()));
                         $('#wait').val(doc.timeWait);
                         $('#total').val(doc.totalScore);
@@ -3587,7 +3587,7 @@ ons.ready(function () {
                     var evtStart = new Date(eventInfo.dateStart);
                     var evtEnd = new Date(eventInfo.dateEnd)
 
-                    $('#evtSummaryStartDate').append(addZero(evtStart.getHours()) + ':' +addZero(evtStart.getMinutes()) + ' on ' + evtStart.toDateString());
+                    $('#evtSummaryStartDate').append(addZero(evtStart.getHours()) + ':' + addZero(evtStart.getMinutes()) + ' on ' + evtStart.toDateString());
                     $('#evtSummaryEndDate').append(addZero(evtEnd.getHours()) + ':' + addZero(evtEnd.getMinutes()) + ' on ' + evtEnd.toDateString());
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
@@ -4102,11 +4102,15 @@ ons.ready(function () {
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left">Show base instructions</div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
+                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left"><span id="baseInstructionsShowHideWord">Hide base instructions</span></div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
                             $('#baseInstructions').slideToggle(500);
+                            var showHideWord = $('#baseInstructionsShowHideWord');
+                            showHideWord.html() === 'Hide base instructions'
+                                ? showHideWord.html('Show base instructions')
+                                : showHideWord.html('Hide base instructions');
                         });
                     }
                     //hides score entry if there is no maximum base score
