@@ -3601,7 +3601,7 @@ ons.ready(function () {
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
                     if(eventInfo.tracking){
-                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span></p>')
+                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl +'</span></p>')
                     }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
@@ -3627,16 +3627,16 @@ ons.ready(function () {
                           baseSummaryPasswordClass = activeClass;
                         }
                       baseSummaryIcons += '<ons-icon icon="fa-lock" class="'+baseSummaryPasswordClass+'"></ons-icon>';
-                        if(eventInfo.tracking){
+                        
                           var locationClass = '';
-                          var locationMessage = 'No';
+                          var locationMessage = 'no';
                           if(base.baseGeolocation){
-                            locationMessage = 'Yes';
+                            locationMessage = 'yes';
                             locationClass += activeClass;
                           }
                           baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">'+locationMessage+'</span></p>';
                           baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass +'"></ons-icon>'
-                        }
+                        
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
                             // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
@@ -5887,7 +5887,7 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     console.log(log);
     console.log(trackingUrl)
     if (!trackingOn) {
-        return;
+        return log;
     }
     // var dataPackage = {
     //     id:pRef +'-'+ log.patrol,
