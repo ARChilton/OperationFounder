@@ -16,6 +16,8 @@
  */
 
  /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false */
+ /*exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary*/
+
 //dev variables
 // var arcGlobal = {};
 
@@ -101,6 +103,7 @@ var bingOS = L.tileLayer.bing({
 }); */
 // var currentLocation;
 // var location;
+
 // login variables
 var base;
 var name;
@@ -1438,7 +1441,7 @@ function changeAtSymbolBack(email) {
  * Adds the current log in session to the appdb pouch database, utilises the base and name variables established via the log in process
  * @param {*} doc - the document previouts got via the db.get(<_id>) functionality
  */
-function loginPut(doc) {
+/* function loginPut(doc) {
     var timestamp = new Date().toISOString();
     return appdb.put({
         _id: doc._id,
@@ -1447,7 +1450,7 @@ function loginPut(doc) {
         name: name,
         timestamp: timestamp
     });
-}
+} */
 /**
  * Page change handled when log out is performed and resets the log in page except it keeps the name
  */
@@ -1501,10 +1504,12 @@ function closeDatabases() {
 
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
+ * Used by the menu
  */
 function baseLogOut() {
+    var options;
     if (navi.topPage.data.firstPage) {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
             data: {
                 eventInfo: navi.topPage.data.eventInfo
@@ -1512,7 +1517,7 @@ function baseLogOut() {
         };
         navi.replacePage('loginPage.html', options);
     } else {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
         }
         navi.popPage(options);
@@ -1539,6 +1544,7 @@ function baseLogOut() {
 }
 /**
  * sign out of the session and return to the sign in screen
+ * Used by the menu
  */
 function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
@@ -1641,6 +1647,7 @@ function apiAjax(apiAddress, dataPackage) {
 /**
  * A function to set the base code value when using the dropdown menu.
  * @param {*} value the value to be set as the base code's value
+ * Used in the imported select base list dialog
  */
 function baseSelectValue(value) {
     document.getElementById('baseSelectDialog').hide();
@@ -1652,13 +1659,14 @@ function baseSelectValue(value) {
  * @param {object} data the data object to be passed to the next page
  */
 function loginAndRunFunction(base, data) {
+    var options;
     if (data != undefined) {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
             data: data
         }
     } else {
-        var options = {
+        options = {
             animation: pageChangeAnimation
         }
     }
@@ -1670,7 +1678,6 @@ function loginAndRunFunction(base, data) {
         case -1:
             // --- incorrect login information
             alert('incorrect login information saved, please log in again');
-            console.log(err);
             navi.bringPageTop('loginPage.html', options);
             break;
         case 0:
@@ -1917,9 +1924,9 @@ ons.ready(function () {
     /**
      *  closes the menu
      */
-    function closeMenu() {
+    /* function closeMenu() {
         document.getElementById('menu').toggle();
-    }
+    } */
     $(document).on("click", '.menuButton', function () {
         openMenu();
     })
@@ -1968,9 +1975,9 @@ ons.ready(function () {
                             console.log(loginEvtsSorted);
                             // doc.currentDb = lastDb;
                             appdb.put(doc)
-                                .then(function (info) {
+                                .then(function() {
                                     return appdb.compact();
-                                }).then(function (info) {
+                                }).then(function() {
                                     //TODO ARC 04/01/2018 event description not downloading
                                     var event = compareTwoArrays(usrRolesSorted, loginEvtsSorted, true);
                                     console.log(event);
@@ -2033,14 +2040,15 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
+                var pageDestination;
                 if (typeof doc.lastBase === 'number') {
                     if (doc.lastBase === 0) {
-                        var pageDestination = 'admin.html';
+                        pageDestination = 'admin.html';
                     } else {
-                        var pageDestination = 'page1.html';
+                        pageDestination = 'page1.html';
                     }
                 } else {
-                    var pageDestination = 'loginPage.html';
+                    pageDestination = 'loginPage.html';
                 }
 
                 return navi.bringPageTop(pageDestination, {
@@ -2078,40 +2086,39 @@ ons.ready(function () {
 
 
 
+    /**
+             * Offline event callback function
+             */
+    function onOffline() {
+        // Handle the offline event
+        $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+        $('.offlineMap').html('Local Map - Offline');
+    }
+    /**
+         * Event following the return to being online
+         */
+    function onOnline() {
+        // Handle the online event
+        $('.offlineMessage').remove();
+        $('.offlineMap').html('Local Map');
 
+
+        //alert('congrats you are online, connected via: ' + checkConnection());
+
+    }
 
     if (ons.platform.isWebView()) {
-
         /**
          * Event listener for going offline
          *@event offline - when the device to go offline (webView only)
          */
         document.addEventListener("offline", onOffline, false);
-        /**
-         * Offline event callback function
-         */
-        function onOffline() {
-            // Handle the offline event
-            $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
-            $('.offlineMap').html('Local Map - Offline');
-        }
+        
         /**
          * Event listener for device going back online
          * @event online - the device goes online (webView only)
          */
-        document.addEventListener("online", onOnline, false);
-        /**
-         * Event following the return to being online
-         */
-        function onOnline() {
-            // Handle the online event
-            $('.offlineMessage').remove();
-            $('.offlineMap').html('Local Map');
-
-
-            //alert('congrats you are online, connected via: ' + checkConnection());
-
-        }
+        document.addEventListener("online", onOnline, false);        
     }
 
     /**
@@ -2123,11 +2130,10 @@ ons.ready(function () {
             case true:
                 $('#' + page + ' .progressBar').removeClass('hide');
                 return true;
-                break;
+                
             case false:
                 $('#' + page + ' .progressBar').addClass('hide');
-                return false;
-                break;
+                return false;                
         }
     }
     /**
@@ -2138,14 +2144,15 @@ ons.ready(function () {
      * @returns {boolean} true for an update, false already up to date
      */
     function replicateOnce(event, doc_ids, replicateToRemote) {
+        var db1, db2;
         if (!replicateToRemote) {
             //replicating to local event db
-            var db2 = new PouchDB(event); //local
-            var db1 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+            db2 = new PouchDB(event); //local
+            db1 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
         } else {
             //replicating to remote event db
-            var db1 = new PouchDB(event); //local
-            var db2 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+            db1 = new PouchDB(event); //local
+            db2 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
         }
         var options = {
             doc_ids: doc_ids
@@ -2203,11 +2210,11 @@ ons.ready(function () {
      */
     var sort_by = function (field, reverse, primer) {
 
-        var key = primer ?
-            function (x) {
+        var key = primer 
+        ? function (x) {
                 return primer(x[field])
-            } :
-            function (x) {
+            } 
+        : function (x) {
                 return x[field]
             };
 
@@ -2230,9 +2237,10 @@ ons.ready(function () {
      * Very important section as this defines what happens when a page changes and when certain pages are loaded
      * @event postpush - when a page is changed or pushed
      */
-    document.addEventListener('postpush', function (event) {
+    document.addEventListener('postpush', function () {
         console.log('page pushed ' + navi.topPage.name);
         console.log(navi.pages);
+        var eventInfo;
         switch (navi.topPage.name) {
             //--- Create Event Page ---
             case 'signInPage.html':
@@ -2308,7 +2316,7 @@ ons.ready(function () {
                                             login.couchdb = couchdb;
                                             //update 'login' info
                                             return appdb.put(login)
-                                                .then(function (info) {
+                                                .then(function () {
                                                     return doc;
                                                 })
                                                 .catch(function (err) {
@@ -2366,10 +2374,11 @@ ons.ready(function () {
                                 var page;
                                 Promise.resolve().then(function () {
                                     if (doc.evtOrganiser && doc.verification.verified || !doc.evtOrganiser) {
+                                        var tempdb;
                                         switch (db.length) {
                                             case 1:
                                                 page = 'loginPage.html';
-                                                var tempdb = new PouchDB(db[0]);
+                                                tempdb = new PouchDB(db[0]);
                                                 return tempdb.get('eventDescription')
                                                     .then(function (event) {
 
@@ -2385,8 +2394,6 @@ ons.ready(function () {
                                                         console.log(err);
                                                         throw err;
                                                     });
-
-                                                break;
                                             case 0:
                                                 if (doc.evtOrganiser) {
                                                     page = 'createEventPage.html';
@@ -2401,14 +2408,13 @@ ons.ready(function () {
                                                     return false;
 
                                                 }
-                                                break;
 
                                             default:
                                                 if (lastDb != 'false' && lastDb != undefined) {
                                                     page = 'loginPage.html';
                                                     var event = db.indexOf(lastDb);
                                                     if (event > -1) {
-                                                        var tempdb = new PouchDB(db[event]);
+                                                        tempdb = new PouchDB(db[event]);
                                                         return tempdb.get('eventDescription')
                                                             .then(function (event) {
 
@@ -2438,17 +2444,15 @@ ons.ready(function () {
                                     }
                                 }).then(function (data) {
                                     console.log(data);
-                                    if (data === false) {
-                                        var options = {
+                                    var options = !data
+                                        ? {
                                             animation: pageChangeAnimation
                                         }
-                                    } else {
-                                        var options = {
-                                            animation: pageChangeAnimation,
+                                        : {
+                                        animation: pageChangeAnimation,
                                             data: data
                                         }
-                                        return navi.resetToPage(page, options);
-                                    }
+                                    
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
                                     console.log(err);
@@ -2491,7 +2495,7 @@ ons.ready(function () {
                                             message: "Couldn't connect to server because this device is offline.",
                                             cancelable: true
                                         });
-                                        break;
+
                                     default:
                                         return ons.notification.alert({
                                             title: 'Error',
@@ -2803,13 +2807,13 @@ ons.ready(function () {
                             username: username
                         };
                         $.ajax(apiAjax(url, dataPackage))
-                            .then(function (doc) {
+                            .then(function () {
                                 ons.notification.alert({
                                     title: 'Email sent',
                                     message: 'Your new verification email has been sent',
                                     cancelable: true
                                 });
-                            }).catch(function (err) {
+                            }).catch(function () {
                                 ons.notification.alert({
                                     title: 'Error',
                                     message: 'There was an issue re-sending your verification email, please try again',
@@ -2820,7 +2824,7 @@ ons.ready(function () {
                 }
                 //need to add a resend email function
                 break;
-            case 'createEventPage.html':
+            case 'createEventPage.html': {
 
                 //variables
                 var evtUsernameUnique = false;
@@ -2838,17 +2842,19 @@ ons.ready(function () {
                  * function to check if the password is unique
                  * @param {*} thisPass 
                  */
-                function passwordCheck(thisPass) {
+                var passwordCheck = function(thisPass) {
                     //variables
                     var passElement = $(thisPass);
                     var pass = $(thisPass).val();
                     var index;
                     var error;
+                    var basePassIndex;
                     //function code
                     //check the password has a value
                     if (pass != '') {
                         //check if password is in the array of passwords
                         index = passwordArray.indexOf(pass);
+                        
                         if (index > -1) {
                             error = false;
                             //need to check if the password is being used by the current base in which case there is no issue otherwise it is an error
@@ -2857,7 +2863,7 @@ ons.ready(function () {
                                 // if it has changed there is an issue otherwise do nothing
                                 if (passwordObject[thisPass.id] != pass) {
                                     error = true;
-                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                     passwordArray.splice(basePassIndex, 1);
                                     delete passwordObject[thisPass.id];
                                 }
@@ -2880,7 +2886,7 @@ ons.ready(function () {
 
                                 // if it has changed, remove old password and update with new
                                 if (passwordObject[thisPass.id] != pass) {
-                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                     passwordArray.splice(basePassIndex, 1);
                                     passwordObject[thisPass.id] = pass;
                                     passwordArray.push(pass);
@@ -2897,7 +2903,7 @@ ons.ready(function () {
                             console.log('6');
                             // if it has changed there is an issue otherwise do nothing
                             if (passwordObject[thisPass.id] != pass) {
-                                var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                 passwordArray.splice(basePassIndex, 1);
                                 delete passwordObject[thisPass.id];
                             }
@@ -2911,7 +2917,7 @@ ons.ready(function () {
                  * @param {object} inputFile needs to be found using plain js
                  * @returns {string} returns a url promise
                  */
-                function fileUpload(inputFile) {
+                var fileUpload = function(inputFile) {
                     return new Promise(function (resolve, reject) {
                         //make file into a blob
                         getFile = inputFile.files[0]; //getFile is a blob
@@ -2941,24 +2947,24 @@ ons.ready(function () {
                  * function to add a base before the add base button
                  * @param {number|string} baseCount 
                  */
-                function addBase(baseCount) {
+                var addBase = function(baseCount) {
                     var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
 
-                function switchAndHideToggle(elementSwitch, elementsToHide, trueOrFalse) {
+                var switchAndHideToggle = function(elementSwitch, elementsToHide, trueOrFalse) {
                     toggleProp(elementSwitch, 'checked', trueOrFalse);
                     hideElement(!trueOrFalse, elementsToHide);
                 }
 
-                function toggleProp(element, prop, trueOrFalse) {
+                var toggleProp = function(element, prop, trueOrFalse) {
                     return element.prop(prop, trueOrFalse);
                 }
 
                 /**
                  * creates the eventDescription variable in the higher scope
                  */
-                function createEventDescription() {
+                var createEventDescription = function() {
                   var trackingUrl = $('#trackingUrl').val().trim();
                     eventDescription = {
                         _id: 'eventDescription',
@@ -2987,7 +2993,7 @@ ons.ready(function () {
                  * @param {boolean} passwordProtectLogs true or false whether the bases will have a password upon entry
                  * @param {object} eventDescription event description to add the base information to
                  */
-                function addBasesToEvtDescription(baseCount, passwordProtectLogs, eventDescription) {
+                var addBasesToEvtDescription = function(baseCount, passwordProtectLogs, eventDescription) {
                     for (var i = 1, l = baseCount + 1; i < l; i++) {
 
                         var baseInfo = {
@@ -3014,8 +3020,6 @@ ons.ready(function () {
                                 return false;
                             });
 
-                            break;
-                            console.log('shouldnt see me');
                         } else {
                             eventDescription.bases.push(baseInfo);
                             passwordsOk = true;
@@ -3030,7 +3034,7 @@ ons.ready(function () {
                         editEvent = true;
                         var pattern = /\W/g;
                         var version;
-                        var eventInfo = pageData.eventInfo;
+                        eventInfo = pageData.eventInfo;
                         if (typeof eventInfo._rev === 'string') {
                             version = parseInt(eventInfo._rev.split(pattern)[0]) + 1;
                         } else {
@@ -3248,6 +3252,7 @@ ons.ready(function () {
                     $('#saveEvent').addClass('evtHandler').on('click', function () {
                         //TODO add checking and uploading event message
                         //TODO add loading bar
+                        var logo;
                         if (!editEvent) {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
@@ -3260,7 +3265,7 @@ ons.ready(function () {
                             }
                             if (getFile != false) {
 
-                                var logo = document.getElementById('eventBannerImage');
+                                logo = document.getElementById('eventBannerImage');
                                 Promise.resolve().then(function () {
                                     return downscaleImg(logo, 1922, 240);
                                 }).then(function (doc) {
@@ -3332,7 +3337,8 @@ ons.ready(function () {
                                                         remotedbURL = newRemotedbURL;
                                                         if (remotedbConnected) {
 
-                                                            return remotedb.close().then(function (doc) {
+                                                            return remotedb.close()
+                                                            .then(function () {
                                                                 return remotedbConnected = false;
                                                             }).catch(function (err) {
                                                                 console.log(err);
@@ -3372,9 +3378,9 @@ ons.ready(function () {
                                                                 throw err;
                                                             }
                                                         });
-                                                }).then(function (doc) {
+                                                }).then(function () {
                                                     return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
-                                                }).then(function (doc) {
+                                                }).then(function () {
                                                     //adds a reference to the event description by adding the db to the list of the user's dbs
                                                     return addAppdbLoginDb(eventDescription.dbName);
                                                 }).then(function (doc) {
@@ -3416,7 +3422,7 @@ ons.ready(function () {
                             //update rather than save
                             //variables required outside the promises
                             var tempdb = new PouchDB(eventInfo.dbName);
-                            var logo = document.getElementById('eventBannerImage');
+                            logo = document.getElementById('eventBannerImage');
                             ons.notification.confirm({
                                 title: 'Update Event',
                                 message: 'Are you sure you want to update ' + eventInfo.eventName,
@@ -3539,7 +3545,7 @@ ons.ready(function () {
                                 };
 
                                 return navi.resetToPage('eventSummaryPage.html', options);
-                            }).then(function (doc) {
+                            }).then(function () {
                                 var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
                                 tempRemotedb.compact();
                                 return closeDatabases();
@@ -3561,13 +3567,14 @@ ons.ready(function () {
                 }
                 //end of create event page
                 break;
-            case 'eventSummaryPage.html':
+            }
+            case 'eventSummaryPage.html': {
                 var eventName = navi.topPage.data.eventName;
-                var url = navi.topPage.data.url;
+                url = navi.topPage.data.url;
                 if (typeof navi.topPage.data.eventInfo === 'object') {
-                    var eventInfo = navi.topPage.data.eventInfo
+                    eventInfo = navi.topPage.data.eventInfo
                 } else {
-                    var eventInfo = eventDescription;
+                    eventInfo = eventDescription;
                 }
                 console.log(eventInfo);
 
@@ -3584,8 +3591,8 @@ ons.ready(function () {
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
-                    if(eventInfo.tracking){
-                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl +'</span></p>')
+                    if (eventInfo.tracking) {
+                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>')
                     }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
@@ -3594,7 +3601,7 @@ ons.ready(function () {
                     var evtSummaryBasesArray = [];
                     eventInfo.bases.forEach(function (base) {
                         var maxScoreClass = '';
-                      var baseSummaryPasswordClass='';
+                      var baseSummaryPasswordClass = '';
                       var activeClass = 'baseSummaryIconActive';
                         var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
                       var baseSummaryIcons = '<div class="baseSummaryIcons">'
@@ -3604,28 +3611,28 @@ ons.ready(function () {
                             message = base.baseMaxScore;
                           maxScoreClass = activeClass;                           
                         }
-                      baseSummaryIcons += '<ons-icon icon="fa-trophy" class="'+maxScoreClass+'"></ons-icon>';
+                      baseSummaryIcons += '<ons-icon icon="fa-trophy" class="' + maxScoreClass + '"></ons-icon>';
                         baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
                         if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
                             baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
                           baseSummaryPasswordClass = activeClass;
                         }
-                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="'+baseSummaryPasswordClass+'"></ons-icon>';
+                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="' + baseSummaryPasswordClass + '"></ons-icon>';
                         
                           var locationClass = '';
                           var locationMessage = 'no';
-                          if(base.baseGeolocation){
+                          if (base.baseGeolocation) {
                             locationMessage = 'yes';
                             locationClass += activeClass;
                           }
-                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">'+locationMessage+'</span></p>';
-                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass +'"></ons-icon>'
+                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">' + locationMessage + '</span></p>';
+                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>'
                         
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
                             // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
-                      baseInformationSection += baseSummaryIcons +'</div></div>';
+                      baseInformationSection += baseSummaryIcons + '</div></div>';
                         evtSummaryBasesArray.push(baseInformationSection);
                     });
                     $('#evtSummaryBases').append(evtSummaryBasesArray);
@@ -3704,6 +3711,7 @@ ons.ready(function () {
                 }
 
                 break;
+            }
 
             // --- Log in Page ---
 
@@ -5859,7 +5867,7 @@ function addZero(i) {
 /**
  * @param {object} options
  */
-var getPosition = function (){
+var getPosition = function () {
   return new Promise(function (resolve, reject) {
     var options = {
       // timeout: 10,
