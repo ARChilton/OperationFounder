@@ -5863,7 +5863,7 @@ function addZero(i) {
 /**
  * @param {object} options
  */
-var getPosition = function (options) {
+var getPosition = function (){
   return new Promise(function (resolve, reject) {
     var options = {
       // timeout: 10,
@@ -5892,7 +5892,7 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     score: log.totalScore,
     offRoute: log.offRoute
   };
-  var settings = apiAjax(appServer + '/event/tracking', dataPackage);
+  var settings = apiAjax(appServer + 'api/event/tracking', dataPackage);
  
   console.log(settings);
   $.ajax(settings);
