@@ -14,6 +14,11 @@
  * @param {boolean | undefined} verified whether the user is verified
  * @param {number} dbSeqNumber
  */
+
+ /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false
+        Stripe:false */
+ /*exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
+
 //dev variables
 // var arcGlobal = {};
 
@@ -52,7 +57,7 @@ var password = localStorage.password;
 var lastDb = localStorage.lastDb;
 var couchdb = localStorage.couchdb;
 var http = localStorage.http;
-var db = localStorage.db;
+// var db = localStorage.db;
 //database names
 var adminDatabaseName;
 var baseDatabaseName;
@@ -99,12 +104,13 @@ var bingOS = L.tileLayer.bing({
 }); */
 // var currentLocation;
 // var location;
+
 // login variables
 var base;
-var name;
+var personName;
 
 //table variables
-var tableId;
+
 var tableLogId;
 // Quick submit variables
 var sqPatrol;
@@ -447,13 +453,13 @@ function orientationUpdates() {
  * destroys basedb and opFounderAppDb
  */
 function destroyPouchDBs() {
-    var x = new PouchDB(baseDatabaseName).destroy().then(function () {
+    new PouchDB(baseDatabaseName).destroy().then(function () {
         ons.notification.alert(baseDatabaseName + '/basedb database destroyed');
     });
-    var y = new PouchDB(appDatabaseName).destroy().then(function () {
+     new PouchDB(appDatabaseName).destroy().then(function () {
         ons.notification.alert(appDatabaseName + '/opFounderAppDb database destroyed');
     });
-    var y = new PouchDB(adminDatabaseName).destroy().then(function () {
+    new PouchDB(adminDatabaseName).destroy().then(function () {
         ons.notification.alert(adminDatabaseName + '/admindb database destroyed');
     });
 
@@ -483,10 +489,8 @@ function cleanAll() {
                             _deleted: true
                         }
 
-                        admindb.put(
-                            deletedRecord,
-                            options
-                        ).catch(function (err) {
+                        admindb.put(deletedRecord)
+                        .catch(function (err) {
                             console.warn(err);
                         });
 
@@ -768,9 +772,10 @@ function cleanAll() {
  * @param {boolean} admin - true or false, are you using the admin page(true) or the base page (false or not present)
  */
 function patrolRecordUpdate(id, offRoute, admin) {
+    var index;
     if (admin) {
         if (!(offRoute)) {
-            var index = patrolRecordAdmin.indexOf(id);
+            index = patrolRecordAdmin.indexOf(id);
             //checks that it isn't an off route entry in which case we are happy to duplicate in the table
             if (index > -1) {
                 console.log('record already exists')
@@ -780,7 +785,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 return false;
             }
         } else {
-            var index = offRouteIndexAdmin.indexOf(id);
+            index = offRouteIndexAdmin.indexOf(id);
             if (index > -1) {
                 console.log('record already exists')
                 return true;
@@ -792,7 +797,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         }
     } else {
         if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
-            var index = patrolRecord.indexOf(id);
+            index = patrolRecord.indexOf(id);
             if (index > -1) {
                 return true;
             } else {
@@ -800,7 +805,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 return false;
             }
         } else {
-            var index = offRouteIndex.indexOf(id);
+            index = offRouteIndex.indexOf(id);
             if (index > -1) {
                 console.log(id + 'record already exists')
                 return true;
@@ -821,11 +826,12 @@ function patrolRecordUpdate(id, offRoute, admin) {
  * @return {boolean}
  */
 function removePatrolRecord(id, admin) {
-
+    var deleteIndex;
+    var offRouteDeleteIndex;
     switch (admin) {
         case true:
-            var deleteIndex = patrolRecordAdmin.indexOf(id);
-            var offRouteDeleteIndex = offRouteIndexAdmin.indexOf(id);
+            deleteIndex = patrolRecordAdmin.indexOf(id);
+            offRouteDeleteIndex = offRouteIndexAdmin.indexOf(id);
             if (deleteIndex > -1) {
                 patrolRecordAdmin.splice(deleteIndex, 1);
                 return true;
@@ -838,8 +844,8 @@ function removePatrolRecord(id, admin) {
             }
         //  break; //removed as the returns make this unreachable
         case false:
-            var deleteIndex = patrolRecord.indexOf(id);
-            var offRouteDeleteIndex = offRouteIndex.indexOf(id);
+            deleteIndex = patrolRecord.indexOf(id);
+            offRouteDeleteIndex = offRouteIndex.indexOf(id);
             if (deleteIndex > -1) {
                 patrolRecord.splice(deleteIndex, 1);
                 return true;
@@ -885,16 +891,6 @@ function editableStyling(editable, trId) {
     }
 }
 
-
-/**
- * a function to remove an exisiting record from a base
- * @param {string|number} id - database id
- * @param {boolean} admin - admin page or base page
- * @todo add delete functionality to the base page - this function is currently unused
- */
-function removeExisiting(id, admin) {
-    $('#' + id).remove();
-}
 /**
  * functions to update the table or row according to the update table function for the Base page's table
  * @param {string|number} dbId - _id in the database
@@ -905,10 +901,8 @@ function removeExisiting(id, admin) {
  * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
- * @param {string} tableId - base table or admin table
- * @param {string} tableLogId - the class of the row(unused in this function)
  */
-function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
+function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable) {
     var trId = dbId;
 
     $('#' + trId).html("<td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
@@ -926,10 +920,8 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
  * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
- * @param {string} tableId - base table or admin table
- * @param {string} tableLogId - the class of the row (unused in this function)
  */
-function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy) {
     var trId = dbId;
     //without checkboxes
     $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
@@ -1016,10 +1008,8 @@ function tableUpdateFunction(path, admin, array) {
 
     console.log(path.patrol + ' ' + path.base + ' ' + path._id);
     if (admin == true) {
-        // tableId = '#adminLogsTable';
         tableLogId = 'ad-log-';
     } else {
-        //tableId = '#logsTable'
         tableLogId = 'log-';
     }
     if (path.offRoute) { // stops off route logs being updated automatically
@@ -1027,9 +1017,9 @@ function tableUpdateFunction(path, admin, array) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username);
         } else {
-            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId));
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username));
         }
 
     } else if (path.base === getBaseNumber()) {
@@ -1046,7 +1036,7 @@ function tableUpdateFunction(path, admin, array) {
  * @param {object} doc - the document from the database
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
  */
-function updateTableFromAllDocs(doc, admin) {
+/* function updateTableFromAllDocs(doc, admin) {
     console.log('updating from all docs on local db');
     var tableUpdate = [];
     for (var i = 0, l = doc.total_rows; i < l; i++) {
@@ -1063,7 +1053,7 @@ function updateTableFromAllDocs(doc, admin) {
         table.prepend(tableUpdate.reverse());
     }
     orientationLandscapeUpdate();
-}
+} */
 /**
  * updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.docs
  * @param {object} doc - the document from the database
@@ -1075,7 +1065,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     var messagesAdded = 0;
     var messages = [];
     var page = navi.topPage.name;
-    var last_seq = doc.last_seq;
+    
     console.log('updating from find query');
     //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
@@ -1098,9 +1088,8 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                             title: 'HQ deleted some logs',
                             messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
                             cancelable: true
-                        }).then(function (input) {
+                        }).then(function () {
                             deleteNotificationCleared = true;
-
                         });
                     }
                 }
@@ -1155,11 +1144,10 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     }
     //code after the loop
     if (tableUpdate.length > 0) {
-        if (admin) {
-            var table = $('#adminLogsTable');
-        } else {
-            var table = $('#logsTable');
-        }
+        var table = admin
+        ? $('#adminLogsTable')
+        : $('#logsTable');
+
         table.prepend(tableUpdate.reverse());
     }
     if (messagesAdded > 0) {
@@ -1225,7 +1213,6 @@ function clearQuickAddInputs() {
  */
 function editLog(logs) {
     var logsLength = logs.length;
-    var timestamp = new Date().toISOString();
 
     for (var i = 0, l = logsLength; i < l; i++) {
         var id = logs[i];
@@ -1305,7 +1292,7 @@ function writeUntilWrittenDelete(id, timestamp) {
             return admindb.put({
                 _id: doc._id,
                 _rev: doc._rev,
-                username: name,
+                username: personName,
                 timestamp: timestamp,
                 _deleted: true
             });
@@ -1317,12 +1304,10 @@ function writeUntilWrittenDelete(id, timestamp) {
             if (err.status === 404) {
                 admindb.put({
                     _id: id,
-                    _rev: origRev,
-                    username: name,
+                    username: personName,
                     timestamp: timestamp,
                     _deleted: true
-                }).then(function (doc) {
-
+                }).then(function () {
                     return true;
                 }).catch(function (err) {
                     console.warn(err);
@@ -1355,15 +1340,16 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 
     var lockDocsLength = lockDocs.length;
     var timestamp = new Date().toISOString();
-
+    var message;
+    var message2;
     switch (lock) {
         case false:
-            var message = 'unlocked';
-            var message2 = 'allow';
+            message = 'unlocked';
+            message2 = 'allow';
             break;
         case true:
-            var message = 'locked';
-            var message2 = 'stop';
+            message = 'locked';
+            message2 = 'stop';
             break;
     }
     for (var i = 0, l = lockDocsLength; i < l; i++) {
@@ -1454,7 +1440,7 @@ function changeAtSymbolBack(email) {
  * Adds the current log in session to the appdb pouch database, utilises the base and name variables established via the log in process
  * @param {*} doc - the document previouts got via the db.get(<_id>) functionality
  */
-function loginPut(doc) {
+/* function loginPut(doc) {
     var timestamp = new Date().toISOString();
     return appdb.put({
         _id: doc._id,
@@ -1463,7 +1449,7 @@ function loginPut(doc) {
         name: name,
         timestamp: timestamp
     });
-}
+} */
 /**
  * Page change handled when log out is performed and resets the log in page except it keeps the name
  */
@@ -1471,7 +1457,7 @@ function logOutPageChange() {
     return navi.bringPageTop('loginPage.html', {
         animation: pageChangeAnimation
     }).then(function (doc) {
-        $('#userName').val(name);
+        $('#userName').val(personName);
         //$('#baseCode').val(''); //testing turning this off as it breaks the dropdown select need to check it works with the basecode input
         $('.adminCleanAll').remove();
         deleteIndexes();
@@ -1517,10 +1503,12 @@ function closeDatabases() {
 
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
+ * Used by the menu
  */
 function baseLogOut() {
+    var options;
     if (navi.topPage.data.firstPage) {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
             data: {
                 eventInfo: navi.topPage.data.eventInfo
@@ -1528,7 +1516,7 @@ function baseLogOut() {
         };
         navi.replacePage('loginPage.html', options);
     } else {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
         }
         navi.popPage(options);
@@ -1555,6 +1543,7 @@ function baseLogOut() {
 }
 /**
  * sign out of the session and return to the sign in screen
+ * Used by the menu
  */
 function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
@@ -1657,6 +1646,7 @@ function apiAjax(apiAddress, dataPackage) {
 /**
  * A function to set the base code value when using the dropdown menu.
  * @param {*} value the value to be set as the base code's value
+ * Used in the imported select base list dialog
  */
 function baseSelectValue(value) {
     document.getElementById('baseSelectDialog').hide();
@@ -1668,13 +1658,14 @@ function baseSelectValue(value) {
  * @param {object} data the data object to be passed to the next page
  */
 function loginAndRunFunction(base, data) {
+    var options;
     if (data != undefined) {
-        var options = {
+        options = {
             animation: pageChangeAnimation,
             data: data
         }
     } else {
-        var options = {
+        options = {
             animation: pageChangeAnimation
         }
     }
@@ -1686,7 +1677,6 @@ function loginAndRunFunction(base, data) {
         case -1:
             // --- incorrect login information
             alert('incorrect login information saved, please log in again');
-            console.log(err);
             navi.bringPageTop('loginPage.html', options);
             break;
         case 0:
@@ -1933,9 +1923,9 @@ ons.ready(function () {
     /**
      *  closes the menu
      */
-    function closeMenu() {
+    /* function closeMenu() {
         document.getElementById('menu').toggle();
-    }
+    } */
     $(document).on("click", '.menuButton', function () {
         openMenu();
     })
@@ -1965,7 +1955,7 @@ ons.ready(function () {
         appdb.get('login_' + username)
             .then(function (doc) {
                 base = doc.base; //last base used
-                name = doc.name; //the name used for the logs
+                personName = doc.name; //the name used for the logs
                 appdbConnected = true;
                 var signInUrl = appServer + '/api/signin';
                 var dataPackage = {
@@ -1984,9 +1974,9 @@ ons.ready(function () {
                             console.log(loginEvtsSorted);
                             // doc.currentDb = lastDb;
                             appdb.put(doc)
-                                .then(function (info) {
+                                .then(function() {
                                     return appdb.compact();
-                                }).then(function (info) {
+                                }).then(function() {
                                     //TODO ARC 04/01/2018 event description not downloading
                                     var event = compareTwoArrays(usrRolesSorted, loginEvtsSorted, true);
                                     console.log(event);
@@ -2049,14 +2039,15 @@ ons.ready(function () {
                     eventInfo: doc,
                     firstPage: true
                 };
+                var pageDestination;
                 if (typeof doc.lastBase === 'number') {
                     if (doc.lastBase === 0) {
-                        var pageDestination = 'admin.html';
+                        pageDestination = 'admin.html';
                     } else {
-                        var pageDestination = 'page1.html';
+                        pageDestination = 'page1.html';
                     }
                 } else {
-                    var pageDestination = 'loginPage.html';
+                    pageDestination = 'loginPage.html';
                 }
 
                 return navi.bringPageTop(pageDestination, {
@@ -2094,40 +2085,39 @@ ons.ready(function () {
 
 
 
+    /**
+             * Offline event callback function
+             */
+    function onOffline() {
+        // Handle the offline event
+        $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+        $('.offlineMap').html('Local Map - Offline');
+    }
+    /**
+         * Event following the return to being online
+         */
+    function onOnline() {
+        // Handle the online event
+        $('.offlineMessage').remove();
+        $('.offlineMap').html('Local Map');
 
+
+        //alert('congrats you are online, connected via: ' + checkConnection());
+
+    }
 
     if (ons.platform.isWebView()) {
-
         /**
          * Event listener for going offline
          *@event offline - when the device to go offline (webView only)
          */
         document.addEventListener("offline", onOffline, false);
-        /**
-         * Offline event callback function
-         */
-        function onOffline() {
-            // Handle the offline event
-            $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
-            $('.offlineMap').html('Local Map - Offline');
-        }
+        
         /**
          * Event listener for device going back online
          * @event online - the device goes online (webView only)
          */
-        document.addEventListener("online", onOnline, false);
-        /**
-         * Event following the return to being online
-         */
-        function onOnline() {
-            // Handle the online event
-            $('.offlineMessage').remove();
-            $('.offlineMap').html('Local Map');
-
-
-            //alert('congrats you are online, connected via: ' + checkConnection());
-
-        }
+        document.addEventListener("online", onOnline, false);        
     }
 
     /**
@@ -2139,11 +2129,10 @@ ons.ready(function () {
             case true:
                 $('#' + page + ' .progressBar').removeClass('hide');
                 return true;
-                break;
+                
             case false:
                 $('#' + page + ' .progressBar').addClass('hide');
-                return false;
-                break;
+                return false;                
         }
     }
     /**
@@ -2154,14 +2143,15 @@ ons.ready(function () {
      * @returns {boolean} true for an update, false already up to date
      */
     function replicateOnce(event, doc_ids, replicateToRemote) {
+        var db1, db2;
         if (!replicateToRemote) {
             //replicating to local event db
-            var db2 = new PouchDB(event); //local
-            var db1 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+            db2 = new PouchDB(event); //local
+            db1 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
         } else {
             //replicating to remote event db
-            var db1 = new PouchDB(event); //local
-            var db2 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
+            db1 = new PouchDB(event); //local
+            db2 = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + event); //remote
         }
         var options = {
             doc_ids: doc_ids
@@ -2219,11 +2209,11 @@ ons.ready(function () {
      */
     var sort_by = function (field, reverse, primer) {
 
-        var key = primer ?
-            function (x) {
+        var key = primer 
+        ? function (x) {
                 return primer(x[field])
-            } :
-            function (x) {
+            } 
+        : function (x) {
                 return x[field]
             };
 
@@ -2246,9 +2236,10 @@ ons.ready(function () {
      * Very important section as this defines what happens when a page changes and when certain pages are loaded
      * @event postpush - when a page is changed or pushed
      */
-    document.addEventListener('postpush', function (event) {
+    document.addEventListener('postpush', function () {
         console.log('page pushed ' + navi.topPage.name);
         console.log(navi.pages);
+        var eventInfo;
         switch (navi.topPage.name) {
             //--- Create Event Page ---
             case 'signInPage.html':
@@ -2324,7 +2315,7 @@ ons.ready(function () {
                                             login.couchdb = couchdb;
                                             //update 'login' info
                                             return appdb.put(login)
-                                                .then(function (info) {
+                                                .then(function () {
                                                     return doc;
                                                 })
                                                 .catch(function (err) {
@@ -2382,10 +2373,11 @@ ons.ready(function () {
                                 var page;
                                 Promise.resolve().then(function () {
                                     if (doc.evtOrganiser && doc.verification.verified || !doc.evtOrganiser) {
+                                        var tempdb;
                                         switch (db.length) {
                                             case 1:
                                                 page = 'loginPage.html';
-                                                var tempdb = new PouchDB(db[0]);
+                                                tempdb = new PouchDB(db[0]);
                                                 return tempdb.get('eventDescription')
                                                     .then(function (event) {
 
@@ -2401,8 +2393,6 @@ ons.ready(function () {
                                                         console.log(err);
                                                         throw err;
                                                     });
-
-                                                break;
                                             case 0:
                                                 if (doc.evtOrganiser) {
                                                     page = 'createEventPage.html';
@@ -2417,14 +2407,13 @@ ons.ready(function () {
                                                     return false;
 
                                                 }
-                                                break;
 
                                             default:
                                                 if (lastDb != 'false' && lastDb != undefined) {
                                                     page = 'loginPage.html';
                                                     var event = db.indexOf(lastDb);
                                                     if (event > -1) {
-                                                        var tempdb = new PouchDB(db[event]);
+                                                        tempdb = new PouchDB(db[event]);
                                                         return tempdb.get('eventDescription')
                                                             .then(function (event) {
 
@@ -2454,17 +2443,15 @@ ons.ready(function () {
                                     }
                                 }).then(function (data) {
                                     console.log(data);
-                                    if (data === false) {
-                                        var options = {
+                                    var options = !data
+                                        ? {
                                             animation: pageChangeAnimation
                                         }
-                                    } else {
-                                        var options = {
-                                            animation: pageChangeAnimation,
+                                        : {
+                                        animation: pageChangeAnimation,
                                             data: data
                                         }
-                                        return navi.resetToPage(page, options);
-                                    }
+                                    
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
                                     console.log(err);
@@ -2507,7 +2494,7 @@ ons.ready(function () {
                                             message: "Couldn't connect to server because this device is offline.",
                                             cancelable: true
                                         });
-                                        break;
+
                                     default:
                                         return ons.notification.alert({
                                             title: 'Error',
@@ -2819,13 +2806,13 @@ ons.ready(function () {
                             username: username
                         };
                         $.ajax(apiAjax(url, dataPackage))
-                            .then(function (doc) {
+                            .then(function () {
                                 ons.notification.alert({
                                     title: 'Email sent',
                                     message: 'Your new verification email has been sent',
                                     cancelable: true
                                 });
-                            }).catch(function (err) {
+                            }).catch(function () {
                                 ons.notification.alert({
                                     title: 'Error',
                                     message: 'There was an issue re-sending your verification email, please try again',
@@ -2836,7 +2823,7 @@ ons.ready(function () {
                 }
                 //need to add a resend email function
                 break;
-            case 'createEventPage.html':
+            case 'createEventPage.html': {
 
                 //variables
                 var evtUsernameUnique = false;
@@ -2854,17 +2841,19 @@ ons.ready(function () {
                  * function to check if the password is unique
                  * @param {*} thisPass 
                  */
-                function passwordCheck(thisPass) {
+                var passwordCheck = function(thisPass) {
                     //variables
                     var passElement = $(thisPass);
                     var pass = $(thisPass).val();
                     var index;
                     var error;
+                    var basePassIndex;
                     //function code
                     //check the password has a value
                     if (pass != '') {
                         //check if password is in the array of passwords
                         index = passwordArray.indexOf(pass);
+                        
                         if (index > -1) {
                             error = false;
                             //need to check if the password is being used by the current base in which case there is no issue otherwise it is an error
@@ -2873,7 +2862,7 @@ ons.ready(function () {
                                 // if it has changed there is an issue otherwise do nothing
                                 if (passwordObject[thisPass.id] != pass) {
                                     error = true;
-                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                     passwordArray.splice(basePassIndex, 1);
                                     delete passwordObject[thisPass.id];
                                 }
@@ -2896,7 +2885,7 @@ ons.ready(function () {
 
                                 // if it has changed, remove old password and update with new
                                 if (passwordObject[thisPass.id] != pass) {
-                                    var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                    basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                     passwordArray.splice(basePassIndex, 1);
                                     passwordObject[thisPass.id] = pass;
                                     passwordArray.push(pass);
@@ -2913,7 +2902,7 @@ ons.ready(function () {
                             console.log('6');
                             // if it has changed there is an issue otherwise do nothing
                             if (passwordObject[thisPass.id] != pass) {
-                                var basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
+                                basePassIndex = passwordArray.indexOf(passwordObject[thisPass.id]);
                                 passwordArray.splice(basePassIndex, 1);
                                 delete passwordObject[thisPass.id];
                             }
@@ -2927,8 +2916,8 @@ ons.ready(function () {
                  * @param {object} inputFile needs to be found using plain js
                  * @returns {string} returns a url promise
                  */
-                function fileUpload(inputFile) {
-                    return new Promise(function (resolve, reject) {
+                var fileUpload = function(inputFile) {
+                    return new Promise(function (resolve) {
                         //make file into a blob
                         getFile = inputFile.files[0]; //getFile is a blob
                         url = URL.createObjectURL(getFile); //create URL from the blob
@@ -2957,24 +2946,24 @@ ons.ready(function () {
                  * function to add a base before the add base button
                  * @param {number|string} baseCount 
                  */
-                function addBase(baseCount) {
+                var addBase = function(baseCount) {
                     var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
 
-                function switchAndHideToggle(elementSwitch, elementsToHide, trueOrFalse) {
+                var switchAndHideToggle = function(elementSwitch, elementsToHide, trueOrFalse) {
                     toggleProp(elementSwitch, 'checked', trueOrFalse);
                     hideElement(!trueOrFalse, elementsToHide);
                 }
 
-                function toggleProp(element, prop, trueOrFalse) {
+                var toggleProp = function(element, prop, trueOrFalse) {
                     return element.prop(prop, trueOrFalse);
                 }
 
                 /**
                  * creates the eventDescription variable in the higher scope
                  */
-                function createEventDescription() {
+                var createEventDescription = function() {
                   var trackingUrl = $('#trackingUrl').val().trim();
                     eventDescription = {
                         _id: 'eventDescription',
@@ -3003,7 +2992,7 @@ ons.ready(function () {
                  * @param {boolean} passwordProtectLogs true or false whether the bases will have a password upon entry
                  * @param {object} eventDescription event description to add the base information to
                  */
-                function addBasesToEvtDescription(baseCount, passwordProtectLogs, eventDescription) {
+                var addBasesToEvtDescription = function(baseCount, passwordProtectLogs, eventDescription) {
                     for (var i = 1, l = baseCount + 1; i < l; i++) {
 
                         var baseInfo = {
@@ -3030,8 +3019,6 @@ ons.ready(function () {
                                 return false;
                             });
 
-                            break;
-                            console.log('shouldnt see me');
                         } else {
                             eventDescription.bases.push(baseInfo);
                             passwordsOk = true;
@@ -3046,7 +3033,7 @@ ons.ready(function () {
                         editEvent = true;
                         var pattern = /\W/g;
                         var version;
-                        var eventInfo = pageData.eventInfo;
+                        eventInfo = pageData.eventInfo;
                         if (typeof eventInfo._rev === 'string') {
                             version = parseInt(eventInfo._rev.split(pattern)[0]) + 1;
                         } else {
@@ -3264,6 +3251,7 @@ ons.ready(function () {
                     $('#saveEvent').addClass('evtHandler').on('click', function () {
                         //TODO add checking and uploading event message
                         //TODO add loading bar
+                        var logo;
                         if (!editEvent) {
                             showProgressBar('createEventPage', true);
                             createEventDescription();
@@ -3276,7 +3264,7 @@ ons.ready(function () {
                             }
                             if (getFile != false) {
 
-                                var logo = document.getElementById('eventBannerImage');
+                                logo = document.getElementById('eventBannerImage');
                                 Promise.resolve().then(function () {
                                     return downscaleImg(logo, 1922, 240);
                                 }).then(function (doc) {
@@ -3348,7 +3336,8 @@ ons.ready(function () {
                                                         remotedbURL = newRemotedbURL;
                                                         if (remotedbConnected) {
 
-                                                            return remotedb.close().then(function (doc) {
+                                                            return remotedb.close()
+                                                            .then(function () {
                                                                 return remotedbConnected = false;
                                                             }).catch(function (err) {
                                                                 console.log(err);
@@ -3388,9 +3377,9 @@ ons.ready(function () {
                                                                 throw err;
                                                             }
                                                         });
-                                                }).then(function (doc) {
+                                                }).then(function () {
                                                     return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
-                                                }).then(function (doc) {
+                                                }).then(function () {
                                                     //adds a reference to the event description by adding the db to the list of the user's dbs
                                                     return addAppdbLoginDb(eventDescription.dbName);
                                                 }).then(function (doc) {
@@ -3432,7 +3421,7 @@ ons.ready(function () {
                             //update rather than save
                             //variables required outside the promises
                             var tempdb = new PouchDB(eventInfo.dbName);
-                            var logo = document.getElementById('eventBannerImage');
+                            logo = document.getElementById('eventBannerImage');
                             ons.notification.confirm({
                                 title: 'Update Event',
                                 message: 'Are you sure you want to update ' + eventInfo.eventName,
@@ -3555,7 +3544,7 @@ ons.ready(function () {
                                 };
 
                                 return navi.resetToPage('eventSummaryPage.html', options);
-                            }).then(function (doc) {
+                            }).then(function () {
                                 var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
                                 tempRemotedb.compact();
                                 return closeDatabases();
@@ -3577,13 +3566,14 @@ ons.ready(function () {
                 }
                 //end of create event page
                 break;
-            case 'eventSummaryPage.html':
+            }
+            case 'eventSummaryPage.html': {
                 var eventName = navi.topPage.data.eventName;
-                var url = navi.topPage.data.url;
+                url = navi.topPage.data.url;
                 if (typeof navi.topPage.data.eventInfo === 'object') {
-                    var eventInfo = navi.topPage.data.eventInfo
+                    eventInfo = navi.topPage.data.eventInfo
                 } else {
-                    var eventInfo = eventDescription;
+                    eventInfo = eventDescription;
                 }
                 console.log(eventInfo);
 
@@ -3600,8 +3590,8 @@ ons.ready(function () {
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
-                    if(eventInfo.tracking){
-                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl +'</span></p>')
+                    if (eventInfo.tracking) {
+                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>')
                     }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
@@ -3609,39 +3599,40 @@ ons.ready(function () {
                     // $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
                     var evtSummaryBasesArray = [];
                     eventInfo.bases.forEach(function (base) {
-                        var maxScoreClass = '';
-                      var baseSummaryPasswordClass='';
-                      var activeClass = 'baseSummaryIconActive';
-                        var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
-                      var baseSummaryIcons = '<div class="baseSummaryIcons">'
-                        if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
-                            message = 'no score available at this location';
-                        } else {
-                            message = base.baseMaxScore;
-                          maxScoreClass = activeClass;                           
-                        }
-                      baseSummaryIcons += '<ons-icon icon="fa-trophy" class="'+maxScoreClass+'"></ons-icon>';
-                        baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
-                        if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
-                            baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
+                    var maxScoreClass = '';
+                    var baseSummaryPasswordClass = '';
+                    var message;
+                    var activeClass = 'baseSummaryIconActive';
+                    var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
+                    var baseSummaryIcons = '<div class="baseSummaryIcons">'
+                    if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
+                        message = 'no score available at this location';
+                    } else {
+                        message = base.baseMaxScore;
+                        maxScoreClass = activeClass;                           
+                    }
+                    baseSummaryIcons += '<ons-icon icon="fa-trophy" class="' + maxScoreClass + '"></ons-icon>';
+                    baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
+                    if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
+                           baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
                           baseSummaryPasswordClass = activeClass;
                         }
-                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="'+baseSummaryPasswordClass+'"></ons-icon>';
+                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="' + baseSummaryPasswordClass + '"></ons-icon>';
                         
                           var locationClass = '';
                           var locationMessage = 'no';
-                          if(base.baseGeolocation){
+                          if (base.baseGeolocation) {
                             locationMessage = 'yes';
                             locationClass += activeClass;
                           }
-                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">'+locationMessage+'</span></p>';
-                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass +'"></ons-icon>'
+                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">' + locationMessage + '</span></p>';
+                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>'
                         
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
                             // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
-                      baseInformationSection += baseSummaryIcons +'</div></div>';
+                      baseInformationSection += baseSummaryIcons + '</div></div>';
                         evtSummaryBasesArray.push(baseInformationSection);
                     });
                     $('#evtSummaryBases').append(evtSummaryBasesArray);
@@ -3720,18 +3711,21 @@ ons.ready(function () {
                 }
 
                 break;
+            }
 
             // --- Log in Page ---
 
             case 'loginPage.html':
                 //loginPage.html
                 // ons.disableDeviceBackButtonHandler();
-                var db, tempRemotedb, options, messageOpen;
-                if (typeof name === 'string' && name !== 'undefined') {
-                    $('#userName').val(name);
+                //declared variables
+                var noBaseSelectedErrorMessage, welcomeMessage, baseCodeInput;
+
+                if (typeof personName === 'string' && name !== 'undefined') {
+                    $('#userName').val(personName);
                 }
                 if (navi.topPage.data.eventInfo !== undefined) {
-                    var eventInfo = navi.topPage.data.eventInfo;
+                    eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
                     // if (navi.topPage.data.firstPage === true) {
                     if (!evtUpdateCheckConnected) {
@@ -3755,7 +3749,7 @@ ons.ready(function () {
                                         title: 'Event Updated',
                                         messageHTML: '<p>This event has been updated by the event organisers to version: ' + version + '.</p><p>Your device will update once this message closes.</p>',
                                         cancelable: true
-                                    }).then(function (input) {
+                                    }).then(function () {
                                         var options = {
                                             animation: pageChangeAnimation,
                                             data: {
@@ -3772,7 +3766,7 @@ ons.ready(function () {
                                 }
                             }).on('paused active denied error', function (info) {
                                 console.log(info);
-                            }).on('complete', function (info) {
+                            }).on('complete', function () {
                                 console.log('evtUpdateCheck complete');
                                 evtUpdateCheckConnected = false;
                             });
@@ -3780,22 +3774,22 @@ ons.ready(function () {
                     }
                     //Event Description update
                     $('#loginEventDescription').html(eventInfo.eventDescription.replace(/\n/g, "<br>"));
-                    var evtStart = new Date(eventInfo.dateStart);
-                    var evtEnd = new Date(eventInfo.dateEnd);
-                    var pattern = /\W/g;
-                    var version;
+                    var loginEvtStart = new Date(eventInfo.dateStart);
+                    var loginEvtEnd = new Date(eventInfo.dateEnd);
+                    pattern = /\W/g;
+                    var versionNo;
                     if (typeof eventInfo._rev === 'string') {
-                        version = eventInfo._rev.split(pattern)[0];
+                        versionNo = eventInfo._rev.split(pattern)[0];
                     } else {
-                        version = 1;
+                        versionNo = 1;
                     }
 
-                    $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + version + '</span><p><span class="bold">Start</span>: ' + evtStart.toDateString() + ' at ' + addZero(evtStart.getHours()) + ':' + addZero(evtStart.getMinutes()) + '<br><span class="bold">End</span>: ' + evtEnd.toDateString() + ' at ' + addZero(evtEnd.getHours()) + ':' + addZero(evtEnd.getMinutes()) + '</p>');
+                    $('#loginEventDescriptionTitle').after('<span id="evtVersion">Event version: ' + versionNo + '</span><p><span class="bold">Start</span>: ' + loginEvtStart.toDateString() + ' at ' + addZero(loginEvtStart.getHours()) + ':' + addZero(loginEvtStart.getMinutes()) + '<br><span class="bold">End</span>: ' + loginEvtEnd.toDateString() + ' at ' + addZero(loginEvtEnd.getHours()) + ':' + addZero(loginEvtEnd.getMinutes()) + '</p>');
 
 
                     //Event Logo update
-                    var url = navi.topPage.data.url;
-                    var imageContainer = $('#loginEventLogo')
+                    url = navi.topPage.data.url;
+                    imageContainer = $('#loginEventLogo')
                     Promise.resolve().then(function () {
                         return eventLogoGetter(eventInfo, url);
                     }).then(function (src) {
@@ -3824,10 +3818,10 @@ ons.ready(function () {
                             baseNames.push(base.baseName);
                         });
                         //change error message
-                        var noBaseSelectedErrorMessage = 'Please enter both your name and your base code provided by the event organisers.';
+                        noBaseSelectedErrorMessage = 'Please enter both your name and your base code provided by the event organisers.';
                         //change welcome text
-                        var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
-                        var baseCodeInput = $('#baseCode');
+                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
+                        baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('keyup', function (e) {
                                 var key = e.which;
@@ -3842,12 +3836,12 @@ ons.ready(function () {
                     } else {
                         // bases do not have a password
 
-                        var noBaseSelectedErrorMessage = 'Please enter both your name and select a base.';
+                        noBaseSelectedErrorMessage = 'Please enter both your name and select a base.';
                         //change welcome text
-                        var welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
+                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
                         //change the code input to a button and select
                         $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
-                        var baseCodeInput = $('#baseCode');
+                        baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('click', function () {
                                 var baseSelectDialog = document.getElementById('baseSelectDialog');
@@ -3855,7 +3849,7 @@ ons.ready(function () {
 
                                     ons.createDialog('baseSelectDialog.html')
                                         .then(function (dialog) {
-                                            dialog.addEventListener('preshow', function (event) {
+                                            dialog.addEventListener('preshow', function () {
                                                 var selectBase = navi.topPage.data.eventInfo.bases;
                                                 baseCodes = [];
                                                 baseNames = [];
@@ -3908,7 +3902,7 @@ ons.ready(function () {
                     loginButton.addClass('evtHandler')
                         .on('click', function () {
                             var timestamp = new Date().toISOString();
-                            var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
+                            // var welcomeMessage = 'Welcome to the ' + eventInfo.eventName + ' base app, here you can enter team scores and log their details. This will instantaniously update in HQ but please do still write down on paper too. If you rotate your device you will see only the log table but in more detail.';
                             return Promise.resolve()
                                 .then(function () {
                                     if (baseCodeEl.val() === '' || usernameEl.val() === '') {
@@ -3919,7 +3913,7 @@ ons.ready(function () {
                                         };
                                     }
                                     var baseCodeInput = baseCodeEl.val().toLowerCase().trim();
-                                    name = usernameEl.val();
+                                    personName = usernameEl.val();
                                     base = baseCodes.indexOf(baseCodeInput);
 
                                     if (!(base > -1)) {
@@ -3951,11 +3945,11 @@ ons.ready(function () {
                                     } else {
                                         return baseNumber;
                                     }
-                                }).then(function (baseNumber) {
+                                }).then(function () {
                                     return appdb.get('login_' + username)
                                         .then(function (doc) {
                                             doc.base = base;
-                                            doc.name = name;
+                                            doc.name = personName;
                                             doc.currentDb = eventInfo.dbName;
                                             doc.timestamp = timestamp;
                                             return appdb.put(doc);
@@ -3968,8 +3962,7 @@ ons.ready(function () {
                                                 cancelable: true
                                             });
                                         });
-                                }).then(function (doc) {
-
+                                }).then(function () {
                                     loginAndRunFunction(base, {
                                         eventInfo: eventInfo
                                     });
@@ -4059,7 +4052,7 @@ ons.ready(function () {
                             goToSummary.on('click', function () {
                                 var eventInfo = eventId.data('eventInfo');
                                 //TODO pick up here
-                                var img = eventId.find()
+                                // var img = eventId.find()
                                 var options = {
                                     animation: pageChangeAnimation,
                                     data: {
@@ -4111,13 +4104,13 @@ ons.ready(function () {
                 menuController('eventSelectionPage.html');
                 break;
 
-            case 'page1.html':
+            case 'page1.html': {
               /**
                 * Takes the patrol log and updates it with geolocation attributes
                 * @param {object} log 
                 * @param {Bool} needGeolocation  
                 */
-                function updateLogWIthPosition(log, needGeolocation) {
+                var updateLogWIthPosition = function(log, needGeolocation) {
                     return Promise.resolve()
                         .then(function () {
                             if (!needGeolocation) {
@@ -4152,7 +4145,7 @@ ons.ready(function () {
                 $('#fullEditFab').removeClass('hide');
                 var baseTable = $('#logsTable');
                 if (navi.topPage.data.eventInfo !== undefined) {
-                    var eventInfo = navi.topPage.data.eventInfo;
+                    eventInfo = navi.topPage.data.eventInfo;
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
@@ -4219,7 +4212,7 @@ ons.ready(function () {
                             type: 'json'
                         }
                     })
-                }).then(function (doc) {
+                }).then(function () {
                     return basedb.createIndex({
                         index: {
                             fields: ['patrol'],
@@ -4246,7 +4239,7 @@ ons.ready(function () {
                 }).then(function (doc) {
                     console.log(doc);
                     return dbUpdateFromFindOrChange(doc, false);
-                }).then(function (doc) {
+                }).then(function () {
                     return basedb.createIndex({
                         index: {
                             fields: ['base'],
@@ -4256,7 +4249,7 @@ ons.ready(function () {
                         }
                     });
 
-                }).then(function (doc) {
+                }).then(function () {
                     if (remotedbConnected === false) {
                         remotedb = new PouchDB(remotedbURL);
                         remotedbConnected = true;
@@ -4287,11 +4280,11 @@ ons.ready(function () {
                                     console.log('updating remotedb');
 
                                 }
-                            }).on('paused', function (info) {
+                            }).on('paused', function () {
                                 // replication was paused, usually because of a lost connection
                                 console.log('basedb pasused');
                                 lastSyncUpdater();
-                            }).on('active', function (info) {
+                            // }).on('active', function () {
                                 // replication was resumed
                             }).on('error', function (err) {
                                 // totally unhandled error (shouldn't happen)
@@ -4304,7 +4297,7 @@ ons.ready(function () {
                                 if (err.status === 409) {
                                     console.log('conflict in doc upload');
                                 }
-                            }).on('complete', function (info) {
+                            }).on('complete', function () {
                                 console.log('sync between remotedb and basedb has been cancelled');
                                 baseSyncInProgress = false;
                             });
@@ -4315,12 +4308,12 @@ ons.ready(function () {
                 checkForNewMessagesOnPageLoad(basedb, dbSeqNumber);
 
                 if (eventInfoBase.baseGeolocation && typeof geolocation === 'undefined') {
-                    var options = {
+                    var settings = {
                         title: 'Location',
                         messageHTML: '<p class="">The event organiser has set this base to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
                         cancelable: true
                     };
-                    ons.notification.alert(options)
+                    ons.notification.alert(settings)
                         .then(function () {
                             return getPosition();
                         })
@@ -4377,13 +4370,14 @@ ons.ready(function () {
 
                 if (!($('#logsTable').hasClass('evtHandler'))) {
                     $('#logsTable').addClass('evtHandler');
-                    $('#logsTable').on('click', 'tr', function (e) {
+                    $('#logsTable').on('click', 'tr', function () {
                         if (!($(this).hasClass('lockedLog'))) {
+                            var dataInfo;
                             if ($(this).hasClass('tableSelected')) {
                                 $(this).removeClass('tableSelected');
 
                                 //var dataInfo = $(this).data('databaseInfo');
-                                var dataInfo = $(this).attr('id');
+                                dataInfo = $(this).attr('id');
                                 var index = userCurrentlySelected.indexOf(dataInfo);
                                 if (index > -1) {
                                     userCurrentlySelected.splice(index, 1);
@@ -4408,7 +4402,7 @@ ons.ready(function () {
                                 //clear all previously selected items from the array
                                 userCurrentlySelected = [];
                                 // to get the dbId's off the element
-                                var dataInfo = $(this).attr('id');
+                                dataInfo = $(this).attr('id');
                                 userCurrentlySelected.push(dataInfo);
                                 console.log(userCurrentlySelected);
                             }
@@ -4444,7 +4438,7 @@ ons.ready(function () {
                     });
                 }
 
-                function baseTableInput(tableUpdate) {
+                var baseTableInput = function(tableUpdate) {
                     console.log(tableUpdate);
                     if (tableUpdate.length > 0) {
                         baseTable.prepend(tableUpdate);
@@ -4474,7 +4468,7 @@ ons.ready(function () {
                         var tableUpdate = [];
                         //time conversions to date object
                         if (sqTimeIn === "") {
-                            var sqTimeIn = new Date();
+                            sqTimeIn = new Date();
 
                         } else if (sqTimeIn.length == 5) {
                             var tIn = sqTimeIn.split(':');
@@ -4571,7 +4565,7 @@ ons.ready(function () {
                                 _id: sqPatrol + '_base_' + base,
                                 patrol: sqPatrol,
                                 base: base,
-                                username: name,
+                                username: personName,
                                 timeIn: sqTimeIn,
                                 timeOut: sqTimeOut,
                                 timeWait: sqWait,
@@ -4600,11 +4594,7 @@ ons.ready(function () {
                                         }).catch(function (err) {
                                             console.log(err);
                                         });
-                                    // tableUpdateFunction(patrolLog, false, tableUpdate);
-
-                                    // console.log(patrolLog);
-                                    // basedb.put(patrolLog);
-                                    break;
+                                                                
                                 default:
                                     basedb.get(patrolLog._id)
                                         .then(function (doc) {
@@ -4634,15 +4624,13 @@ ons.ready(function () {
                                                     }).catch(function (err) {
                                                         console.warn(err);
                                                     });
-                                                    break;
+                                                    
                                                 case false:
                                                     return ons.notification.alert({
                                                         title: 'No longer editable',
-                                                        message: 'This record has been updated by HQ and cannot be edited',
+                                                        message: 'This record has been locked by HQ and cannot be edited',
                                                         cancelable: true
                                                     });
-                                                    clearQuickAddInputs();
-                                                    break;
                                             }
 
 
@@ -4669,36 +4657,26 @@ ons.ready(function () {
 
 
                                             } else if (err.status == 409) {
-                                                switch (doc.editable) {
-                                                    case true:
-                                                        console.log('409 putting anyway');
-                                                        patrolLog._rev = doc._rev;
-                                                        patrolLog._id = doc._id;
+                                                // must be editable to produce a 409
+                                                console.log('409 putting anyway');
+                                                basedb.get(patrolLog._id)
+                                                .then(function(doc) {                                                
+                                                    patrolLog._rev = doc._rev;
+                                                    patrolLog._id = doc._id;   
+                                                    return updateLogWIthPosition(patrolLog, geolocationOn);
+                                                }).then(function (log) {
+                                                        console.log(log);
+                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                }).then(function (log) {
+                                                        tableUpdateFunction(log, false, tableUpdate);
+                                                        return basedb.put(log);
+                                                });
                                                         
-                                                        return updateLogWIthPosition(patrolLog, geolocationOn)
-                                                            .then(function (log) {
-                                                                console.log(log);
-                                                                return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
-                                                            })
-                                                            .then(function (log) {
-                                                                tableUpdateFunction(log, false, tableUpdate);
-                                                                return basedb.put(log);
-                                                            });
-                                                        break;
-                                                    case false:
-                                                        console.log('409 alert message');
-                                                        ons.notification.alert({
-                                                            title: 'No longer editable',
-                                                            message: 'This record has been recorded by HQ and cannot be edited, please contact HQ to unlock',
-                                                            cancelable: true
-                                                        });
-                                                        // clearQuickAddInputs();
-                                                        break;
-                                                }
+                                                           
                                             } else {
                                                 console.warn(err);
                                             }
-                                        }).then(function (doc) {
+                                        }).then(function () {
                                             baseTableInput(tableUpdate)
                                         });
                                     break;
@@ -4708,6 +4686,7 @@ ons.ready(function () {
                     });
                 }
                 break;
+            }
 
             // --- map page ---
             /* case 'map.html':
@@ -4723,7 +4702,7 @@ ons.ready(function () {
 
             // --- Admin page ---
             // these look similar but are seperate for admin and base users
-            case 'admin.html':
+            case 'admin.html': {
                 //declarations
                 var patrolToSearch = false;
                 var patrolSeen = [];
@@ -4740,10 +4719,10 @@ ons.ready(function () {
                  * @param {boolean} update 
                  * @param {object} lastSeenTable JQuery object
                  */
-                function lastSeenUpdate(doc, update, lastSeenTable) {
+                var lastSeenUpdate = function(doc, update, lastSeenTable) {
                     //console.log('lastseenupdate function');
                     //console.log(doc);
-                    timeStarting = (Date.now());
+                    var timeStarting = (Date.now());
                     var lsTableAppend = [];
                     for (var i = 0, l = doc.docs.length; i < l; i++) {
                         var log = doc.docs[i];
@@ -4793,7 +4772,7 @@ ons.ready(function () {
                  * @param {object} lastSeenTable 
                  * @param {boolean} updateTable 
                  */
-                function lastSeenFullUpdate(lastSeenTable, updateTable) {
+                var lastSeenFullUpdate = function(lastSeenTable, updateTable) {
                     //console.log('full update');
                     admindb.find({
                         selector: {
@@ -4815,7 +4794,7 @@ ons.ready(function () {
                 /**
                  * updates the lastSeen table
                  */
-                function lastSeenTableFullRefresh() {
+                var lastSeenTableFullRefresh = function() {
                     if (lastSeenTable !== undefined) {
                         lastSeenTable.empty();
                         patrolSeen = [];
@@ -4829,7 +4808,7 @@ ons.ready(function () {
                  * @param {object} leaderboardTable table to update 
                  * @param {string|number} patrolToSearch if there is a patrol to look out for
                  */
-                function leaderboard(leaderboardTable, patrolToSearch) {
+                var leaderboard = function(leaderboardTable, patrolToSearch) {
                     leaderboardTable.empty();
                     admindb.query('leaderboardIndex', {
                         reduce: true,
@@ -4845,7 +4824,7 @@ ons.ready(function () {
                     });
                 }
 
-                function leaderboardRowCreator(rows, patrolToSearch) {
+                var leaderboardRowCreator = function(rows, patrolToSearch) {
                     var i = 1;
                     var lastScore = '';
                     return Promise.all(rows.map(function (row) {
@@ -4863,7 +4842,7 @@ ons.ready(function () {
                 //code to run
                 menuController('admin.html');
                 if (navi.topPage.data.eventInfo != undefined) {
-                    var eventInfo = navi.topPage.data.eventInfo;
+                    eventInfo = navi.topPage.data.eventInfo;
                     adminDatabaseName = eventInfo.dbName;
                 }
                 if (!(patrolSearchIcon.hasClass('evtHandler'))) {
@@ -4979,7 +4958,7 @@ ons.ready(function () {
                                 adminSpeedDial.hide();
                                 adminCurrentlySelected = [];
                                 // from loginandrunfunction
-                                var admin = true;
+                                // var admin = true;
                                 if (admindbConnected == false) {
                                     admindb = new PouchDB(adminDatabaseName);
                                     admindbConnected = true;
@@ -5002,7 +4981,7 @@ ons.ready(function () {
                                             type: 'json'
                                         }
                                     });
-                                }).then(function (doc) {
+                                }).then(function () {
                                     return admindb.createIndex({
                                         index: {
                                             fields: ['patrol'],
@@ -5011,7 +4990,7 @@ ons.ready(function () {
                                             type: 'json'
                                         }
                                     });
-                                }).then(function (doc) {
+                                }).then(function () {
                                     return admindb.createIndex({
                                         index: {
                                             fields: ['base'],
@@ -5020,13 +4999,10 @@ ons.ready(function () {
                                             type: 'json'
                                         }
                                     });
-                                }).then(function (doc) {
+                                }).then(function () {
                                     //leaderboard ddoc
                                     return admindb.get('_design/leaderboardIndex')
-                                        .then(function (doc) {
-                                            return doc;
-
-                                        }).catch(function (doc) {
+                                        .catch(function () {
                                             var leaderboardIndex = {
                                                 _id: '_design/leaderboardIndex',
                                                 views: {
@@ -5043,9 +5019,8 @@ ons.ready(function () {
                                             return admindb.put(leaderboardIndex);
                                         });
 
-                                }).then(function (doc) {
-                                    console.log(doc);
-                                    return admindb.find({
+                                }).then(function () {
+                                        return admindb.find({
                                         selector: {
                                             timeOut: {
                                                 $gt: 0
@@ -5058,7 +5033,7 @@ ons.ready(function () {
                                     //updateTeamIndex(doc);
                                     return dbUpdateFromFindOrChange(doc, true);
 
-                                }).then(function (doc) {
+                                }).then(function () {
                                     if (remotedbConnected === false) {
                                         remotedb = new PouchDB(remotedbURL);
                                         remotedbConnected = true;
@@ -5097,12 +5072,12 @@ ons.ready(function () {
                                                 console.log('Replication Error: ');
                                                 console.log(err);
                                                 ons.notification.alert({
-                                                    title: error,
+                                                    title: 'Error',
                                                     message: 'A connection error has occured please, refresh the app or web page',
                                                     cancelable: true
 
                                                 });
-                                            }).on('complete', function (info) {
+                                            }).on('complete', function () {
                                                 console.log('sync disconected from admin database.');
                                                 adminSyncInProgress = false;
                                             });
@@ -5115,10 +5090,11 @@ ons.ready(function () {
                                 $('#adminSpeedDial').removeClass('hide');
                                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
                                     $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
+                                        var dataInfo;
                                         if ($(this).hasClass('tableSelected')) {
                                             $(this).removeClass('tableSelected');
 
-                                            var dataInfo = $(this).attr('id');
+                                            dataInfo = $(this).attr('id');
                                             var index = adminCurrentlySelected.indexOf(dataInfo);
                                             if (index > -1) {
                                                 adminCurrentlySelected.splice(index, 1);
@@ -5131,7 +5107,7 @@ ons.ready(function () {
                                             $(this).addClass('tableSelected');
                                             // $('#adminSpeedDial').removeClass('hide');
                                             adminSpeedDial.show();
-                                            var dataInfo = $(this).attr('id');
+                                            dataInfo = $(this).attr('id');
                                             adminCurrentlySelected.push(dataInfo);
                                             console.log(adminCurrentlySelected);
 
@@ -5143,7 +5119,7 @@ ons.ready(function () {
                                             //clear all previously selected items from the array
                                             adminCurrentlySelected = [];
                                             // to get the dbId's off the element
-                                            var dataInfo = $(this).attr('id');
+                                            dataInfo = $(this).attr('id');
                                             console.log(dataInfo);
                                             adminCurrentlySelected.push(dataInfo);
                                             console.log(adminCurrentlySelected);
@@ -5276,25 +5252,20 @@ ons.ready(function () {
 
                 // -- end of admin.html --
                 break;
+            }
 
-            case 'messagesPage.html':
+            case 'messagesPage.html': {
                 //variables
                 var currentBase = navi.topPage.data.currentBase;
-                var eventInfo = navi.topPage.data.eventInfo;
+                eventInfo = navi.topPage.data.eventInfo;
                 var messageWindow = $('#messageWindow');
                 var messageInput = $('#messageInput');
                 var newMessages = document.getElementById('newMessages');
                 var messageInputPlaceholder = $('#messageInputPlaceholder');
                 var pouch = basedb;
-                var pouchSync = syncBasedb;
 
-                var scrollTimer;
                 var messagePageContent = $('#messagesPage .page__content');
-                var page = $('#messagesPage');
-                var offset;
-                var messageChk = /message/i;
 
-                var scroll;
                 var scrollingOn = true;
                 var scrollToBottomFab = $('#scrollToBottomFab');
                 var scrollMessageBadge = $('#scrollMessageBadge');
@@ -5307,7 +5278,7 @@ ons.ready(function () {
                 /**
                  * sends a message by putting the doc into the db then doing an alldocs for the latest messages
                  */
-                function sendMessage() {
+                var sendMessage = function() {
                     var date = new Date();
                     var isoDate = date.toISOString();
                     var message = {
@@ -5315,7 +5286,7 @@ ons.ready(function () {
                         message: messageInput.html().trim(),
                         from: currentBase,
                         time: isoDate,
-                        username: name
+                        username: personName
                     };
                     pouch.put(message)
                         .then(function (doc) {
@@ -5330,15 +5301,15 @@ ons.ready(function () {
                             } else {
                                 console.log(doc);
                             }
-                        }).then(function (doc) {
-                            var options = {
+                        }).then(function () {
+                            var optionsA = {
                                 include_docs: true,
                                 endkey: newestMessage,
                                 startkey: 'message\ufff0',
                                 descending: true,
                                 limit: undefined
                             };
-                            return addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
+                            return addMessages(pouch, messageWindow, messagePageContent, optionsA, false, true, true);
                         }).catch(function (err) {
                             console.warn(err);
                         });
@@ -5350,7 +5321,7 @@ ons.ready(function () {
                 /**
                  * runs the scroll function on the messagesPage
                  */
-                function handleMsgScroll() {
+                var handleMsgScroll = function() {
                     scrollingOn = false;
 
                     return Promise.resolve()
@@ -5370,8 +5341,7 @@ ons.ready(function () {
                                     limit: 10
                                 };
                                 return addMessages(pouch, messageWindow, messagePageContent, options, true, true, false, scroll1)
-                                    .then(function (doc) {
-                                        // console.log(doc);
+                                    .then(function () {
                                         var scroll2 = messagePageContent.scrollTop();
                                         // console.log('s2: ' + scroll2);
                                         if (scroll2 < 300 && nextMessageEndKey !== nextMessageEndKey2) {
@@ -5403,21 +5373,20 @@ ons.ready(function () {
                 //select which database connection to utilise
                 if (currentBase === 0) {
                     pouch = admindb;
-                    pouchSync = adminSync;
                 }
                 //change page title
                 // $('#messagesPage ons-toolbar .center .normalTitle,#messagesPage ons-toolbar .center .mainTitle').html('Messages: ' + eventInfo.eventName);
                 //hides the scrollToBottomFab
                 scrollToBottomFab[0].hide();
                 //add messages to screen on page change
-                var options = {
+                var optionsB = {
                     include_docs: true,
                     endkey: 'message',
                     startkey: 'message\ufff0',
                     descending: true,
                     limit: 25
                 };
-                addMessages(pouch, messageWindow, messagePageContent, options, false, true, true);
+                addMessages(pouch, messageWindow, messagePageContent, optionsB, false, true, true);
                 //messageInput
                 var placeholder = true;
                 messageInput
@@ -5468,25 +5437,18 @@ ons.ready(function () {
                     return scrollToBottomFab[0].show();
                 });
 
-                /*
-                pouchSync.on('change', function (change) {
-                    if (change.direction === 'pull') {
-                        pullMessageChangeHandler(change);
-                    }
-                });
-                */
-
                 //end of messagesPage.html
                 break;
+            }
 
-            case 'updatePage.html':
+            case 'updatePage.html': {
                 // -- start of updatePage.html --
-                var updateInfo, pageChange, options, updateInfo;
+                var updateInfo, pageChange, optionsUpdate;
                 //update the event and reset to last page using the data
 
-                var updateInfo = navi.topPage.data;
+                updateInfo = navi.topPage.data;
                 console.log(updateInfo);
-                options = {
+                optionsUpdate = {
                     animation: pageChangeAnimation,
                     data: {
                         firstPage: true
@@ -5501,18 +5463,18 @@ ons.ready(function () {
                     pageChange = navi.topPage.data.lastPage;
                     if (updateInfo.eventInfo != undefined) {
                         //information to update is already present just pass it to the page
-                        return options.data.eventInfo = updateInfo.eventInfo;
+                        return optionsUpdate.data.eventInfo = updateInfo.eventInfo;
                     } else if (updateInfo.event != undefined) {
                         var tempdb = new PouchDB(updateInfo.event);
                         return tempdb.get('eventDescription')
                             .then(function (doc) {
-                                options.data.eventInfo = doc;
+                                optionsUpdate.data.eventInfo = doc;
                             }).catch(function (err) {
                                 throw err;
                             });
                     }
-                }).then(function (info) {
-                    navi.resetToPage(pageChange, options);
+                }).then(function () {
+                    navi.resetToPage(pageChange, optionsUpdate);
                 }).catch(function (err) {
                     console.warn(err);
                     ons.notification.alert({
@@ -5521,15 +5483,15 @@ ons.ready(function () {
                         cancelable: true
                     }).then(function () {
                         pageChange = 'signInPage.html';
-                        navi.resetToPage(pageChange, options);
+                        navi.resetToPage(pageChange, optionsUpdate);
                     });
                 });
 
                 //-- end of updatePage.html --
                 break;
-
+            }
             //Start of test area
-            case 'testPage.html':
+            case 'testPage.html': {
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
 
@@ -5547,7 +5509,7 @@ ons.ready(function () {
                     style: style
                 });
 
-                function stripeTokenHandler(token) {
+                var stripeTokenHandler = function(token) {
                     // Insert the token ID into the form so it gets submitted to the server
                     var form = document.getElementById('payment-form');
                     var hiddenInput = document.createElement('input');
@@ -5587,6 +5549,7 @@ ons.ready(function () {
                 // Add an instance of the card Element into the `card-element` <div>
                 card.mount('#card-element');
                 break;
+            }
 
             //to help debug issues
             default:
@@ -5648,8 +5611,8 @@ function imgStats(imgEl) {
 }
 
 function stepped_scale(img, width, step) {
-    if (step === undefined) {
-        var step = 0.5;
+    if (typeof step === 'undefined') {
+        step = 0.5;
     }
     return Promise.resolve().then(function () {
         var canvas = document.createElement('canvas'), //canvas the result ends up on
@@ -5713,7 +5676,7 @@ function stepped_scale(img, width, step) {
  * @returns {object} returns a blob from the canvas as a promise 
  */
 function getCanvasBlob(canvas) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
         return canvas.toBlob(function (blob) {
             return resolve(blob);
         });
@@ -5792,6 +5755,9 @@ function copyToClipboard(element) {
     $temp.remove();
 }
 
+/**
+ * Used by the admin users in the menu for that page
+ */
 function copyAllLogs() {
     copyToClipboard($('#allLogsCopy'));
     ons.notification.alert({
@@ -5813,7 +5779,10 @@ function scrollToElement(elementToScroll, offset, speed) {
         scrollTop: offset
     }, speed);
 }
-//Message 
+
+/**
+ * Opens the message page
+ */
 function openMessages() {
     var options = {
         animation: pageChangeAnimation,
@@ -5875,7 +5844,7 @@ function addZero(i) {
 /**
  * @param {object} options
  */
-var getPosition = function (){
+var getPosition = function () {
   return new Promise(function (resolve, reject) {
     var options = {
       // timeout: 10,

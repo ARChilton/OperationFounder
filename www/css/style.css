@@ -1086,6 +1086,9 @@ input[type=number]::-webkit-outer-spin-button {
 
 #scrollToBottomFab {
     bottom: 85px;
+    position: absolute;
+    top: -66px;
+    right: 16px;
 }
 
 #scrollToBottomFab ons-icon {
@@ -1094,7 +1097,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 #messagesPage .page__content {
     border: none;
-    bottom: 56px;
+    bottom: 0px;
 }
 
 .newMessages {
@@ -1103,7 +1106,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .messageBadge {
     background-color: rgba(204, 204, 204, 0.85);
-    padding: 2px 2px;
+    padding: 2px 6px;
     border-radius: 3px;
     text-align: center;
     color: #fff;
@@ -1120,10 +1123,15 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 #scrollMessageBadge {
-    position: fixed;
-    bottom: 58px;
+    position: absolute;
+    top:-20px;
     right: 6px;
-    top: auto;
+    background-color: rgba(255, 145, 0,0.8);
+}
+
+#newMessages{
+    height:44px;
+    position: relative;
 }
 
 
@@ -1139,7 +1147,8 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 #messageInputToolbar {
-    height: 56px;
+    height: 0px;
+    overflow: unset;
 }
 
 .messageInputArea {
@@ -1149,6 +1158,7 @@ input[type=number]::-webkit-outer-spin-button {
     right: 0px;
     /* background-color: rgba(40, 53, 147, 0.5); */
     /* background-color: #3e3e3e; */
+    background-color: rgba(188, 188, 188,0.5);
 }
 .bottom-bar{
    background-color: #ccc; 
@@ -1173,8 +1183,9 @@ input[type=number]::-webkit-outer-spin-button {
     padding-bottom: 9px;
     margin: 4px 16px;
     font-weight: normal;
-    max-height: 100px;
-    min-height: 20px;
+    max-height: 210px;
+    max-height:30vh;
+    min-height: 38px;
     outline: none;
     overflow-x: hidden;
     overflow-y: auto;
@@ -1286,6 +1297,7 @@ input[type=number]::-webkit-outer-spin-button {
     cursor: text;
     white-space: pre-wrap;
     overflow: hidden;
+    user-select: text;
 }
 
 .message-text::after {
@@ -1311,7 +1323,8 @@ input[type=number]::-webkit-outer-spin-button {
     border-bottom-left-radius: 7.5px;
     position: relative;
     /* box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13); */
-    max-width: 90%;
+    max-width: 150px;
+    
     width: -webkit-fit-content;
     width: -moz-fit-content;
     width: fit-content;
@@ -1405,6 +1418,8 @@ input[type=number]::-webkit-outer-spin-button {
     font-size: 12px;
     font-weight: 600;
     line-height: 22px;
+    cursor:text;
+    user-select: text;
 }
 
 

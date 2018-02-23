@@ -16,9 +16,7 @@
   <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9100">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
-  <!-- <script src="components/loader.js"> -->
-  </script>
-  <!-- Need to minify scripts! -->
+  <!-- <script src="components/loader.js"></script> -->
   <script src="lib/onsenui/js/onsenui.js"></script>
   <!--<script src="js/mdl/material.js"></script>-->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
@@ -199,8 +197,8 @@
 
         <div class="row section sectionGray">
           <div class="col-xs-12">
-            <h2 class="txtCenter bold">As used by</h1>
-              <img src="img/operationFounder.png" class="asUsedByLogo">
+            <h2 class="txtCenter bold">As used by</h2>
+            <img src="img/operationFounder.png" class="asUsedByLogo">
           </div>
         </div>
 
@@ -292,7 +290,7 @@
       <div class="pageDiv txtCenter">
 
         <form id="createEventForm" class="marginTop">
-          <input type="file" accept="image/*" id="eventBanner" class="inputFile hide"></input>
+          <input type="file" accept="image/*" id="eventBanner" class="inputFile hide">
           <label id="eventBannerInputLabel" for="eventBanner">
             <img src="img/largeLogo.svg" class="loginLogo" id="eventBannerImage">
             <ons-button modifier="large" class="marginTop secondaryColorButton">
@@ -595,7 +593,7 @@
     <ons-dialog id="baseSelectDialog" cancelable>
       <div>
         <ons-list>
-          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-title>
+          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-header>
 
         </ons-list>
       </div>
@@ -897,35 +895,38 @@
         </div>
       </ons-toolbar>
 
-      <ons-fab position="bottom right" ripple id="scrollToBottomFab" class="secondaryFab fab--mini">
+      <!-- <ons-fab position="bottom right" ripple id="scrollToBottomFab" class="secondaryFab fab--mini">
         <ons-icon icon="fa-angle-double-down"></ons-icon>
-      </ons-fab>
+      </ons-fab> -->
       <div id="topDateMsgDivider" class="msg dateMsgDivider">
         <div id="topDateMsgBubble" class="bubble dateBubble">Today</div>
       </div>
       <div class="" id="messageWindow"></div>
       <div id="newMessages"></div>
       <ons-bottom-toolbar transparent id="messageInputToolbar">
+        <div id="messageTools">
+          <div class="messageInputArea">
+            <ons-fab ripple id="scrollToBottomFab" class="secondaryFab fab--mini">
+              <ons-icon icon="fa-angle-double-down"></ons-icon>
+            </ons-fab>
+            <span id="scrollMessageBadge" class="messageBadge hide"></span>
+            <div class="messageInputContainer">
+              <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
+              <div id="messageInputPlaceholder" class="placeholder text-input--material__label">Type a message</div>
 
-        <div class="messageInputArea">
-          <div class="messageInputContainer">
-            <div id="messageInput" contenteditable="true" spellcheck="true" autofocus></div>
-            <div id="messageInputPlaceholder" class="placeholder text-input--material__label">Type a message</div>
+            </div>
+            <ons-fab ripple id="sendMessage" class="fab--mini">
+              <i class="zmdi zmdi-mail-send"></i>
+            </ons-fab>
 
-          </div>
-          <ons-fab ripple id="sendMessage" class="fab--mini">
-            <i class="zmdi zmdi-mail-send"></i>
-          </ons-fab>
-
-          <!-- <button id="sendMessage" class="fab fab--mini">
+            <!-- <button id="sendMessage" class="fab fab--mini">
           <ons-ripple color="#bb8fce" background="#85c1e9"></ons-ripple>
           <i class="zmdi zmdi-mail-send"></i>
         </button> -->
 
+          </div>
         </div>
       </ons-bottom-toolbar>
-      <span id="scrollMessageBadge" class="messageBadge hide"></span>
-
     </ons-page>
   </ons-template>
   <!-- <ons-template id="testPage.html">
