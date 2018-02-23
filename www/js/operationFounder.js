@@ -5888,7 +5888,7 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     lon: log.geolocation.lon,
     accuracy:log.geolocation.accuracy,
     loggedBy: log.username,
-    base: log.base,
+    checkpoint: log.base,
     score: log.totalScore,
     offRoute: log.offRoute
   };
