@@ -5893,40 +5893,24 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     if (!trackingOn) {
         return log;
     }
-    // var dataPackage = {
-    //     id:pRef +'-'+ log.patrol,
-    //     lat:log.geolocation.lat,
-    //     lon:log.geolocation.lon,
-    //     logged_by:log.username,
-    //     base:log.base,
-    //     score:log.totalScore,
-    //     offRoute:log.offRoute
-    // };
-    // var settings = apiAjax(trackingUrl, dataPackage);
-    // // settings.crossDomain = 'no-cors';
-    // // settings.dataType = 'jsonp';
-    // console.log(settings);
-    // $.ajax(settings);
+    
+    var dataPackage = {
+    trackingUrl: trackingUrl,
+    id: pRef + '-' + log.patrol,
+    lat: log.geolocation.lat,
+    lon: log.geolocation.lon,
+    accuracy:log.geolocation.accuracy,
+    loggedBy: log.username,
+    checkpoint: log.base,
+    score: log.totalScore,
+    offRoute: log.offRoute
+  };
+  var settings = apiAjax(appServer + '/event/tracking', dataPackage);
+ 
+  console.log(settings);
+  $.ajax(settings);
 
-    var trackingUrlLastCharacter = trackingUrl.substring(trackingUrl.length - 1);
-    if (trackingUrlLastCharacter !== '/'){
-        trackingUrl += '/';
-    }
-    var url = trackingUrl + '?id=' + pRef + '-' + log.patrol + '&lat=' + log.geolocation.lat + '&lon=' + log.geolocation.lon + '&accuracy='+log.geolocation.accuracy+'&logged_by='+log.username +'&base='+log.base+'&offRoute='+log.offRoute+'&score='+log.totalScore;
-    console.log(url);
-    var settings = {
-        "async": true,
-        "crossDomain": true,
-        "url": url,
-        "method": "GET",
-        "headers": {
-            "cache-control": "no-cache",
-            "postman-token": "bcbe4349-ec39-3cd1-c65b-56c1b54b8eee"
-        }
-    }
-
-    $.ajax(settings);
-    return log;
+  return log;
 }
 /**
  * a function to show or hide the password inputs
