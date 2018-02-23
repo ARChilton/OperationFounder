@@ -1256,6 +1256,45 @@ function editLog(logs) {
       });
   }
 
+<<<<<<< HEAD
+=======
+    for (var i = 0, l = logsLength; i < l; i++) {
+        var id = logs[i];
+
+        basedb.get(id)
+            .then(function (doc) {
+                switch (doc.editable) {
+                    case false:
+                        ons.notification.alert({
+                            title: 'No longer editable',
+                            message: 'This record has been locked by the event admins and cannot be edited',
+                            cancelable: true
+                        });
+                        break;
+                    case true:
+                        var tIn = new Date(doc.timeIn);
+                        var tOut = new Date(doc.timeOut);
+                        $('#patrolNo').val(doc.patrol);
+                        $('#timeIn').val(addZero(tIn.getHours()) + ':' + addZero(tIn.getMinutes()));
+                        $('#timeOut').val(addZero(tOut.getHours()) + ':' + addZero(tOut.getMinutes()));
+                        $('#wait').val(doc.timeWait);
+                        $('#total').val(doc.totalScore);
+                        switch (doc.offRoute) {
+                            case true:
+                                console.log('should be checked');
+                                $('#offRoute').prop('checked', true);
+                                break;
+                            case false:
+                                $('#offRoute').prop('checked', false);
+                        }
+                        var page = $('#page1 .page__content');
+                        scrollToElement(page, 0, 400);
+                        break;
+                }
+            });
+    }
+
+>>>>>>> Development
 }
 
 //--Admin functions
@@ -3868,8 +3907,42 @@ ons.ready(function () {
                       console.warn(err);
                     });
 
-                } else {
-                  baseSelectDialog.show();
+            case 'page1.html':
+                menuController('page1.html');
+                //passing through information about the event and the base
+                //stops the FAB button showing before a table element is selected
+                //TODO 3/10/2017 make fulledit fab have multiple options including removing the log
+                var editFab = document.getElementById('fullEditFab');
+                editFab.hide();
+                userCurrentlySelected = [];
+                $('#fullEditFab').removeClass('hide');
+                var baseTable = $('#logsTable');
+                if (navi.topPage.data.eventInfo !== undefined) {
+                    var eventInfo = navi.topPage.data.eventInfo;
+                    var eventInfoBase = eventInfo.bases[getBaseNumber()];
+                    if (eventInfoBase.baseInstructions != '') {
+                        console.log('there are base instructions');
+                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left"><span id="baseInstructionsShowHideWord">Hide base instructions</span></div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
+                        $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
+                        $('#instructions').on('click', function () {
+                            $('#instructionChevron').toggleClass('rotate90');
+                            $('#baseInstructions').slideToggle(500);
+                            var showHideWord = $('#baseInstructionsShowHideWord');
+                            showHideWord.html() === 'Hide base instructions'
+                                ? showHideWord.html('Show base instructions')
+                                : showHideWord.html('Hide base instructions');
+                        });
+                    }
+                    //hides score entry if there is no maximum base score
+                    if (eventInfoBase.baseMaxScore === '' || eventInfoBase.baseMaxScore === undefined) {
+                        $('#page1TotalScore').hide();
+                    } else {
+                        $('#total').attr('placeholder', 'Total score (max ' + eventInfoBase.baseMaxScore + ')');
+                    }
+                    if (eventInfo.autoTime == true) {
+                        $('#p1TopHalf .page1Time').hide();
+                    }
+                    baseDatabaseName = eventInfo.dbName;
                 }
 
 
