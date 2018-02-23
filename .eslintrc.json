@@ -217,7 +217,7 @@
         "operator-assignment": "off",
         "operator-linebreak": [
             "error",
-            "after"
+            "before"
         ],
         "padded-blocks": "off",
         "padding-line-between-statements": "error",

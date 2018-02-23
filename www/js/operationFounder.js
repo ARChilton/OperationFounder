@@ -14,6 +14,8 @@
  * @param {boolean | undefined} verified whether the user is verified
  * @param {number} dbSeqNumber
  */
+
+ /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false */
 //dev variables
 // var arcGlobal = {};
 
@@ -447,13 +449,13 @@ function orientationUpdates() {
  * destroys basedb and opFounderAppDb
  */
 function destroyPouchDBs() {
-    var x = new PouchDB(baseDatabaseName).destroy().then(function () {
+    new PouchDB(baseDatabaseName).destroy().then(function () {
         ons.notification.alert(baseDatabaseName + '/basedb database destroyed');
     });
-    var y = new PouchDB(appDatabaseName).destroy().then(function () {
+     new PouchDB(appDatabaseName).destroy().then(function () {
         ons.notification.alert(appDatabaseName + '/opFounderAppDb database destroyed');
     });
-    var y = new PouchDB(adminDatabaseName).destroy().then(function () {
+    new PouchDB(adminDatabaseName).destroy().then(function () {
         ons.notification.alert(adminDatabaseName + '/admindb database destroyed');
     });
 
@@ -483,10 +485,8 @@ function cleanAll() {
                             _deleted: true
                         }
 
-                        admindb.put(
-                            deletedRecord,
-                            options
-                        ).catch(function (err) {
+                        admindb.put(deletedRecord)
+                        .catch(function (err) {
                             console.warn(err);
                         });
 
@@ -768,9 +768,10 @@ function cleanAll() {
  * @param {boolean} admin - true or false, are you using the admin page(true) or the base page (false or not present)
  */
 function patrolRecordUpdate(id, offRoute, admin) {
+    var index;
     if (admin) {
         if (!(offRoute)) {
-            var index = patrolRecordAdmin.indexOf(id);
+            index = patrolRecordAdmin.indexOf(id);
             //checks that it isn't an off route entry in which case we are happy to duplicate in the table
             if (index > -1) {
                 console.log('record already exists')
@@ -780,7 +781,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 return false;
             }
         } else {
-            var index = offRouteIndexAdmin.indexOf(id);
+            index = offRouteIndexAdmin.indexOf(id);
             if (index > -1) {
                 console.log('record already exists')
                 return true;
@@ -792,7 +793,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         }
     } else {
         if (!(offRoute)) { //checks that it isn't an off route entry in which case we are happy to duplicate in the table
-            var index = patrolRecord.indexOf(id);
+            index = patrolRecord.indexOf(id);
             if (index > -1) {
                 return true;
             } else {
@@ -800,7 +801,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
                 return false;
             }
         } else {
-            var index = offRouteIndex.indexOf(id);
+            index = offRouteIndex.indexOf(id);
             if (index > -1) {
                 console.log(id + 'record already exists')
                 return true;
@@ -821,11 +822,12 @@ function patrolRecordUpdate(id, offRoute, admin) {
  * @return {boolean}
  */
 function removePatrolRecord(id, admin) {
-
+    var deleteIndex;
+    var offRouteDeleteIndex;
     switch (admin) {
         case true:
-            var deleteIndex = patrolRecordAdmin.indexOf(id);
-            var offRouteDeleteIndex = offRouteIndexAdmin.indexOf(id);
+            deleteIndex = patrolRecordAdmin.indexOf(id);
+            offRouteDeleteIndex = offRouteIndexAdmin.indexOf(id);
             if (deleteIndex > -1) {
                 patrolRecordAdmin.splice(deleteIndex, 1);
                 return true;
@@ -838,8 +840,8 @@ function removePatrolRecord(id, admin) {
             }
         //  break; //removed as the returns make this unreachable
         case false:
-            var deleteIndex = patrolRecord.indexOf(id);
-            var offRouteDeleteIndex = offRouteIndex.indexOf(id);
+            deleteIndex = patrolRecord.indexOf(id);
+            offRouteDeleteIndex = offRouteIndex.indexOf(id);
             if (deleteIndex > -1) {
                 patrolRecord.splice(deleteIndex, 1);
                 return true;
@@ -885,16 +887,6 @@ function editableStyling(editable, trId) {
     }
 }
 
-
-/**
- * a function to remove an exisiting record from a base
- * @param {string|number} id - database id
- * @param {boolean} admin - admin page or base page
- * @todo add delete functionality to the base page - this function is currently unused
- */
-function removeExisiting(id, admin) {
-    $('#' + id).remove();
-}
 /**
  * functions to update the table or row according to the update table function for the Base page's table
  * @param {string|number} dbId - _id in the database
@@ -905,10 +897,8 @@ function removeExisiting(id, admin) {
  * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
- * @param {string} tableId - base table or admin table
- * @param {string} tableLogId - the class of the row(unused in this function)
  */
-function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
+function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable) {
     var trId = dbId;
 
     $('#' + trId).html("<td class='bold lockImage'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td>" + totalScore + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
@@ -926,10 +916,8 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
  * @param {boolean} offRoute - if the patrol was meant to attend this base or was on the wrong route but recorded as being seen
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
- * @param {string} tableId - base table or admin table
- * @param {string} tableLogId - the class of the row (unused in this function)
  */
-function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy) {
     var trId = dbId;
     //without checkboxes
     $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
@@ -1027,9 +1015,9 @@ function tableUpdateFunction(path, admin, array) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId);
+            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username);
         } else {
-            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, '#adminLogsTable', tableLogId));
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username));
         }
 
     } else if (path.base === getBaseNumber()) {
@@ -1046,7 +1034,7 @@ function tableUpdateFunction(path, admin, array) {
  * @param {object} doc - the document from the database
  * @param {boolean} admin - true or false whether the user is an admin and whether the table to be updated is the admin table or not
  */
-function updateTableFromAllDocs(doc, admin) {
+/* function updateTableFromAllDocs(doc, admin) {
     console.log('updating from all docs on local db');
     var tableUpdate = [];
     for (var i = 0, l = doc.total_rows; i < l; i++) {
@@ -1063,7 +1051,7 @@ function updateTableFromAllDocs(doc, admin) {
         table.prepend(tableUpdate.reverse());
     }
     orientationLandscapeUpdate();
-}
+} */
 /**
  * updates the table at the bottom of the screen on page1.html and admin.html from a find query or any input with doc.docs
  * @param {object} doc - the document from the database
@@ -1075,7 +1063,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     var messagesAdded = 0;
     var messages = [];
     var page = navi.topPage.name;
-    var last_seq = doc.last_seq;
+    
     console.log('updating from find query');
     //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
@@ -1098,9 +1086,8 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                             title: 'HQ deleted some logs',
                             messageHTML: 'For your awareness HQ have deleted logs and they will be removed from your log list',
                             cancelable: true
-                        }).then(function (input) {
+                        }).then(function () {
                             deleteNotificationCleared = true;
-
                         });
                     }
                 }
@@ -1155,11 +1142,10 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     }
     //code after the loop
     if (tableUpdate.length > 0) {
-        if (admin) {
-            var table = $('#adminLogsTable');
-        } else {
-            var table = $('#logsTable');
-        }
+        var table = admin
+        ? $('#adminLogsTable')
+        : $('#logsTable');
+
         table.prepend(tableUpdate.reverse());
     }
     if (messagesAdded > 0) {
@@ -1225,7 +1211,6 @@ function clearQuickAddInputs() {
  */
 function editLog(logs) {
     var logsLength = logs.length;
-    var timestamp = new Date().toISOString();
 
     for (var i = 0, l = logsLength; i < l; i++) {
         var id = logs[i];
@@ -1317,12 +1302,10 @@ function writeUntilWrittenDelete(id, timestamp) {
             if (err.status === 404) {
                 admindb.put({
                     _id: id,
-                    _rev: origRev,
                     username: name,
                     timestamp: timestamp,
                     _deleted: true
-                }).then(function (doc) {
-
+                }).then(function () {
                     return true;
                 }).catch(function (err) {
                     console.warn(err);
@@ -1355,15 +1338,16 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 
     var lockDocsLength = lockDocs.length;
     var timestamp = new Date().toISOString();
-
+    var message;
+    var message2;
     switch (lock) {
         case false:
-            var message = 'unlocked';
-            var message2 = 'allow';
+            message = 'unlocked';
+            message2 = 'allow';
             break;
         case true:
-            var message = 'locked';
-            var message2 = 'stop';
+            message = 'locked';
+            message2 = 'stop';
             break;
     }
     for (var i = 0, l = lockDocsLength; i < l; i++) {
