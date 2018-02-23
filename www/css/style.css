@@ -1311,7 +1311,8 @@ input[type=number]::-webkit-outer-spin-button {
     border-bottom-left-radius: 7.5px;
     position: relative;
     /* box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13); */
-    max-width: 90%;
+    max-width: 150px;
+    
     width: -webkit-fit-content;
     width: -moz-fit-content;
     width: fit-content;
