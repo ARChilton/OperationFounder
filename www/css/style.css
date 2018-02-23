@@ -48,6 +48,10 @@ Accent Darker color: Orange 800: #EF6C00
     right: 16px;
 }
 
+.text-input--material__label{
+    top:0px;
+}
+
 .navigation-bar, .navigation-bar__center, .navigation-bar__left, .navigation-bar__right{
     height:50px;
     line-height: 56px;
@@ -55,6 +59,10 @@ Accent Darker color: Orange 800: #EF6C00
 
 .navigation-bar__right{
     float:right;
+}
+
+.text-input--underbar:disabled{
+    border-bottom: none;
 }
 .navigation-bar--material, .navigation-bar--material__center,.navigation-bar--material__right,.navigation-bar--material__left{
     height:56px;
@@ -768,7 +776,7 @@ background-color:#efefef;
     max-height: 300px;
 }
 
-.baseMaxScore{
+.baseMaxScore, .basePassword{
     max-width:40%;
 }
 
@@ -1047,9 +1055,28 @@ input[type=number]::-webkit-outer-spin-button {
 
 .baseSummaryInfo{
     border-bottom:solid 1px #e2e2e2;
+    position:relative;
+}
+
+.baseSummaryIcons{
+    position: absolute;
+    top:0px;
+    right:0px;
+    color:#ccc;
+    font-size: 25px;
+    line-height:25px;
+}
+.baseSummaryIcons ons-icon{
+    padding-left:4px;
 }
 
 
+.baseSummaryIconActive{
+    /* color:#FF9100; */
+    /* color:#FFB74D; */
+    /* color:#fcc779; */
+   color: rgba(255, 183, 77,0.9);
+}
 /* --- Message CSS --- */
 
 

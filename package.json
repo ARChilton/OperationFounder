@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "checkpoint monitoring",
   "main": "www",
-  "dependencies": {
-    "sw-precache": "^5.2.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "del": "^3.0.0",
     "gulp-autoprefixer": "^4.1.0",

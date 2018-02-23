@@ -117,6 +117,7 @@ var patrolRecord = [];
 var patrolRecordAdmin = [];
 var offRouteIndex = [];
 var offRouteIndexAdmin = [];
+var geolocation = localStorage.geolocation;
 //page change animation
 var pageChangeAnimation = 'none';
 /**
@@ -175,7 +176,7 @@ function checkForMessagesSinceSeqNo(db, seqNo) {
         .then(function (doc) {
             nextSeq = doc.last_seq;
             return doc.results.filter(function (result) {
-                console.log(result);
+                // console.log(result);
                 return messageChk.test(result.id) && !result.deleted; //tests the id has message in it
             });
         });
@@ -2957,28 +2958,24 @@ ons.ready(function () {
                  * @param {number|string} baseCount 
                  */
                 function addBase(baseCount) {
-                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Base ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Base name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword maxWidth50per" required></ons-input></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
+                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
-                /**
-                 * a function to show or hide the password inputs
-                 * @param {Bool} trueOrFalse 
-                 */
-                function hidePasswordEntry(trueOrFalse) {
-                    switch (trueOrFalse) {
-                        //hides the password input
-                        case true:
-                            $('.basePasswordShowHide').addClass('hide');
-                            break;
-                        case false:
-                            $('.basePasswordShowHide').removeClass('hide');
-                            break;
-                    }
+
+                function switchAndHideToggle(elementSwitch, elementsToHide, trueOrFalse) {
+                    toggleProp(elementSwitch, 'checked', trueOrFalse);
+                    hideElement(!trueOrFalse, elementsToHide);
                 }
+
+                function toggleProp(element, prop, trueOrFalse) {
+                    return element.prop(prop, trueOrFalse);
+                }
+
                 /**
                  * creates the eventDescription variable in the higher scope
                  */
                 function createEventDescription() {
+                  var trackingUrl = $('#trackingUrl').val().trim();
                     eventDescription = {
                         _id: 'eventDescription',
                         eventName: $('#eventName').val().trim(),
@@ -2989,6 +2986,8 @@ ons.ready(function () {
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
                         autoTime: $('#autoTimeSwitch').prop("checked"),
+                        tracking: $('#trackingSwitch').prop("checked") && trackingUrl !== '',
+                        trackingUrl: trackingUrl,
                         adminPassword: $('#adminPassword').val(),
                         evtUsername: $('#evtUsername').val(),
                         bases: [{
@@ -3011,6 +3010,7 @@ ons.ready(function () {
                             baseNo: i,
                             baseMaxScore: $('#base' + i + 'MaxScore').val(),
                             basePassword: $('#base' + i + 'Password').val().trim(),
+                            baseGeolocation: $('#base' + i + 'GeolocationSwitch').prop('checked'),
                             baseInstructions: $('#base' + i + 'Instructions').val().trim()
                         };
                         var bName = $('#base' + i + 'Name').val().trim();
@@ -3061,6 +3061,8 @@ ons.ready(function () {
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
                         $('#autoTimeSwitch').prop("checked", eventInfo.autoTime);
+                        $('#trackingSwitch').prop("checked", eventInfo.tracking);
+                        $('#trackingUrl').val(eventInfo.trackingUrl).prop("disabled", !eventInfo.tracking);
                         $('#adminPassword').val(eventInfo.adminPassword);
                         $('#evtUsername').val(eventInfo.evtUsername).prop('disabled', true);
                         //base handling
@@ -3085,6 +3087,7 @@ ons.ready(function () {
                                 }
                                 $('#' + id + 'Name').val(base.baseName);
                                 $('#' + id + 'MaxScore').val(base.baseMaxScore);
+                                $('#' + id + 'GeolocationSwitch').prop('checked', base.baseGeolocation);
                                 $('#' + id + 'Instructions').val(base.baseInstructions);
 
                             } else {
@@ -3107,7 +3110,7 @@ ons.ready(function () {
                             console.log(err);
                         });
                         //lastly update whether password entries show or not
-                        hidePasswordEntry(!eventInfo.passwordProtectLogs);
+                        hideElement(!eventInfo.passwordProtectLogs, '.basePasswordShowHide');
                     }
                 }
                 //Other Event Handlers
@@ -3132,23 +3135,27 @@ ons.ready(function () {
                 if (!($('.passwordProtectLogs').hasClass('evtHandler'))) {
                     $('.passwordProtectLogs').addClass('evtHandler').on('click', function () {
                         var passwordSwitch = $('#passwordSwitch');
-                        switch (passwordSwitch.prop("checked")) {
-                            //changes the switch and hides the password input
-                            case true:
-                                passwordSwitch.prop('checked', false);
-                                $('.basePasswordShowHide').addClass('hide');
-                                break;
-                            case false:
-                                passwordSwitch.prop('checked', true);
-                                $('.basePasswordShowHide').removeClass('hide');
-                                break;
-                        }
+                        var elementsToHide = '.basePasswordShowHide';
+                        switchAndHideToggle(passwordSwitch, elementsToHide, !passwordSwitch.prop("checked"));
                     });
                 }
 
                 if (!($('#passwordSwitch').hasClass('evtHandler'))) {
                     $('#passwordSwitch').addClass('evtHandler').on('change', function () {
-                        hidePasswordEntry(!$('#passwordSwitch').prop("checked"));
+                        hideElement(!$('#passwordSwitch').prop("checked"), '.basePasswordShowHide');
+                    });
+                }
+                if (!($('.tracking').hasClass('evtHandler'))) {
+                    $('.tracking').addClass('evtHandler').on('click', function () {
+                        var elSwitch = $('#trackingSwitch');
+                        var trackingUrl = $('#trackingUrl');
+                        toggleProp(elSwitch, 'checked', !elSwitch.prop('checked'));
+                        toggleProp(trackingUrl, 'disabled', !trackingUrl.prop('disabled'));
+                    });
+                }
+                if (!($('#trackingSwitch').hasClass('evtHandler'))) {
+                    $('#trackingSwitch').addClass('evtHandler').on('change', function () {
+                        hideElement(!$('#trackingSwitch').prop("checked"), '.trackingShowHide');
                     });
                 }
 
@@ -3182,6 +3189,7 @@ ons.ready(function () {
                         }
                     });
                 }
+
                 if (!($('#evtUsername').hasClass('evtHandler'))) {
                     $('#evtUsername').addClass('evtHandler').on('blur', function () {
 
@@ -3241,7 +3249,7 @@ ons.ready(function () {
 
                             }
                             //scrolls to the bottom of the page
-                            var offset = 1370 + baseCount * (181);
+                            var offset = 1570 + baseCount * (250);
                             var page = $('#createEventPage .page__content');
                             scrollToElement(page, offset, 1000);
 
@@ -3592,32 +3600,48 @@ ons.ready(function () {
                     $('#evtSummaryBaseCount').append(eventInfo.bases.length);
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
+                    if(eventInfo.tracking){
+                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl +'</span></p>')
+                    }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
                     }
-                    $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
+                    // $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
                     var evtSummaryBasesArray = [];
                     eventInfo.bases.forEach(function (base) {
-
-                        var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>';
-
-                        // $('#evtSummaryBases').append('<p class="bold evtSummaryBasesTitle">Base ' + base.baseNo + ': ' + base.baseName + '</p>');
+                        var maxScoreClass = '';
+                      var baseSummaryPasswordClass='';
+                      var activeClass = 'baseSummaryIconActive';
+                        var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
+                      var baseSummaryIcons = '<div class="baseSummaryIcons">'
                         if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
                             message = 'no score available at this location';
                         } else {
                             message = base.baseMaxScore;
+                          maxScoreClass = activeClass;                           
                         }
+                      baseSummaryIcons += '<ons-icon icon="fa-trophy" class="'+maxScoreClass+'"></ons-icon>';
                         baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
-                        // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>');
-                        if (eventInfo.passwordProtectLogs) {
-                            baseInformationSection += '<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
-                            // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base code: </span><span class="passwordFont">' + base.basePassword + '</span></p>');
+                        if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
+                            baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
+                          baseSummaryPasswordClass = activeClass;
                         }
+                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="'+baseSummaryPasswordClass+'"></ons-icon>';
+                        
+                          var locationClass = '';
+                          var locationMessage = 'no';
+                          if(base.baseGeolocation){
+                            locationMessage = 'yes';
+                            locationClass += activeClass;
+                          }
+                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">'+locationMessage+'</span></p>';
+                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass +'"></ons-icon>'
+                        
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
-                            baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
+                            baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
                             // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
-                        baseInformationSection += '</div>';
+                      baseInformationSection += baseSummaryIcons +'</div></div>';
                         evtSummaryBasesArray.push(baseInformationSection);
                     });
                     $('#evtSummaryBases').append(evtSummaryBasesArray);
@@ -3672,7 +3696,7 @@ ons.ready(function () {
                                     }
                                     return options = {
                                         title: 'Email Sent',
-                                        messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the app or website.</p>',
+                                        messageHTML: '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' + changeAtSymbolBack(username) + '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the website.</p>',
                                         cancelable: true
                                     };
                                 }).then(function (options) {
@@ -4088,6 +4112,36 @@ ons.ready(function () {
                 break;
 
             case 'page1.html':
+              /**
+                * Takes the patrol log and updates it with geolocation attributes
+                * @param {object} log 
+                * @param {Bool} needGeolocation  
+                */
+                function updateLogWIthPosition(log, needGeolocation) {
+                    return Promise.resolve()
+                        .then(function () {
+                            if (!needGeolocation) {
+                                console.log('returned log');
+                                return log;
+
+                            }
+                            return getPosition()
+                                .then(function (position) {
+                                    console.log(position);
+                                    console.log(log);
+                                    log.geolocation = {
+                                        lat: position.coords.latitude,
+                                        lon: position.coords.longitude,
+                                        accuracy: position.coords.accuracy
+                                    };
+                                    return log;
+                                });
+                        }).catch(function (err) {
+                            console.log(err);
+                            return log;
+                        });
+                }
+
                 menuController('page1.html');
                 //passing through information about the event and the base
                 //stops the FAB button showing before a table element is selected
@@ -4260,10 +4314,48 @@ ons.ready(function () {
                 });
                 checkForNewMessagesOnPageLoad(basedb, dbSeqNumber);
 
+                if (eventInfoBase.baseGeolocation && typeof geolocation === 'undefined') {
+                    var options = {
+                        title: 'Location',
+                        messageHTML: '<p class="">The event organiser has set this base to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
+                        cancelable: true
+                    };
+                    ons.notification.alert(options)
+                        .then(function () {
+                            return getPosition();
+                        })
+                        .then(function (location) {
+                            console.log(location);
+                            var options = {
+                                title: 'Your current location',
+                                messageHTML: '<p class="">Thank you for accepting geolocation privaldges, your current location is shown below:</p><div><p class="txtCenter">lat: ' + location.coords.latitude + '</p><p class="txtCenter">lon: ' + location.coords.longitude + '</p><p class="txtCenter">Accuracy: ' + location.coords.accuracy + 'm</p></div>',
+                                cancelable: true
+                            };
+                            if (location.coords.accuracy > 100) {
+                                options.messageHTML += '<p class="caption ">Accuracy will improve as the GPS finds satelites.</p>'
+                            }
+                            return options;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                            return options = {
+                                title: 'Location Failed',
+                                message: 'If you did not accept to allow for locations, if you change your mind you can do so from your browser settings. If not then it seems your browser cannot utilise geolocation.',
+                                cancelable: true
+                            };
 
+                        }).then(function (options) {
+                            if (options.title === 'Location Failed') {
+                                geolocation = 'rejected';
+                                localStorage.geolocation = 'rejected';
+                            } else {
+                                geolocation = 'accepted';
+                                localStorage.geolocation = 'accepted';
+                            }
 
-
-
+                            return ons.notification.alert(options);
+                        });
+                }
 
                 // -- QuickAdd --
 
@@ -4366,7 +4458,8 @@ ons.ready(function () {
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
                         base = getBaseNumber();
-                        //currentLocation = getGeolocation();
+                        var geolocationOn = eventInfoBase.baseGeolocation && geolocation === 'accepted';
+                        var trackingOn = eventInfo.tracking && geolocationOn;
                         // set variables to the input values
                         sqPatrol = $('#patrolNo').val();
                         sqTimeIn = $('#timeIn').val();
@@ -4495,10 +4588,22 @@ ons.ready(function () {
                                     console.log(base);
                                     patrolLog._id = sqPatrol + '_base_' + base + '_offRoute_' + now;
                                     patrolLog.offRoute = sqOffRoute;
-                                    tableUpdateFunction(patrolLog, false, tableUpdate);
-                                    baseTableInput(tableUpdate)
-                                    console.log(patrolLog);
-                                    basedb.put(patrolLog);
+                                    return updateLogWIthPosition(patrolLog, geolocationOn)
+                                        .then(function (log) {
+                                            console.log(log);
+                                            return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                        })
+                                        .then(function (log) {
+                                            tableUpdateFunction(log, false, tableUpdate);
+                                            baseTableInput(tableUpdate);
+                                            return basedb.put(log);
+                                        }).catch(function (err) {
+                                            console.log(err);
+                                        });
+                                    // tableUpdateFunction(patrolLog, false, tableUpdate);
+
+                                    // console.log(patrolLog);
+                                    // basedb.put(patrolLog);
                                     break;
                                 default:
                                     basedb.get(patrolLog._id)
@@ -4515,11 +4620,16 @@ ons.ready(function () {
                                                             patrolLog._rev = doc._rev;
                                                             patrolLog._id = doc._id;
 
-                                                            return basedb.put(patrolLog)
-                                                                .then(function (doc) {
-                                                                    return tableUpdateFunction(patrolLog, false, tableUpdate);
-                                                                    //return orientationLandscapeUpdate();
+                                                            return updateLogWIthPosition(patrolLog, geolocationOn)
+                                                                .then(function (log) {
+                                                                    console.log(log);
+                                                                    return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                                })
+                                                                .then(function (log) {
+                                                                    tableUpdateFunction(log, false, tableUpdate);
+                                                                    return basedb.put(log);
                                                                 });
+
                                                         }
                                                     }).catch(function (err) {
                                                         console.warn(err);
@@ -4537,37 +4647,43 @@ ons.ready(function () {
 
 
                                         }).catch(function (err) {
+                                            console.log(tableUpdate);
 
                                             if (err.status == 404) {
-                                                console.log('404 no prior record putting a new record');
-                                                tableUpdateFunction(patrolLog, false, tableUpdate);
-                                                //orientationLandscapeUpdate();
-                                                //clearQuickAddInputs();
-                                                return basedb.put(patrolLog);
+
+                                                return updateLogWIthPosition(patrolLog, geolocationOn)
+                                                    .then(function (log) {
+                                                        console.log(log);
+                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                    })
+                                                    .then(function (log) {
+                                                        console.log('404 no prior record putting a new record');
+                                                        tableUpdateFunction(log, false, tableUpdate);
+                                                        //orientationLandscapeUpdate();
+                                                        //clearQuickAddInputs();
+                                                        return basedb.put(log);
+                                                    })
+                                                    .catch(function (err) {
+                                                        console.log(err);
+                                                    });
+
 
                                             } else if (err.status == 409) {
                                                 switch (doc.editable) {
                                                     case true:
                                                         console.log('409 putting anyway');
-                                                        //clearQuickAddInputs();
-                                                        var patrolLogUpdate = {
-                                                            _id: doc._id,
-                                                            _rev: doc._rev,
-                                                            patrol: sqPatrol,
-                                                            base: base,
-                                                            username: name,
-                                                            timeIn: sqTimeIn,
-                                                            timeOut: sqTimeOut,
-                                                            timeWait: sqWait,
-                                                            offRoute: '',
-                                                            totalScore: sqTotalScore,
-                                                            editable: true,
-                                                            timestamp: timestamp
-                                                        }
-                                                        basedb.put(patrolLogUpdate).then(function () {
-                                                            return tableUpdateFunction(patrolLogUpdate, false, tableUpdate);
-                                                            // orientationLandscapeUpdate();
-                                                        });
+                                                        patrolLog._rev = doc._rev;
+                                                        patrolLog._id = doc._id;
+                                                        
+                                                        return updateLogWIthPosition(patrolLog, geolocationOn)
+                                                            .then(function (log) {
+                                                                console.log(log);
+                                                                return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                            })
+                                                            .then(function (log) {
+                                                                tableUpdateFunction(log, false, tableUpdate);
+                                                                return basedb.put(log);
+                                                            });
                                                         break;
                                                     case false:
                                                         console.log('409 alert message');
@@ -5745,10 +5861,70 @@ function isScrolledIntoView(el) {
     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
     return isVisible;
 }
-
+/**
+ * Adds a zero for times under 10
+ * @param {number} i 
+ */
 function addZero(i) {
     if (i < 10) {
         i = '0' + i;
     }
     return i;
+}
+
+/**
+ * @param {object} options
+ */
+var getPosition = function (){
+  return new Promise(function (resolve, reject) {
+    var options = {
+      // timeout: 10,
+      enableHighAccuracy: true,
+      // maximumAge: Infinity
+    };
+    navigator.geolocation.getCurrentPosition(resolve, reject, options);
+  });
+}
+
+function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
+    console.log(trackingOn);
+    console.log(log);
+    console.log(trackingUrl)
+    if (!trackingOn) {
+        return log;
+    }
+    
+    var dataPackage = {
+    trackingUrl: trackingUrl,
+    id: pRef + '-' + log.patrol,
+    lat: log.geolocation.lat,
+    lon: log.geolocation.lon,
+    accuracy:log.geolocation.accuracy,
+    loggedBy: log.username,
+    checkpoint: log.base,
+    score: log.totalScore,
+    offRoute: log.offRoute
+  };
+  var settings = apiAjax(appServer + 'api/event/tracking', dataPackage);
+ 
+  console.log(settings);
+  $.ajax(settings);
+
+  return log;
+}
+/**
+ * a function to show or hide the password inputs
+ * @param {Bool} trueOrFalse
+ * @param {object} elementRef the jquery element reference to be hidden or shown
+ */
+function hideElement(trueOrFalse, elementRef) {
+    switch (trueOrFalse) {
+        //hides the password input
+        case true:
+            $(elementRef).addClass('hide');
+            break;
+        case false:
+            $(elementRef).removeClass('hide');
+            break;
+    }
 }
