@@ -3417,7 +3417,7 @@ ons.ready(function () {
                                         });
                                     }
                             }
-                        } else if (editEvent) {
+                        } else {
                             //update rather than save
                             //variables required outside the promises
                             var tempdb = new PouchDB(eventInfo.dbName);

@@ -46,7 +46,6 @@ function lost() {
 
       return fetch(url, options)
     }).then(function (response) {
-      console.log(response);
       alert('Your location and team number has been sent to event organisers')
     })
     .catch(function (err) {
