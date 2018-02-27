@@ -21,7 +21,6 @@ gulp.task('build', (cb) => {
     'minify-svg',
     'minify-html',
     'move-static',
-    'move-apple-pay',
     'move-license',
     'delete-monaca-components',
     'generate-service-worker',
@@ -97,8 +96,6 @@ gulp.task('minify-svg', () => gulp.src('www/**/*.svg')
 
 gulp.task('move-static', () => gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf,xml,webmanifest,ico,md}')
   .pipe(gulp.dest(buildFolder)));
-
-gulp.task('move-apple-pay'), () => gulp.src('www/.well-known/**').pipe(gulp.dest(`${buildFolder}/.well-known`))
 
 gulp.task('minify-onsenui-css', () => gulp.src('www/lib/onsenui/css/*.css')
   .pipe(cleanCSS({
