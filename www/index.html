@@ -2,9 +2,20 @@
 <html>
 
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-100559183-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('set', { 'user_id': 'USER_ID' }); // Set the user ID using signed-in user_id.
+    gtag('config', 'UA-100559183-3');
+  </script>
+
   <title>Checkpoint Live</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="An event management platform for checkpoint based events. Monitor participant traffic to locations in real-time to inform you who has been seen where and more importantly, who hasn't!">
   <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="author" content="Adam Chilton">
@@ -929,28 +940,29 @@
       </ons-bottom-toolbar>
     </ons-page>
   </ons-template>
-  <!-- <ons-template id="testPage.html">
+  <!-- End of MessagesPage.html -->
+  <ons-template id="testPage.html">
     <ons-page id="testPage">
       <div class="pageDiv">
-        <form action="/charge" method="post" id="payment-form">
+        <form id="payment-form">
           <div class="form-row">
             <label for="card-element">
               Credit or debit card
             </label>
-            <div id="card-element"> -->
-  <!-- a Stripe Element will be inserted here. -->
-  <!-- </div> -->
+            <div id="card-element">
+              <!-- A Stripe Element will be inserted here. -->
+            </div>
 
-  <!-- Used to display Element errors -->
-  <!-- <div id="card-errors" role="alert"></div>
+            <!-- Used to display Element errors. -->
+            <div id="card-errors" role="alert"></div>
           </div>
 
           <button>Submit Payment</button>
         </form>
       </div>
     </ons-page>
-  </ons-template> -->
-  <!-- End of MessagesPage.html -->
+  </ons-template>
+
   <!-- Start of Map.html -->
   <!-- <ons-template id="map.html">
     <ons-page id="mapPage">
@@ -1031,7 +1043,7 @@
 <!-- JQuery Control -->
 <!--<script src="js/tracking.js"></script>-->
 <!-- TestScripts -->
-<!-- <script src="https://js.stripe.com/v3/"></script> -->
+<script src="https://js.stripe.com/v3/"></script>
 <!-- My scripts -->
 <script src="js/operationFounder.js"></script>
 

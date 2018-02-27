@@ -1,3 +1,4 @@
+/*eslint-env node*/
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
 const del = require('del');
@@ -20,6 +21,7 @@ gulp.task('build', (cb) => {
     'minify-svg',
     'minify-html',
     'move-static',
+    'move-apple-pay',
     'move-license',
     'delete-monaca-components',
     'generate-service-worker',
@@ -56,7 +58,7 @@ gulp.task('minify-js', (cb) => {
   pump(
     [
       gulp.src('www/**/*.js'),
-      uglify({compress: {drop_console: true}}),
+      uglify({ compress: { drop_console: true } }),
       gulp.dest(buildFolder)
     ],
     cb
@@ -81,7 +83,7 @@ gulp.task('minify-css', () => gulp.src('www/**/*.css')
   }))
   .pipe(gulp.dest(buildFolder)));
 
-gulp.task('minify-html', () => gulp.src('www/*.html')
+gulp.task('minify-html', () => gulp.src('www/**/*.html')
   .pipe(htmlmin({
     collapseWhitespace: true,
     minifyJS: true,
@@ -96,6 +98,7 @@ gulp.task('minify-svg', () => gulp.src('www/**/*.svg')
 gulp.task('move-static', () => gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf,xml,webmanifest,ico,md}')
   .pipe(gulp.dest(buildFolder)));
 
+gulp.task('move-apple-pay'), () => gulp.src('www/.well-known/**').pipe(gulp.dest(`${buildFolder}/.well-known`))
 
 gulp.task('minify-onsenui-css', () => gulp.src('www/lib/onsenui/css/*.css')
   .pipe(cleanCSS({

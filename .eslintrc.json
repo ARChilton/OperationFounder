@@ -1,8 +1,7 @@
 {
     "env": {
         "browser": true,
-        "es6": true,
-        "node": true
+        "es6": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -73,7 +72,7 @@
         "getter-return": "error",
         "global-require": "error",
         "guard-for-in": "error",
-        "handle-callback-err": "off",
+        "handle-callback-err": "error",
         "id-blacklist": "error",
         "id-length": "off",
         "id-match": "error",
@@ -138,6 +137,10 @@
         "no-implicit-globals": "off",
         "no-implied-eval": "error",
         "no-inline-comments": "off",
+        "no-inner-declarations": [
+            "error",
+            "functions"
+        ],
         "no-invalid-this": "error",
         "no-iterator": "error",
         "no-label-var": "error",
@@ -152,7 +155,7 @@
         "no-multi-spaces": "error",
         "no-multi-str": "error",
         "no-multiple-empty-lines": "off",
-        "no-native-reassign": "off",
+        "no-native-reassign": "error",
         "no-negated-condition": "off",
         "no-negated-in-lhs": "error",
         "no-nested-ternary": "error",
@@ -187,6 +190,7 @@
         "no-template-curly-in-string": "error",
         "no-ternary": "off",
         "no-throw-literal": "off",
+        "no-trailing-spaces": "off",
         "no-undef-init": "error",
         "no-undefined": "off",
         "no-underscore-dangle": "off",
@@ -207,7 +211,10 @@
         "no-with": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-newline": "off",
-        "object-curly-spacing": "error",
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ],
         "object-property-newline": "error",
         "object-shorthand": "off",
         "one-var": "off",
@@ -216,10 +223,7 @@
             "initializations"
         ],
         "operator-assignment": "off",
-        "operator-linebreak": [
-            "error",
-            "before"
-        ],
+        "operator-linebreak": "error",
         "padded-blocks": "off",
         "padding-line-between-statements": "error",
         "prefer-arrow-callback": "off",
@@ -268,7 +272,13 @@
             "error",
             "never"
         ],
-        "switch-colon-spacing": "error",
+        "switch-colon-spacing": [
+            "error",
+            {
+                "after": true,
+                "before": false
+            }
+        ],
         "symbol-description": "error",
         "template-curly-spacing": "error",
         "template-tag-spacing": "error",

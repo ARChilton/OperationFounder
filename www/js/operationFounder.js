@@ -15,9 +15,8 @@
  * @param {number} dbSeqNumber
  */
 
- /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false
-        Stripe:false */
- /*exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
+ /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false Stripe:false */
+ /* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -69,7 +68,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://checkpointlive.com/app';
+var appServer = 'http://localhost:3000';//'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
@@ -1624,7 +1623,6 @@ function getBaseNumber() {
  * @param {object} dataPackage the object to be sent in the body of the post
  */
 function apiAjax(apiAddress, dataPackage) {
-
     return {
         "async": true,
         "crossDomain": true,
@@ -1640,7 +1638,6 @@ function apiAjax(apiAddress, dataPackage) {
         },
         "data": dataPackage
     };
-
 }
 
 /**
@@ -5494,6 +5491,8 @@ ons.ready(function () {
             case 'testPage.html': {
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
+                var form = document.getElementById('payment-form');
+                
 
                 // Custom styling can be passed to options when creating an Element.
                 var style = {
@@ -5504,23 +5503,12 @@ ons.ready(function () {
                     }
                 };
 
-                // Create an instance of the card Element
-                var card = elements.create('card', {
-                    style: style
-                });
+                // Create an instance of the card Element.
+                var card = elements.create('card', { style: style });
 
-                var stripeTokenHandler = function(token) {
-                    // Insert the token ID into the form so it gets submitted to the server
-                    var form = document.getElementById('payment-form');
-                    var hiddenInput = document.createElement('input');
-                    hiddenInput.setAttribute('type', 'hidden');
-                    hiddenInput.setAttribute('name', 'stripeToken');
-                    hiddenInput.setAttribute('value', token.id);
-                    form.appendChild(hiddenInput);
-
-                    // Submit the form
-                    form.submit();
-                }
+                // Add an instance of the card Element into the `card-element` <div>.
+                card.mount('#card-element');
+                
                 card.addEventListener('change', function (event) {
                     var displayError = document.getElementById('card-errors');
                     if (event.error) {
@@ -5529,25 +5517,32 @@ ons.ready(function () {
                         displayError.textContent = '';
                     }
                 });
+
                 // Create a token or display an error when the form is submitted.
-                var form = document.getElementById('payment-form');
+                
                 form.addEventListener('submit', function (event) {
                     event.preventDefault();
 
-                    stripe.createToken(card).then(function (result) {
+                    stripe.createToken(card)
+                    .then(function (result) {
                         if (result.error) {
-                            // Inform the customer that there was an error
+                            // Inform the customer that there was an error.
                             var errorElement = document.getElementById('card-errors');
                             errorElement.textContent = result.error.message;
                         } else {
-                            // Send the token to your server
+                            // Send the token to your server.
                             stripeTokenHandler(result.token);
                         }
                     });
                 });
 
-                // Add an instance of the card Element into the `card-element` <div>
-                card.mount('#card-element');
+                var stripeTokenHandler = function(token) {
+                    var paymentObject = {
+                        source:token.id //need to add amount,currency,description
+                    };
+                    $.ajax(apiAjax(appServer + '/api/payment', paymentObject));
+                }
+
                 break;
             }
 
