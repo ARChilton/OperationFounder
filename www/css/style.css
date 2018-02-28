@@ -48,7 +48,7 @@ Accent Darker color: Orange 800: #EF6C00
     right: 16px;
 }
 
-.text-input--material__label{
+#createEventPage .text-input--material__label{
     top:0px;
 }
 
