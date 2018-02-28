@@ -15,8 +15,8 @@
  * @param {number} dbSeqNumber
  */
 
- /*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false Stripe:false */
- /* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
+/*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false Stripe:false */
+/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -455,7 +455,7 @@ function destroyPouchDBs() {
     new PouchDB(baseDatabaseName).destroy().then(function () {
         ons.notification.alert(baseDatabaseName + '/basedb database destroyed');
     });
-     new PouchDB(appDatabaseName).destroy().then(function () {
+    new PouchDB(appDatabaseName).destroy().then(function () {
         ons.notification.alert(appDatabaseName + '/opFounderAppDb database destroyed');
     });
     new PouchDB(adminDatabaseName).destroy().then(function () {
@@ -489,9 +489,9 @@ function cleanAll() {
                         }
 
                         admindb.put(deletedRecord)
-                        .catch(function (err) {
-                            console.warn(err);
-                        });
+                            .catch(function (err) {
+                                console.warn(err);
+                            });
 
                     }
                 }
@@ -1064,7 +1064,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     var messagesAdded = 0;
     var messages = [];
     var page = navi.topPage.name;
-    
+
     console.log('updating from find query');
     //console.log(doc);
     for (var i = 0, l = doc.docs.length; i < l; i++) {
@@ -1144,8 +1144,8 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
     //code after the loop
     if (tableUpdate.length > 0) {
         var table = admin
-        ? $('#adminLogsTable')
-        : $('#logsTable');
+            ? $('#adminLogsTable')
+            : $('#logsTable');
 
         table.prepend(tableUpdate.reverse());
     }
@@ -1971,9 +1971,9 @@ ons.ready(function () {
                             console.log(loginEvtsSorted);
                             // doc.currentDb = lastDb;
                             appdb.put(doc)
-                                .then(function() {
+                                .then(function () {
                                     return appdb.compact();
-                                }).then(function() {
+                                }).then(function () {
                                     //TODO ARC 04/01/2018 event description not downloading
                                     var event = compareTwoArrays(usrRolesSorted, loginEvtsSorted, true);
                                     console.log(event);
@@ -2109,12 +2109,12 @@ ons.ready(function () {
          *@event offline - when the device to go offline (webView only)
          */
         document.addEventListener("offline", onOffline, false);
-        
+
         /**
          * Event listener for device going back online
          * @event online - the device goes online (webView only)
          */
-        document.addEventListener("online", onOnline, false);        
+        document.addEventListener("online", onOnline, false);
     }
 
     /**
@@ -2126,10 +2126,10 @@ ons.ready(function () {
             case true:
                 $('#' + page + ' .progressBar').removeClass('hide');
                 return true;
-                
+
             case false:
                 $('#' + page + ' .progressBar').addClass('hide');
-                return false;                
+                return false;
         }
     }
     /**
@@ -2206,11 +2206,11 @@ ons.ready(function () {
      */
     var sort_by = function (field, reverse, primer) {
 
-        var key = primer 
-        ? function (x) {
+        var key = primer
+            ? function (x) {
                 return primer(x[field])
-            } 
-        : function (x) {
+            }
+            : function (x) {
                 return x[field]
             };
 
@@ -2445,10 +2445,10 @@ ons.ready(function () {
                                             animation: pageChangeAnimation
                                         }
                                         : {
-                                        animation: pageChangeAnimation,
+                                            animation: pageChangeAnimation,
                                             data: data
                                         }
-                                    
+
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
                                     console.log(err);
@@ -2838,7 +2838,7 @@ ons.ready(function () {
                  * function to check if the password is unique
                  * @param {*} thisPass 
                  */
-                var passwordCheck = function(thisPass) {
+                var passwordCheck = function (thisPass) {
                     //variables
                     var passElement = $(thisPass);
                     var pass = $(thisPass).val();
@@ -2850,7 +2850,7 @@ ons.ready(function () {
                     if (pass != '') {
                         //check if password is in the array of passwords
                         index = passwordArray.indexOf(pass);
-                        
+
                         if (index > -1) {
                             error = false;
                             //need to check if the password is being used by the current base in which case there is no issue otherwise it is an error
@@ -2913,7 +2913,7 @@ ons.ready(function () {
                  * @param {object} inputFile needs to be found using plain js
                  * @returns {string} returns a url promise
                  */
-                var fileUpload = function(inputFile) {
+                var fileUpload = function (inputFile) {
                     return new Promise(function (resolve) {
                         //make file into a blob
                         getFile = inputFile.files[0]; //getFile is a blob
@@ -2943,25 +2943,25 @@ ons.ready(function () {
                  * function to add a base before the add base button
                  * @param {number|string} baseCount 
                  */
-                var addBase = function(baseCount) {
+                var addBase = function (baseCount) {
                     var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 }
 
-                var switchAndHideToggle = function(elementSwitch, elementsToHide, trueOrFalse) {
+                var switchAndHideToggle = function (elementSwitch, elementsToHide, trueOrFalse) {
                     toggleProp(elementSwitch, 'checked', trueOrFalse);
                     hideElement(!trueOrFalse, elementsToHide);
                 }
 
-                var toggleProp = function(element, prop, trueOrFalse) {
+                var toggleProp = function (element, prop, trueOrFalse) {
                     return element.prop(prop, trueOrFalse);
                 }
 
                 /**
                  * creates the eventDescription variable in the higher scope
                  */
-                var createEventDescription = function() {
-                  var trackingUrl = $('#trackingUrl').val().trim();
+                var createEventDescription = function () {
+                    var trackingUrl = $('#trackingUrl').val().trim();
                     eventDescription = {
                         _id: 'eventDescription',
                         eventName: $('#eventName').val().trim(),
@@ -2989,7 +2989,7 @@ ons.ready(function () {
                  * @param {boolean} passwordProtectLogs true or false whether the bases will have a password upon entry
                  * @param {object} eventDescription event description to add the base information to
                  */
-                var addBasesToEvtDescription = function(baseCount, passwordProtectLogs, eventDescription) {
+                var addBasesToEvtDescription = function (baseCount, passwordProtectLogs, eventDescription) {
                     for (var i = 1, l = baseCount + 1; i < l; i++) {
 
                         var baseInfo = {
@@ -3334,12 +3334,12 @@ ons.ready(function () {
                                                         if (remotedbConnected) {
 
                                                             return remotedb.close()
-                                                            .then(function () {
-                                                                return remotedbConnected = false;
-                                                            }).catch(function (err) {
-                                                                console.log(err);
-                                                                throw err;
-                                                            });
+                                                                .then(function () {
+                                                                    return remotedbConnected = false;
+                                                                }).catch(function (err) {
+                                                                    console.log(err);
+                                                                    throw err;
+                                                                });
                                                         } else {
                                                             //this should return false
                                                             return remotedbConnected;
@@ -3588,7 +3588,7 @@ ons.ready(function () {
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
                     if (eventInfo.tracking) {
-                      $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>')
+                        $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>')
                     }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
@@ -3596,40 +3596,40 @@ ons.ready(function () {
                     // $('#evtSummaryAdminPass').append(eventInfo.bases[0].basePassword);
                     var evtSummaryBasesArray = [];
                     eventInfo.bases.forEach(function (base) {
-                    var maxScoreClass = '';
-                    var baseSummaryPasswordClass = '';
-                    var message;
-                    var activeClass = 'baseSummaryIconActive';
-                    var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
-                    var baseSummaryIcons = '<div class="baseSummaryIcons">'
-                    if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
-                        message = 'no score available at this location';
-                    } else {
-                        message = base.baseMaxScore;
-                        maxScoreClass = activeClass;                           
-                    }
-                    baseSummaryIcons += '<ons-icon icon="fa-trophy" class="' + maxScoreClass + '"></ons-icon>';
-                    baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
-                    if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
-                           baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
-                          baseSummaryPasswordClass = activeClass;
+                        var maxScoreClass = '';
+                        var baseSummaryPasswordClass = '';
+                        var message;
+                        var activeClass = 'baseSummaryIconActive';
+                        var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
+                        var baseSummaryIcons = '<div class="baseSummaryIcons">'
+                        if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
+                            message = 'no score available at this location';
+                        } else {
+                            message = base.baseMaxScore;
+                            maxScoreClass = activeClass;
                         }
-                      baseSummaryIcons += '<ons-icon icon="fa-lock" class="' + baseSummaryPasswordClass + '"></ons-icon>';
-                        
-                          var locationClass = '';
-                          var locationMessage = 'no';
-                          if (base.baseGeolocation) {
+                        baseSummaryIcons += '<ons-icon icon="fa-trophy" class="' + maxScoreClass + '"></ons-icon>';
+                        baseInformationSection += '<p><span class="bold sentanceCase">Max Score Available: </span>' + message + '</p>';
+                        if (eventInfo.passwordProtectLogs || base.baseNo === 0) {
+                            baseInformationSection += '<p><span class="bold sentanceCase">Passcode: </span><span class="passwordFont">' + base.basePassword + '</span></p>';
+                            baseSummaryPasswordClass = activeClass;
+                        }
+                        baseSummaryIcons += '<ons-icon icon="fa-lock" class="' + baseSummaryPasswordClass + '"></ons-icon>';
+
+                        var locationClass = '';
+                        var locationMessage = 'no';
+                        if (base.baseGeolocation) {
                             locationMessage = 'yes';
                             locationClass += activeClass;
-                          }
-                          baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">' + locationMessage + '</span></p>';
-                          baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>'
-                        
+                        }
+                        baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">' + locationMessage + '</span></p>';
+                        baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>'
+
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
                             // $('#evtSummaryBases').append('<p><span class="bold sentanceCase">Base instructions: </span>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>');
                         }
-                      baseInformationSection += baseSummaryIcons + '</div></div>';
+                        baseInformationSection += baseSummaryIcons + '</div></div>';
                         evtSummaryBasesArray.push(baseInformationSection);
                     });
                     $('#evtSummaryBases').append(evtSummaryBasesArray);
@@ -3803,7 +3803,8 @@ ons.ready(function () {
 
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
                     if (eventInfo.passwordProtectLogs) {
-
+                        baseCodes = [];
+                        baseNames = [];
                         //if bases have a password
                         eventInfo.bases.forEach(function (base) {
                             var baseCode = base.basePassword;
@@ -4102,12 +4103,12 @@ ons.ready(function () {
                 break;
 
             case 'page1.html': {
-              /**
-                * Takes the patrol log and updates it with geolocation attributes
-                * @param {object} log 
-                * @param {Bool} needGeolocation  
-                */
-                var updateLogWIthPosition = function(log, needGeolocation) {
+                /**
+                  * Takes the patrol log and updates it with geolocation attributes
+                  * @param {object} log 
+                  * @param {Bool} needGeolocation  
+                  */
+                var updateLogWIthPosition = function (log, needGeolocation) {
                     return Promise.resolve()
                         .then(function () {
                             if (!needGeolocation) {
@@ -4281,7 +4282,7 @@ ons.ready(function () {
                                 // replication was paused, usually because of a lost connection
                                 console.log('basedb pasused');
                                 lastSyncUpdater();
-                            // }).on('active', function () {
+                                // }).on('active', function () {
                                 // replication was resumed
                             }).on('error', function (err) {
                                 // totally unhandled error (shouldn't happen)
@@ -4435,7 +4436,7 @@ ons.ready(function () {
                     });
                 }
 
-                var baseTableInput = function(tableUpdate) {
+                var baseTableInput = function (tableUpdate) {
                     console.log(tableUpdate);
                     if (tableUpdate.length > 0) {
                         baseTable.prepend(tableUpdate);
@@ -4591,7 +4592,7 @@ ons.ready(function () {
                                         }).catch(function (err) {
                                             console.log(err);
                                         });
-                                                                
+
                                 default:
                                     basedb.get(patrolLog._id)
                                         .then(function (doc) {
@@ -4621,7 +4622,7 @@ ons.ready(function () {
                                                     }).catch(function (err) {
                                                         console.warn(err);
                                                     });
-                                                    
+
                                                 case false:
                                                     return ons.notification.alert({
                                                         title: 'No longer editable',
@@ -4657,19 +4658,19 @@ ons.ready(function () {
                                                 // must be editable to produce a 409
                                                 console.log('409 putting anyway');
                                                 basedb.get(patrolLog._id)
-                                                .then(function(doc) {                                                
-                                                    patrolLog._rev = doc._rev;
-                                                    patrolLog._id = doc._id;   
-                                                    return updateLogWIthPosition(patrolLog, geolocationOn);
-                                                }).then(function (log) {
+                                                    .then(function (doc) {
+                                                        patrolLog._rev = doc._rev;
+                                                        patrolLog._id = doc._id;
+                                                        return updateLogWIthPosition(patrolLog, geolocationOn);
+                                                    }).then(function (log) {
                                                         console.log(log);
                                                         return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
-                                                }).then(function (log) {
+                                                    }).then(function (log) {
                                                         tableUpdateFunction(log, false, tableUpdate);
                                                         return basedb.put(log);
-                                                });
-                                                        
-                                                           
+                                                    });
+
+
                                             } else {
                                                 console.warn(err);
                                             }
@@ -4716,7 +4717,7 @@ ons.ready(function () {
                  * @param {boolean} update 
                  * @param {object} lastSeenTable JQuery object
                  */
-                var lastSeenUpdate = function(doc, update, lastSeenTable) {
+                var lastSeenUpdate = function (doc, update, lastSeenTable) {
                     //console.log('lastseenupdate function');
                     //console.log(doc);
                     var timeStarting = (Date.now());
@@ -4769,7 +4770,7 @@ ons.ready(function () {
                  * @param {object} lastSeenTable 
                  * @param {boolean} updateTable 
                  */
-                var lastSeenFullUpdate = function(lastSeenTable, updateTable) {
+                var lastSeenFullUpdate = function (lastSeenTable, updateTable) {
                     //console.log('full update');
                     admindb.find({
                         selector: {
@@ -4791,7 +4792,7 @@ ons.ready(function () {
                 /**
                  * updates the lastSeen table
                  */
-                var lastSeenTableFullRefresh = function() {
+                var lastSeenTableFullRefresh = function () {
                     if (lastSeenTable !== undefined) {
                         lastSeenTable.empty();
                         patrolSeen = [];
@@ -4805,7 +4806,7 @@ ons.ready(function () {
                  * @param {object} leaderboardTable table to update 
                  * @param {string|number} patrolToSearch if there is a patrol to look out for
                  */
-                var leaderboard = function(leaderboardTable, patrolToSearch) {
+                var leaderboard = function (leaderboardTable, patrolToSearch) {
                     leaderboardTable.empty();
                     admindb.query('leaderboardIndex', {
                         reduce: true,
@@ -4821,7 +4822,7 @@ ons.ready(function () {
                     });
                 }
 
-                var leaderboardRowCreator = function(rows, patrolToSearch) {
+                var leaderboardRowCreator = function (rows, patrolToSearch) {
                     var i = 1;
                     var lastScore = '';
                     return Promise.all(rows.map(function (row) {
@@ -5017,7 +5018,7 @@ ons.ready(function () {
                                         });
 
                                 }).then(function () {
-                                        return admindb.find({
+                                    return admindb.find({
                                         selector: {
                                             timeOut: {
                                                 $gt: 0
@@ -5275,7 +5276,7 @@ ons.ready(function () {
                 /**
                  * sends a message by putting the doc into the db then doing an alldocs for the latest messages
                  */
-                var sendMessage = function() {
+                var sendMessage = function () {
                     var date = new Date();
                     var isoDate = date.toISOString();
                     var message = {
@@ -5318,7 +5319,7 @@ ons.ready(function () {
                 /**
                  * runs the scroll function on the messagesPage
                  */
-                var handleMsgScroll = function() {
+                var handleMsgScroll = function () {
                     scrollingOn = false;
 
                     return Promise.resolve()
@@ -5492,7 +5493,7 @@ ons.ready(function () {
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
                 var form = document.getElementById('payment-form');
-                
+
 
                 // Custom styling can be passed to options when creating an Element.
                 var style = {
@@ -5508,7 +5509,7 @@ ons.ready(function () {
 
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
-                
+
                 card.addEventListener('change', function (event) {
                     var displayError = document.getElementById('card-errors');
                     if (event.error) {
@@ -5519,26 +5520,26 @@ ons.ready(function () {
                 });
 
                 // Create a token or display an error when the form is submitted.
-                
+
                 form.addEventListener('submit', function (event) {
                     event.preventDefault();
 
                     stripe.createToken(card)
-                    .then(function (result) {
-                        if (result.error) {
-                            // Inform the customer that there was an error.
-                            var errorElement = document.getElementById('card-errors');
-                            errorElement.textContent = result.error.message;
-                        } else {
-                            // Send the token to your server.
-                            stripeTokenHandler(result.token);
-                        }
-                    });
+                        .then(function (result) {
+                            if (result.error) {
+                                // Inform the customer that there was an error.
+                                var errorElement = document.getElementById('card-errors');
+                                errorElement.textContent = result.error.message;
+                            } else {
+                                // Send the token to your server.
+                                stripeTokenHandler(result.token);
+                            }
+                        });
                 });
 
-                var stripeTokenHandler = function(token) {
+                var stripeTokenHandler = function (token) {
                     var paymentObject = {
-                        source:token.id //need to add amount,currency,description
+                        source: token.id //need to add amount,currency,description
                     };
                     $.ajax(apiAjax(appServer + '/api/payment', paymentObject));
                 }
@@ -5840,14 +5841,14 @@ function addZero(i) {
  * @param {object} options
  */
 var getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    var options = {
-      // timeout: 10,
-      enableHighAccuracy: true,
-      // maximumAge: Infinity
-    };
-    navigator.geolocation.getCurrentPosition(resolve, reject, options);
-  });
+    return new Promise(function (resolve, reject) {
+        var options = {
+            // timeout: 10,
+            enableHighAccuracy: true,
+            // maximumAge: Infinity
+        };
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
 }
 
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
@@ -5857,24 +5858,24 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     if (!trackingOn) {
         return log;
     }
-    
-    var dataPackage = {
-    trackingUrl: trackingUrl,
-    id: pRef + '-' + log.patrol,
-    lat: log.geolocation.lat,
-    lon: log.geolocation.lon,
-    accuracy:log.geolocation.accuracy,
-    loggedBy: log.username,
-    checkpoint: log.base,
-    score: log.totalScore,
-    offRoute: log.offRoute
-  };
-  var settings = apiAjax(appServer + 'api/event/tracking', dataPackage);
- 
-  console.log(settings);
-  $.ajax(settings);
 
-  return log;
+    var dataPackage = {
+        trackingUrl: trackingUrl,
+        id: pRef + '-' + log.patrol,
+        lat: log.geolocation.lat,
+        lon: log.geolocation.lon,
+        accuracy: log.geolocation.accuracy,
+        loggedBy: log.username,
+        checkpoint: log.base,
+        score: log.totalScore,
+        offRoute: log.offRoute
+    };
+    var settings = apiAjax(appServer + 'api/event/tracking', dataPackage);
+
+    console.log(settings);
+    $.ajax(settings);
+
+    return log;
 }
 /**
  * a function to show or hide the password inputs
