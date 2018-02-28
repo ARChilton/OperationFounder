@@ -5191,6 +5191,10 @@ ons.ready(function () {
                                             return (typeof log.patrol === 'string');
                                         });
                                     }
+                                    index = doc.change._deleted
+                                        ? 1
+                                        : 0;
+
                                     if (index.length === 0) {
                                         return showProgressBar('adminPage', false);
                                     }
@@ -5232,6 +5236,9 @@ ons.ready(function () {
                                             return (typeof log.patrol === 'string');
                                         });
                                     }
+                                    index = doc.change._deleted
+                                        ? 1
+                                        : 0;
                                     if (index.length === 0) {
                                         return showProgressBar('adminPage', false);
                                     }
