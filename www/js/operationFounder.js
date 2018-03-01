@@ -2833,6 +2833,10 @@ ons.ready(function () {
                 var getFile = false;
                 var passwordsOk;
                 var url;
+                var trackedEntities = $('#trackedEntities');
+                var geolocationInUse = false;
+                var geolocationTurnedOnThisUpdate = false;
+                var trackedEntitiesDifference = 0;
 
                 //functions
                 /**
@@ -2983,6 +2987,11 @@ ons.ready(function () {
                             basePassword: $('#adminPassword').val().trim()
                         }]
                     };
+                    var numberOfTrackedEntities = trackedEntities.val()
+                    if (typeof eventInfo !== 'object' || eventInfo.trackedEntities < numberOfTrackedEntities) {
+                        eventDescription.trackedEntities = numberOfTrackedEntities;
+                         trackedEntitiesDifference = numberOfTrackedEntities - (eventInfo.trackedEntities || 0);
+                    }
                 }
                 /**
                  * Adds the bases to the general event description
@@ -3006,6 +3015,9 @@ ons.ready(function () {
                         }
                         baseInfo.baseName = bName;
                         passwordsOk = false;
+                        if (baseInfo.baseGeolocation || geolocationInUse) {
+                            geolocationInUse = true;
+                        }
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
                             return ons.notification.alert({
@@ -3027,7 +3039,7 @@ ons.ready(function () {
 
                 //Normal code to run
                 if (pageData.edit === true) {
-                    if (pageData.eventInfo != undefined) {
+                    if (typeof pageData.eventInfo === 'object') {
                         editEvent = true;
                         var pattern = /\W/g;
                         var version;
@@ -3043,6 +3055,7 @@ ons.ready(function () {
                         $('#eventEndDate').val(eventInfo.dateEnd);
                         $('#eventDescription').val(eventInfo.eventDescription);
                         $('#pReference').val(eventInfo.pRef);
+                        trackedEntities.val(eventInfo.trackedEntities);
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
                         $('#autoTimeSwitch').prop("checked", eventInfo.autoTime);

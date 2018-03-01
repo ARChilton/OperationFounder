@@ -442,11 +442,11 @@ background-color:#efefef;
 }
 
 
-#highlights .col-sm-4{
+.highlights .col-sm-4{
     padding:16px;
 }
 
-#highlights ons-icon, #optionalExtras ons-icon{
+.highlights ons-icon{
     margin:auto;
     width:100%;
     font-size:50px;
@@ -2212,19 +2212,26 @@ ons-splitter-mask {
     font-size:1.2em;
 }
 .jumbotron p{
-    font-size:1.5em;
+    font-size:1.3em;
     margin:16px;
 }
-#pricingH1{
-    font-size:0.8em;
-    font-weight:normal;
-    margin:16px;
-    color:#ff9100;
-}
+
 #pricingPage .page__content + {
     top:0px;
 }
 .orangeMenuButton{
     color:#ff9100;
     line-height:50px;
+}
+
+@media(max-width:768px){
+    .jumbotron p{
+        font-size: 1em;
+    }
+    .pricingPageTitle{
+        font-size:1.8em;
+    }
+    .section h2{
+        font-size:1.5em;
+    }
 }

@@ -163,7 +163,7 @@
           </form>
         </div>
 
-        <div class="row section sectionGray" id="highlights">
+        <div class="row section sectionGray highlights" id="highlights">
           <div class="col-sm-4" id="safer">
             <ons-icon icon="fa-users" class="secondaryColor"></ons-icon>
             <h3 class="txtCenter bold">Making events safer</h3>
@@ -176,7 +176,7 @@
           </div>
           <div class="col-sm-4" id="burden">
             <ons-icon icon="fa-mobile-phone" class="secondaryColor"></ons-icon>
-            <h3 class="txtCenter bold">Enjoy monitoring the event</h3>
+            <h3 class="txtCenter bold">Monitor on the move</h3>
             <div class="txtJustify">
               <p>
                 Designed for use on any mobile device, using Checkpoint Live means you can be on the move and still monitor the event.
@@ -196,7 +196,7 @@
                 and distributed to everyone in a readable format, in real-time.
               </p>
               <p>With a chat-room included for every event you can contact all of your checkpoint marshals and they can contact
-                you, clearly and transparently.
+                you, clearly and transparently; no contact information required.
               </p>
             </div>
           </div>
@@ -224,28 +224,48 @@
           </div>
         </div>
 
-        <div class="row section">
+        <div class="row section sectionGray">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What if I have bad mobile reception?</h2>
             <div class="col-md-4 col-md-push-2 txtJustify xsPadding16">
-              <p>Being out in the county side means there is no guarantee of mobile reception. While this situation is improving,
+              <p>Being out in the county-side means there is no guarantee of mobile reception. While this situation is improving,
                 Checkpoint Live has taken an 'offline first' approach.</p>
               <p>
                 Offline first means that this website will continue to work even when your mobile internet signal is intermittent. It does
                 this by storing the recorded base logs to your mobile device before synchronising them with other event users
-                when the mobile device re-connects to the internet.
+                when the mobile device re-connects to the network.
               </p>
             </div>
           </div>
         </div>
 
-        <div class="row section sectionGray">
-          <div class="col-xs-12">
-            <h2 class="txtCenter bold">As used by</h2>
-            <div class="xsPadding16">
+        <div class="row section ">
+          <h2 class="txtCenter bold">As used by</h2>
+          <div class="xsPadding16 col-xs-12">
+            <h2>
               <img src="img/operationFounder.png" class="asUsedByLogo">
-            </div>
+            </h2>
           </div>
+        </div>
+
+        <div class="row section sectionGray highlights">
+          <h2 class="txtCenter bold">New features</h2>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Branding</h3>
+            <p class="txtJustify">You can now add your own logos to your event page to give it that personal feel.</p>
+          </div>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Location tracking</h3>
+            <p class="txtJustify">Now you can record location in addition to your standard logs.</p>
+          </div>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Improved admin HQ</h3>
+            <p class="txtJustify">Allong with all of the raw logs coming in from checkpoints, checkpoint live will update a last seen (least recent
+              at the top) and leaderboard tabs for admin users.
+            </p>
+
+          </div>
+
         </div>
 
 
@@ -375,7 +395,7 @@
               Change banner image
             </ons-button>
           </label>
-          <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop"
+          <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop32px"
             autofocus></ons-input>
 
           <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
@@ -389,11 +409,18 @@
             </div>
           </div>
           <div class="flex flexRow flexSpaceBetween marginTop32px">
-            <div class="eventItemTitle bold h3NoStyling">Participant type</div>
+            <div class="eventItemTitle bold h3NoStyling">Participant type*</div>
             <ons-input id="pReference" modifier="underbar" placeholder="Team / Patrol / Other" float type="text" class="" value="Team"
               required></ons-input>
           </div>
           <div class="caption txtLeft">How the participants in the event will be referred to (default: Team).</div>
+
+          <div class="flex flexRow flexSpaceBetween marginTop32px">
+            <div class="eventItemTitle bold h3NoStyling">Tracked entities*</div>
+            <ons-input id="trackedEntities" modifier="underbar" placeholder="Number of teams" float type="number" class="" minValue="0"
+              required></ons-input>
+          </div>
+          <div class="caption txtLeft">The number of people or teams you will track with checkpoint live.</div>
           <div class="bigEventSetUpButtons">
             <div id="passwordProtectLogs" class="marginTop">
               <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
