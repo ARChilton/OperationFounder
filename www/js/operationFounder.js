@@ -2504,6 +2504,7 @@ ons.ready(function () {
                             });
                     });
                 }
+                menuController('signInPage.html');
 
 
                 break;
@@ -5691,27 +5692,32 @@ function menuController() {
         case 'page1.html':
             //allow for baseLogOut to be shown in the menu
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
-            $('#goToMap').removeClass('hide');
+            $('#goToMap, #eventSignOut').removeClass('hide');
+            $('#pricingPage').addClass('hide');
             menuEvtOrganiser();
             break;
         case 'admin.html':
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Admin Area');
             menuEvtOrganiser();
-            $('#copyAllLogs, #goToEventSummary').removeClass('hide');
+            $('#copyAllLogs, #goToEventSummary, #eventSignOut').removeClass('hide');
+            $('#pricingPage').addClass('hide');
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs').addClass('hide');
-            // $('#goToMap').removeClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#goToMap, #eventSignOut').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#eventSignOut').removeClass('hide');
             break;
         case 'signInPage.html':
-            
+            $('#eventSignOut').addClass('hide');
+            $('#pricingPage').removeClass('hide');
+            break;
         default:
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs').addClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
             break;
 
     }
