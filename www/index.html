@@ -109,7 +109,35 @@
     <ons-page id="signInPage">
       <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
 
+      <div id="navBar" class="">
+        <!-- <div class="row xsShow txtCenter"> -->
 
+        <div class=" col-xs-2 xsShow txtCenter">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon class="orangeMenuButton" icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+
+
+
+        <!-- </div> -->
+        <div class="row txtCenter xsHide">
+          <div class="" id="navBarOptions">
+            <div class=" col-sm-1" onClick="">
+              <img src="./img/icon.svg">
+            </div>
+            <div class=" col-sm-2 col-sm-push-7 navActive">
+              Home
+            </div>
+            <a href="/pricing">
+              <div class=" col-sm-2 col-sm-push-7">
+                Pricing
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
       <div class="">
 
         <div class="signInFormDiv row">
@@ -133,7 +161,7 @@
         <div class="row section sectionGray" id="highlights">
           <div class="col-sm-4" id="safer">
             <ons-icon icon="fa-users" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Making events safer</h2>
+            <h3 class="txtCenter bold">Making events safer</h3>
             <div class="txtJustify">
               <p>
                 Receiving updates from all checkpoints simultaneously in real-time means you know which teams were last seen when and where,
@@ -143,7 +171,7 @@
           </div>
           <div class="col-sm-4" id="burden">
             <ons-icon icon="fa-mobile-phone" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Enjoy monitoring the event</h2>
+            <h3 class="txtCenter bold">Enjoy monitoring the event</h3>
             <div class="txtJustify">
               <p>
                 Designed for use on any mobile device, using Checkpoint Live means you can be on the move and still monitor the event.
@@ -156,7 +184,7 @@
           </div>
           <div class="col-sm-4" id="safer">
             <ons-icon icon="fa-comments" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Improving communication</h2>
+            <h3 class="txtCenter bold">Improving communication</h3>
             <div class="txtJustify">
               <p>
                 Gone are the days of mishearing via radio or misinterpreting handwriting. Inputs are made by individuals at the checkpoint
@@ -172,7 +200,7 @@
         <div class="row section">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What is Checkpoint Live?</h2>
-            <div class="txtJustify col-md-4 col-md-push-2">
+            <div class="txtJustify col-md-4 col-md-push-2 xsPadding16">
               <p>
                 Checkpoint Live was developed initially for the Scout and Guide communities to enable real time updates on where the teams
                 of young people are as they participate in orienteering activities. Now it can be used by any event with
@@ -194,7 +222,7 @@
         <div class="row section">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What if I have bad mobile reception?</h2>
-            <div class="col-md-4 col-md-push-2 txtJustify">
+            <div class="col-md-4 col-md-push-2 txtJustify xsPadding16">
               <p>Being out in the county side means there is no guarantee of mobile reception. While this situation is improving,
                 Checkpoint Live has taken an 'offline first' approach.</p>
               <p>
@@ -209,7 +237,9 @@
         <div class="row section sectionGray">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">As used by</h2>
-            <img src="img/operationFounder.png" class="asUsedByLogo">
+            <div class="xsPadding16">
+              <img src="img/operationFounder.png" class="asUsedByLogo">
+            </div>
           </div>
         </div>
 
@@ -231,21 +261,53 @@
           Create Account
         </div>
       </ons-toolbar>
-      <div class="pageDiv txtCenter maxWidth marginAuto">
-        <h1>The first step towards managing your event..</h1>
-        <!--<form id="signUpForm" onsubmit="return false">-->
-        <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <ons-input id="signUpPassword" modifier="underbar" placeholder="Password (min 6 characters)" float class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <p class="marginTop">That's it you're done.
-          <br> Go forth and manage your events with ease.</p>
-        <p>
-          <ons-button modifier="large" class="signUpInputButton secondaryColorButton maxWidth">Create My Account</ons-button>
-        </p>
-        <!--</form>-->
+      <div class="pageDiv">
+        <div class="row txtCenter maxWidth marginAuto">
+          <h1>The first step towards managing your event..</h1>
+          <div>
+            <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+            <ons-input id="signUpPassword" modifier="underbar" placeholder="Password (min 6 characters)" float class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+            <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+          </div>
+        </div>
+
+        <div class="row">
+          <div id="packageOfferings">
+            <div class="col-sm-4 primaryColorBackground">
+              <div class="packageTitle">
+                <h2>Try Free</h2>
+              </div>
+
+            </div>
+            <div class="col-sm-4">
+              <div class="packageTitle">
+                <h2>Standard</h2>
+              </div>
+              <div>
+                <p></p>
+              </div>
+
+            </div>
+            <div class="col-sm-4 primaryColorBackground">
+              <div class="packageTitle">
+                <h2>Enterprise</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row txtCenter marginAuto maxWidth">
+          <p class="marginTop">That's it you're done.
+            <br> Go forth and manage your events with ease.</p>
+          <p>
+            <ons-button modifier="large" class="signUpInputButton secondaryColorButton maxWidth">Create My Account</ons-button>
+          </p>
+        </div>
+      </div>
+
 
       </div>
     </ons-page>

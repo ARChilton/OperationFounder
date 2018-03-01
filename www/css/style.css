@@ -446,7 +446,7 @@ background-color:#efefef;
     padding:16px;
 }
 
-#highlights ons-icon{
+#highlights ons-icon, #optionalExtras ons-icon{
     margin:auto;
     width:100%;
     font-size:50px;
@@ -484,6 +484,56 @@ background-color:#efefef;
 
 .signInFormDiv{
     padding:5% 16px;
+}
+.packageOfferings{
+    height:500px;
+}
+.packageTitle{
+   text-align: center;
+}
+@media(min-width:768px){
+#navBar{
+    top:0px;
+    position:sticky;
+    background-color:#fff;   
+    z-index: 5;    
+    vertical-align: middle;
+    border-bottom: 1px solid #efefef;
+}
+}
+#navBarOptions div{
+  height:60px;
+  /* padding:16px 2px; */
+  color:rgba(0, 0, 0, 0.30);
+  font-weight: bold;
+  font-size:14px;
+  line-height: 60px;
+}
+#navBarOptions div:hover{
+border-bottom:#FF9100 2px solid;
+color:#ff9100;
+}
+#navBarOptions div:active{
+    border-bottom:#FF9100 2px solid;
+color:#ff9100;
+background-color: rgba(255, 145, 0,0.3);
+}
+.navActive{
+   border-bottom:rgba(255, 145, 0,0.5) 2px solid; 
+}
+
+#navBar img{
+    height:40px;
+    /* margin-top:-4px; */
+}
+
+@media(max-width:768px){
+.xsPadding16{
+    padding:0px 16px;
+}
+.xsHide{
+    display:none;
+}
 }
 
 /* @media screen and (min-width: 650px) {
@@ -1514,6 +1564,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* General functions */
 
+
 .copyableArea {
     -webkit-user-select: text;
     /* Chrome all / Safari all */
@@ -2106,4 +2157,74 @@ ons-splitter-mask {
 
 .StripeElement--webkit-autofill {
   background-color: #fefde5 !important;
+}
+
+/* Pricing page */
+#pricingPageLogo{
+    margin-top:32px;
+}
+
+@media(min-width:768px){
+.xsShow{
+    display: none;
+}
+}
+
+#pricingLongLogoSVG{
+    width:100%;
+}
+
+.pricingDivs{
+    padding:16px;
+
+    text-align:justify;
+    /* border:1px solid #ededed; */
+}
+.pricingTitle{
+    text-align:center;
+    font-weight:bold;
+    font-size:16px;
+    color:#ff9100;
+    border-bottom: 2px solid #ff9100;
+    padding:16px;
+    margin-bottom:16px;
+}
+.pricingPageTitle{
+    text-align:center;
+    font-weight:bold;
+    font-size:2.5em;
+    /* margin: 16px 0px; */
+    /* color:#fff; */
+}
+.pricingPageTitleBackground{
+    background-color:transparent;
+    color:#000;
+    text-align:center;
+}
+.prices{
+    font-size: 24px;
+    font-weight: bold;
+}
+.section h2{
+    font-size:1.8em;
+}
+.section h3{
+    font-size:1.2em;
+}
+.jumbotron p{
+    font-size:1.5em;
+    margin:16px;
+}
+#pricingH1{
+    font-size:0.8em;
+    font-weight:normal;
+    margin:16px;
+    color:#ff9100;
+}
+#pricingPage .page__content + {
+    top:0px;
+}
+.orangeMenuButton{
+    color:#ff9100;
+    line-height:50px;
 }

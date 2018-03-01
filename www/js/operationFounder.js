@@ -5707,6 +5707,8 @@ function menuController() {
         case 'eventSelectionPage.html':
             $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs').addClass('hide');
             break;
+        case 'signInPage.html':
+            
         default:
             menuEvtOrganiser();
             $('#baseLogOut, #copyAllLogs').addClass('hide');
