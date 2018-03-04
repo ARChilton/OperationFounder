@@ -1036,24 +1036,58 @@
     </ons-page>
   </ons-template>
   <!-- End of MessagesPage.html -->
-  <ons-template id="testPage.html">
-    <ons-page id="testPage">
-      <div class="pageDiv">
-        <form id="payment-form">
-          <div class="form-row">
-            <label for="card-element">
-              Credit or debit card
-            </label>
-            <div id="card-element">
-              <!-- A Stripe Element will be inserted here. -->
+  <ons-template id="checkoutPage.html">
+    <ons-page id="checkoutPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Checkout
+        </div>
+      </ons-toolbar>
+      <div class="">
+
+        <div id="paymentSummary" class="row pageDiv">
+          <div class="row">
+            <div class="col-xs-6" id="numberOfTrackedEntities">
+
             </div>
-
-            <!-- Used to display Element errors. -->
-            <div id="card-errors" role="alert"></div>
+            <div class="col-xs-6"></div>
           </div>
+          <div class="row">
+            <div class="col-xs-6">
+              Collecting location information:
+            </div>
+            <div class="col-xs-6" id="geoLocationInUse"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              Additional storage time:
+            </div>
+            <div class="col-xs-6"></div>
+          </div>
+          <div class="row">
+            Total
+          </div>
+        </div>
 
-          <button>Submit Payment</button>
-        </form>
+        <div id="payment-form" class="row marginTop section sectionGray">
+          <div id="paymentCapture" class="col-xs-12 col-sm-8 col-sm-push-2">
+            <div class="form-row">
+              <label for="card-element">
+                Enter your credit or debit card details below:
+              </label>
+              <div id="card-element" class="marginAuto marginTop ">
+                <!-- A Stripe Element will be inserted here. -->
+              </div>
+              <!-- Used to display Element errors. -->
+              <div id="card-errors" role="alert"></div>
+            </div>
+            <ons-button modifier="large" id="paymentSubmitButton" class="secondaryColorButton marginAuto marginTop ">Submit Payment</ons-button>
+          </div>
+        </div>
+
       </div>
     </ons-page>
   </ons-template>

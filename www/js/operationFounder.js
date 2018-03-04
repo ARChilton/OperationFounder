@@ -2031,7 +2031,6 @@ ons.ready(function () {
             })
             .then(function (doc) {
 
-                //TODO ARC 20/09/2017 consider loginandrun function here passing data on
                 var data = {
                     eventInfo: doc,
                     firstPage: true
@@ -2228,6 +2227,7 @@ ons.ready(function () {
     });*/
 
 
+
     // ---  page change code ---
     /**
      * Very important section as this defines what happens when a page changes and when certain pages are loaded
@@ -2263,14 +2263,13 @@ ons.ready(function () {
                     });
                 }
 
-                //TODO this button Needs lots of work ARC 20/09/2017
                 if (!$('.signInButton').hasClass('evtHandler')) {
                     $('.signInButton').addClass('evtHandler').on('click', function () {
                         showProgressBar('signInPage', true);
                         username = changeAtSymbol($('#signInUserName').val().trim());
                         password = $('#signInPassword').val().trim();
 
-                        //TODO sign in via server
+
                         var signInUrl = appServer + '/api/signin';
                         var dataPackage = {
                             username: username,
@@ -2301,8 +2300,7 @@ ons.ready(function () {
                                     //var db is the authority on which databases the user should have event descriptions for
                                     db = doc.user.roles;
                                     console.log(db);
-                                    //TODO pick up here Adam 12/09/2017 need to draw user path to when they connect to the databases via the different user paths
-                                    //need to do the whole getting of the event information
+
                                     var timestamp = new Date().toISOString();
                                     return appdb.get('login_' + username)
                                         .then(function (login) {
@@ -2505,6 +2503,8 @@ ons.ready(function () {
                     });
                 }
                 menuController('signInPage.html');
+                // TODO: remove this
+                navi.bringPageTop('checkoutPage.html');
 
 
                 break;
@@ -2990,7 +2990,7 @@ ons.ready(function () {
                     var numberOfTrackedEntities = trackedEntities.val()
                     if (typeof eventInfo !== 'object' || eventInfo.trackedEntities < numberOfTrackedEntities) {
                         eventDescription.trackedEntities = numberOfTrackedEntities;
-                         trackedEntitiesDifference = numberOfTrackedEntities - (eventInfo.trackedEntities || 0);
+                        trackedEntitiesDifference = numberOfTrackedEntities - (eventInfo.trackedEntities || 0);
                     }
                 }
                 /**
@@ -5498,7 +5498,7 @@ ons.ready(function () {
                     console.warn(err);
                     ons.notification.alert({
                         title: 'Issue Updating',
-                        message: 'There was an issue updating, please sign in again to fix',
+                        message: 'There was an issue updating, please sign in again to solve the issue.',
                         cancelable: true
                     }).then(function () {
                         pageChange = 'signInPage.html';
@@ -5510,11 +5510,11 @@ ons.ready(function () {
                 break;
             }
             //Start of test area
-            case 'testPage.html': {
+            case 'checkoutPage.html': {
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
-                var form = document.getElementById('payment-form');
-
+                // var form = document.getElementById('payment-form');
+                var paymentSubmitButton = $('#paymentSubmitButton')
 
                 // Custom styling can be passed to options when creating an Element.
                 var style = {
@@ -5542,8 +5542,8 @@ ons.ready(function () {
 
                 // Create a token or display an error when the form is submitted.
 
-                form.addEventListener('submit', function (event) {
-                    event.preventDefault();
+                paymentSubmitButton.on('click', function (event) {
+                    // event.preventDefault();
 
                     stripe.createToken(card)
                         .then(function (result) {

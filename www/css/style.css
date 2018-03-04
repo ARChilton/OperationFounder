@@ -434,7 +434,7 @@ input:checked + .switch__toggle{
 
 /*signIn page*/
 .section{
- padding:5% 16px;
+ padding:32px 16px;
  border-top:3px solid #EF6C00;
 }
 .sectionGray{
@@ -2234,4 +2234,10 @@ ons-splitter-mask {
     .section h2{
         font-size:1.5em;
     }
+}
+#payment-form{
+    position: absolute;
+    bottom: 0px;
+    left:0px;
+    right:0px;
 }
