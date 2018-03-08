@@ -52,6 +52,7 @@ var nextSeq = 0;
 //user variables
 var username = localStorage.username;
 var password = localStorage.password;
+var customerId = localStorage.customerId;
 //db variables
 var lastDb = localStorage.lastDb;
 var couchdb = localStorage.couchdb;
@@ -68,7 +69,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://checkpointlive.com/app';
+var appServer = 'http://localhost:3000';//'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
@@ -312,7 +313,7 @@ function formBubbleMessages(rows, limit, prepend) {
         }
 
         if (!lastMessage && l > 1) {
-            console.log('continue ' + i)
+            console.log('continue ' + i);
             if (!prepend) {
                 newestMessage = doc._id;
             }
@@ -337,7 +338,7 @@ function formBubbleMessages(rows, limit, prepend) {
         if (lastMessage.from === currentBase) {
             containerClasses += ' message-out';
         } else {
-            containerClasses += ' message-in'
+            containerClasses += ' message-in';
             // if (lastMessage.from === 0) {
             //     containerClasses += ' adminMsg';
             // }
@@ -471,7 +472,7 @@ function cleanAll() {
         title: 'Clean all databases',
         messageHTML: '<p>You are about to delete all items from the central database, this will propagate out to all other devices, are you sure you want to do this?</p><p>If yes please enter the admin passcode used to access the admin portion of the app</p>',
         cancelable: true,
-        placeholder: 'Enter admin code here',
+        placeholder: 'Enter admin code here'
     }).then(function (input) {
         if (input.toLowerCase() === baseCodes[0]) {
             console.log('you have ended the world');
@@ -479,14 +480,14 @@ function cleanAll() {
                 for (var i = 0, l = doc.total_rows; i < l; i++) {
 
                     var path = doc.rows[i];
-                    var testForDesignDocs = '_design'
+                    var testForDesignDocs = '_design';
                     console.log(path.id + ' ' + path.value.rev);
                     if (testForDesignDocs.test(path.id)) {
                         var deletedRecord = {
                             _id: path.id,
                             _rev: path.value.rev,
                             _deleted: true
-                        }
+                        };
 
                         admindb.put(deletedRecord)
                             .catch(function (err) {
@@ -777,7 +778,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
             index = patrolRecordAdmin.indexOf(id);
             //checks that it isn't an off route entry in which case we are happy to duplicate in the table
             if (index > -1) {
-                console.log('record already exists')
+                console.log('record already exists');
                 return true;
             } else {
                 patrolRecordAdmin.push(id);
@@ -786,7 +787,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         } else {
             index = offRouteIndexAdmin.indexOf(id);
             if (index > -1) {
-                console.log('record already exists')
+                console.log('record already exists');
                 return true;
             } else {
                 offRouteIndexAdmin.push(id);
@@ -806,7 +807,7 @@ function patrolRecordUpdate(id, offRoute, admin) {
         } else {
             index = offRouteIndex.indexOf(id);
             if (index > -1) {
-                console.log(id + 'record already exists')
+                console.log(id + 'record already exists');
                 return true;
             } else {
                 offRouteIndex.push(id);
@@ -1315,7 +1316,7 @@ function writeUntilWrittenDelete(id, timestamp) {
             if (err.status === 409) {
 
                 if (attemptCount < 5) {
-                    attemptCount++
+                    attemptCount++;
                     return writeUntilWrittenDelete(id);
                 } else {
                     console.warn('409 could not be written');
@@ -1367,7 +1368,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                 }
                 doc.timestamp = timestamp;
                 //updates an exsiting row therefore doesn't require an array to prepend
-                tableUpdateFunction(doc, true)
+                tableUpdateFunction(doc, true);
                 switch (lock) {
                     case true:
                         $('#' + id).addClass('lockedLog');
@@ -1377,13 +1378,13 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
                         break;
                 }
 
-                return admindb.put(doc)
+                return admindb.put(doc);
             }).then(function () {
                 orientationLandscapeUpdate();
             })
             .catch(function (err) {
                 console.warn(err);
-            })
+            });
 
     }
 
@@ -1516,8 +1517,8 @@ function baseLogOut() {
         navi.replacePage('loginPage.html', options);
     } else {
         options = {
-            animation: pageChangeAnimation,
-        }
+            animation: pageChangeAnimation
+        };
         navi.popPage(options);
     }
 
@@ -1556,10 +1557,12 @@ function signOut() {
     basedb = undefined;
     admindb = undefined;
     remotedb = undefined;
+    customerId = undefined;
     remotedbConnected = false;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     localStorage.verified = 'false';
     localStorage.evtOrganiser = 'false';
+    localStorage.customerId = 'false';
 }
 
 function goToEventSummary() {
@@ -1567,7 +1570,7 @@ function goToEventSummary() {
 
     navi.bringPageTop('eventSummaryPage.html', {
         animation: pageChangeAnimation,
-        data: data,
+        data: data
     }).then(function () {
         document.getElementById('menu').toggle();
     });
@@ -1633,7 +1636,7 @@ function apiAjax(apiAddress, dataPackage) {
             "withCredentials": false
         },
         "headers": {
-            "content-type": "application/x-www-form-urlencoded",
+            "content-type": "application/x-www-form-urlencoded"
 
         },
         "data": dataPackage
@@ -1660,11 +1663,11 @@ function loginAndRunFunction(base, data) {
         options = {
             animation: pageChangeAnimation,
             data: data
-        }
+        };
     } else {
         options = {
             animation: pageChangeAnimation
-        }
+        };
     }
     switch (base) {
         case 'logOut':
@@ -1925,7 +1928,7 @@ ons.ready(function () {
     } */
     $(document).on("click", '.menuButton', function () {
         openMenu();
-    })
+    });
     //listens to onsenui event for the splitter menu closing line 22815 of onsenui.js
     //removes the shadow when the menu closes
     $('#menu').on('postclose', function () {
@@ -1994,7 +1997,7 @@ ons.ready(function () {
                                 var error = {
                                     status: 307,
                                     message: "last database does not match current user's databases"
-                                }
+                                };
                                 console.log(error.message);
                                 throw error;
                             }
@@ -2155,7 +2158,7 @@ ons.ready(function () {
 
         return db1.replicate.to(db2, options)
             .then(function (info) {
-                console.log(info)
+                console.log(info);
                 if (info.docs_written > 0) {
                     console.log('event Description for ' + event + ' updated');
                     return true;
@@ -2207,18 +2210,18 @@ ons.ready(function () {
 
         var key = primer
             ? function (x) {
-                return primer(x[field])
+                return primer(x[field]);
             }
             : function (x) {
-                return x[field]
+                return x[field];
             };
 
         reverse = !reverse ? 1 : -1;
 
         return function (a, b) {
             return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-        }
-    }
+        };
+    };
 
 
     //commented out for dev
@@ -2285,6 +2288,7 @@ ons.ready(function () {
                                         localStorage.http = doc.http;
                                         localStorage.username = username;
                                         localStorage.password = password;
+                                        localStorage.customerId = doc.user.metadata.customerId;
                                         localStorage.db = JSON.stringify(doc.user.roles);
                                         localStorage.previousSignIn = true;
                                         if (doc.user.metadata !== undefined) {
@@ -2294,7 +2298,7 @@ ons.ready(function () {
                                             }
                                         }
                                     }
-
+                                    customerId = doc.user.metadata.customerId;
                                     couchdb = doc.couchdb;
                                     http = doc.http;
                                     //var db is the authority on which databases the user should have event descriptions for
@@ -2438,6 +2442,7 @@ ons.ready(function () {
                                     }
                                 }).then(function (data) {
                                     console.log(data);
+                                    showProgressBar('signInPage', false);
                                     var options = !data
                                         ? {
                                             animation: pageChangeAnimation
@@ -2445,7 +2450,7 @@ ons.ready(function () {
                                         : {
                                             animation: pageChangeAnimation,
                                             data: data
-                                        }
+                                        };
 
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
@@ -2695,10 +2700,12 @@ ons.ready(function () {
                                                 //store username & password as accessable variables
                                                 username = emailSignUp;
                                                 password = passwordSignUp;
+                                                customerId = doc.customerId;
                                                 if (typeof localStorage !== 'undefined') {
                                                     //localstorage available save username and password for next time
                                                     localStorage.username = emailSignUp;
                                                     localStorage.password = passwordSignUp;
+                                                    localStorage.customerId = customerId;
                                                     localStorage.verified = false;
                                                     localStorage.evtOrganiser = true;
                                                     localStorage.previousSignIn = true;
@@ -2706,18 +2713,18 @@ ons.ready(function () {
                                                 break;
 
                                             default:
-                                                ons.notification.alert({
+                                                throw {
                                                     title: 'error',
                                                     message: "Something has gone wrong that isn't your fault please contact support",
                                                     cancelable: true
-                                                });
+                                                };
                                         }
 
                                     }).catch(function (err) {
                                         console.log(err);
                                         ons.notification.alert({
-                                            title: 'error',
-                                            message: 'error: ' + err.toString(),
+                                            title: err.title || 'error',
+                                            message: err.message || 'error: ' + err.toString(),
                                             cancelable: true
                                         });
                                     });
@@ -2758,7 +2765,7 @@ ons.ready(function () {
                         var verificationDataPackage = {
                             username: localStorage.username,
                             token: $('#verificationCode').val().trim()
-                        }
+                        };
                         if (verificationDataPackage.token != '') {
                             $.ajax(apiAjax(verificationCheckAPI, verificationDataPackage))
                                 .then(function (doc) {
@@ -2771,26 +2778,24 @@ ons.ready(function () {
                                             }
                                             break;
                                         case 401:
-                                            ons.notification.alert({
+                                            throw {
                                                 title: 'Incorrect code',
-                                                message: "This code does not match your user account, please check you entered it correctly.",
-                                                cancelable: true
-                                            });
-                                            break;
+                                                message: "This code does not match your user account, please check you entered it correctly."
+
+                                            };
+
                                         case 500:
-                                            ons.notification.alert({
+                                            throw {
                                                 title: 'Error',
-                                                message: doc.err.toString(),
-                                                cancelable: true
-                                            });
-                                            break;
+                                                message: doc.err.toString()
+                                            };
                                     }
-                                })
-                                .catch(function (err) {
+
+                                }).catch(function (err) {
                                     console.log(err);
                                     ons.notification.alert({
-                                        title: 'Error sending verification code',
-                                        message: 'failed to send verification code because of: ' + err.toString(),
+                                        title: err.title || 'Error sending verification code',
+                                        message: err.message || 'failed to send verification code because of: ' + err.toString(),
                                         cancelable: true
                                     });
                                 });
@@ -2912,7 +2917,7 @@ ons.ready(function () {
                     }
                     console.log(passwordArray);
                     console.log(passwordObject);
-                }
+                };
                 /**
                  * a function to update the event banner based upon a file upload
                  * @param {object} inputFile needs to be found using plain js
@@ -2926,7 +2931,7 @@ ons.ready(function () {
                         console.log(url);
                         resolve(url);
                     });
-                }
+                };
                 /**
                  * a function to downscale an image
                  * @param {object} imgEl img element if JQuery must be JQuery[0] or other value in the array if using classes
@@ -2951,16 +2956,16 @@ ons.ready(function () {
                 var addBase = function (baseCount) {
                     var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
-                }
+                };
 
                 var switchAndHideToggle = function (elementSwitch, elementsToHide, trueOrFalse) {
                     toggleProp(elementSwitch, 'checked', trueOrFalse);
                     hideElement(!trueOrFalse, elementsToHide);
-                }
+                };
 
                 var toggleProp = function (element, prop, trueOrFalse) {
                     return element.prop(prop, trueOrFalse);
-                }
+                };
 
                 /**
                  * creates the eventDescription variable in the higher scope
@@ -2987,12 +2992,12 @@ ons.ready(function () {
                             basePassword: $('#adminPassword').val().trim()
                         }]
                     };
-                    var numberOfTrackedEntities = trackedEntities.val()
+                    var numberOfTrackedEntities = trackedEntities.val();
                     if (typeof eventInfo !== 'object' || eventInfo.trackedEntities < numberOfTrackedEntities) {
                         eventDescription.trackedEntities = numberOfTrackedEntities;
                         trackedEntitiesDifference = numberOfTrackedEntities - (eventInfo.trackedEntities || 0);
                     }
-                }
+                };
                 /**
                  * Adds the bases to the general event description
                  * @param {number} baseCount the number of bases to loop over
@@ -3035,7 +3040,7 @@ ons.ready(function () {
                         }
                     }
                     return passwordsOk;
-                }
+                };
 
                 //Normal code to run
                 if (pageData.edit === true) {
@@ -3196,7 +3201,7 @@ ons.ready(function () {
                             var apiAddress = appServer + '/api/user/checkusername';
                             var evtUsernameToTest = {
                                 username: evtUsername
-                            }
+                            };
                             $.ajax(apiAjax(apiAddress, evtUsernameToTest))
                                 .then(function (doc) {
                                     switch (doc.status) {
@@ -3582,7 +3587,7 @@ ons.ready(function () {
                 var eventName = navi.topPage.data.eventName;
                 url = navi.topPage.data.url;
                 if (typeof navi.topPage.data.eventInfo === 'object') {
-                    eventInfo = navi.topPage.data.eventInfo
+                    eventInfo = navi.topPage.data.eventInfo;
                 } else {
                     eventInfo = eventDescription;
                 }
@@ -3594,7 +3599,7 @@ ons.ready(function () {
                     console.log(eventInfo);
                     $('#evtSummaryTitle').html(eventName);
                     var evtStart = new Date(eventInfo.dateStart);
-                    var evtEnd = new Date(eventInfo.dateEnd)
+                    var evtEnd = new Date(eventInfo.dateEnd);
 
                     $('#evtSummaryStartDate').append(addZero(evtStart.getHours()) + ':' + addZero(evtStart.getMinutes()) + ' on ' + evtStart.toDateString());
                     $('#evtSummaryEndDate').append(addZero(evtEnd.getHours()) + ':' + addZero(evtEnd.getMinutes()) + ' on ' + evtEnd.toDateString());
@@ -3602,7 +3607,7 @@ ons.ready(function () {
                     $('#evtSummaryUsername').append(eventInfo.evtUsername);
                     $('#evtSummaryPassword').append(eventInfo.evtUserPass);
                     if (eventInfo.tracking) {
-                        $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>')
+                        $('#evtSummaryEvtDetails').append('<p id="evtSummaryBaseCount" class=""><span class="bold sentanceCase">URL to tracking server: </span><span>' + eventInfo.trackingUrl + '</span></p>');
                     }
                     if (eventInfo.eventDescription !== '') {
                         $('#evtSummaryDescription').append(eventInfo.eventDescription.replace(/\n/g, "<br>"));
@@ -3615,7 +3620,7 @@ ons.ready(function () {
                         var message;
                         var activeClass = 'baseSummaryIconActive';
                         var baseInformationSection = '<div class="baseSummaryInfo"><p class="bold evtSummaryBasesTitle">Checkpoint ' + base.baseNo + ': ' + base.baseName + '</p>';
-                        var baseSummaryIcons = '<div class="baseSummaryIcons">'
+                        var baseSummaryIcons = '<div class="baseSummaryIcons">';
                         if (base.baseMaxScore === undefined || base.baseMaxScore === '') {
                             message = 'no score available at this location';
                         } else {
@@ -3637,7 +3642,7 @@ ons.ready(function () {
                             locationClass += activeClass;
                         }
                         baseInformationSection += '<p><span class="bold sentanceCase">Record location with logs: </span><span class="">' + locationMessage + '</span></p>';
-                        baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>'
+                        baseSummaryIcons += '<ons-icon icon="md-pin" class="' + locationClass + '"></ons-icon>';
 
                         if (typeof base.baseInstructions === 'string' && base.baseInstructions !== "") {
                             baseInformationSection += '<p><span class="bold sentanceCase">Base instructions: </span><br>' + base.baseInstructions.replace(/\n/g, "<br>") + '</p>';
@@ -3667,7 +3672,7 @@ ons.ready(function () {
                         remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastDb;
                         var options = {
                             animation: pageChangeAnimation,
-                            data: navi.topPage.data,
+                            data: navi.topPage.data
                         };
 
                         var originPage = navi.pages[0].name;
@@ -3800,7 +3805,7 @@ ons.ready(function () {
 
                     //Event Logo update
                     url = navi.topPage.data.url;
-                    imageContainer = $('#loginEventLogo')
+                    imageContainer = $('#loginEventLogo');
                     Promise.resolve().then(function () {
                         return eventLogoGetter(eventInfo, url);
                     }).then(function (src) {
@@ -4109,7 +4114,7 @@ ons.ready(function () {
                             data: {
                                 edit: false
                             }
-                        }
+                        };
                         navi.bringPageTop('createEventPage.html', options);
                     });
                 }
@@ -4145,7 +4150,7 @@ ons.ready(function () {
                             console.log(err);
                             return log;
                         });
-                }
+                };
 
                 menuController('page1.html');
                 //passing through information about the event and the base
@@ -4162,7 +4167,7 @@ ons.ready(function () {
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
                         $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left"><span id="baseInstructionsShowHideWord">Hide base instructions</span></div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
-                        $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>')
+                        $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>');
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
                             $('#baseInstructions').slideToggle(500);
@@ -4197,7 +4202,7 @@ ons.ready(function () {
                 } else if (base === 'noBase') {
                     $('#page1 .normalTitle,#page1 .mainTitle').html('On the look out');
                     $('#quickAddTitle').html('Record the teams you see');
-                    $('#tableTitle').html('Teams seen')
+                    $('#tableTitle').html('Teams seen');
 
                 }
                 $('#logsTable').empty();
@@ -4223,7 +4228,7 @@ ons.ready(function () {
                             ddoc: 'baseTimeOutIndex',
                             type: 'json'
                         }
-                    })
+                    });
                 }).then(function () {
                     return basedb.createIndex({
                         index: {
@@ -4277,7 +4282,7 @@ ons.ready(function () {
                         var syncOptions = {
                             live: true,
                             retry: true
-                        }
+                        };
                         baseSyncInProgress = true;
                         return syncBasedb = basedb.sync(remotedb, syncOptions)
                             .on('change', function (doc) {
@@ -4337,7 +4342,7 @@ ons.ready(function () {
                                 cancelable: true
                             };
                             if (location.coords.accuracy > 100) {
-                                options.messageHTML += '<p class="caption ">Accuracy will improve as the GPS finds satelites.</p>'
+                                options.messageHTML += '<p class="caption ">Accuracy will improve as the GPS finds satelites.</p>';
                             }
                             return options;
                         })
@@ -4457,7 +4462,7 @@ ons.ready(function () {
                     }
                     orientationLandscapeUpdate();
                     clearQuickAddInputs();
-                }
+                };
                 // Quick submit code
                 if (!($('#submitQuick').hasClass('evtHandler'))) {
                     // Add the event handler only once when the page is first loaded.
@@ -4585,7 +4590,7 @@ ons.ready(function () {
                                 totalScore: sqTotalScore,
                                 editable: true,
                                 timestamp: timestamp
-                            }
+                            };
 
                             // -- important if off route it is just added to the db
 
@@ -4597,7 +4602,7 @@ ons.ready(function () {
                                     return updateLogWIthPosition(patrolLog, geolocationOn)
                                         .then(function (log) {
                                             console.log(log);
-                                            return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                            return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl);
                                         })
                                         .then(function (log) {
                                             tableUpdateFunction(log, false, tableUpdate);
@@ -4625,7 +4630,7 @@ ons.ready(function () {
                                                             return updateLogWIthPosition(patrolLog, geolocationOn)
                                                                 .then(function (log) {
                                                                     console.log(log);
-                                                                    return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                                    return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl);
                                                                 })
                                                                 .then(function (log) {
                                                                     tableUpdateFunction(log, false, tableUpdate);
@@ -4654,7 +4659,7 @@ ons.ready(function () {
                                                 return updateLogWIthPosition(patrolLog, geolocationOn)
                                                     .then(function (log) {
                                                         console.log(log);
-                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl);
                                                     })
                                                     .then(function (log) {
                                                         console.log('404 no prior record putting a new record');
@@ -4678,7 +4683,7 @@ ons.ready(function () {
                                                         return updateLogWIthPosition(patrolLog, geolocationOn);
                                                     }).then(function (log) {
                                                         console.log(log);
-                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl)
+                                                        return sendviaOsmAnd(trackingOn, eventInfo.pRef, log, eventInfo.trackingUrl);
                                                     }).then(function (log) {
                                                         tableUpdateFunction(log, false, tableUpdate);
                                                         return basedb.put(log);
@@ -4689,7 +4694,7 @@ ons.ready(function () {
                                                 console.warn(err);
                                             }
                                         }).then(function () {
-                                            baseTableInput(tableUpdate)
+                                            baseTableInput(tableUpdate);
                                         });
                                     break;
                             }
@@ -4750,7 +4755,7 @@ ons.ready(function () {
                         }
                         var offOnRoute = 'on route';
                         if (log.offRoute) {
-                            offOnRoute = 'off route'
+                            offOnRoute = 'off route';
                         }
                         var tOut = new Date(log.timeOut);
                         // var timeOut = tOut.toLocaleTimeString([], {
@@ -4777,7 +4782,7 @@ ons.ready(function () {
                     console.log('updated ls table');
                     //});
 
-                }
+                };
                 /**
                  * Perfoms a full update of the #lastSeenTable
                  * Parameters are all passed to the lastSeenUpdate function
@@ -4802,7 +4807,7 @@ ons.ready(function () {
                     }).catch(function (err) {
                         console.warn(err);
                     });
-                }
+                };
                 /**
                  * updates the lastSeen table
                  */
@@ -4812,7 +4817,7 @@ ons.ready(function () {
                         patrolSeen = [];
                         lastSeenFullUpdate(lastSeenTable, false);
                     }
-                }
+                };
 
                 //- leaderboard functions
                 /**
@@ -4834,7 +4839,7 @@ ons.ready(function () {
                     }).catch(function (err) {
                         console.warn(err);
                     });
-                }
+                };
 
                 var leaderboardRowCreator = function (rows, patrolToSearch) {
                     var i = 1;
@@ -4850,7 +4855,7 @@ ons.ready(function () {
                             return tableRow;
                         }
                     }));
-                }
+                };
                 //code to run
                 menuController('admin.html');
                 if (navi.topPage.data.eventInfo != undefined) {
@@ -5154,7 +5159,7 @@ ons.ready(function () {
                                             if (input == 1) {
                                                 deleteRecords(adminCurrentlySelected);
                                             }
-                                        })
+                                        });
                                     });
                                 }
                                 //button for locking logs as no longer editable
@@ -5336,7 +5341,7 @@ ons.ready(function () {
                         messageInputPlaceholder.removeClass('hide');
                         placeholder = true;
                     }
-                }
+                };
                 /**
                  * runs the scroll function on the messagesPage
                  */
@@ -5384,7 +5389,7 @@ ons.ready(function () {
                         }).catch(function (err) {
                             console.warn(err);
                         });
-                }
+                };
 
 
 
@@ -5449,7 +5454,7 @@ ons.ready(function () {
                     //TODO add fab after message load for the first time?
                     if (isScrolledIntoView(newMessages)) {
                         console.log('At Bottom');
-                        scrollToBottomFab[0].hide()
+                        scrollToBottomFab[0].hide();
                         scrollMessageBadge.html(0).addClass('hide');
                         return;
                     }
@@ -5514,14 +5519,14 @@ ons.ready(function () {
                 var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
                 var elements = stripe.elements();
                 // var form = document.getElementById('payment-form');
-                var paymentSubmitButton = $('#paymentSubmitButton')
+                var paymentSubmitButton = $('#paymentSubmitButton');
 
                 // Custom styling can be passed to options when creating an Element.
                 var style = {
                     base: {
                         // Add your base input styles here. For example:
                         fontSize: '16px',
-                        color: "#32325d",
+                        color: "#32325d"
                     }
                 };
 
@@ -5542,7 +5547,7 @@ ons.ready(function () {
 
                 // Create a token or display an error when the form is submitted.
 
-                paymentSubmitButton.on('click', function (event) {
+                paymentSubmitButton.on('click', function () {
                     // event.preventDefault();
 
                     stripe.createToken(card)
@@ -5553,17 +5558,20 @@ ons.ready(function () {
                                 errorElement.textContent = result.error.message;
                             } else {
                                 // Send the token to your server.
-                                stripeTokenHandler(result.token);
+                                stripeTokenHandler(result.token, customerId, 599);
                             }
                         });
                 });
 
-                var stripeTokenHandler = function (token) {
+                var stripeTokenHandler = function (source, customer, amount, metadata) {
                     var paymentObject = {
-                        source: token.id //need to add amount,currency,description
+                        source,
+                        amount,
+                        customer,
+                        metadata
                     };
                     $.ajax(apiAjax(appServer + '/api/payment', paymentObject));
-                }
+                };
 
                 break;
             }
@@ -5596,7 +5604,7 @@ function downscaleImg(imgEl, maxWidth, maxHeight) {
     var dimensions = {
         width: Math.floor(maxWidth),
         height: Math.floor(maxHeight)
-    }
+    };
     return dimensions;
 }
 /**
@@ -5648,7 +5656,7 @@ function stepped_scale(img, width, step) {
             var cur = {
                 width: Math.floor(img.width * step),
                 height: Math.floor(img.height * step)
-            }
+            };
 
             oc.width = cur.width;
             oc.height = cur.height;
@@ -5762,7 +5770,7 @@ function participantReference(pRef, page) {
         elements[ref].innerHTML = str.replace(/team/i, pRef);
     });
     if (page === 'page1') {
-        $('#patrolNo').attr('placeholder', pRef + ' No.')
+        $('#patrolNo').attr('placeholder', pRef + ' No.');
     }
 
 
@@ -5814,7 +5822,7 @@ function openMessages() {
             currentBase: getBaseNumber(),
             eventInfo: navi.topPage.data.eventInfo
         }
-    }
+    };
     navi.bringPageTop('messagesPage.html', options);
 }
 
@@ -5872,17 +5880,17 @@ var getPosition = function () {
     return new Promise(function (resolve, reject) {
         var options = {
             // timeout: 10,
-            enableHighAccuracy: true,
+            enableHighAccuracy: true
             // maximumAge: Infinity
         };
         navigator.geolocation.getCurrentPosition(resolve, reject, options);
     });
-}
+};
 
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     console.log(trackingOn);
     console.log(log);
-    console.log(trackingUrl)
+    console.log(trackingUrl);
     if (!trackingOn) {
         return log;
     }
