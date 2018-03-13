@@ -2270,6 +2270,7 @@ ons-splitter-mask {
     #eventPaymentSummary{
         height:100%;
         border-left:1px solid #efefef;
+        min-height:600px;
     }
     #paymentSummary{
         height:100%;
