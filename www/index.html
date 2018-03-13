@@ -575,11 +575,11 @@
         <div id="evtSummaryBanner"></div>
         <div id="evtSummaryEvtUser">
           <div id="evtSummaryEvtUserContents">
-            <div id="" class="">
+            <div class="">
               <span class="bold sentanceCase">base user username: </span>
               <span id="evtSummaryUsername" class="copyableArea passwordFont"></span>
             </div>
-            <div id="" class="">
+            <div class="">
               <span class="bold sentanceCase">base user password: </span>
               <span id="evtSummaryPassword" class="copyableArea passwordFont"></span>
             </div>
@@ -606,7 +606,7 @@
           <!-- <div id="evtSummaryAdminContainer">
             <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
             <div id="evtSummaryAdminDetails">
-              <p id="" class="">
+              <p  class="">
                 <span class="bold sentanceCase">Admin passcode: </span>
                 <span id="evtSummaryAdminPass" class="passwordFont"></span>
               </p>
@@ -739,7 +739,7 @@
         </div>
         <div class="right">
           <ons-toolbar-button>
-            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()">
+            <ons-icon icon="fa-comments" class="messagesIcon" onclick="openMessages()">
               <span id="messageBadge" class="messageBadge hide"></span>
             </ons-icon>
           </ons-toolbar-button>
@@ -854,7 +854,7 @@
             <ons-icon icon="md-search" id="patrolSearch"></ons-icon>
           </ons-toolbar-button>
           <ons-toolbar-button>
-            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()">
+            <ons-icon icon="fa-comments" class="messagesIcon" onclick="openMessages()">
               <span id="messageBadge" class="messageBadge hide"></span>
             </ons-icon>
           </ons-toolbar-button>
@@ -1022,49 +1022,163 @@
           Checkout
         </div>
       </ons-toolbar>
-      <div class="">
+      <div id="paymentSummary">
+        <div class="col-xs-12 col-sm-4 col-sm-push-8 col-lg-3 col-lg-push-9" id="eventPaymentSummary">
+          <h2 id="checkoutEventName" class="bold"></h2>
+          <div class="row txtCenter">
+            <h3 class="col-xs-4">Tracked
+              <span id="checkoutPRef"></span>
+            </h3>
+            <h3 class="col-xs-4">Location</h3>
+            <h3 class="col-xs-4">Storage</h3>
+          </div>
+          <div class="row txtCenter">
+            <div class="col-xs-4">
+              <ons-icon icon="fa-users"></ons-icon>
+              <p id="checkoutTotalTrackedEntities">57</p>
+            </div>
+            <div class="col-xs-4">
 
-        <div id="paymentSummary" class="row pageDiv">
+              <ons-icon icon="md-pin"></ons-icon>
+              <p id="checkoutGeolocationOn">Enabled</p>
+            </div>
+            <div class="col-xs-4">
+
+              <ons-icon icon="fa-database"></ons-icon>
+              <p id="checkoutAdditionalStorage">7 days</p>
+            </div>
+
+          </div>
+
+          <hr>
+          <h2 class="bold">Order Summary</h2>
           <div class="row">
-            <div class="col-xs-6" id="numberOfTrackedEntities">
+            <div class="col-xs-8 col-md-8" id="numberOfTrackedEntities">
 
             </div>
-            <div class="col-xs-6"></div>
+            <div class="col-xs-4 col-md-4 txtRight bold" id="trackedEntitiesCost"></div>
           </div>
           <div class="row">
-            <div class="col-xs-6">
-              Collecting location information:
-            </div>
-            <div class="col-xs-6" id="geoLocationInUse"></div>
-          </div>
-          <div class="row">
-            <div class="col-xs-6">
-              Additional storage time:
-            </div>
-            <div class="col-xs-6"></div>
-          </div>
-          <div class="row">
-            Total
-          </div>
-        </div>
-
-        <div id="payment-form" class="row marginTop section sectionGray">
-          <div id="paymentCapture" class="col-xs-12 col-sm-8 col-sm-push-2">
-            <div class="form-row">
-              <label for="card-element">
-                Enter your credit or debit card details below:
-              </label>
-              <div id="card-element" class="marginAuto marginTop ">
-                <!-- A Stripe Element will be inserted here. -->
+            <div class="col-xs-8 col-md-8  marginTop">
+              Enable location tracking:
+              <div class="caption">
+                1 location tracking enabled x
+                <span class="geoLocationInUse"></span>
               </div>
-              <!-- Used to display Element errors. -->
-              <div id="card-errors" role="alert"></div>
             </div>
-            <ons-button modifier="large" id="paymentSubmitButton" class="secondaryColorButton marginAuto marginTop ">Submit Payment</ons-button>
+            <div class="col-xs-4 col-md-4 txtRight bold  marginTop geoLocationInUse"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-8 col-md-8  marginTop">
+              Additional data storage time:
+              <div class="caption">
+                <span id="checkout"></span> 12 month storage x
+                <span class="storageCost"></span>
+              </div>
+            </div>
+
+            <div class="col-xs-4 col-md-4 txtRight bold marginTop "></div>
+          </div>
+          <div class="row">
+            <hr>
+            <div class="col-xs-8 col-md-8  bold">
+              Total
+            </div>
+            <div class="col-xs-4 col-md-4 txtRight bold  checkoutTotal"></div>
+          </div>
+          <div class="caption txtLeft marginTop marginBottom">
+            <ons-icon icon="fa-info-circle" id="infoCircle"></ons-icon>You will be able to purchase more tracked
+            <span id="checkoutPRefPlural"></span>, enable location and add storage time after purchasing, from the edit event set-up option in the event's
+            menu.
           </div>
         </div>
+        <div id="paymentSide" class="row">
 
+          <div id="customerDetails" class="row col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
+            <h2 class="bold col-sm-push-1 col-sm-10">Payment Information</h2>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Name*</div>
+              <ons-input type="text" placeholder="Name" underbar id="checkoutName" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Email*</div>
+              <ons-input type="email" placeholder="Email" underbar id="checkoutEmail" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Address*</div>
+              <ons-input type="text" placeholder="Address" underbar id="checkoutAddress" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">City*</div>
+              <ons-input type="text" placeholder="City" underbar id="checkoutCity" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">County/State*</div>
+              <ons-input type="text" placeholder="County / State" underbar id="checkoutCounty" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Post Code/ZIP*</div>
+              <ons-input type="text" placeholder="Post Code / ZIP" underbar id="checkoutPostCode" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop select">
+              <div class="col-xs-4 ">Country*</div>
+              <div id="country" class="gb">
+                <select name="country" class="col-xs-8 ">
+                  <option value="AU">Australia</option>
+                  <option value="AT">Austria</option>
+                  <option value="BE">Belgium</option>
+                  <option value="BR">Brazil</option>
+                  <option value="CA">Canada</option>
+                  <option value="CN">China</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="FR">France</option>
+                  <option value="DE">Germany</option>
+                  <option value="HK">Hong Kong</option>
+                  <option value="IE">Ireland</option>
+                  <option value="IT">Italy</option>
+                  <option value="JP">Japan</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="MX">Mexico</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="NO">Norway</option>
+                  <option value="PT">Portugal</option>
+                  <option value="SG">Singapore</option>
+                  <option value="ES">Spain</option>
+                  <option value="SE">Sweden</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="GB" selected="selected">United Kingdom</option>
+                  <option value="US">United States</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="payment-form" class="row marginTop section sectionGray col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
+
+
+            <div id="paymentCapture" class="col-xs-12 col-md-8 col-md-push-2 ">
+              <div class="form-row">
+                <label for="card-element">
+                  Enter your credit or debit card details below:
+                </label>
+                <div id="card-element" class="marginAuto marginTop ">
+                  <!-- A Stripe Element will be inserted here. -->
+                </div>
+                <!-- Used to display Element errors. -->
+                <div id="card-errors" role="alert"></div>
+              </div>
+              <ons-button modifier="large" id="paymentSubmitButton" class="secondaryColorButton marginAuto marginTop ">Pay
+                <span class="checkoutTotal"></span>
+              </ons-button>
+            </div>
+
+          </div>
+        </div>
       </div>
+
+
     </ons-page>
   </ons-template>
 

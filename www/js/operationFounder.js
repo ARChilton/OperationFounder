@@ -2509,7 +2509,16 @@ ons.ready(function () {
                 }
                 menuController('signInPage.html');
                 // TODO: remove this
-                navi.bringPageTop('checkoutPage.html');
+                navi.bringPageTop('checkoutPage.html', {
+                    data: {
+                        newEvent: true,
+                        pRef: 'Team',
+                        geolocationTurnedOnThisUpdate: true,
+                        trackedEntitiesDifference: 5,
+                        eventName: 'Operation Founder'
+
+                    }
+                });
 
 
                 break;
@@ -2787,7 +2796,7 @@ ons.ready(function () {
                                         case 500:
                                             throw {
                                                 title: 'Error',
-                                                message: doc.err.toString()
+                                                message: doc.message.toString()
                                             };
                                     }
 
@@ -2812,7 +2821,7 @@ ons.ready(function () {
                             .then(function () {
                                 ons.notification.alert({
                                     title: 'Email sent',
-                                    message: 'Your new verification email has been sent',
+                                    message: 'Your new verification code has been sent to the email address you signed up with.',
                                     cancelable: true
                                 });
                             }).catch(function () {
@@ -2977,7 +2986,7 @@ ons.ready(function () {
                         eventName: $('#eventName').val().trim(),
                         dateStart: $('#eventStartDate').val(),
                         dateEnd: $('#eventEndDate').val(),
-                        pRef: $('#pReference').val().trim(),
+                        pRef: $('#pReference').val().trim() || 'Team',
                         eventDescription: $('#eventDescription').val().trim(),
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
@@ -2993,9 +3002,13 @@ ons.ready(function () {
                         }]
                     };
                     var numberOfTrackedEntities = trackedEntities.val();
-                    if (typeof eventInfo !== 'object' || eventInfo.trackedEntities < numberOfTrackedEntities) {
-                        eventDescription.trackedEntities = numberOfTrackedEntities;
-                        trackedEntitiesDifference = numberOfTrackedEntities - (eventInfo.trackedEntities || 0);
+                    eventDescription.trackedEntities = numberOfTrackedEntities;
+                    var paidTrackedEntities = 0;
+                    if (typeof eventInfo === 'object') {
+                        paidTrackedEntities = eventInfo.paidTrackedEntities || 0;
+                    }
+                    if (paidTrackedEntities < numberOfTrackedEntities) {
+                        trackedEntitiesDifference = numberOfTrackedEntities - paidTrackedEntities;
                     }
                 };
                 /**
@@ -3040,6 +3053,231 @@ ons.ready(function () {
                         }
                     }
                     return passwordsOk;
+                };
+                /**
+                 * creates the event
+                 */
+                var createOrUpdateEvent = function () {
+                    var logo;
+                    if (!editEvent) {
+                        showProgressBar('createEventPage', true);
+                        createEventDescription();
+                        if (eventDescription.dateStart > eventDescription.dateEnd) {
+                            return ons.notification.alert({
+                                title: 'Check event dates',
+                                message: 'Event set to end before it starts.',
+                                cancelable: true
+                            });
+                        }
+                        if (getFile != false) {
+
+                            logo = document.getElementById('eventBannerImage');
+                            Promise.resolve().then(function () {
+                                return downscaleImg(logo, 1922, 240);
+                            }).then(function (doc) {
+                                console.log(doc);
+                                if (doc != false) {
+                                    return stepped_scale(logo, doc.width, 0.5);
+                                }
+                                return false;
+                            }).then(function (doc) {
+                                if (doc != false) {
+                                    return getFile = doc;
+                                }
+                                return getFile;
+                            }).then(function (img) {
+                                return eventDescription._attachments = {
+                                    evtLogo: {
+                                        data: img,
+                                        content_type: img.type
+                                    }
+                                };
+
+                            }).catch(function (err) {
+                                console.log(err);
+                            });
+                        }
+
+                        switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '' || eventDescription.trackedEntities === '') {
+                            case true:
+                                ons.notification.alert({
+                                    title: 'Missing attributes',
+                                    messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p><p>The number of ' + eventDescription.pRef + 's</p>'
+                                }).then(function () {
+                                    return showProgressBar('createEventPage', false);
+                                });
+                                console.log(eventDescription);
+                                break;
+                            case false:
+                                if (evtUsernameUnique) {
+                                    if (addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
+                                        // if payment is required it splits process here
+                                        if (geolocationTurnedOnThisUpdate || trackedEntitiesDifference > 0) {
+                                            showProgressBar('createEventPage', false);
+                                            return navi.bringPageTop('checkoutPage.html', {
+                                                animation: pageChangeAnimation,
+                                                data: {
+                                                    newEvent: true,
+                                                    geolocationTurnedOnThisUpdate: geolocationTurnedOnThisUpdate,
+                                                    trackedEntitiesDifference: trackedEntitiesDifference,
+                                                    url: url,
+                                                    pRef: eventDescription.pRef,
+                                                    eventName: eventDescription.eventName
+                                                }
+                                            });
+                                        }
+                                        return createNewEvent(url);
+                                    }
+                                } else {
+                                    ons.notification.alert({
+                                        title: 'error',
+                                        message: 'username is not unique, please try a different username',
+                                        cancelable: true
+                                    }).then(function () {
+                                        return showProgressBar('createEventPage', false);
+                                    });
+                                }
+                        }
+                    } else {
+                        //update rather than save
+                        //variables required outside the promises
+                        var tempdb = new PouchDB(eventInfo.dbName);
+                        logo = document.getElementById('eventBannerImage');
+                        ons.notification.confirm({
+                            title: 'Update Event',
+                            message: 'Are you sure you want to update ' + eventInfo.eventName,
+                            cancelable: true
+                        }).then(function (index) {
+                            if (!index === 1) {
+                                throw {
+                                    canceled: true
+                                };
+                            }
+                            showProgressBar('createEventPage', true);
+                            if (getFile != false) {
+                                // return downscaleImg(logo, 1922, 240);
+                                return Promise.resolve().then(function () {
+                                    return downscaleImg(logo, 1922, 240);
+                                }).then(function (doc) {
+                                    console.log(doc);
+                                    if (doc != false) {
+                                        return stepped_scale(logo, doc.width, 0.5);
+                                    }
+                                    return false;
+                                }).then(function (doc) {
+                                    if (doc != false) {
+                                        return getFile = doc;
+                                    }
+                                    return;
+                                });
+                            }
+                            return false; //no file upload took place
+                        }).then(function (doc) {
+                            console.log(doc);
+                            return tempdb.get('eventDescription');
+                        }).then(function (doc) {
+                            var changeMade = false;
+                            createEventDescription();
+                            if (eventDescription.dateStart > eventDescription.dateEnd) {
+                                throw 'Event set to end before it starts.';
+                            }
+                            if (!addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
+                                throw 'password not set';
+                            }
+
+                            //look for changes
+                            $.each(eventDescription, function (key, value) {
+                                console.log('key: ' + key + ' value: ' + value);
+                                if (key != 'bases') {
+                                    if (value === doc[key]) {
+                                        return true;
+                                    }
+                                } else {
+                                    return value.forEach(function (base) {
+                                        if (doc.bases[base.baseNo] === undefined) {
+                                            console.log('new base added');
+                                            changeMade = true;
+                                            return false;
+                                        }
+                                        var testAgainst = doc.bases[base.baseNo];
+                                        console.log(testAgainst);
+                                        return $.each(base, function (key2, value2) {
+                                            if (value2 === testAgainst[key2]) {
+                                                console.log('SAME key: ' + key2 + ' value: ' + value2);
+                                                return true;
+                                            }
+                                            console.log('DIFF key: ' + key2 + ' value: ' + value2);
+                                            changeMade = true;
+                                            return false;
+                                        });
+                                    });
+                                }
+                                console.log('change made');
+                                changeMade = true;
+                                return false;
+                            });
+                            if (getFile !== false) {
+                                //adds an image to the description
+                                eventDescription._attachments = {
+                                    evtLogo: {
+                                        data: getFile,
+                                        content_type: getFile.type
+                                    }
+                                };
+                                changeMade = true;
+                            } else if (typeof doc._attachments === 'object') {
+                                eventDescription._attachments = doc._attachments;
+                            }
+                            if (!changeMade) {
+
+                                throw {
+                                    noChange: true
+                                }; //no change made so cancel out
+                            }
+                            eventDescription._rev = doc._rev;
+                            eventDescription.dbName = doc.dbName;
+                            eventDescription.evtUserPass = doc.evtUserPass;
+                            // TODO payment split here
+                            // if payment is required it splits process here
+                            if (geolocationTurnedOnThisUpdate || trackedEntitiesDifference > 0) {
+                                showProgressBar('createEventPage', false);
+                                return navi.bringPageTop('checkoutPage.html', {
+                                    animation: pageChangeAnimation,
+                                    data: {
+                                        newEvent: false,
+                                        geolocationTurnedOnThisUpdate: geolocationTurnedOnThisUpdate,
+                                        trackedEntitiesDifference: trackedEntitiesDifference,
+                                        url: url,
+                                        eventInfo: eventInfo,
+                                        pRef: eventDescription.pRef,
+                                        eventName: eventDescription.eventName
+                                    }
+                                });
+                            }
+                            return uploadEditEvent(url, eventInfo);
+                        }).catch(function (err) {
+                            console.log(err);
+                            showProgressBar('createEventPage', false);
+                            if (err.canceled) {
+                                return false;
+                            }
+                            if (err.noChange) {
+                                return ons.notification.alert({
+                                    title: 'No change found',
+                                    message: 'No change has been detected from previous event information. A new version has not been saved.',
+                                    cancelable: true
+                                }).then(function () {
+                                    throw navi.popPage();
+                                });
+                            }
+                            var options = {
+                                title: 'Input Error',
+                                message: err,
+                                cancelable: true
+                            };
+                            ons.notification.alert(options);
+                        });
+                    }
                 };
 
                 //Normal code to run
@@ -3265,319 +3503,8 @@ ons.ready(function () {
 
                 if (!$('#saveEvent').hasClass('evtHandler')) {
                     $('#saveEvent').addClass('evtHandler').on('click', function () {
-                        //TODO add checking and uploading event message
-                        //TODO add loading bar
-                        var logo;
-                        if (!editEvent) {
-                            showProgressBar('createEventPage', true);
-                            createEventDescription();
-                            if (eventDescription.dateStart > eventDescription.dateEnd) {
-                                return ons.notification.alert({
-                                    title: 'Check event dates',
-                                    message: 'Event set to end before it starts.',
-                                    cancelable: true
-                                });
-                            }
-                            if (getFile != false) {
 
-                                logo = document.getElementById('eventBannerImage');
-                                Promise.resolve().then(function () {
-                                    return downscaleImg(logo, 1922, 240);
-                                }).then(function (doc) {
-                                    console.log(doc);
-                                    if (doc != false) {
-                                        return stepped_scale(logo, doc.width, 0.5);
-                                    }
-                                    return false;
-                                }).then(function (doc) {
-                                    if (doc != false) {
-                                        return getFile = doc;
-                                    }
-                                    return getFile;
-                                }).then(function (img) {
-                                    return eventDescription._attachments = {
-                                        evtLogo: {
-                                            data: img,
-                                            content_type: img.type
-                                        }
-                                    };
-
-                                }).catch(function (err) {
-                                    console.log(err);
-                                });
-                            }
-
-                            switch (eventDescription.eventName === '' || eventDescription.dateStart === '' || eventDescription.dateEnd === '' || eventDescription.adminPassword === '' || eventDescription.evtUsername === '') {
-                                case true:
-                                    ons.notification.alert({
-                                        title: 'Missing attributes',
-                                        messageHTML: '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p>'
-                                    }).then(function () {
-                                        return showProgressBar('createEventPage', false);
-                                    });
-                                    console.log(eventDescription);
-                                    break;
-                                case false:
-                                    if (evtUsernameUnique) {
-                                        if (addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
-                                            var apiAddress = appServer + '/api/event/new';
-                                            var eventCreationData = {
-                                                username: username,
-                                                password: password,
-                                                eventName: eventDescription.eventName,
-                                                eventUsername: eventDescription.evtUsername
-                                            };
-
-                                            $.ajax(apiAjax(apiAddress, eventCreationData))
-                                                .then(function (doc) {
-                                                    console.log(doc);
-                                                    if (localStorage.db !== undefined) {
-                                                        var dbs = JSON.parse(localStorage.db);
-                                                        dbs.push(doc.dbName);
-                                                        localStorage.db = JSON.stringify(dbs);
-                                                    } else {
-                                                        localStorage.db = doc.dbName;
-                                                    }
-
-                                                    localStorage.lastDb = doc.dbName;
-                                                    localStorage.couchdb = doc.url;
-                                                    localStorage.http = doc.http;
-                                                    eventDescription.evtUserPass = doc.evtUserPass;
-                                                    eventDescription.dbName = doc.dbName;
-                                                    var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
-                                                    if (remotedbURL === newRemotedbURL) {
-                                                        //this returns true
-                                                        return true;
-                                                    } else {
-                                                        remotedbURL = newRemotedbURL;
-                                                        if (remotedbConnected) {
-
-                                                            return remotedb.close()
-                                                                .then(function () {
-                                                                    return remotedbConnected = false;
-                                                                }).catch(function (err) {
-                                                                    console.log(err);
-                                                                    throw err;
-                                                                });
-                                                        } else {
-                                                            //this should return false
-                                                            return remotedbConnected;
-                                                        }
-                                                    }
-                                                }).then(function (doc) {
-                                                    //checking if remotedb was already defined or not, most likely not
-                                                    if (doc === false) {
-                                                        console.log('creating new remotedb connection with new characteristics');
-
-                                                        //new remotedb location as defined from the server
-                                                        return remotedb = new PouchDB(remotedbURL);
-                                                    } else {
-                                                        //remotedb has not changed
-                                                        return remotedb;
-                                                    }
-
-                                                }).then(function (db) {
-                                                    //db is remoteDb but via the function not the var
-                                                    console.log(db);
-                                                    return db.get('eventDescription')
-                                                        .then(function (doc) {
-                                                            eventDescription._rev = doc._rev;
-                                                            return db.put(eventDescription);
-                                                        }).catch(function (err) {
-                                                            console.log(err);
-                                                            if (err.status === 404) {
-                                                                return db.put(eventDescription);
-                                                            } else {
-                                                                console.log(err);
-                                                                err.message = 'unable to upload event description to the database';
-                                                                throw err;
-                                                            }
-                                                        });
-                                                }).then(function () {
-                                                    return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
-                                                }).then(function () {
-                                                    //adds a reference to the event description by adding the db to the list of the user's dbs
-                                                    return addAppdbLoginDb(eventDescription.dbName);
-                                                }).then(function (doc) {
-                                                    console.log(doc);
-                                                    var options = {
-                                                        animation: pageChangeAnimation,
-                                                        data: {
-                                                            eventName: eventDescription.eventName,
-                                                            url: url,
-                                                            eventInfo: eventDescription
-                                                        }
-                                                    };
-                                                    return navi.resetToPage('eventSummaryPage.html', options);
-                                                }).catch(function (err) {
-                                                    console.warn(err);
-                                                    if (err.message === undefined) {
-                                                        err.message = 'issue saving the event';
-                                                    }
-                                                    return ons.notification.alert({
-                                                        title: 'error',
-                                                        message: err.message,
-                                                        cancelable: true
-                                                    }).then(function () {
-                                                        return showProgressBar('createEventPage', false);
-                                                    });
-                                                });
-                                        }
-                                    } else {
-                                        ons.notification.alert({
-                                            title: 'error',
-                                            message: 'username is not unique, please try a different username',
-                                            cancelable: true
-                                        }).then(function () {
-                                            return showProgressBar('createEventPage', false);
-                                        });
-                                    }
-                            }
-                        } else {
-                            //update rather than save
-                            //variables required outside the promises
-                            var tempdb = new PouchDB(eventInfo.dbName);
-                            logo = document.getElementById('eventBannerImage');
-                            ons.notification.confirm({
-                                title: 'Update Event',
-                                message: 'Are you sure you want to update ' + eventInfo.eventName,
-                                cancelable: true
-                            }).then(function (index) {
-                                if (!index === 1) {
-                                    throw {
-                                        canceled: true
-                                    };
-                                }
-                                showProgressBar('createEventPage', true);
-                                if (getFile != false) {
-                                    // return downscaleImg(logo, 1922, 240);
-                                    return Promise.resolve().then(function () {
-                                        return downscaleImg(logo, 1922, 240);
-                                    }).then(function (doc) {
-                                        console.log(doc);
-                                        if (doc != false) {
-                                            return stepped_scale(logo, doc.width, 0.5);
-                                        }
-                                        return false;
-                                    }).then(function (doc) {
-                                        if (doc != false) {
-                                            return getFile = doc;
-                                        }
-                                        return;
-                                    });
-                                }
-                                return false; //no file upload took place
-                            }).then(function (doc) {
-                                console.log(doc);
-                                return tempdb.get('eventDescription');
-                            }).then(function (doc) {
-                                var changeMade = false;
-                                createEventDescription();
-                                if (eventDescription.dateStart > eventDescription.dateEnd) {
-                                    throw 'Event set to end before it starts.';
-                                }
-                                if (!addBasesToEvtDescription(baseCount, eventDescription.passwordProtectLogs, eventDescription)) {
-                                    throw 'password not set';
-                                }
-
-                                //look for changes
-                                $.each(eventDescription, function (key, value) {
-                                    console.log('key: ' + key + ' value: ' + value);
-                                    if (key != 'bases') {
-                                        if (value === doc[key]) {
-                                            return true;
-                                        }
-                                    } else {
-                                        return value.forEach(function (base) {
-                                            if (doc.bases[base.baseNo] === undefined) {
-                                                console.log('new base added');
-                                                changeMade = true;
-                                                return false;
-                                            }
-                                            var testAgainst = doc.bases[base.baseNo];
-                                            console.log(testAgainst);
-                                            return $.each(base, function (key2, value2) {
-                                                if (value2 === testAgainst[key2]) {
-                                                    console.log('SAME key: ' + key2 + ' value: ' + value2);
-                                                    return true;
-                                                }
-                                                console.log('DIFF key: ' + key2 + ' value: ' + value2);
-                                                changeMade = true;
-                                                return false;
-                                            });
-                                        });
-                                    }
-                                    console.log('change made');
-                                    changeMade = true;
-                                    return false;
-                                });
-                                if (getFile !== false) {
-                                    //adds an image to the description
-                                    eventDescription._attachments = {
-                                        evtLogo: {
-                                            data: getFile,
-                                            content_type: getFile.type
-                                        }
-                                    };
-                                    changeMade = true;
-                                } else if (typeof doc._attachments === 'object') {
-                                    eventDescription._attachments = doc._attachments;
-                                }
-                                if (!changeMade) {
-
-                                    return {
-                                        ok: false
-                                    }; //no change made so cancel out
-                                }
-                                eventDescription._rev = doc._rev;
-                                eventDescription.dbName = doc.dbName;
-                                eventDescription.evtUserPass = doc.evtUserPass;
-
-                                return tempdb.put(eventDescription);
-                            }).then(function (doc) {
-                                console.log(doc);
-                                if (doc.ok) {
-                                    eventDescription._rev = doc.rev;
-                                    return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
-                                } else {
-                                    return ons.notification.alert({
-                                        title: 'No change found',
-                                        message: 'No change has been detected from previous event information. A new version has not been saved.',
-                                        cancelable: true
-                                    }).then(function () {
-                                        throw navi.popPage();
-                                    });
-                                }
-                            }).then(function (doc) {
-                                console.log(doc);
-                                var options = {
-                                    animation: pageChangeAnimation,
-                                    data: {
-                                        eventName: eventDescription.eventName,
-                                        url: url,
-                                        eventInfo: eventDescription
-                                    }
-                                };
-
-                                return navi.resetToPage('eventSummaryPage.html', options);
-                            }).then(function () {
-                                var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
-                                tempRemotedb.compact();
-                                return closeDatabases();
-                            }).catch(function (err) {
-                                console.log(err);
-                                showProgressBar('createEventPage', false);
-                                if (err.canceled === true) {
-                                    return false;
-                                }
-                                var options = {
-                                    title: 'Input Error',
-                                    message: err,
-                                    cancelable: true
-                                };
-                                ons.notification.alert(options);
-                            });
-                        }
+                        createOrUpdateEvent();
                     });
                 }
                 //end of create event page
@@ -4896,7 +4823,6 @@ ons.ready(function () {
 
                                                     sort: ['timeOut']
                                                 }).then(function (doc) {
-                                                    //TODO add a pause variable in here to only update this patrol's records
                                                     console.log(doc);
                                                     $('#adminLogsTable').empty();
                                                     patrolRecordAdmin = [];
@@ -5451,7 +5377,6 @@ ons.ready(function () {
                     if (scrollingOn && nextMessageEndKey !== nextMessageEndKey2) {
                         handleMsgScroll();
                     }
-                    //TODO add fab after message load for the first time?
                     if (isScrolledIntoView(newMessages)) {
                         console.log('At Bottom');
                         scrollToBottomFab[0].hide();
@@ -5520,7 +5445,6 @@ ons.ready(function () {
                 var elements = stripe.elements();
                 // var form = document.getElementById('payment-form');
                 var paymentSubmitButton = $('#paymentSubmitButton');
-
                 // Custom styling can be passed to options when creating an Element.
                 var style = {
                     base: {
@@ -5529,9 +5453,23 @@ ons.ready(function () {
                         color: "#32325d"
                     }
                 };
-
                 // Create an instance of the card Element.
                 var card = elements.create('card', { style: style });
+                var checkOutInfo = navi.topPage.data;
+                var costPerTrackedEntitiy = 0.5;
+                var costForLocation = 5;
+                var trackedEntitiesCheckout = (checkOutInfo.trackedEntitiesDifference * costPerTrackedEntitiy);
+                var geolocationCheckout = checkOutInfo.geolocationTurnedOnThisUpdate ? costForLocation : 0;
+                var checkoutTotal = (trackedEntitiesCheckout + geolocationCheckout);
+                var pRef = checkOutInfo.trackedEntitiesDifference > 1 ? checkOutInfo.pRef.toLowerCase() + 's' : checkOutInfo.pRef.toLowerCase();
+                var numberOfTrackedEntitiesString = 'Tracked ' + pRef;
+                $('#checkoutPRef').html(pRef);
+                $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's');
+                $('#checkoutEventName').html(checkOutInfo.eventName);
+                $('#numberOfTrackedEntities').html(numberOfTrackedEntitiesString + ' added to event:<div class="caption">' + checkOutInfo.trackedEntitiesDifference + ' ' + pRef + ' x £' + costPerTrackedEntitiy.toFixed(2) + '</div>');
+                $('#trackedEntitiesCost').html('£' + trackedEntitiesCheckout.toFixed(2));
+                $('#paymentSummary .geoLocationInUse').html(checkOutInfo.geolocationTurnedOnThisUpdate ? '£' + costForLocation.toFixed(2) : '£0');
+                $('.checkoutTotal').html('£' + checkoutTotal.toFixed(2));
 
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
@@ -5558,20 +5496,36 @@ ons.ready(function () {
                                 errorElement.textContent = result.error.message;
                             } else {
                                 // Send the token to your server.
-                                stripeTokenHandler(result.token, customerId, 599);
+                                stripeTokenHandler(result.token, customerId, checkoutTotal * 100, { eventName: eventDescription.eventName });
                             }
                         });
                 });
 
                 var stripeTokenHandler = function (source, customer, amount, metadata) {
                     var paymentObject = {
-                        source,
-                        amount,
-                        customer,
-                        metadata
+                        source: source,
+                        amount: amount,
+                        customer: customer,
+                        metadata: metadata
                     };
-                    $.ajax(apiAjax(appServer + '/api/payment', paymentObject));
+                    return $.ajax(apiAjax(appServer + '/api/payment', paymentObject))
+                        .then(function (response) {
+                            if (response.status === 200) {
+                                if (checkOutInfo.newEvent) {
+                                    return createNewEvent(checkOutInfo.url);
+                                }
+                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
+                            }
+                        })
+                        .catch(function (err) {
+                            return ons.notification.alert({
+                                title: 'Error',
+                                message: err.message,
+                                cancelable: true
+                            });
+                        });
                 };
+
 
                 break;
             }
@@ -5582,8 +5536,141 @@ ons.ready(function () {
                 break;
         }
         // end of pushpage switch
-    });
+    }); // end of pushpage function
 
+    function createNewEvent(url) {
+        var apiAddress = appServer + '/api/event/new';
+        var eventCreationData = {
+            username: username,
+            password: password,
+            eventName: eventDescription.eventName,
+            eventUsername: eventDescription.evtUsername
+        };
+
+        return $.ajax(apiAjax(apiAddress, eventCreationData))
+            .then(function (doc) {
+                console.log(doc);
+                if (localStorage.db !== undefined) {
+                    var dbs = JSON.parse(localStorage.db);
+                    dbs.push(doc.dbName);
+                    localStorage.db = JSON.stringify(dbs);
+                } else {
+                    localStorage.db = doc.dbName;
+                }
+
+                localStorage.lastDb = doc.dbName;
+                localStorage.couchdb = doc.url;
+                localStorage.http = doc.http;
+                eventDescription.evtUserPass = doc.evtUserPass;
+                eventDescription.dbName = doc.dbName;
+                var newRemotedbURL = doc.http + username + ':' + password + '@' + doc.url + '/' + doc.dbName;
+                if (remotedbURL === newRemotedbURL) {
+                    //this returns true
+                    return true;
+                } else {
+                    remotedbURL = newRemotedbURL;
+                    if (remotedbConnected) {
+
+                        return remotedb.close()
+                            .then(function () {
+                                return remotedbConnected = false;
+                            }).catch(function (err) {
+                                console.log(err);
+                                throw err;
+                            });
+                    } else {
+                        //this should return false
+                        return remotedbConnected;
+                    }
+                }
+            }).then(function (doc) {
+                //checking if remotedb was already defined or not, most likely not
+                if (doc === false) {
+                    console.log('creating new remotedb connection with new characteristics');
+
+                    //new remotedb location as defined from the server
+                    return remotedb = new PouchDB(remotedbURL);
+                } else {
+                    //remotedb has not changed
+                    return remotedb;
+                }
+
+            }).then(function (db) {
+                //db is remoteDb but via the function not the var
+                console.log(db);
+                return db.get('eventDescription')
+                    .then(function (doc) {
+                        eventDescription._rev = doc._rev;
+                        return db.put(eventDescription);
+                    }).catch(function (err) {
+                        console.log(err);
+                        if (err.status === 404) {
+                            return db.put(eventDescription);
+                        } else {
+                            console.log(err);
+                            err.message = 'unable to upload event description to the database';
+                            throw err;
+                        }
+                    });
+            }).then(function () {
+                return replicateOnce(eventDescription.dbName, ['eventDescription'], false);
+            }).then(function () {
+                //adds a reference to the event description by adding the db to the list of the user's dbs
+                return addAppdbLoginDb(eventDescription.dbName);
+            }).then(function (doc) {
+                console.log(doc);
+                var options = {
+                    animation: pageChangeAnimation,
+                    data: {
+                        eventName: eventDescription.eventName,
+                        url: url,
+                        eventInfo: eventDescription
+                    }
+                };
+                return navi.resetToPage('eventSummaryPage.html', options);
+            }).catch(function (err) {
+                console.warn(err);
+                if (err.message === undefined) {
+                    err.message = 'issue saving the event';
+                }
+                return ons.notification.alert({
+                    title: 'error',
+                    message: err.message,
+                    cancelable: true
+                }).then(function () {
+                    return showProgressBar('createEventPage', false);
+                });
+            });
+    }
+
+
+
+    function uploadEditEvent(url, eventInfo) {
+        var tempdb = new PouchDB(eventInfo.dbName);
+        return tempdb.put(eventDescription)
+            .then(function (doc) {
+                console.log(doc);
+                eventDescription._rev = doc.rev;
+                return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+
+            }).then(function (doc) {
+                console.log(doc);
+                var options = {
+                    animation: pageChangeAnimation,
+                    data: {
+                        eventName: eventDescription.eventName,
+                        url: url,
+                        eventInfo: eventDescription
+                    }
+                };
+
+                return navi.resetToPage('eventSummaryPage.html', options);
+            }).then(function () {
+                var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
+                tempRemotedb.compact();
+                return closeDatabases();
+            });
+    }
 });
 
 function downscaleImg(imgEl, maxWidth, maxHeight) {
@@ -5729,7 +5816,7 @@ function menuController() {
             $('#goToMap, #eventSignOut').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage, #goToEventSummary').addClass('hide');
             $('#eventSignOut').removeClass('hide');
             break;
         case 'signInPage.html':
