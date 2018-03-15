@@ -39,6 +39,9 @@ Accent Darker color: Orange 800: #EF6C00
 .secondaryColor {
     color: #FF9100;
 }
+.secondaryColor:active{
+    color:#ef6c00;
+}
 
 a {
     color:#FF9100;

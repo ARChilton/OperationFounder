@@ -5457,7 +5457,9 @@ ons.ready(function () {
                 // general wording
                 $('#checkoutEventName').html(checkOutInfo.eventName);
                 $('#checkoutPRef').html(pRef);
-                $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's'); 
+                $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's');
+                $('#checkoutTotalTrackedEntities').html(checkOutInfo.trackedEntities);
+
 
                 var trackedPrice = 0.5;
                 var locationPrice = 5;
@@ -5556,7 +5558,7 @@ ons.ready(function () {
 
                 // sets up the checkout page
                 checkoutSetUp(trackedPrice, locationPrice, storagePrice);
-
+                
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
 
