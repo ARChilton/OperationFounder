@@ -377,10 +377,10 @@
           <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
 
           <div class="flex flexRow flexSpaceBetween flexWrap">
-            <div class="bold caption">Start *
+            <div class="bold caption marginTop">Start *
               <ons-input id="eventStartDate" type="datetime-local" class="marginLeft marginRight" required></ons-input>
             </div>
-            <div class="bold caption txtRight">End *
+            <div class="bold caption txtRight marginTop">End *
               <ons-input id="eventEndDate" type="datetime-local" class="marginLeft" required></ons-input>
             </div>
           </div>
@@ -652,7 +652,7 @@
             <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput"></ons-input>
           </p>
           <p id="betweenNameAndBase">This is the short code provided to you by the event's organisers.</p>
-          <p>
+          <p id="baseCodeParagraph">
             <ons-input id="baseCode" modifier="underbar" placeholder="Passcode" float class="fullWidthInput marginTop"></ons-input>
           </p>
           <p class="caption" id="loginCodeCaption">(Each code is individual to each checkpoint/base)</p>
@@ -670,18 +670,6 @@
     </ons-page>
   </ons-template>
   <!-- End of Login page -->
-  <!-- Start of select base dialog template -->
-  <ons-template id="baseSelectDialog.html">
-    <ons-dialog id="baseSelectDialog" cancelable>
-      <div>
-        <ons-list>
-          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-header>
-
-        </ons-list>
-      </div>
-    </ons-dialog>
-  </ons-template>
-  <!-- End of select base dialog template -->
   <!-- Start of eventSelectionPage -->
   <ons-template id="eventSelectionPage.html">
     <ons-page id="eventSelectionPage" class="cardBackground">
@@ -1052,23 +1040,23 @@
 
           <hr>
           <h2 class="bold">Order Summary</h2>
-          <div class="row">
+          <div id="orderSummary"></div>
+          <!-- <div class="row">
             <div class="col-xs-8 col-md-8" id="numberOfTrackedEntities">
 
             </div>
             <div class="col-xs-4 col-md-4 txtRight bold" id="trackedEntitiesCost"></div>
-          </div>
-          <div class="row">
-            <div class="col-xs-8 col-md-8  marginTop">
-              Enable location tracking:
+          </div> -->
+          <!-- <div class="row">
+            <div class="col-xs-8 col-md-8  marginTop">Enable location tracking:
               <div class="caption">
                 1 location tracking enabled x
                 <span class="geoLocationInUse"></span>
               </div>
             </div>
             <div class="col-xs-4 col-md-4 txtRight bold  marginTop geoLocationInUse"></div>
-          </div>
-          <div class="row">
+          </div> -->
+          <!-- <div class="row">
             <div class="col-xs-8 col-md-8  marginTop">
               Additional data storage time:
               <div class="caption">
@@ -1078,16 +1066,16 @@
             </div>
 
             <div class="col-xs-4 col-md-4 txtRight bold marginTop "></div>
-          </div>
-          <div class="row">
+          </div> -->
+          <!-- <div class="row">
             <hr>
             <div class="col-xs-8 col-md-8  bold">
               Total
             </div>
             <div class="col-xs-4 col-md-4 txtRight bold  checkoutTotal"></div>
-          </div>
-          <div class="caption txtLeft marginTop marginBottom">
-            <ons-icon icon="fa-info-circle" id="infoCircle"></ons-icon>You will be able to purchase more tracked
+          </div> -->
+          <div class="caption txtLeft marginTop paddingBottom">
+            <ons-icon icon="fa-info-circle" class="infoCircle"></ons-icon>You will be able to purchase more tracked
             <span id="checkoutPRefPlural"></span>, enable location and add storage time after purchasing, from the edit event set-up option in the event's
             menu.
           </div>
@@ -1120,10 +1108,11 @@
               <div class="col-xs-4">Post Code/ZIP*</div>
               <ons-input type="text" placeholder="Post Code / ZIP" underbar id="checkoutPostCode" class="col-xs-8"></ons-input>
             </div>
+
             <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop select">
               <div class="col-xs-4 ">Country*</div>
               <div id="country" class="gb">
-                <select name="country" class="col-xs-8 ">
+                <select name="country" id="checkoutCountry" class="col-xs-8 ">
                   <option value="AU">Australia</option>
                   <option value="AT">Austria</option>
                   <option value="BE">Belgium</option>
@@ -1153,9 +1142,20 @@
                 </select>
               </div>
             </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop32px">
+              <div class="col-xs-4">Promo Code</div>
+              <ons-input type="text" placeholder="Promo code" underbar id="checkoutPromoCode" class="col-xs-5"></ons-input>
+              <ons-button modifier="quiet" class="col-xs-3  secondaryColor" id="promoCode">Submit</ons-button>
+            </div>
+            <div class="col-xs-12 marginTop caption">
+              <ons-icon icon="fa-info-circle" class="infoCircle"></ons-icon>This payment is handled by
+              <a href="https://stripe.com" target="_blank">Stripe</a>. The details input above will be held securely by Stripe alongside the purchase as proof of the
+              identity of the purchaser. Checkpointlive.com does not store this data and it will not be used or sold for
+              any other purpose without your express permission.
+            </div>
           </div>
 
-          <div id="payment-form" class="row marginTop section sectionGray col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
+          <div id="payment-form" class="row section sectionGray col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
 
 
             <div id="paymentCapture" class="col-xs-12 col-md-8 col-md-push-2 ">
@@ -1170,7 +1170,7 @@
                 <div id="card-errors" role="alert"></div>
               </div>
               <ons-button modifier="large" id="paymentSubmitButton" class="secondaryColorButton marginAuto marginTop ">Pay
-                <span class="checkoutTotal"></span>
+                <span id="checkoutTotal"></span>
               </ons-button>
             </div>
 

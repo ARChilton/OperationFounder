@@ -52,7 +52,7 @@ var nextSeq = 0;
 //user variables
 var username = localStorage.username;
 var password = localStorage.password;
-var customerId = localStorage.customerId;
+
 //db variables
 var lastDb = localStorage.lastDb;
 var couchdb = localStorage.couchdb;
@@ -1557,7 +1557,6 @@ function signOut() {
     basedb = undefined;
     admindb = undefined;
     remotedb = undefined;
-    customerId = undefined;
     remotedbConnected = false;
     localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
     localStorage.verified = 'false';
@@ -1898,6 +1897,7 @@ function compareTwoArrays(arr1, arr2, outputDifferences) {
 ons.ready(function () {
 
     console.log('ons-ready function fired');
+    var customerId = localStorage.customerId;
     //make every device and webpage android styled for familiarity
     if (!ons.platform.isIOS()) {
         ons.forcePlatformStyling('android');
@@ -2022,6 +2022,7 @@ ons.ready(function () {
                 console.log(login);
                 // return appdb.get(login.currentDb + '_eventDescription')
                 var db = new PouchDB(lastDb);
+                customerId = login.customerId;
                 return db.get('eventDescription')
                     .then(function (doc) {
                         console.log(doc);
@@ -2312,6 +2313,7 @@ ons.ready(function () {
                                             login.timestamp = timestamp;
                                             login.http = http;
                                             login.couchdb = couchdb;
+                                            login.customerId = customerId;
                                             //update 'login' info
                                             return appdb.put(login)
                                                 .then(function () {
@@ -2332,7 +2334,8 @@ ons.ready(function () {
                                                     db: db,
                                                     timestamp: timestamp,
                                                     http: http,
-                                                    couchdb: couchdb
+                                                    couchdb: couchdb,
+                                                    customerId: customerId
                                                 };
                                                 //create a 'login' doc
                                                 return appdb.put(putDoc)
@@ -2514,7 +2517,8 @@ ons.ready(function () {
                         newEvent: true,
                         pRef: 'Team',
                         geolocationTurnedOnThisUpdate: true,
-                        trackedEntitiesDifference: 5,
+                        storageTimeAdded: 2,
+                        trackedEntitiesDifference: 15,
                         eventName: 'Operation Founder'
 
                     }
@@ -2719,6 +2723,11 @@ ons.ready(function () {
                                                     localStorage.evtOrganiser = true;
                                                     localStorage.previousSignIn = true;
                                                 }
+                                                var newLoginDoc = {
+                                                    _id: 'login_' + username,
+                                                    customerId: customerId
+                                                };
+                                                appdb.put(newLoginDoc);
                                                 break;
 
                                             default:
@@ -3762,7 +3771,7 @@ ons.ready(function () {
                             baseNames.push(base.baseName);
                         });
                         //change error message
-                        noBaseSelectedErrorMessage = 'Please enter both your name and your base code provided by the event organisers.';
+                        noBaseSelectedErrorMessage = 'Please enter both your name and your passcode provided by the event organisers.';
                         //change welcome text
                         welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
                         baseCodeInput = $('#baseCode');
@@ -3780,49 +3789,30 @@ ons.ready(function () {
                     } else {
                         // bases do not have a password
 
-                        noBaseSelectedErrorMessage = 'Please enter both your name and select a base.';
+                        noBaseSelectedErrorMessage = 'Please enter both your name and select a checkpoint.';
                         //change welcome text
-                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a base below:';
+                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a checkpoint below:';
                         //change the code input to a button and select
-                        $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
+                        // $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
+                        $('#baseCodeParagraph').replaceWith('<div class="select col-xs-12 marginBottom"><select name="baseSelect" id="baseCode" class="col-xs-12"><option value="" disabled selected hidden>Select your checkpoint</option></select></div>');
                         baseCodeInput = $('#baseCode');
-                        if (!(baseCodeInput.hasClass('evtHandler'))) {
-                            baseCodeInput.addClass('evtHandler').on('click', function () {
-                                var baseSelectDialog = document.getElementById('baseSelectDialog');
-                                if (baseSelectDialog === null) {
-
-                                    ons.createDialog('baseSelectDialog.html')
-                                        .then(function (dialog) {
-                                            dialog.addEventListener('preshow', function () {
-                                                var selectBase = navi.topPage.data.eventInfo.bases;
-                                                baseCodes = [];
-                                                baseNames = [];
-                                                var loginSelect = $('#loginBaseSelect');
-                                                loginSelect.empty();
-                                                selectBase.forEach(function (base) {
-                                                    var baseCode = base.baseNo.toString();
-                                                    var baseName = base.baseName;
-                                                    baseCodes.push(baseCode);
-                                                    //base names are put into array
-                                                    baseNames.push(baseName);
-                                                    //adds an option in the dropdown
-                                                    loginSelect.append('<ons-list-item onClick="baseSelectValue(' + baseCode + ')" class="baseSelectItem"  id="baseSelect_' + baseCode + '" value ="' + baseCode + '"><label class="left"><ons-input name="color" type="radio" input-id="radio-' + baseCode + '"></ons-input></label><label for = "radio-' + baseCode + '"class = "center" >' + baseName + '</label></ons-list-item>');
-                                                });
-                                            });
-                                            dialog.show();
-                                        }).catch(function (err) {
-                                            console.warn(err);
-                                        });
-
-                                } else {
-                                    baseSelectDialog.show();
-                                }
-
-
-
+                        if (!(baseCodeInput.hasClass('evtHandler'))) {                            
+                            var selectBase = navi.topPage.data.eventInfo.bases;
+                            baseCodes = [];
+                            baseNames = [];
+                            
+                            selectBase.forEach(function (base) {
+                                var baseCode = base.baseNo.toString();
+                                var baseName = base.baseName;
+                                baseCodes.push(baseCode);
+                                //base names are put into array
+                                baseNames.push(baseName);
+                                //adds an option in the dropdown
+                                baseCodeInput.append('<option value="' + baseCode + '">' + baseName + '</option>');
                             });
+                                            
                         }
-                        $('#betweenNameAndBase').html('Select your base by pressing the button below:');
+                        $('#betweenNameAndBase').html('Select your checkpoint below:');
                         $('#loginCodeCaption').remove();
 
                     }
@@ -5456,24 +5446,121 @@ ons.ready(function () {
                 // Create an instance of the card Element.
                 var card = elements.create('card', { style: style });
                 var checkOutInfo = navi.topPage.data;
-                var costPerTrackedEntitiy = 0.5;
-                var costForLocation = 5;
-                var trackedEntitiesCheckout = (checkOutInfo.trackedEntitiesDifference * costPerTrackedEntitiy);
-                var geolocationCheckout = checkOutInfo.geolocationTurnedOnThisUpdate ? costForLocation : 0;
-                var checkoutTotal = (trackedEntitiesCheckout + geolocationCheckout);
+                // element references
+                var checkoutCountry = $('#checkoutCountry');
+                var country = $('#country');
+                var promoCode = $('#promoCode');
+                var checkoutPromo = $('#checkoutPromoCode');
+                // tracked entity reference
                 var pRef = checkOutInfo.trackedEntitiesDifference > 1 ? checkOutInfo.pRef.toLowerCase() + 's' : checkOutInfo.pRef.toLowerCase();
-                var numberOfTrackedEntitiesString = 'Tracked ' + pRef;
-                $('#checkoutPRef').html(pRef);
-                $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's');
+
+                // general wording
                 $('#checkoutEventName').html(checkOutInfo.eventName);
-                $('#numberOfTrackedEntities').html(numberOfTrackedEntitiesString + ' added to event:<div class="caption">' + checkOutInfo.trackedEntitiesDifference + ' ' + pRef + ' x £' + costPerTrackedEntitiy.toFixed(2) + '</div>');
-                $('#trackedEntitiesCost').html('£' + trackedEntitiesCheckout.toFixed(2));
-                $('#paymentSummary .geoLocationInUse').html(checkOutInfo.geolocationTurnedOnThisUpdate ? '£' + costForLocation.toFixed(2) : '£0');
-                $('.checkoutTotal').html('£' + checkoutTotal.toFixed(2));
+                $('#checkoutPRef').html(pRef);
+                $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's'); 
+
+                var trackedPrice = 0.5;
+                var locationPrice = 5;
+                var storagePrice = 2;
+                var checkoutTotal;
+                
+                var checkoutSetUp = function(costPerTrackedEntitiy, costForLocation, costForStorage, discount) {
+                    //costs are in £
+
+                    // original costs
+                    var trackedOriginalTotal = 0;
+                    var locationOriginalTotal = 0;
+                    var storageOriginalTotal = 0;
+                    var trackedDiscount = 0;
+                    var storageDiscount = 0;
+                    var locationDiscount = 0;                    
+                    
+                    // working out order cost
+                    var trackedEntitiesCheckout = (checkOutInfo.trackedEntitiesDifference * costPerTrackedEntitiy);
+                    var geolocationCheckout = checkOutInfo.geolocationTurnedOnThisUpdate ? costForLocation : 0;
+                    var storageCheckout = checkOutInfo.storageTimeAdded ? (costForStorage * checkOutInfo.storageTimeAdded) : 0;
+                    var discountCheckout = typeof discount === 'number' ? discount : 0;
+                    var total = (trackedEntitiesCheckout + geolocationCheckout + storageCheckout) - discountCheckout;
+                    checkoutTotal = total > 0 ? total : 0;                  
+                                  
+                    // add tracked entities to order
+                    var order = '';
+                    var discounts = '';
+                    var subtotal = false;
+                    if (checkOutInfo.trackedEntitiesDifference > 1) {
+                        trackedOriginalTotal = (checkOutInfo.trackedEntitiesDifference * trackedPrice);
+                        order += '<div class="row"><div class="col-xs-8" id="numberOfTrackedEntities">Tracked ' + pRef + ':<div class="caption">' + checkOutInfo.trackedEntitiesDifference + ' ' + pRef + ' x £' + trackedPrice.toFixed(2) + '</div></div><div class="col-xs-4 txtRight bold" id="trackedEntitiesCost">£' + trackedOriginalTotal.toFixed(2) + '</div></div>';
+                    }
+
+                    // add geolocation to order
+                    if (checkOutInfo.geolocationTurnedOnThisUpdate) {
+                        locationOriginalTotal = locationPrice;
+                        order += '<div class="row"><div class="col-xs-8 marginTop">Enable location tracking:  <div class="caption">1 location tracking x £' + locationPrice.toFixed(2) + '</div></div><div class="col-xs-4 txtRight bold  marginTop geoLocationInUse">£' + locationPrice.toFixed(2) + '</div></div>';
+                    }
+                    
+                    // add storage to order
+                    if (checkOutInfo.storageTimeAdded > 0) {
+                        storageOriginalTotal = (storagePrice * checkOutInfo.storageTimeAdded);
+                        order += '<div class="row"><div class="col-xs-8 marginTop">Additional data storage time:<div class="caption">' + checkOutInfo.storageTimeAdded + ' 12 month storage x £' + storagePrice.toFixed(2) + '</div></div><div class="col-xs-4 txtRight bold  marginTop">£' + storageOriginalTotal.toFixed(2) + '</div></div>';
+                    }
+
+                    // add seperator line
+                    order += '<div class="row"><hr></div>';
+
+                    // add promo discount
+                    
+                    discounts += '<div class="row">';
+                    if (trackedPrice > costPerTrackedEntitiy && checkOutInfo.trackedEntitiesDifference > 1) {
+                        var trackedDifferenceValue = (trackedPrice - costPerTrackedEntitiy).toFixed(2);
+                        trackedDiscount = (checkOutInfo.trackedEntitiesDifference * trackedDifferenceValue);
+                        subtotal = true;
+                        discounts += '<div class="col-xs-8 marginBottom ">Tracked ' + pRef + ' discount:<div class="caption">' + checkOutInfo.trackedEntitiesDifference + ' ' + pRef + ' x - £' + trackedDifferenceValue + '</div></div> <div class="col-xs-4 txtRight bold marginBottom">- £' + trackedDiscount.toFixed(2) + '</div>';
+                    }
+                    if (locationPrice > costForLocation && checkOutInfo.geolocationTurnedOnThisUpdate) {
+                        locationDiscount = (locationPrice - costForLocation);
+                        subtotal = true;
+                        discounts += '<div class="col-xs-8 marginBottom ">Location tracking discount:<div class="caption">1 x - £' + locationDiscount + '</div></div> <div class="col-xs-4 txtRight bold marginBottom">- £' + locationDiscount.toFixed(2) + '</div>';
+                    }
+                    if (storagePrice > costForStorage && checkOutInfo.storageTimeAdded > 0) {
+                        subtotal = true;
+                        var storageDifferenceValue = (storagePrice - costForStorage).toFixed(2);
+                        storageDiscount = (storageDifferenceValue * checkOutInfo.storageTimeAdded);
+                        discounts += '<div class="col-xs-8 marginBottom ">Location tracking discount:<div class="caption">' + checkOutInfo.storageTimeAdded + ' x - £' + storageDifferenceValue + '</div></div> <div class="col-xs-4 txtRight bold marginBottom">- £' + storageDiscount.toFixed(2) + '</div>';
+                    }
+                    if (discount > 0) {
+                        subtotal = true;
+                        discounts += '<div class="col-xs-8 marginBottom ">Promo discount:</div><div class="col-xs-4 txtRight bold marginBottom">- £' + discount.toFixed(2) + '</div>';
+                    }
+                    discounts += '</div>';
+
+                    //subtotal if required
+                    if (subtotal) {
+                        var checkoutSubtotal = (trackedOriginalTotal + locationOriginalTotal + storageOriginalTotal);
+                        var discountSubtotal = (trackedDiscount + storageDiscount + locationDiscount + discountCheckout);
+                        console.log(discountSubtotal);
+                        order += '<div class="row"><div class="col-xs-8 bold">Subtotal</div><div class="col-xs-4 txtRight bold">£' + checkoutSubtotal.toFixed(2) + '</div></div><hr>';                        
+                        discounts += '<div class="row"><hr class="noMarginTop"><div class="col-xs-8 bold">Discount subtotal</div><div class="col-xs-4 txtRight bold">- £' + discountSubtotal.toFixed(2) + '</div></div><hr>';
+                    }
+
+                    
+                    // add discounts after subtotal
+                    order += discounts;
+
+                    // add total cost
+                    order += '<div class="row"><div class="col-xs-8 bold">Total</div><div class="col-xs-4 txtRight bold">£' + checkoutTotal.toFixed(2) + '</div></div>';
+
+                    // add order to DOM
+                    $('#orderSummary').html(order);
+                    $('#checkoutTotal').html('£' + checkoutTotal.toFixed(2));
+                };
+
+                // sets up the checkout page
+                checkoutSetUp(trackedPrice, locationPrice, storagePrice);
 
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
 
+                // adds an event listener to check the card
                 card.addEventListener('change', function (event) {
                     var displayError = document.getElementById('card-errors');
                     if (event.error) {
@@ -5484,27 +5571,66 @@ ons.ready(function () {
                 });
 
                 // Create a token or display an error when the form is submitted.
-
                 paymentSubmitButton.on('click', function () {
                     // event.preventDefault();
-
-                    stripe.createToken(card)
-                        .then(function (result) {
-                            if (result.error) {
-                                // Inform the customer that there was an error.
-                                var errorElement = document.getElementById('card-errors');
-                                errorElement.textContent = result.error.message;
-                            } else {
-                                // Send the token to your server.
-                                stripeTokenHandler(result.token, customerId, checkoutTotal * 100, { eventName: eventDescription.eventName });
-                            }
+                    Promise.resolve()
+                        .then(function () {
+                            return collectPaymentInfo();
+                        })
+                        .then(function (metadata) {
+                            return stripe.createToken(card)
+                                .then(function (result) {
+                                    if (result.error) {
+                                        // Inform the customer that there was an error.
+                                        var errorElement = document.getElementById('card-errors');
+                                        errorElement.textContent = result.error.message;
+                                    } else {
+                                        // Send the token to your server.
+                                        metadata.eventName = eventDescription.eventName;
+                                        stripeTokenHandler(result.token, customerId, checkoutTotal * 100, metadata);
+                                    }
+                                });
+                        })
+                        .catch(function (err) {
+                            return ons.notification.alert({
+                                title: err.title || 'Error',
+                                messageHTML: err.message,
+                                cancelable: true
+                            });
                         });
+
                 });
 
-                var stripeTokenHandler = function (source, customer, amount, metadata) {
+                var collectPaymentInfo = function () {
+                    var metadata = {
+                        name: $('#checkoutName').val(),
+                        email: $('#checkoutEmail').val(),
+                        address: $('#checkoutAddress').val(),
+                        city: $('#checkoutCity').val(),
+                        county: $('#checkoutCounty').val(),
+                        postcode: $('#checkoutPostCode').val(),
+                        country: $('#checkoutCountry').val()
+                    };
+                    var check = Object.keys(metadata).map(function (key) {
+                        if (metadata[key] === '') {
+                            return '<p>' + key + '</p>';
+                        }
+                    });
+
+                    if (check.length > 0) {
+                        throw {
+                            title: 'Missing inputs',
+                            message: '<p>Please enter the following information:</p>' + check.join().replace(/,/g, '')
+                        };
+                    }
+                    return metadata;
+                };
+
+                var stripeTokenHandler = function (source, customer, amount, metadata, name) {
                     var paymentObject = {
+                        name: name,
                         source: source,
-                        amount: amount,
+                        amount: amount.toFixed(2),
                         customer: customer,
                         metadata: metadata
                     };
@@ -5525,6 +5651,40 @@ ons.ready(function () {
                             });
                         });
                 };
+                
+                checkoutCountry.on('change', function () {
+                    console.log('country change');
+                    country.removeClass().addClass(checkoutCountry.val().toLowerCase());
+                });
+
+                promoCode.on('click', function () {
+                   return Promise.resolve()
+                    .then(function() {
+                        var promoObject = {
+                            username: username,
+                            promo: checkoutPromo.val().trim().toLowerCase()
+                        };
+                        if (promoObject.promo === '') {
+                            throw {
+                                title: 'No promo code',
+                                message: 'Please enter a promo code'
+                            };
+                        }
+                        return $.ajax(apiAjax(appServer + '/api/promoCode', promoObject));
+                    })
+                    .then(function(response) {
+                        if (response.status === 200) {
+                           return checkoutSetUp(response.trackedEntitiesPrice, response.locationPrice, response.storagePrice, response.discount);
+                        }
+                    })
+                    .catch(function(err) {
+                        ons.notification.alert({
+                            title: err.title || 'Promo invalid',
+                            message: err.message || 'Promo code is not valid',
+                            cancelable: true
+                        });
+                    });
+                });
 
 
                 break;

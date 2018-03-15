@@ -40,6 +40,22 @@ Accent Darker color: Orange 800: #EF6C00
     color: #FF9100;
 }
 
+a {
+    color:#FF9100;
+    text-decoration: none;
+}
+
+a:hover{
+    color:#EF6C00;
+    /* font-weight: bold; */
+    text-decoration: none;
+}
+
+a:visited{
+   color:#FF9100;
+    text-decoration: none; 
+}
+
 /* General OnsenUI CSS */
 
 .text-page {
@@ -601,10 +617,10 @@ background-color: rgba(255, 145, 0,0.3);
     padding: 16px;
 }
 
-#loginBaseSelect{
-    padding:0px;
-}
-
+/* #baseCode {
+    padding:4px;
+    border-bottom:1px solid #efefef;
+} */
 #evtVersion {
     position: absolute;
     font-size: 12px;
@@ -1701,8 +1717,16 @@ p {
     margin-bottom: 16px;
 }
 
+.noMarginTop{
+    margin-top:0px;
+}
+
 .marginLeftAuto {
     margin-left: auto;
+}
+
+.paddingBottom{
+    padding-bottom: 16px;
 }
 
 .floatLeft {
@@ -2241,10 +2265,10 @@ ons-splitter-mask {
 
 
 #customerDetails{
-    padding:32px 16px;
+    padding:0px 16px 16px;
 }
 #eventPaymentSummary{
-    padding:0px 16px 32px;
+    padding:0px 16px 0px;
     /* overflow-y: scroll; */
     font-size:12px;
 }
@@ -2253,13 +2277,13 @@ ons-splitter-mask {
     color:#ff9100;
     font-size:35px;
 }
-#infoCircle{
+.infoCircle{
     color:rgba(0,0,0,0.4) !important;
     font-size:16px !important;
     padding-right:8px;
 }
 
-#eventPaymentSummary .caption{
+#checkoutPage .caption{
     color:rgba(0,0,0,0.4);
 }
 
@@ -2273,20 +2297,20 @@ ons-splitter-mask {
         min-height:600px;
     }
     #paymentSummary{
-        height:100%;
+        height:fit-content 100%;
     }
     
     
 }
 
-@media(min-width:768px) and (min-height:650px){
+/* @media(min-width:768px) and (min-height:650px){
     #payment-form{
         position: absolute;
         bottom: 0px;
         left:0px;
         right:0px;
     }
-}
+} */
 
 @media(max-height:650px){
     #eventPaymentSummary div{
@@ -2305,6 +2329,8 @@ select {
   color: #313b3f;
   cursor: pointer;
   background: transparent;
+   padding:4px;
+    border-bottom:1px solid #afafaf;
 }
 
 select:focus {
@@ -2323,13 +2349,18 @@ select:focus {
   pointer-events: none;
 }
 
+select option:checked {
+    color: #EF6C00;
+    font-weight:bold;
+}
+
 #country {
   display: flex;
   align-items: center;
 }
 
 #country select {
-  margin: 0 -15px 0 -30px;
+  margin: 0 0 0 -30px;
   padding: 0 15px 0 30px;
 }
 
