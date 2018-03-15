@@ -69,7 +69,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'http://localhost:3000';//'https://checkpointlive.com/app';
+var appServer = 'http://localhost:3000';//'https://checkpointlive.com/app'; 
 
 // map variables
 //commented out to remove map from app
@@ -5638,8 +5638,11 @@ ons.ready(function () {
                         .then(function (response) {
                             if (response.status === 200) {
                                 if (checkOutInfo.newEvent) {
+                                    eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
                                     return createNewEvent(checkOutInfo.url);
                                 }
+                                var paidFor = typeof eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+                                eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor)
                                 return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
                             }
                         })
