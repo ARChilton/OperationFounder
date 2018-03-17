@@ -2512,17 +2512,17 @@ ons.ready(function () {
                 }
                 menuController('signInPage.html');
                 // TODO: remove this
-                navi.bringPageTop('checkoutPage.html', {
-                    data: {
-                        newEvent: true,
-                        pRef: 'Team',
-                        geolocationTurnedOnThisUpdate: true,
-                        storageTimeAdded: 2,
-                        trackedEntitiesDifference: 15,
-                        eventName: 'Operation Founder'
+                // navi.bringPageTop('checkoutPage.html', {
+                //     data: {
+                //         newEvent: true,
+                //         pRef: 'Team',
+                //         geolocationTurnedOnThisUpdate: true,
+                //         storageTimeAdded: 2,
+                //         trackedEntitiesDifference: 15,
+                //         eventName: 'Operation Founder'
 
-                    }
-                });
+                //     }
+                // });
 
 
                 break;
@@ -2541,7 +2541,7 @@ ons.ready(function () {
                         // finds the input from within the ons-input element
                         var inpObj = document.getElementById('signUpEmail').getElementsByTagName('input');
                         //checks if the input is currently valid before checking if it is unique in the db
-                        if ($(inpObj)[0].checkValidity()) {
+                        if (inpObj[0].checkValidity()) {
                             var checkUsernameApi = appServer + '/api/user/checkusername';
                             var usernameToTest = changeAtSymbol($('#signUpEmail').val().trim());
                             var usernameDataPackage = {
@@ -2601,7 +2601,7 @@ ons.ready(function () {
                                 emailSignUpValid = false;
                                 ons.notification.alert({
                                     title: 'Invalid email',
-                                    message: 'Please enter a valid email address like: event@hikemanager.com',
+                                    messageHTML: '<p>Please enter a valid email address like:</p><p>event@checkpointlive.com</p>',
                                     cancelable: true
                                 }).then(function () {
                                     errorMessageOpen = false;
@@ -3044,6 +3044,7 @@ ons.ready(function () {
                         passwordsOk = false;
                         if (baseInfo.baseGeolocation || geolocationInUse) {
                             geolocationInUse = true;
+                            eventDescription.geolocationInUse = true;
                         }
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
@@ -3131,7 +3132,9 @@ ons.ready(function () {
                                                     trackedEntitiesDifference: trackedEntitiesDifference,
                                                     url: url,
                                                     pRef: eventDescription.pRef,
-                                                    eventName: eventDescription.eventName
+                                                    eventName: eventDescription.eventName,
+                                                    trackedEntities: eventDescription.trackedEntities,
+                                                    location: eventDescription.geolocationInUse
                                                 }
                                             });
                                         }
@@ -3259,7 +3262,9 @@ ons.ready(function () {
                                         url: url,
                                         eventInfo: eventInfo,
                                         pRef: eventDescription.pRef,
-                                        eventName: eventDescription.eventName
+                                        eventName: eventDescription.eventName,
+                                        trackedEntities: eventDescription.trackedEntities,
+                                        location: eventDescription.geolocationInUse
                                     }
                                 });
                             }
@@ -3985,8 +3990,6 @@ ons.ready(function () {
                             var goToSummary = $('#' + event + ' .goToSummary');
                             goToSummary.on('click', function () {
                                 var eventInfo = eventId.data('eventInfo');
-                                //TODO pick up here
-                                // var img = eventId.find()
                                 var options = {
                                     animation: pageChangeAnimation,
                                     data: {
@@ -4083,15 +4086,15 @@ ons.ready(function () {
                     var eventInfoBase = eventInfo.bases[getBaseNumber()];
                     if (eventInfoBase.baseInstructions != '') {
                         console.log('there are base instructions');
-                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left"><span id="baseInstructionsShowHideWord">Hide base instructions</span></div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
+                        $('#p1TopHalf').prepend('<div id="instructions"><ons-list><ons-list-item tappable><div class="left"><span id="baseInstructionsShowHideWord">Hide checkpoint instructions</span></div><div class="right"><i id="instructionChevron" icon="md-chevron-left" class="zmdi zmdi-chevron-left secondaryColor rotate270 chevron"></i></div></ons-list-item></div>');
                         $('#instructions').append('<div id="baseInstructions" class="baseInstructions">' + eventInfo.bases[getBaseNumber()].baseInstructions.replace(/\n/g, "<br>") + '</div>');
                         $('#instructions').on('click', function () {
                             $('#instructionChevron').toggleClass('rotate90');
                             $('#baseInstructions').slideToggle(500);
                             var showHideWord = $('#baseInstructionsShowHideWord');
-                            showHideWord.html() === 'Hide base instructions'
-                                ? showHideWord.html('Show base instructions')
-                                : showHideWord.html('Hide base instructions');
+                            showHideWord.html() === 'Hide checkpoint instructions'
+                                ? showHideWord.html('Show checkpoint instructions')
+                                : showHideWord.html('Hide checkpoint instructions');
                         });
                     }
                     //hides score entry if there is no maximum base score
@@ -4112,8 +4115,8 @@ ons.ready(function () {
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
                     $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
-                    $('#quickAddTitle').html('Add new log from base ' + base);
-                    participantReference(eventInfo.pRef, 'page1');
+                    $('#quickAddTitle').html('Add new log from checkpoint ' + base);
+                    participantReference(eventInfo.pRef, 'page1', eventInfo.trackedEntities);
 
 
                 } else if (base === 'noBase') {
@@ -4381,10 +4384,11 @@ ons.ready(function () {
                     clearQuickAddInputs();
                 };
                 // Quick submit code
-                if (!($('#submitQuick').hasClass('evtHandler'))) {
+                if (!($('#submitQuick').hasClass('evtHandler'))) {                    
                     // Add the event handler only once when the page is first loaded.
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
+                        // TODO place a block if not paid
                         base = getBaseNumber();
                         var geolocationOn = eventInfoBase.baseGeolocation && geolocation === 'accepted';
                         var trackingOn = eventInfo.tracking && geolocationOn;
@@ -4403,7 +4407,6 @@ ons.ready(function () {
                         //time conversions to date object
                         if (sqTimeIn === "") {
                             sqTimeIn = new Date();
-
                         } else if (sqTimeIn.length == 5) {
                             var tIn = sqTimeIn.split(':');
                             sqTimeIn = new Date();
@@ -4413,7 +4416,6 @@ ons.ready(function () {
                             console.log(sqTimeIn);
                         }
                         if (sqTimeOut === "") {
-
                             sqTimeOut = new Date();
                         } else if (sqTimeOut.length == 5) {
                             var tOut = sqTimeOut.split(':');
@@ -4433,6 +4435,13 @@ ons.ready(function () {
                                 messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
                                 cancelable: true
                             });
+                        } else if (sqPatrol > eventInfo.trackedEntities || sqPatrol < 1) {
+                            ons.notification.alert({
+                                title: eventInfo.pRef + ' number',
+                                message: 'You have entered an invalid ' + eventInfo.pRef + ' number.',
+                                cancelable: true
+                            });
+
                         } else if (parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)) {
                             ons.notification.alert({
                                 title: 'Total score',
@@ -4508,7 +4517,7 @@ ons.ready(function () {
                                 editable: true,
                                 timestamp: timestamp
                             };
-
+                                            
                             // -- important if off route it is just added to the db
 
                             switch (sqOffRoute) {
@@ -5453,12 +5462,19 @@ ons.ready(function () {
                 var checkoutPromo = $('#checkoutPromoCode');
                 // tracked entity reference
                 var pRef = checkOutInfo.trackedEntitiesDifference > 1 ? checkOutInfo.pRef.toLowerCase() + 's' : checkOutInfo.pRef.toLowerCase();
+                // geolocation
+                var checkoutGeolocation = checkOutInfo.geolocation ? 'Enabled' : 'Disabled';
 
                 // general wording
                 $('#checkoutEventName').html(checkOutInfo.eventName);
                 $('#checkoutPRef').html(pRef);
                 $('#checkoutPRefPlural').html(checkOutInfo.pRef.toLowerCase() + 's');
                 $('#checkoutTotalTrackedEntities').html(checkOutInfo.trackedEntities);
+                $('#checkoutGeolocationOn').html(checkoutGeolocation);
+
+                if (!checkOutInfo.geolocation) {
+                    $('#checkoutLocationPin').addClass('disabled');
+                }
 
 
                 var trackedPrice = 0.5;
@@ -5475,7 +5491,8 @@ ons.ready(function () {
                     var storageOriginalTotal = 0;
                     var trackedDiscount = 0;
                     var storageDiscount = 0;
-                    var locationDiscount = 0;                    
+                    var locationDiscount = 0;
+                    var minimumPayment = false;                   
                     
                     // working out order cost
                     var trackedEntitiesCheckout = (checkOutInfo.trackedEntitiesDifference * costPerTrackedEntitiy);
@@ -5483,7 +5500,14 @@ ons.ready(function () {
                     var storageCheckout = checkOutInfo.storageTimeAdded ? (costForStorage * checkOutInfo.storageTimeAdded) : 0;
                     var discountCheckout = typeof discount === 'number' ? discount : 0;
                     var total = (trackedEntitiesCheckout + geolocationCheckout + storageCheckout) - discountCheckout;
-                    checkoutTotal = total > 0 ? total : 0;                  
+                    if (total < 0) {
+                        checkoutTotal = 0;
+                    } else if (total < 0.5) {
+                        checkoutTotal = 0.5;
+                        minimumPayment = true;
+                    } else {
+                        checkoutTotal = total;
+                    }                 
                                   
                     // add tracked entities to order
                     var order = '';
@@ -5547,6 +5571,11 @@ ons.ready(function () {
                     
                     // add discounts after subtotal
                     order += discounts;
+                    
+                    // minimum payment cost
+                    if (minimumPayment) {
+                        order += '<div class="row marginBottom"><div class="col-xs-8">Minimum payment</div><div class="col-xs-4 txtRight">£0.50</div></div>';
+                    }
 
                     // add total cost
                     order += '<div class="row"><div class="col-xs-8 bold">Total</div><div class="col-xs-4 txtRight bold">£' + checkoutTotal.toFixed(2) + '</div></div>';
@@ -5558,7 +5587,7 @@ ons.ready(function () {
 
                 // sets up the checkout page
                 checkoutSetUp(trackedPrice, locationPrice, storagePrice);
-                
+                                
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
 
@@ -5589,7 +5618,7 @@ ons.ready(function () {
                                     } else {
                                         // Send the token to your server.
                                         metadata.eventName = eventDescription.eventName;
-                                        stripeTokenHandler(result.token, customerId, checkoutTotal * 100, metadata);
+                                        stripeTokenHandler(result.token.id, customerId, checkoutTotal * 100, metadata);
                                     }
                                 });
                         })
@@ -5613,16 +5642,23 @@ ons.ready(function () {
                         postcode: $('#checkoutPostCode').val(),
                         country: $('#checkoutCountry').val()
                     };
-                    var check = Object.keys(metadata).map(function (key) {
+                    var inpObj = document.getElementById('checkoutEmail').getElementsByTagName('input');
+                    var check = Object.keys(metadata).filter(function (key) {
                         if (metadata[key] === '') {
                             return '<p>' + key + '</p>';
                         }
                     });
-
+                    console.log(check);
                     if (check.length > 0) {
                         throw {
                             title: 'Missing inputs',
                             message: '<p>Please enter the following information:</p>' + check.join().replace(/,/g, '')
+                        };
+                    }
+                    if (!inpObj[0].checkValidity()) {
+                        throw {
+                            title: 'Invalid email',
+                            message: '<p>Please enter a valid email address like:</p><p>event@checkpointlive.com</p>'
                         };
                     }
                     return metadata;
@@ -5632,7 +5668,7 @@ ons.ready(function () {
                     var paymentObject = {
                         name: name,
                         source: source,
-                        amount: amount.toFixed(2),
+                        amount: amount,
                         customer: customer,
                         metadata: metadata
                     };
@@ -5644,9 +5680,17 @@ ons.ready(function () {
                                     return createNewEvent(checkOutInfo.url);
                                 }
                                 var paidFor = typeof eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
-                                eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor)
+                                eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
                                 return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
                             }
+                            throw response;
+                        })
+                        .then(function() {
+                           return ons.notification.alert({
+                                title: 'Payment successful',
+                                message: '£' + (amount / 100).toFixed(2) + 'has been charged to your card.',
+                                cancelable:true
+                            });
                         })
                         .catch(function (err) {
                             return ons.notification.alert({
@@ -5675,7 +5719,7 @@ ons.ready(function () {
                                 message: 'Please enter a promo code'
                             };
                         }
-                        return $.ajax(apiAjax(appServer + '/api/promoCode', promoObject));
+                        return $.ajax(apiAjax(appServer + '/api/promocode', promoObject));
                     })
                     .then(function(response) {
                         if (response.status === 200) {
@@ -6012,7 +6056,7 @@ function menuEvtOrganiser() {
     }
 }
 
-function participantReference(pRef, page) {
+function participantReference(pRef, page, teams) {
     if (pRef === '' || pRef === undefined) {
         return false;
     }
@@ -6022,7 +6066,7 @@ function participantReference(pRef, page) {
         elements[ref].innerHTML = str.replace(/team/i, pRef);
     });
     if (page === 'page1') {
-        $('#patrolNo').attr('placeholder', pRef + ' No.');
+        $('#patrolNo').attr('placeholder', pRef + ' No. (1 - ' + teams + ')');
     }
 
 

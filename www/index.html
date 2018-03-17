@@ -741,13 +741,13 @@
 
       <div id="p1TopHalf">
         <ons-list>
-          <ons-list-header id="quickAddTitle">Add new log from base </ons-list-header>
+          <ons-list-header id="quickAddTitle">Add new log from checkpoint </ons-list-header>
           <ons-list-item>
             <div class="center participantRef">
               Team No.
             </div>
             <div class="right">
-              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Team No." float class="quickAddInput">
+              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Team No." float class="quickAddInput" min="5">
               </ons-input>
             </div>
           </ons-list-item>
@@ -800,7 +800,7 @@
       <!--Bottom Half-->
       <div id="p1BottomHalf">
         <ons-list>
-          <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
+          <ons-list-header id="tableTitle">Previous logs from this checkpoint</ons-list-header>
         </ons-list>
         <!-- <div class="marginLeft">Previous Logs</div> -->
         <table class="data-table logTable">
@@ -1023,11 +1023,11 @@
           <div class="row txtCenter">
             <div class="col-xs-4">
               <ons-icon icon="fa-users"></ons-icon>
-              <p id="checkoutTotalTrackedEntities">57</p>
+              <p id="checkoutTotalTrackedEntities"></p>
             </div>
             <div class="col-xs-4">
-              <ons-icon icon="md-pin"></ons-icon>
-              <p id="checkoutGeolocationOn">Enabled</p>
+              <ons-icon icon="md-pin" id="checkoutLocationPin"></ons-icon>
+              <p id="checkoutGeolocationOn"></p>
             </div>
             <div class="col-xs-4">
               <ons-icon icon="fa-database"></ons-icon>
@@ -1108,7 +1108,7 @@
               </div>
             </div>
             <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop32px">
-              <div class="col-xs-4">Promo Code</div>
+              <div class="col-xs-4">Add promo Code</div>
               <ons-input type="text" placeholder="Promo code" underbar id="checkoutPromoCode" class="col-xs-5"></ons-input>
               <ons-button modifier="quiet" class="col-xs-3  secondaryColor" id="promoCode">Submit</ons-button>
             </div>
