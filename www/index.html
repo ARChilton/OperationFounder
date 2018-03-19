@@ -392,18 +392,20 @@
           <div class="caption txtLeft">How the participants in the event will be referred to (default: Team).</div>
 
           <div class="flex flexRow flexSpaceBetween marginTop32px">
-            <div class="eventItemTitle bold h3NoStyling">Tracked entities*</div>
+            <div class="eventItemTitle bold h3NoStyling">Number of
+              <span class="cePRefPlural lowercase">teams</span>*</div>
             <ons-input id="trackedEntities" modifier="underbar" placeholder="Number of teams" float type="number" class="" minValue="0"
               required></ons-input>
           </div>
-          <div class="caption txtLeft">The number of people or teams you will track with checkpoint live.</div>
+          <div class="caption txtLeft">The number of
+            <span class="cePRefPlural lowercase">teams</span> you will track with checkpoint live.</div>
           <div class="bigEventSetUpButtons">
             <div id="passwordProtectLogs" class="marginTop">
               <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
               <div class="flex flexRow flexAlignFlexStart">
 
                 <div class="eventItemTitle bold h3NoStyling passwordProtectLogs">
-                  Password protect base entry
+                  Password protect checkpoint selection
                 </div>
 
                 <div class="eventItemSwitch">
@@ -414,10 +416,10 @@
               <div class="flex flexRow flexAlignFlexStart passwordProtectLogs">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    This will require those using the app/website to enter a unique passcode to gain access to their base, this limits user's
-                    access only to bases they have the passcode for. If this option is turned off all users with the event
-                    log-in will be able to select the base they are logging visits for from a drop down list. (The Admin
-                    area always requires a passcode).
+                    This will require those using checkpoint live to enter a unique passcode to gain access to their checkpoint, this limits
+                    user's access only to checkpointss they have the passcode for. If this option is turned off all users
+                    with the event log-in will be able to select the checkpoint they are logging visits for from a drop down
+                    list. (The Admin area always requires a passcode).
                   </p>
 
                 </div>
@@ -441,8 +443,10 @@
               <div class="flex flexRow flexAlignFlexStart offRouteLogs">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
-                    is useful from a safety perspective as every team sighting is recorded.
+                    This will allow your event users to log when they see a
+                    <span class="cePRef lowercase">team</span>, even if they are not due to participate at that checkpoint yet. This is useful from a safety
+                    perspective as every
+                    <span class="cePRef lowercase">team</span> sighting is recorded.
                   </p>
 
                 </div>
@@ -465,9 +469,9 @@
               <div class="flex flexRow flexAlignFlexStart autoTime">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    Turning this on will remove the need for users to enter time information into the app/website when recording a log entry.
-                    Instead the time in and out of the base is set as to the time that the submit log button is pressed.
-                    This is useful for quicker submission of logs.
+                    Turning this on will remove the need for users to enter time information into the website when recording a log entry. Instead
+                    the time in and out of the checkpoint is set as to the time that the submit log button is pressed. This
+                    is useful for quicker submission of logs.
                   </p>
 
                 </div>
@@ -532,7 +536,7 @@
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-              <div class="caption bold">Base password *</div>
+              <div class="caption bold">Checkpoint password *</div>
               <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword"
                 required></ons-input>
             </div>

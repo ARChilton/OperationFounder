@@ -974,11 +974,11 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
  * @param {string} tableId - base table or admin table
  * @param {string} tableLogId - the class of the row
  */
-function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableId, tableLogId) {
+function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableLogId) {
     console.log(dbId);
     var trId = dbId;
     var editableStyle = editableStyling(editable);
-    var trClasses = tableLogId + editableStyle.tr;
+    var trClasses = tableLogId + ' ' + editableStyle.tr;
     var tdClasses = 'lockImage' + editableStyle.td;
     // without checkboxes
     var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="' + tdClasses + '">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td class="hide landscapeShow">' + wait + '</td><td class="hide landscapeShow">' + offRoute + '</td><td class="hide landscapeShow">' + totalScore + '</td><td class="hide landscapeShow">' + recordedBy + '</td><td class="hide landscapeShow editable">' + editable + '</td></tr>';
@@ -1019,7 +1019,7 @@ function tableUpdateFunction(path, admin, array) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
             return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username);
         } else {
-            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username));
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, tableLogId));
         }
 
     } else if (path.base === getBaseNumber()) {
@@ -2713,7 +2713,7 @@ ons.ready(function () {
                                                 //store username & password as accessable variables
                                                 username = emailSignUp;
                                                 password = passwordSignUp;
-                                                customerId = doc.customerId;
+                                                customerId = doc.db.customerId;
                                                 if (typeof localStorage !== 'undefined') {
                                                     //localstorage available save username and password for next time
                                                     localStorage.username = emailSignUp;
@@ -2857,6 +2857,9 @@ ons.ready(function () {
                 var passwordsOk;
                 var url;
                 var trackedEntities = $('#trackedEntities');
+                var pRefInput = $('#pReference');
+                var pRefPlural = $('#createEventPage .cePRefPlural');
+                var pRefSingle = $('#createEventPage .cePRef');
                 var geolocationInUse = false;
                 var geolocationTurnedOnThisUpdate = false;
                 var trackedEntitiesDifference = 0;
@@ -2995,7 +2998,7 @@ ons.ready(function () {
                         eventName: $('#eventName').val().trim(),
                         dateStart: $('#eventStartDate').val(),
                         dateEnd: $('#eventEndDate').val(),
-                        pRef: $('#pReference').val().trim() || 'Team',
+                        pRef: pRefInput.val().trim() || 'Team',
                         eventDescription: $('#eventDescription').val().trim(),
                         passwordProtectLogs: $('#passwordSwitch').prop("checked"),
                         logOffRoute: $('#offRouteLogsSwitch').prop("checked"),
@@ -3010,11 +3013,12 @@ ons.ready(function () {
                             basePassword: $('#adminPassword').val().trim()
                         }]
                     };
-                    var numberOfTrackedEntities = trackedEntities.val();
+                    var numberOfTrackedEntities = parseInt(trackedEntities.val());
                     eventDescription.trackedEntities = numberOfTrackedEntities;
                     var paidTrackedEntities = 0;
                     if (typeof eventInfo === 'object') {
-                        paidTrackedEntities = eventInfo.paidTrackedEntities || 0;
+                        paidTrackedEntities = parseInt(eventInfo.paidTrackedEntities) || 0;
+                        eventDescription.paidTrackedEntities = paidTrackedEntities;
                     }
                     if (paidTrackedEntities < numberOfTrackedEntities) {
                         trackedEntitiesDifference = numberOfTrackedEntities - paidTrackedEntities;
@@ -3306,12 +3310,15 @@ ons.ready(function () {
                         } else {
                             version = 2;
                         }
+                        
                         $('#createEventPage .center').html('Edit Event - version: ' + version);
                         $('#eventName').val(eventInfo.eventName);
                         $('#eventStartDate').val(eventInfo.dateStart);
                         $('#eventEndDate').val(eventInfo.dateEnd);
                         $('#eventDescription').val(eventInfo.eventDescription);
-                        $('#pReference').val(eventInfo.pRef);
+                        pRefInput.val(eventInfo.pRef);
+                        pRefSingle.html(eventInfo.pRef);
+                        pRefPlural.html(addPluralS(eventInfo.pRef));
                         trackedEntities.val(eventInfo.trackedEntities);
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
@@ -3383,6 +3390,15 @@ ons.ready(function () {
                             }).catch(function (err) {
                                 console.log(err);
                             });
+                        });
+                }
+
+                if (!pRefInput.hasClass('evtHandler')) {
+                    pRefInput.addClass('evtHandler')
+                        .on('change', function () {
+                            var pRefChange = pRefInput.val().trim();
+                            pRefPlural.html(addPluralS(pRefChange));
+                            pRefSingle.html(pRefChange);
                         });
                 }
 
@@ -3793,7 +3809,6 @@ ons.ready(function () {
 
                     } else {
                         // bases do not have a password
-
                         noBaseSelectedErrorMessage = 'Please enter both your name and select a checkpoint.';
                         //change welcome text
                         welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and select a checkpoint below:';
@@ -3801,11 +3816,11 @@ ons.ready(function () {
                         // $('#baseCode').replaceWith('<ons-button class="primaryColorButton" modifier="large" id="baseCode">Select a base</ons-button>');
                         $('#baseCodeParagraph').replaceWith('<div class="select col-xs-12 marginBottom"><select name="baseSelect" id="baseCode" class="col-xs-12"><option value="" disabled selected hidden>Select your checkpoint</option></select></div>');
                         baseCodeInput = $('#baseCode');
-                        if (!(baseCodeInput.hasClass('evtHandler'))) {                            
+                        if (!(baseCodeInput.hasClass('evtHandler'))) {
                             var selectBase = navi.topPage.data.eventInfo.bases;
                             baseCodes = [];
                             baseNames = [];
-                            
+
                             selectBase.forEach(function (base) {
                                 var baseCode = base.baseNo.toString();
                                 var baseName = base.baseName;
@@ -3815,7 +3830,7 @@ ons.ready(function () {
                                 //adds an option in the dropdown
                                 baseCodeInput.append('<option value="' + baseCode + '">' + baseName + '</option>');
                             });
-                                            
+
                         }
                         $('#betweenNameAndBase').html('Select your checkpoint below:');
                         $('#loginCodeCaption').remove();
@@ -3872,10 +3887,10 @@ ons.ready(function () {
                                             cancelable: true,
                                             placeholder: 'Enter admin code here'
                                         }).then(function (input) {
-                                            if (input.toLowerCase().trim() !== eventInfo.adminPassword) {
+                                            if (input.trim() !== eventInfo.adminPassword) {
                                                 throw {
                                                     title: 'Admin code Error',
-                                                    message: 'Please try re-entering your admin code, the code you entered was incorrect.',
+                                                    messageHTML: '<p>Please try re-entering your admin code, the code you entered was incorrect.</p><p>Admin codes are case sensitive.</p>',
                                                     cancelable: true
                                                 };
                                             }
@@ -4384,7 +4399,7 @@ ons.ready(function () {
                     clearQuickAddInputs();
                 };
                 // Quick submit code
-                if (!($('#submitQuick').hasClass('evtHandler'))) {                    
+                if (!($('#submitQuick').hasClass('evtHandler'))) {
                     // Add the event handler only once when the page is first loaded.
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
@@ -4424,10 +4439,10 @@ ons.ready(function () {
                             sqTimeOut.setMinutes(tOut[1]);
                         }
                         if (sqPatrol === "") {
-                            missingInformationMessage = '<p>Patrol number</p>';
+                            missingInformationMessage = '<p>' + eventInfo.pRef + ' number</p>';
                         }
                         if (!sqOffRoute && sqTotalScore === "" && eventInfoBase.baseMaxScore !== '') {
-                            missingInformationMessage = missingInformationMessage + '<p>Total score for the patrol</p>';
+                            missingInformationMessage = missingInformationMessage + '<p>Total score for the ' + eventInfo.pRef + '</p>';
                         }
                         if (missingInformationMessage !== "") {
                             ons.notification.alert({
@@ -4435,7 +4450,7 @@ ons.ready(function () {
                                 messageHTML: '<p>This log entry is missing the following fields:</p>' + missingInformationMessage,
                                 cancelable: true
                             });
-                        } else if (sqPatrol > eventInfo.trackedEntities || sqPatrol < 1) {
+                        } else if (sqPatrol > parseInt(eventInfo.trackedEntities) || sqPatrol < 1) {
                             ons.notification.alert({
                                 title: eventInfo.pRef + ' number',
                                 message: 'You have entered an invalid ' + eventInfo.pRef + ' number.',
@@ -4517,7 +4532,7 @@ ons.ready(function () {
                                 editable: true,
                                 timestamp: timestamp
                             };
-                                            
+
                             // -- important if off route it is just added to the db
 
                             switch (sqOffRoute) {
@@ -5481,8 +5496,8 @@ ons.ready(function () {
                 var locationPrice = 5;
                 var storagePrice = 2;
                 var checkoutTotal;
-                
-                var checkoutSetUp = function(costPerTrackedEntitiy, costForLocation, costForStorage, discount) {
+
+                var checkoutSetUp = function (costPerTrackedEntitiy, costForLocation, costForStorage, discount) {
                     //costs are in £
 
                     // original costs
@@ -5492,8 +5507,8 @@ ons.ready(function () {
                     var trackedDiscount = 0;
                     var storageDiscount = 0;
                     var locationDiscount = 0;
-                    var minimumPayment = false;                   
-                    
+                    var minimumPayment = false;
+
                     // working out order cost
                     var trackedEntitiesCheckout = (checkOutInfo.trackedEntitiesDifference * costPerTrackedEntitiy);
                     var geolocationCheckout = checkOutInfo.geolocationTurnedOnThisUpdate ? costForLocation : 0;
@@ -5507,13 +5522,13 @@ ons.ready(function () {
                         minimumPayment = true;
                     } else {
                         checkoutTotal = total;
-                    }                 
-                                  
+                    }
+
                     // add tracked entities to order
                     var order = '';
                     var discounts = '';
                     var subtotal = false;
-                    if (checkOutInfo.trackedEntitiesDifference > 1) {
+                    if (checkOutInfo.trackedEntitiesDifference > 0) {
                         trackedOriginalTotal = (checkOutInfo.trackedEntitiesDifference * trackedPrice);
                         order += '<div class="row"><div class="col-xs-8" id="numberOfTrackedEntities">Tracked ' + pRef + ':<div class="caption">' + checkOutInfo.trackedEntitiesDifference + ' ' + pRef + ' x £' + trackedPrice.toFixed(2) + '</div></div><div class="col-xs-4 txtRight bold" id="trackedEntitiesCost">£' + trackedOriginalTotal.toFixed(2) + '</div></div>';
                     }
@@ -5523,7 +5538,7 @@ ons.ready(function () {
                         locationOriginalTotal = locationPrice;
                         order += '<div class="row"><div class="col-xs-8 marginTop">Enable location tracking:  <div class="caption">1 location tracking x £' + locationPrice.toFixed(2) + '</div></div><div class="col-xs-4 txtRight bold  marginTop geoLocationInUse">£' + locationPrice.toFixed(2) + '</div></div>';
                     }
-                    
+
                     // add storage to order
                     if (checkOutInfo.storageTimeAdded > 0) {
                         storageOriginalTotal = (storagePrice * checkOutInfo.storageTimeAdded);
@@ -5534,9 +5549,9 @@ ons.ready(function () {
                     order += '<div class="row"><hr></div>';
 
                     // add promo discount
-                    
+
                     discounts += '<div class="row">';
-                    if (trackedPrice > costPerTrackedEntitiy && checkOutInfo.trackedEntitiesDifference > 1) {
+                    if (trackedPrice > costPerTrackedEntitiy && checkOutInfo.trackedEntitiesDifference > 0) {
                         var trackedDifferenceValue = (trackedPrice - costPerTrackedEntitiy).toFixed(2);
                         trackedDiscount = (checkOutInfo.trackedEntitiesDifference * trackedDifferenceValue);
                         subtotal = true;
@@ -5564,14 +5579,14 @@ ons.ready(function () {
                         var checkoutSubtotal = (trackedOriginalTotal + locationOriginalTotal + storageOriginalTotal);
                         var discountSubtotal = (trackedDiscount + storageDiscount + locationDiscount + discountCheckout);
                         console.log(discountSubtotal);
-                        order += '<div class="row"><div class="col-xs-8 bold">Subtotal</div><div class="col-xs-4 txtRight bold">£' + checkoutSubtotal.toFixed(2) + '</div></div><hr>';                        
+                        order += '<div class="row"><div class="col-xs-8 bold">Subtotal</div><div class="col-xs-4 txtRight bold">£' + checkoutSubtotal.toFixed(2) + '</div></div><hr>';
                         discounts += '<div class="row"><hr class="noMarginTop"><div class="col-xs-8 bold">Discount subtotal</div><div class="col-xs-4 txtRight bold">- £' + discountSubtotal.toFixed(2) + '</div></div><hr>';
                     }
 
-                    
+
                     // add discounts after subtotal
                     order += discounts;
-                    
+
                     // minimum payment cost
                     if (minimumPayment) {
                         order += '<div class="row marginBottom"><div class="col-xs-8">Minimum payment</div><div class="col-xs-4 txtRight">£0.50</div></div>';
@@ -5587,7 +5602,7 @@ ons.ready(function () {
 
                 // sets up the checkout page
                 checkoutSetUp(trackedPrice, locationPrice, storagePrice);
-                                
+
                 // Add an instance of the card Element into the `card-element` <div>.
                 card.mount('#card-element');
 
@@ -5679,17 +5694,17 @@ ons.ready(function () {
                                     eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
                                     return createNewEvent(checkOutInfo.url);
                                 }
-                                var paidFor = typeof eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+                                var paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
                                 eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
                                 return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
                             }
                             throw response;
                         })
-                        .then(function() {
-                           return ons.notification.alert({
+                        .then(function () {
+                            return ons.notification.alert({
                                 title: 'Payment successful',
-                                message: '£' + (amount / 100).toFixed(2) + 'has been charged to your card.',
-                                cancelable:true
+                                message: '£' + (amount / 100).toFixed(2) + ' has been charged to your card.',
+                                cancelable: true
                             });
                         })
                         .catch(function (err) {
@@ -5700,39 +5715,41 @@ ons.ready(function () {
                             });
                         });
                 };
-                
+
                 checkoutCountry.on('change', function () {
                     console.log('country change');
                     country.removeClass().addClass(checkoutCountry.val().toLowerCase());
                 });
 
                 promoCode.on('click', function () {
-                   return Promise.resolve()
-                    .then(function() {
-                        var promoObject = {
-                            username: username,
-                            promo: checkoutPromo.val().trim().toLowerCase()
-                        };
-                        if (promoObject.promo === '') {
-                            throw {
-                                title: 'No promo code',
-                                message: 'Please enter a promo code'
+                    return Promise.resolve()
+                        .then(function () {
+                            var promoObject = {
+                                username: username,
+                                promo: checkoutPromo.val().trim().toLowerCase()
                             };
-                        }
-                        return $.ajax(apiAjax(appServer + '/api/promocode', promoObject));
-                    })
-                    .then(function(response) {
-                        if (response.status === 200) {
-                           return checkoutSetUp(response.trackedEntitiesPrice, response.locationPrice, response.storagePrice, response.discount);
-                        }
-                    })
-                    .catch(function(err) {
-                        ons.notification.alert({
-                            title: err.title || 'Promo invalid',
-                            message: err.message || 'Promo code is not valid',
-                            cancelable: true
+                            if (promoObject.promo === '') {
+                                throw {
+                                    title: 'No promo code',
+                                    message: 'Please enter a promo code'
+                                };
+                            }
+                            return $.ajax(apiAjax(appServer + '/api/promocode', promoObject));
+                        })
+                        .then(function (response) {
+                            if (response.status === 200) {
+                                return checkoutSetUp(response.trackedEntitiesPrice, response.locationPrice, response.storagePrice, response.discount);
+                            }
+                            throw response;
+
+                        })
+                        .catch(function (err) {
+                            ons.notification.alert({
+                                title: err.title || 'Promo invalid',
+                                message: err.message || 'Promo code is not valid',
+                                cancelable: true
+                            });
                         });
-                    });
                 });
 
 
@@ -6182,6 +6199,10 @@ var getPosition = function () {
         navigator.geolocation.getCurrentPosition(resolve, reject, options);
     });
 };
+
+function addPluralS(word) {
+    return word.split(-1) === 's' ? word : word + 's';
+}
 
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     console.log(trackingOn);
