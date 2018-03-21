@@ -2467,7 +2467,7 @@ ons.ready(function () {
                                 if (err.status === 401) {
                                     return ons.notification.alert({
                                         title: err.error,
-                                        messageHTML: "<p>" + err.message + "</p><p>Be aware that both your username and password are case sensitive.</p>",
+                                        messageHTML: "<p>" + err.message + "</p><p>Be aware that both your username and password are case sensitive.</p><p>If you haven't signed up but would like to, click the big orange button below.</p>",
                                         cancelable: true
                                     });
                                 } else {
@@ -2975,7 +2975,7 @@ ons.ready(function () {
                  * @param {number|string} baseCount 
                  */
                 var addBase = function (baseCount) {
-                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Base password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea></div>';
+                    var baseElToAdd = '<div class="baseSetUp"><p class="txtLeft bold marginTop">Checkpoint ' + baseCount + '</p><ons-input id="base' + baseCount + 'Name" modifier="underbar" placeholder="Checkpoint name or location" float type="text" class="fullWidthInput"></ons-input><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption"><span class="bold">Maximum score available</span><br/><span class="marginLeft">(blank = no score input)</span></div><ons-input id="base' + baseCount + 'MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide"><div class="caption bold">Checkpoint password *</div><ons-input id="base' + baseCount + 'Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword" required></ons-input></div><div class="flex flexRow flexSpaceBetween marginTop"><div class="caption bold">Record location with logs</div><div class="geolocationSwitch"><ons-switch id="base' + baseCount + 'GeolocationSwitch"></ons-switch></div></div><textarea class="textarea marginTop" id="base' + baseCount + 'Instructions" placeholder="Checkpoint specific instructions" style="width: 100%; height:45px;"></textarea></div>';
                     return $('.addBaseButton').before(baseElToAdd);
                 };
 
@@ -3310,7 +3310,7 @@ ons.ready(function () {
                         } else {
                             version = 2;
                         }
-                        
+                        var pReferencePlural = addPluralS(eventInfo.pRef);
                         $('#createEventPage .center').html('Edit Event - version: ' + version);
                         $('#eventName').val(eventInfo.eventName);
                         $('#eventStartDate').val(eventInfo.dateStart);
@@ -3318,8 +3318,9 @@ ons.ready(function () {
                         $('#eventDescription').val(eventInfo.eventDescription);
                         pRefInput.val(eventInfo.pRef);
                         pRefSingle.html(eventInfo.pRef);
-                        pRefPlural.html(addPluralS(eventInfo.pRef));
+                        pRefPlural.html(pReferencePlural);
                         trackedEntities.val(eventInfo.trackedEntities);
+                        trackedEntities.attr('placeholder', 'Number of ' + pReferencePlural);
                         $('#passwordSwitch').prop("checked", eventInfo.passwordProtectLogs);
                         $('#offRouteLogsSwitch').prop("checked", eventInfo.logOffRoute);
                         $('#autoTimeSwitch').prop("checked", eventInfo.autoTime);
@@ -3397,7 +3398,9 @@ ons.ready(function () {
                     pRefInput.addClass('evtHandler')
                         .on('change', function () {
                             var pRefChange = pRefInput.val().trim();
-                            pRefPlural.html(addPluralS(pRefChange));
+                            var pRefChangePlural = addPluralS(pRefChange);
+                            pRefPlural.html(pRefChangePlural);
+                            trackedEntities.attr('placeholder', 'Number of ' + pRefChangePlural);
                             pRefSingle.html(pRefChange);
                         });
                 }
@@ -5619,25 +5622,30 @@ ons.ready(function () {
                 // Create a token or display an error when the form is submitted.
                 paymentSubmitButton.on('click', function () {
                     // event.preventDefault();
+                    showProgressBar('checkoutPage', true);
                     Promise.resolve()
                         .then(function () {
                             return collectPaymentInfo();
                         })
                         .then(function (metadata) {
                             return stripe.createToken(card)
-                                .then(function (result) {
-                                    if (result.error) {
-                                        // Inform the customer that there was an error.
-                                        var errorElement = document.getElementById('card-errors');
-                                        errorElement.textContent = result.error.message;
-                                    } else {
-                                        // Send the token to your server.
-                                        metadata.eventName = eventDescription.eventName;
-                                        stripeTokenHandler(result.token.id, customerId, checkoutTotal * 100, metadata);
-                                    }
-                                });
+                        })
+                        .then(function (result) {
+                            if (result.error) {
+                                // Inform the customer that there was an error.
+                                var errorElement = document.getElementById('card-errors');
+                                errorElement.textContent = result.error.message;
+                            } else {
+                                // Send the token to your server.
+                                metadata.eventName = eventDescription.eventName;
+                                return stripeTokenHandler(result.token.id, customerId, checkoutTotal * 100, metadata);
+                            }
+
+                        }).then(function () {
+                            return showProgressBar('checkoutPage', false);
                         })
                         .catch(function (err) {
+                            showProgressBar('checkoutPage', false);
                             return ons.notification.alert({
                                 title: err.title || 'Error',
                                 messageHTML: err.message,
@@ -5706,13 +5714,14 @@ ons.ready(function () {
                                 message: '£' + (amount / 100).toFixed(2) + ' has been charged to your card.',
                                 cancelable: true
                             });
-                        })
-                        .catch(function (err) {
-                            return ons.notification.alert({
-                                title: 'Error',
-                                message: err.message,
-                                cancelable: true
-                            });
+                            // })
+                            // .catch(function (err) {
+                            //     return ons.notification.alert({
+                            //         title: 'Error',
+                            //         message: err.message,
+                            //         cancelable: true
+                            //     });
+                            // TODO test ajax error passes through to catch
                         });
                 };
 
@@ -6025,7 +6034,7 @@ function menuController() {
     switch (navi.topPage.name) {
         case 'page1.html':
             //allow for baseLogOut to be shown in the menu
-            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Base');
+            $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Checkpoint');
             $('#goToMap, #eventSignOut').removeClass('hide');
             $('#pricingPage').addClass('hide');
             menuEvtOrganiser();
@@ -6201,7 +6210,7 @@ var getPosition = function () {
 };
 
 function addPluralS(word) {
-    return word.split(-1) === 's' ? word : word + 's';
+    return word.slice(-1) === 's' ? word : word + 's';
 }
 
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
