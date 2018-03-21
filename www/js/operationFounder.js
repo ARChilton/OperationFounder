@@ -1413,14 +1413,14 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 // }
 
 
-/**
- * network connection information
- * @returns the type of connection currently in use i.e. WiFi or 4G
- */
-function checkConnection() {
-    var networkState = navigator.connection.type;
-    return networkState;
-}
+// /**
+//  * network connection information (only works on chrome)
+//  * @returns the type of connection currently in use i.e. WiFi or 4G
+//  */
+// function checkConnection() {
+//     return navigator.connection.effectiveType;
+     
+// }
 /**
  * 
  * @param {string} email email to code from an @ sign
@@ -1762,6 +1762,26 @@ function compareTwoArrays(arr1, arr2, outputDifferences) {
     }
 
 }
+
+/**
+             * Offline event callback function
+             */
+function onOffline() {
+    // Handle the offline event
+    $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
+    // lastSyncUpdater(lastSync + ' - offline');
+    console.log('you are offline');
+}
+/**
+     * Event following the return to being online
+     */
+function onOnline() {
+    // Handle the online event
+    $('.offlineMessage').remove();
+    console.log('you are online');
+
+}
+
 /**
  * Takes an image element and finds the average pixel value
  * @param {element} imgEl 
@@ -2085,40 +2105,21 @@ ons.ready(function () {
 
 
 
-    /**
-             * Offline event callback function
-             */
-    function onOffline() {
-        // Handle the offline event
-        $('.logTable').before('<div class="offlineMessage"><ons-icon icon="md-refresh-sync-alert"></ons-icon> Offline - sync to HQ will resume when online<div>');
-        $('.offlineMap').html('Local Map - Offline');
-    }
-    /**
-         * Event following the return to being online
-         */
-    function onOnline() {
-        // Handle the online event
-        $('.offlineMessage').remove();
-        $('.offlineMap').html('Local Map');
+    
 
-
-        //alert('congrats you are online, connected via: ' + checkConnection());
-
-    }
-
-    if (ons.platform.isWebView()) {
+    // if (ons.platform.isWebView()) {
         /**
          * Event listener for going offline
          *@event offline - when the device to go offline (webView only)
          */
-        document.addEventListener("offline", onOffline, false);
+        window.addEventListener("offline", onOffline, false);
 
         /**
          * Event listener for device going back online
          * @event online - the device goes online (webView only)
          */
-        document.addEventListener("online", onOnline, false);
-    }
+        window.addEventListener("online", onOnline, false);
+    // }
 
     /**
      * A function to show or hide the progress bar
@@ -2135,6 +2136,11 @@ ons.ready(function () {
                 return false;
         }
     }
+
+    function determinateProgressBar(page, value, secondaryValue) {
+        $('#' + page + ' .progressBar').attr('value', value).attr('secondary-value', secondaryValue).removeAttr('indeterminate');
+    }
+
     /**
      * Checks that the doc is up to date and will update if required
      * @param {string} event the name of the local and remote db to update
@@ -4239,8 +4245,9 @@ ons.ready(function () {
                                 // replication was paused, usually because of a lost connection
                                 console.log('basedb pasused');
                                 lastSyncUpdater();
-                                // }).on('active', function () {
-                                // replication was resumed
+                            // }).on('active', function () {
+                                //replication was resumed
+                                // lastSyncUpdater();
                             }).on('error', function (err) {
                                 // totally unhandled error (shouldn't happen)
                                 console.log(err);
@@ -5023,10 +5030,11 @@ ons.ready(function () {
                                                 console.log(info);
                                                 lastSyncUpdater();
 
-                                            }).on('active', function (info) {
-                                                // replication was resumed
-                                                console.log('replication resumed. Info: ');
-                                                console.log(info);
+                                            // }).on('active', function (info) {
+                                            //     // replication was resumed
+                                            //     console.log('replication resumed. Info: ');
+                                            //     console.log(info);
+                                            //     lastSyncUpdater();
                                             }).on('error', function (err) {
                                                 // totally unhandled error (shouldn't happen)
                                                 console.log('Replication Error: ');
@@ -5214,9 +5222,9 @@ ons.ready(function () {
                         //end of switch
                     }
 
-
+                    
                 });
-
+                
                 // -- end of admin.html --
                 break;
             }
@@ -5623,24 +5631,27 @@ ons.ready(function () {
                 paymentSubmitButton.on('click', function () {
                     // event.preventDefault();
                     showProgressBar('checkoutPage', true);
+                    
                     Promise.resolve()
                         .then(function () {
+                           
                             return collectPaymentInfo();
                         })
                         .then(function (metadata) {
+                            determinateProgressBar('checkoutPage', 25, 50);
                             return stripe.createToken(card)
-                        })
-                        .then(function (result) {
-                            if (result.error) {
-                                // Inform the customer that there was an error.
-                                var errorElement = document.getElementById('card-errors');
-                                errorElement.textContent = result.error.message;
-                            } else {
-                                // Send the token to your server.
-                                metadata.eventName = eventDescription.eventName;
-                                return stripeTokenHandler(result.token.id, customerId, checkoutTotal * 100, metadata);
-                            }
-
+                                .then(function (result) {
+                                    determinateProgressBar('checkoutPage', 50, 75);
+                                    if (result.error) {
+                                        // Inform the customer that there was an error.
+                                        var errorElement = document.getElementById('card-errors');
+                                        errorElement.textContent = result.error.message;
+                                    } else {
+                                        // Send the token to your server.
+                                        metadata.eventName = eventDescription.eventName;
+                                        return stripeTokenHandler(result.token.id, customerId, checkoutTotal * 100, metadata);
+                                    }
+                                });
                         }).then(function () {
                             return showProgressBar('checkoutPage', false);
                         })
@@ -5714,14 +5725,12 @@ ons.ready(function () {
                                 message: '£' + (amount / 100).toFixed(2) + ' has been charged to your card.',
                                 cancelable: true
                             });
-                            // })
-                            // .catch(function (err) {
-                            //     return ons.notification.alert({
-                            //         title: 'Error',
-                            //         message: err.message,
-                            //         cancelable: true
-                            //     });
-                            // TODO test ajax error passes through to catch
+                            })
+                            .catch(function (err) {
+                                if (typeof err.message !== 'string') {
+                                    err.message = '<p>There was an issue sending your payment, you have not been charged and your changes have not been saved.</p><p>Please check you are online.</p>';
+                                }
+                                throw (err);
                         });
                 };
 
@@ -6066,6 +6075,9 @@ function menuController() {
     }
     //shouldn't really be here but it handles all page changes then
     lastSyncHandler();
+    if (navigator.onLine === false) {
+        onOffline();
+    }
     console.log(navi.topPage.name + ' menu controller run');
 }
 /**
@@ -6149,7 +6161,7 @@ function openMessages() {
 }
 
 function lastSyncHandler() {
-    if (lastSync !== undefined) {
+    if (typeof lastSync !== 'undefined') {
         lastSyncUpdater(lastSync);
     }
 }
@@ -6158,16 +6170,19 @@ function lastSyncHandler() {
  * @param {string} timeToShow (optional) a previously defined sync time for continuity 
  */
 function lastSyncUpdater(timeToShow) {
-    if (timeToShow === undefined) {
-        var date = new Date();
-        // lastSync = date.toLocaleTimeString();
-        lastSync = addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
+    if (typeof timeToShow === 'undefined') {
+        lastSync = HHMMSSNow();
     } else {
         lastSync = timeToShow;
     }
     $('.lastSync').html('last sync: ' + lastSync);
     $('.normalTitle').addClass('hide');
     $('.syncTitle').removeClass('hide');
+}
+
+function HHMMSSNow() {
+    var date = new Date();
+    return addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
 }
 /**
  *returns true if the element is visible, false if not
@@ -6210,6 +6225,9 @@ var getPosition = function () {
 };
 
 function addPluralS(word) {
+    if (word === 'children' || 'people') {
+        return word;
+    }
     return word.slice(-1) === 's' ? word : word + 's';
 }
 

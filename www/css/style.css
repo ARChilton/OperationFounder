@@ -951,12 +951,20 @@ background-color: rgba(255, 145, 0,0.3);
 .offlineMessage {
     color: #a30d0d;
     text-align: center;
+    font-size:14px;
 }
 
 .offlineMessageMap {
     color: #a30d0d;
     background-color: rgba(255, 255, 255, 0.5);
     z-index: 999999;
+}
+
+.lastSync .offlineMessage{
+    color:#fff;
+    font-size:12px;
+    font-weight: bold;
+    text-transform: capitalize !important;
 }
 
 .participantRef {
@@ -1956,6 +1964,12 @@ ons-splitter-mask {
     top: 0px;
     left: 0px;
     right: 0px;
+}
+
+@media(min-width:768px){
+    .progress-bar{
+        height:6px;
+    }
 }
 
 #adminPage .progressBar {
