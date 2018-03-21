@@ -2311,14 +2311,14 @@ ons-splitter-mask {
     
 }
 
-/* @media(min-width:768px) and (min-height:650px){
+@media(min-width:768px) and (min-height:750px){
     #payment-form{
         position: absolute;
         bottom: 0px;
         left:0px;
         right:0px;
     }
-} */
+}
 
 @media(max-height:650px){
     #eventPaymentSummary div{
