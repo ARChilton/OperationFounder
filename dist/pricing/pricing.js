@@ -1,0 +1,1 @@
+var pricingMenu=document.getElementById("pricingMenu");function openMenu(){pricingMenu.toggle(),pricingMenu.classList.add("menuShadow")}pricingMenu.addEventListener("postclose",function(){pricingMenu.classList.remove("menuShadow")});
