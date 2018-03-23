@@ -1419,7 +1419,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
 //  */
 // function checkConnection() {
 //     return navigator.connection.effectiveType;
-     
+
 // }
 /**
  * 
@@ -2105,20 +2105,20 @@ ons.ready(function () {
 
 
 
-    
+
 
     // if (ons.platform.isWebView()) {
-        /**
-         * Event listener for going offline
-         *@event offline - when the device to go offline (webView only)
-         */
-        window.addEventListener("offline", onOffline, false);
+    /**
+     * Event listener for going offline
+     *@event offline - when the device to go offline (webView only)
+     */
+    window.addEventListener("offline", onOffline, false);
 
-        /**
-         * Event listener for device going back online
-         * @event online - the device goes online (webView only)
-         */
-        window.addEventListener("online", onOnline, false);
+    /**
+     * Event listener for device going back online
+     * @event online - the device goes online (webView only)
+     */
+    window.addEventListener("online", onOnline, false);
     // }
 
     /**
@@ -2460,7 +2460,6 @@ ons.ready(function () {
                                             animation: pageChangeAnimation,
                                             data: data
                                         };
-
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
                                     console.log(err);
@@ -2490,14 +2489,9 @@ ons.ready(function () {
                                     return false;
                                 }
 
-                                var connection;
-                                if (ons.platform.isWebView()) {
-                                    connection = checkConnection();
-                                }
-                                console.log("current connection: " + connection);
-                                switch (connection) {
-                                    case "none":
-                                        console.log(connection);
+                                switch (document.onLine) {
+                                    case false:
+
                                         return ons.notification.alert({
                                             title: 'Error',
                                             message: "Couldn't connect to server because this device is offline.",
@@ -4245,7 +4239,7 @@ ons.ready(function () {
                                 // replication was paused, usually because of a lost connection
                                 console.log('basedb pasused');
                                 lastSyncUpdater();
-                            // }).on('active', function () {
+                                // }).on('active', function () {
                                 //replication was resumed
                                 // lastSyncUpdater();
                             }).on('error', function (err) {
@@ -5030,11 +5024,11 @@ ons.ready(function () {
                                                 console.log(info);
                                                 lastSyncUpdater();
 
-                                            // }).on('active', function (info) {
-                                            //     // replication was resumed
-                                            //     console.log('replication resumed. Info: ');
-                                            //     console.log(info);
-                                            //     lastSyncUpdater();
+                                                // }).on('active', function (info) {
+                                                //     // replication was resumed
+                                                //     console.log('replication resumed. Info: ');
+                                                //     console.log(info);
+                                                //     lastSyncUpdater();
                                             }).on('error', function (err) {
                                                 // totally unhandled error (shouldn't happen)
                                                 console.log('Replication Error: ');
@@ -5222,9 +5216,9 @@ ons.ready(function () {
                         //end of switch
                     }
 
-                    
+
                 });
-                
+
                 // -- end of admin.html --
                 break;
             }
@@ -5631,10 +5625,10 @@ ons.ready(function () {
                 paymentSubmitButton.on('click', function () {
                     // event.preventDefault();
                     showProgressBar('checkoutPage', true);
-                    
+
                     Promise.resolve()
                         .then(function () {
-                           
+
                             return collectPaymentInfo();
                         })
                         .then(function (metadata) {
@@ -5725,12 +5719,12 @@ ons.ready(function () {
                                 message: '£' + (amount / 100).toFixed(2) + ' has been charged to your card.',
                                 cancelable: true
                             });
-                            })
-                            .catch(function (err) {
-                                if (typeof err.message !== 'string') {
-                                    err.message = '<p>There was an issue sending your payment, you have not been charged and your changes have not been saved.</p><p>Please check you are online.</p>';
-                                }
-                                throw (err);
+                        })
+                        .catch(function (err) {
+                            if (typeof err.message !== 'string') {
+                                err.message = '<p>There was an issue sending your payment, you have not been charged and your changes have not been saved.</p><p>Please check you are online.</p>';
+                            }
+                            throw (err);
                         });
                 };
 
