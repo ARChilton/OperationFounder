@@ -69,7 +69,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'http://localhost:3000';//'https://checkpointlive.com/app'; 
+var appServer = 'https://checkpointlive.com/app'; 
 
 // map variables
 //commented out to remove map from app
