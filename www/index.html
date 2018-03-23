@@ -82,6 +82,11 @@
         <ons-list-item id="eventSignOut" onclick="signOut()" tappable>
           Sign Out
         </ons-list-item>
+        <a href="/pricing">
+          <ons-list-item id="pricingPage" tappable>
+            Pricing
+          </ons-list-item>
+        </a>
         <!--<ons-list-item onclick="destroyBasedb()" tappable>
           Destroy Db
         </ons-list-item>-->
@@ -109,7 +114,35 @@
     <ons-page id="signInPage">
       <ons-progress-bar indeterminate class="hide progressBar"></ons-progress-bar>
 
+      <div id="navBar" class="">
+        <!-- <div class="row xsShow txtCenter"> -->
 
+        <div class=" col-xs-2 xsShow txtCenter">
+          <ons-toolbar-button class="menuButton">
+            <ons-icon class="orangeMenuButton" icon="md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+
+
+
+        <!-- </div> -->
+        <div class="row txtCenter xsHide">
+          <div class="" id="navBarOptions">
+            <div class=" col-sm-1" onClick="">
+              <img src="./img/icon.svg">
+            </div>
+            <div class=" col-sm-2 col-sm-push-7 navActive">
+              Home
+            </div>
+            <a href="/pricing">
+              <div class=" col-sm-2 col-sm-push-7">
+                Pricing
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
       <div class="">
 
         <div class="signInFormDiv row">
@@ -126,14 +159,16 @@
             <p>
               <ons-button class="signInButton primaryColorButton input70perWidth">Sign In</ons-button>
             </p>
-            <ons-button class="signUpButton secondaryColorButton maxWidth" modifier="large">Event Organiser Sign Up</ons-button>
+            <p>
+              <ons-button class="signUpButton secondaryColorButton maxWidth" modifier="large">Event Organiser Sign Up</ons-button>
+            </p>
           </form>
         </div>
 
-        <div class="row section sectionGray" id="highlights">
+        <div class="row section sectionGray highlights" id="highlights">
           <div class="col-sm-4" id="safer">
             <ons-icon icon="fa-users" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Making events safer</h2>
+            <h3 class="txtCenter bold">Making events safer</h3>
             <div class="txtJustify">
               <p>
                 Receiving updates from all checkpoints simultaneously in real-time means you know which teams were last seen when and where,
@@ -143,7 +178,7 @@
           </div>
           <div class="col-sm-4" id="burden">
             <ons-icon icon="fa-mobile-phone" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Enjoy monitoring the event</h2>
+            <h3 class="txtCenter bold">Monitor on the move</h3>
             <div class="txtJustify">
               <p>
                 Designed for use on any mobile device, using Checkpoint Live means you can be on the move and still monitor the event.
@@ -156,14 +191,14 @@
           </div>
           <div class="col-sm-4" id="safer">
             <ons-icon icon="fa-comments" class="secondaryColor"></ons-icon>
-            <h2 class="txtCenter bold">Improving communication</h2>
+            <h3 class="txtCenter bold">Improving communication</h3>
             <div class="txtJustify">
               <p>
                 Gone are the days of mishearing via radio or misinterpreting handwriting. Inputs are made by individuals at the checkpoint
                 and distributed to everyone in a readable format, in real-time.
               </p>
               <p>With a chat-room included for every event you can contact all of your checkpoint marshals and they can contact
-                you, clearly and transparently.
+                you, clearly and transparently; no contact information required.
               </p>
             </div>
           </div>
@@ -172,7 +207,7 @@
         <div class="row section">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What is Checkpoint Live?</h2>
-            <div class="txtJustify col-md-4 col-md-push-2">
+            <div class="txtJustify col-md-4 col-md-push-2 xsPadding16">
               <p>
                 Checkpoint Live was developed initially for the Scout and Guide communities to enable real time updates on where the teams
                 of young people are as they participate in orienteering activities. Now it can be used by any event with
@@ -191,26 +226,48 @@
           </div>
         </div>
 
-        <div class="row section">
+        <div class="row section sectionGray">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What if I have bad mobile reception?</h2>
-            <div class="col-md-4 col-md-push-2 txtJustify">
-              <p>Being out in the county side means there is no guarantee of mobile reception. While this situation is improving,
+            <div class="col-md-4 col-md-push-2 txtJustify xsPadding16">
+              <p>Being out in the county-side means there is no guarantee of mobile reception. While this situation is improving,
                 Checkpoint Live has taken an 'offline first' approach.</p>
               <p>
                 Offline first means that this website will continue to work even when your mobile internet signal is intermittent. It does
                 this by storing the recorded base logs to your mobile device before synchronising them with other event users
-                when the mobile device re-connects to the internet.
+                when the mobile device re-connects to the network.
               </p>
             </div>
           </div>
         </div>
 
-        <div class="row section sectionGray">
-          <div class="col-xs-12">
-            <h2 class="txtCenter bold">As used by</h2>
-            <img src="img/operationFounder.png" class="asUsedByLogo">
+        <div class="row section ">
+          <h2 class="txtCenter bold">As used by</h2>
+          <div class="xsPadding16 col-xs-12">
+            <h2>
+              <img src="img/operationFounder.png" class="asUsedByLogo">
+            </h2>
           </div>
+        </div>
+
+        <div class="row section sectionGray highlights">
+          <h2 class="txtCenter bold">New features</h2>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Branding</h3>
+            <p class="txtJustify">You can now add your own logos to your event page to give it that personal feel.</p>
+          </div>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Location tracking</h3>
+            <p class="txtJustify">Now you can record location in addition to your standard logs.</p>
+          </div>
+          <div class="col-sm-4">
+            <h3 class="bold txtCenter">Improved admin HQ</h3>
+            <p class="txtJustify">Allong with all of the raw logs coming in from checkpoints, checkpoint live will update a last seen (least recent
+              at the top) and leaderboard tabs for admin users.
+            </p>
+
+          </div>
+
         </div>
 
 
@@ -231,21 +288,27 @@
           Create Account
         </div>
       </ons-toolbar>
-      <div class="pageDiv txtCenter maxWidth marginAuto">
-        <h1>The first step towards managing your event..</h1>
-        <!--<form id="signUpForm" onsubmit="return false">-->
-        <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <ons-input id="signUpPassword" modifier="underbar" placeholder="Password (min 6 characters)" float class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
-          required></ons-input>
-        <p class="marginTop">That's it you're done.
-          <br> Go forth and manage your events with ease.</p>
-        <p>
-          <ons-button modifier="large" class="signUpInputButton secondaryColorButton maxWidth">Create My Account</ons-button>
-        </p>
-        <!--</form>-->
+      <div class="pageDiv">
+        <div class="row txtCenter maxWidth marginAuto">
+          <h1>The first step towards managing your event..</h1>
+          <div>
+            <ons-input id="signUpEmail" modifier="underbar" placeholder="Email" float type="email" class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+            <ons-input id="signUpPassword" modifier="underbar" placeholder="Password (min 6 characters)" float class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+            <ons-input id="signUpPasswordConfirm" modifier="underbar" placeholder="Confirm password" float class="fullWidthInput marginTop maxWidth"
+              required></ons-input>
+          </div>
+        </div>
+        <div class="row txtCenter marginAuto maxWidth">
+          <p class="marginTop">That's it you're done.
+            <br> Go forth and manage your events with ease.</p>
+          <p>
+            <ons-button modifier="large" class="signUpInputButton secondaryColorButton maxWidth">Create My Account</ons-button>
+          </p>
+        </div>
+      </div>
+
 
       </div>
     </ons-page>
@@ -308,32 +371,41 @@
               Change banner image
             </ons-button>
           </label>
-          <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop"
+          <ons-input id="eventName" modifier="underbar" placeholder="Event name *" float type="text" class="fullWidthInput marginTop32px"
             autofocus></ons-input>
 
           <textarea class="textarea marginTop" id="eventDescription" placeholder="Event description or instructions" style="width: 100%; height: 100px;"></textarea>
 
           <div class="flex flexRow flexSpaceBetween flexWrap">
-            <div class="bold caption">Start *
+            <div class="bold caption marginTop">Start *
               <ons-input id="eventStartDate" type="datetime-local" class="marginLeft marginRight" required></ons-input>
             </div>
-            <div class="bold caption txtRight">End *
+            <div class="bold caption txtRight marginTop">End *
               <ons-input id="eventEndDate" type="datetime-local" class="marginLeft" required></ons-input>
             </div>
           </div>
           <div class="flex flexRow flexSpaceBetween marginTop32px">
-            <div class="eventItemTitle bold h3NoStyling">Participant type</div>
+            <div class="eventItemTitle bold h3NoStyling">Participant type*</div>
             <ons-input id="pReference" modifier="underbar" placeholder="Team / Patrol / Other" float type="text" class="" value="Team"
               required></ons-input>
           </div>
           <div class="caption txtLeft">How the participants in the event will be referred to (default: Team).</div>
+
+          <div class="flex flexRow flexSpaceBetween marginTop32px">
+            <div class="eventItemTitle bold h3NoStyling">Number of
+              <span class="cePRefPlural lowercase">teams</span>*</div>
+            <ons-input id="trackedEntities" modifier="underbar" placeholder="Number of teams" float type="number" class="" minValue="0"
+              required></ons-input>
+          </div>
+          <div class="caption txtLeft">The number of
+            <span class="cePRefPlural lowercase">teams</span> you will track with checkpoint live.</div>
           <div class="bigEventSetUpButtons">
             <div id="passwordProtectLogs" class="marginTop">
               <ons-ripple class="ripple" color="#e8ecef" background="#f4f7f9"></ons-ripple>
               <div class="flex flexRow flexAlignFlexStart">
 
                 <div class="eventItemTitle bold h3NoStyling passwordProtectLogs">
-                  Password protect base entry
+                  Password protect checkpoint selection
                 </div>
 
                 <div class="eventItemSwitch">
@@ -344,10 +416,10 @@
               <div class="flex flexRow flexAlignFlexStart passwordProtectLogs">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    This will require those using the app/website to enter a unique passcode to gain access to their base, this limits user's
-                    access only to bases they have the passcode for. If this option is turned off all users with the event
-                    log-in will be able to select the base they are logging visits for from a drop down list. (The Admin
-                    area always requires a passcode).
+                    This will require those using checkpoint live to enter a unique passcode to gain access to their checkpoint, this limits
+                    user's access only to checkpointss they have the passcode for. If this option is turned off all users
+                    with the event log-in will be able to select the checkpoint they are logging visits for from a drop down
+                    list. (The Admin area always requires a passcode).
                   </p>
 
                 </div>
@@ -371,8 +443,10 @@
               <div class="flex flexRow flexAlignFlexStart offRouteLogs">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    This will allow your event users to log when they see a team, even if they are not due to participate on that base yet. This
-                    is useful from a safety perspective as every team sighting is recorded.
+                    This will allow your event users to log when they see a
+                    <span class="cePRef lowercase">team</span>, even if they are not due to participate at that checkpoint yet. This is useful from a safety
+                    perspective as every
+                    <span class="cePRef lowercase">team</span> sighting is recorded.
                   </p>
 
                 </div>
@@ -395,9 +469,9 @@
               <div class="flex flexRow flexAlignFlexStart autoTime">
                 <div class="eventItemCaption">
                   <p class="caption">
-                    Turning this on will remove the need for users to enter time information into the app/website when recording a log entry.
-                    Instead the time in and out of the base is set as to the time that the submit log button is pressed.
-                    This is useful for quicker submission of logs.
+                    Turning this on will remove the need for users to enter time information into the website when recording a log entry. Instead
+                    the time in and out of the checkpoint is set as to the time that the submit log button is pressed. This
+                    is useful for quicker submission of logs.
                   </p>
 
                 </div>
@@ -462,7 +536,7 @@
               <ons-input id="base1MaxScore" modifier="underbar" placeholder="Max score" float type="number" class="baseMaxScore" required></ons-input>
             </div>
             <div class="flex flexRow flexSpaceBetween marginTop basePasswordShowHide">
-              <div class="caption bold">Base password *</div>
+              <div class="caption bold">Checkpoint password *</div>
               <ons-input id="base1Password" modifier="underbar" placeholder="Password" float type="text" class="basePassword eventPassword"
                 required></ons-input>
             </div>
@@ -472,7 +546,7 @@
                 <ons-switch id="base1GeolocationSwitch"></ons-switch>
               </div>
             </div>
-            <textarea class="textarea marginTop" id="base1Instructions" placeholder="Base specific instructions" style="width: 100%; height:45px;"></textarea>
+            <textarea class="textarea marginTop" id="base1Instructions" placeholder="Checkpoint specific instructions" style="width: 100%; height:45px;"></textarea>
           </div>
 
           <ons-button modifier="large" class="addBaseButton secondaryColorButton marginTop marginBottom">Add Another Checkpoint</ons-button>
@@ -505,11 +579,11 @@
         <div id="evtSummaryBanner"></div>
         <div id="evtSummaryEvtUser">
           <div id="evtSummaryEvtUserContents">
-            <div id="" class="">
+            <div class="">
               <span class="bold sentanceCase">base user username: </span>
               <span id="evtSummaryUsername" class="copyableArea passwordFont"></span>
             </div>
-            <div id="" class="">
+            <div class="">
               <span class="bold sentanceCase">base user password: </span>
               <span id="evtSummaryPassword" class="copyableArea passwordFont"></span>
             </div>
@@ -536,7 +610,7 @@
           <!-- <div id="evtSummaryAdminContainer">
             <h2 class="txtLeft bold borderBottom sentanceCase" id="evtSummaryAdmin">Admin</h2>
             <div id="evtSummaryAdminDetails">
-              <p id="" class="">
+              <p  class="">
                 <span class="bold sentanceCase">Admin passcode: </span>
                 <span id="evtSummaryAdminPass" class="passwordFont"></span>
               </p>
@@ -582,7 +656,7 @@
             <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput"></ons-input>
           </p>
           <p id="betweenNameAndBase">This is the short code provided to you by the event's organisers.</p>
-          <p>
+          <p id="baseCodeParagraph">
             <ons-input id="baseCode" modifier="underbar" placeholder="Passcode" float class="fullWidthInput marginTop"></ons-input>
           </p>
           <p class="caption" id="loginCodeCaption">(Each code is individual to each checkpoint/base)</p>
@@ -600,18 +674,6 @@
     </ons-page>
   </ons-template>
   <!-- End of Login page -->
-  <!-- Start of select base dialog template -->
-  <ons-template id="baseSelectDialog.html">
-    <ons-dialog id="baseSelectDialog" cancelable>
-      <div>
-        <ons-list>
-          <ons-list-header id="loginBaseSelect">Select a base or checkpoint</ons-list-header>
-
-        </ons-list>
-      </div>
-    </ons-dialog>
-  </ons-template>
-  <!-- End of select base dialog template -->
   <!-- Start of eventSelectionPage -->
   <ons-template id="eventSelectionPage.html">
     <ons-page id="eventSelectionPage" class="cardBackground">
@@ -669,7 +731,7 @@
         </div>
         <div class="right">
           <ons-toolbar-button>
-            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()">
+            <ons-icon icon="fa-comments" class="messagesIcon" onclick="openMessages()">
               <span id="messageBadge" class="messageBadge hide"></span>
             </ons-icon>
           </ons-toolbar-button>
@@ -683,13 +745,13 @@
 
       <div id="p1TopHalf">
         <ons-list>
-          <ons-list-header id="quickAddTitle">Add new log from base </ons-list-header>
+          <ons-list-header id="quickAddTitle">Add new log from checkpoint </ons-list-header>
           <ons-list-item>
             <div class="center participantRef">
               Team No.
             </div>
             <div class="right">
-              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Team No." float class="quickAddInput">
+              <ons-input id="patrolNo" type="number" modifier="underbar" placeholder="Team No." float class="quickAddInput" min="5">
               </ons-input>
             </div>
           </ons-list-item>
@@ -742,7 +804,7 @@
       <!--Bottom Half-->
       <div id="p1BottomHalf">
         <ons-list>
-          <ons-list-header id="tableTitle">Previous logs from this base</ons-list-header>
+          <ons-list-header id="tableTitle">Previous logs from this checkpoint</ons-list-header>
         </ons-list>
         <!-- <div class="marginLeft">Previous Logs</div> -->
         <table class="data-table logTable">
@@ -784,7 +846,7 @@
             <ons-icon icon="md-search" id="patrolSearch"></ons-icon>
           </ons-toolbar-button>
           <ons-toolbar-button>
-            <ons-icon icon="fa-comments" id="" class="messagesIcon" onclick="openMessages()">
+            <ons-icon icon="fa-comments" class="messagesIcon" onclick="openMessages()">
               <span id="messageBadge" class="messageBadge hide"></span>
             </ons-icon>
           </ons-toolbar-button>
@@ -816,7 +878,7 @@
               <!--<th class="hide landscapeShow">
               <ons-input type='checkbox' id="selectAll"></ons-input>
             </th>-->
-              <th>Base</th>
+              <th>ChkPt</th>
               <th class="participantRef">Team</th>
               <th>Time in</th>
               <th>Time out</th>
@@ -862,7 +924,7 @@
           <tr>
             <th class="txtCenter participantRef">Team</th>
             <th class="txtCenter">Last Seen</th>
-            <th class="txtCenter">At Base</th>
+            <th class="txtCenter">At ChkPt</th>
 
             <th class="txtCenter">On/Off Route</th>
             <th class="hide landscapeShow txtCenter">Recorded by</th>
@@ -942,25 +1004,151 @@
     </ons-page>
   </ons-template>
   <!-- End of MessagesPage.html -->
-  <ons-template id="testPage.html">
-    <ons-page id="testPage">
-      <div class="pageDiv">
-        <form id="payment-form">
-          <div class="form-row">
-            <label for="card-element">
-              Credit or debit card
-            </label>
-            <div id="card-element">
-              <!-- A Stripe Element will be inserted here. -->
+  <ons-template id="checkoutPage.html">
+    <ons-page id="checkoutPage">
+      <ons-toolbar>
+        <div class="left">
+          <ons-back-button>Back</ons-back-button>
+        </div>
+        <div class="center">
+          Checkout
+        </div>
+      </ons-toolbar>
+      <ons-progress-bar indeterminate class="progressBar hide"></ons-progress-bar>
+      <div id="paymentSummary">
+        <div class="col-xs-12 col-sm-4 col-sm-push-8 col-lg-3 col-lg-push-9" id="eventPaymentSummary">
+          <h2 id="checkoutEventName" class="bold"></h2>
+          <div class="row txtCenter">
+            <h3 class="col-xs-4">Tracked
+              <span id="checkoutPRef"></span>
+            </h3>
+            <h3 class="col-xs-4">Location</h3>
+            <h3 class="col-xs-4">Storage</h3>
+          </div>
+          <div class="row txtCenter">
+            <div class="col-xs-4">
+              <ons-icon icon="fa-users"></ons-icon>
+              <p id="checkoutTotalTrackedEntities"></p>
             </div>
-
-            <!-- Used to display Element errors. -->
-            <div id="card-errors" role="alert"></div>
+            <div class="col-xs-4">
+              <ons-icon icon="md-pin" id="checkoutLocationPin"></ons-icon>
+              <p id="checkoutGeolocationOn"></p>
+            </div>
+            <div class="col-xs-4">
+              <ons-icon icon="fa-database"></ons-icon>
+              <p id="checkoutAdditionalStorage">7 days</p>
+            </div>
           </div>
 
-          <button>Submit Payment</button>
-        </form>
+          <hr>
+
+          <h2 class="bold">Order Summary</h2>
+          <div id="orderSummary"></div>
+          <div class="caption txtLeft marginTop paddingBottom">
+            <ons-icon icon="fa-info-circle" class="infoCircle"></ons-icon>You will be able to purchase more tracked
+            <span id="checkoutPRefPlural"></span>, enable location and add storage time after purchasing, from the edit event set-up option in the event's
+            menu.
+          </div>
+        </div>
+        <div id="paymentSide" class="row">
+
+          <div id="customerDetails" class="row col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
+            <h2 class="bold col-sm-push-1 col-sm-10">Payment Information</h2>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Name*</div>
+              <ons-input type="text" placeholder="Name" underbar id="checkoutName" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Email*</div>
+              <ons-input type="email" placeholder="Email" underbar id="checkoutEmail" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Address*</div>
+              <ons-input type="text" placeholder="Address" underbar id="checkoutAddress" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">City*</div>
+              <ons-input type="text" placeholder="City" underbar id="checkoutCity" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">County/State*</div>
+              <ons-input type="text" placeholder="County / State" underbar id="checkoutCounty" class="col-xs-8"></ons-input>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop">
+              <div class="col-xs-4">Post Code/ZIP*</div>
+              <ons-input type="text" placeholder="Post Code / ZIP" underbar id="checkoutPostCode" class="col-xs-8"></ons-input>
+            </div>
+
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop select">
+              <div class="col-xs-4 ">Country*</div>
+              <div id="country" class="gb">
+                <select name="country" id="checkoutCountry" class="col-xs-8 ">
+                  <option value="AU">Australia</option>
+                  <option value="AT">Austria</option>
+                  <option value="BE">Belgium</option>
+                  <option value="BR">Brazil</option>
+                  <option value="CA">Canada</option>
+                  <option value="CN">China</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="FR">France</option>
+                  <option value="DE">Germany</option>
+                  <option value="HK">Hong Kong</option>
+                  <option value="IE">Ireland</option>
+                  <option value="IT">Italy</option>
+                  <option value="JP">Japan</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="MX">Mexico</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="NO">Norway</option>
+                  <option value="PT">Portugal</option>
+                  <option value="SG">Singapore</option>
+                  <option value="ES">Spain</option>
+                  <option value="SE">Sweden</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="GB" selected="selected">United Kingdom</option>
+                  <option value="US">United States</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-10 col-sm-push-1 marginTop32px">
+              <div class="col-xs-4">Add promo Code</div>
+              <ons-input type="text" placeholder="Promo code" underbar id="checkoutPromoCode" class="col-xs-5"></ons-input>
+              <ons-button modifier="quiet" class="col-xs-3  secondaryColor" id="promoCode">Submit</ons-button>
+            </div>
+            <div class="col-xs-12 col-md-10 col-md-push-1 marginTop caption">
+              <ons-icon icon="fa-info-circle" class="infoCircle"></ons-icon>This payment is handled by
+              <a href="https://stripe.com" target="_blank">Stripe</a>. The details input above will be held securely by Stripe alongside the purchase as proof of the
+              identity of the purchaser. Checkpointlive.com does not store this data and it will not be used or sold for
+              any other purpose without your express permission.
+            </div>
+          </div>
+
+          <div id="payment-form" class="row section sectionGray col-xs-12 col-sm-8 col-sm-pull-4 col-lg-9 col-lg-pull-3">
+
+
+            <div id="paymentCapture" class="col-xs-12 col-md-8 col-md-push-2 ">
+              <div class="form-row">
+                <label for="card-element">
+                  Enter your credit or debit card details below:
+                </label>
+                <div id="card-element" class="marginAuto marginTop ">
+                  <!-- A Stripe Element will be inserted here. -->
+                </div>
+                <!-- Used to display Element errors. -->
+                <div id="card-errors" role="alert"></div>
+              </div>
+              <ons-button modifier="large" id="paymentSubmitButton" class="secondaryColorButton marginAuto marginTop ">Pay
+                <span id="checkoutTotal"></span>
+              </ons-button>
+            </div>
+
+          </div>
+        </div>
       </div>
+
+
     </ons-page>
   </ons-template>
 

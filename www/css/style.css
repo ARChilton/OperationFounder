@@ -39,6 +39,25 @@ Accent Darker color: Orange 800: #EF6C00
 .secondaryColor {
     color: #FF9100;
 }
+.secondaryColor:active{
+    color:#ef6c00;
+}
+
+a {
+    color:#FF9100;
+    text-decoration: none;
+}
+
+a:hover{
+    color:#EF6C00;
+    /* font-weight: bold; */
+    text-decoration: none;
+}
+
+a:visited{
+   color:#FF9100;
+    text-decoration: none; 
+}
 
 /* General OnsenUI CSS */
 
@@ -434,7 +453,7 @@ input:checked + .switch__toggle{
 
 /*signIn page*/
 .section{
- padding:5% 16px;
+ padding:32px 16px;
  border-top:3px solid #EF6C00;
 }
 .sectionGray{
@@ -442,11 +461,11 @@ background-color:#efefef;
 }
 
 
-#highlights .col-sm-4{
+.highlights .col-sm-4{
     padding:16px;
 }
 
-#highlights ons-icon{
+.highlights ons-icon{
     margin:auto;
     width:100%;
     font-size:50px;
@@ -484,6 +503,56 @@ background-color:#efefef;
 
 .signInFormDiv{
     padding:5% 16px;
+}
+.packageOfferings{
+    height:500px;
+}
+.packageTitle{
+   text-align: center;
+}
+@media(min-width:768px){
+#navBar{
+    top:0px;
+    position:sticky;
+    background-color:#fff;   
+    z-index: 5;    
+    vertical-align: middle;
+    border-bottom: 1px solid #efefef;
+}
+}
+#navBarOptions div{
+  height:60px;
+  /* padding:16px 2px; */
+  color:rgba(0, 0, 0, 0.30);
+  font-weight: bold;
+  font-size:14px;
+  line-height: 60px;
+}
+#navBarOptions div:hover{
+border-bottom:#FF9100 2px solid;
+color:#ff9100;
+}
+#navBarOptions div:active{
+    border-bottom:#FF9100 2px solid;
+color:#ff9100;
+background-color: rgba(255, 145, 0,0.3);
+}
+.navActive{
+   border-bottom:rgba(255, 145, 0,0.5) 2px solid; 
+}
+
+#navBar img{
+    height:40px;
+    /* margin-top:-4px; */
+}
+
+@media(max-width:768px){
+.xsPadding16{
+    padding:0px 16px;
+}
+.xsHide{
+    display:none;
+}
 }
 
 /* @media screen and (min-width: 650px) {
@@ -551,10 +620,10 @@ background-color:#efefef;
     padding: 16px;
 }
 
-#loginBaseSelect{
-    padding:0px;
-}
-
+/* #baseCode {
+    padding:4px;
+    border-bottom:1px solid #efefef;
+} */
 #evtVersion {
     position: absolute;
     font-size: 12px;
@@ -882,12 +951,20 @@ background-color:#efefef;
 .offlineMessage {
     color: #a30d0d;
     text-align: center;
+    font-size:14px;
 }
 
 .offlineMessageMap {
     color: #a30d0d;
     background-color: rgba(255, 255, 255, 0.5);
     z-index: 999999;
+}
+
+.lastSync .offlineMessage{
+    color:#fff;
+    font-size:12px;
+    font-weight: bold;
+    text-transform: capitalize !important;
 }
 
 .participantRef {
@@ -1514,6 +1591,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* General functions */
 
+
 .copyableArea {
     -webkit-user-select: text;
     /* Chrome all / Safari all */
@@ -1650,8 +1728,16 @@ p {
     margin-bottom: 16px;
 }
 
+.noMarginTop{
+    margin-top:0px;
+}
+
 .marginLeftAuto {
     margin-left: auto;
+}
+
+.paddingBottom{
+    padding-bottom: 16px;
 }
 
 .floatLeft {
@@ -1768,7 +1854,7 @@ ons-splitter-mask {
     cursor: pointer;
 }
 #opFounderMenu :hover{
-    background-color:#aaa;
+    background-color:#ccc;
 }
 
 
@@ -1878,6 +1964,12 @@ ons-splitter-mask {
     top: 0px;
     left: 0px;
     right: 0px;
+}
+
+@media(min-width:768px){
+    .progress-bar{
+        height:6px;
+    }
 }
 
 #adminPage .progressBar {
@@ -2106,4 +2198,283 @@ ons-splitter-mask {
 
 .StripeElement--webkit-autofill {
   background-color: #fefde5 !important;
+}
+
+/* Pricing page */
+#pricingPageLogo{
+    margin-top:32px;
+}
+
+@media(min-width:768px){
+.xsShow{
+    display: none;
+}
+}
+
+#pricingLongLogoSVG{
+    width:100%;
+}
+
+.pricingDivs{
+    padding:16px;
+
+    text-align:justify;
+    /* border:1px solid #ededed; */
+}
+.pricingTitle{
+    text-align:center;
+    font-weight:bold;
+    font-size:16px;
+    color:#ff9100;
+    border-bottom: 2px solid #ff9100;
+    padding:16px;
+    margin-bottom:16px;
+}
+.pricingPageTitle{
+    text-align:center;
+    font-weight:bold;
+    font-size:2.5em;
+    /* margin: 16px 0px; */
+    /* color:#fff; */
+}
+.pricingPageTitleBackground{
+    background-color:transparent;
+    color:#000;
+    text-align:center;
+}
+.prices{
+    font-size: 24px;
+    font-weight: bold;
+}
+.section h2{
+    font-size:1.8em;
+}
+.section h3{
+    font-size:1.2em;
+}
+.jumbotron p{
+    font-size:1.3em;
+    margin:16px;
+}
+
+#pricingPage .page__content + {
+    top:0px;
+}
+.orangeMenuButton{
+    color:#ff9100;
+    line-height:50px;
+}
+
+@media(max-width:768px){
+    .jumbotron p{
+        font-size: 1em;
+    }
+    .pricingPageTitle{
+        font-size:1.8em;
+    }
+    .section h2{
+        font-size:1.5em;
+    }
+    #customerDetails{
+    border-top:3px solid #EF6C00;
+    }
+}
+
+
+#customerDetails{
+    padding:0px 16px 16px;
+}
+#eventPaymentSummary{
+    padding:0px 16px 0px;
+    /* overflow-y: scroll; */
+    font-size:12px;
+}
+
+#eventPaymentSummary ons-icon{
+    color:#ff9100;
+    font-size:35px;
+}
+
+#eventPaymentSummary .disabled{
+    color:#ccc;
+}
+
+.infoCircle{
+    color:rgba(0,0,0,0.4) !important;
+    font-size:16px !important;
+    padding-right:8px;
+}
+
+#checkoutPage .caption{
+    color:rgba(0,0,0,0.4);
+}
+
+#eventPaymentSummary .bold{
+    font-size:1.2em;
+}
+@media(min-width:768px){
+    #eventPaymentSummary{
+        height:100%;
+        border-left:1px solid #efefef;
+        min-height:600px;
+    }
+    #paymentSummary{
+        height:fit-content 100%;
+    }
+    
+    
+}
+
+@media(min-width:768px) and (min-height:750px){
+    #payment-form{
+        position: absolute;
+        bottom: 0px;
+        left:0px;
+        right:0px;
+    }
+}
+
+@media(max-height:650px){
+    #eventPaymentSummary div{
+        font-size:12px;
+    }
+}
+
+select {
+  flex: 1;
+  border-style: none;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  color: #313b3f;
+  cursor: pointer;
+  background: transparent;
+   padding:4px;
+    border-bottom:1px solid #afafaf;
+}
+
+select:focus {
+  color: #313b3f;
+}
+
+.select::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 5px;
+  right: 20px;
+  top: 50%;
+  margin-top: -2px;
+  background-image: url('../img/dropdown.svg');
+  pointer-events: none;
+}
+
+select option:checked {
+    color: #EF6C00;
+    font-weight:bold;
+}
+
+#country {
+  display: flex;
+  align-items: center;
+}
+
+#country select {
+  margin: 0 0 0 -30px;
+  padding: 0 15px 0 30px;
+}
+
+#country::before {
+  display: inline-flex;
+  content: '';
+  width: 21px;
+  height: 15px;
+  background: url('../img/flags.svg');
+  background-position: -1000px -1000px;
+  background-repeat: no-repeat;
+  margin-right: 10px;
+}
+
+#country.at::before {
+  background-position: -165px -10px;
+}
+#country.au::before {
+  background-position: -196px -10px;
+}
+#country.be::before {
+  background-position: -227px -10px;
+}
+#country.br::before {
+  background-position: -351px -10px;
+}
+#country.ca::before {
+  background-position: -382px -10px;
+}
+#country.ch::before {
+  background-position: -475px -10px;
+}
+#country.cn::before {
+  background-position: -41px -35px;
+}
+#country.de::before {
+  background-position: -134px -35px;
+}
+#country.dk::before {
+  background-position: -196px -35px;
+}
+#country.es::before {
+  background-position: -320px -35px;
+}
+#country.eu::before {
+  background-position: -351px -35px;
+}
+#country.fi::before {
+  background-position: -382px -35px;
+}
+#country.fr::before {
+  background-position: -413px -35px;
+}
+#country.gb::before {
+  background-position: -475px -35px;
+}
+#country.hk::before {
+  background-position: -41px -60px;
+}
+#country.ie::before {
+  background-position: -196px -60px;
+}
+#country.it::before {
+  background-position: -351px -60px;
+}
+#country.jp::before {
+  background-position: -444px -60px;
+}
+#country.lu::before {
+  background-position: -258px -85px;
+}
+#country.mx::before {
+  background-position: -475px -85px;
+}
+#country.nl::before {
+  background-position: -103px -110px;
+}
+#country.no::before {
+  background-position: -134px -110px;
+}
+#country.nz::before {
+  background-position: -165px -110px;
+}
+#country.pt::before {
+  background-position: -413px -110px;
+}
+#country.se::before {
+  background-position: -103px -135px;
+}
+#country.sg::before {
+  background-position: -134px -135px;
+}
+#country.us::before {
+  background-position: -475px -135px;
 }
