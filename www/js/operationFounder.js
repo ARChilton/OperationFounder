@@ -5460,7 +5460,7 @@ ons.ready(function () {
             }
             //Start of test area
             case 'checkoutPage.html': {
-                var stripe = Stripe('pk_test_Oy2WT7ZOCDFPn0znWKqZ4zQQ');
+                var stripe = Stripe('pk_live_4sF9oetIyHkeKkrXGkW3zitd');
                 var elements = stripe.elements();
                 // var form = document.getElementById('payment-form');
                 var paymentSubmitButton = $('#paymentSubmitButton');
