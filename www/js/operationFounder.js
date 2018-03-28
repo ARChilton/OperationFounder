@@ -5482,6 +5482,19 @@ ons.ready(function () {
                 var checkoutPromo = $('#checkoutPromoCode');
                 // tracked entity reference
                 var pRef = checkOutInfo.trackedEntitiesDifference > 1 ? checkOutInfo.pRef.toLowerCase() + 's' : checkOutInfo.pRef.toLowerCase();
+                // paid entities
+                var paidFor = 0;
+                if (typeof checkOutInfo.eventInfo === 'object') {
+                    paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+                }
+                if (paidFor === 0) {
+                    $('#skipPaymentButton').removeClass('hide').on('click', function () {
+                        if (checkOutInfo.newEvent) {
+                            return createNewEvent(checkOutInfo.url);
+                        }
+                        return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
+                    });
+                }
                 // geolocation
                 var checkoutGeolocation = checkOutInfo.geolocation ? 'Enabled' : 'Disabled';
 
@@ -5707,7 +5720,7 @@ ons.ready(function () {
                                     eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
                                     return createNewEvent(checkOutInfo.url);
                                 }
-                                var paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+                                
                                 eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
                                 return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
                             }
