@@ -69,7 +69,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://checkpointlive.com/app'; 
+var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
@@ -3050,6 +3050,7 @@ ons.ready(function () {
                             geolocationInUse = true;
                             eventDescription.geolocationInUse = true;
                         }
+
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
                             return ons.notification.alert({
@@ -3064,6 +3065,13 @@ ons.ready(function () {
                         } else {
                             eventDescription.bases.push(baseInfo);
                             passwordsOk = true;
+                        }
+                    }
+                    if (geolocationInUse) {
+                        if (typeof pageData.eventInfo === 'object' && typeof eventInfo.geolocationPaid !== 'undefined') {
+                            geolocationTurnedOnThisUpdate = eventInfo.geolocationPaid !== true;
+                        } else {
+                        geolocationTurnedOnThisUpdate = true;
                         }
                     }
                     return passwordsOk;
@@ -3138,7 +3146,8 @@ ons.ready(function () {
                                                     pRef: eventDescription.pRef,
                                                     eventName: eventDescription.eventName,
                                                     trackedEntities: eventDescription.trackedEntities,
-                                                    location: eventDescription.geolocationInUse
+                                                    location: eventDescription.geolocationInUse,
+                                                    changeMade: true
                                                 }
                                             });
                                         }
@@ -3244,12 +3253,7 @@ ons.ready(function () {
                             } else if (typeof doc._attachments === 'object') {
                                 eventDescription._attachments = doc._attachments;
                             }
-                            if (!changeMade) {
 
-                                throw {
-                                    noChange: true
-                                }; //no change made so cancel out
-                            }
                             eventDescription._rev = doc._rev;
                             eventDescription.dbName = doc.dbName;
                             eventDescription.evtUserPass = doc.evtUserPass;
@@ -3268,11 +3272,15 @@ ons.ready(function () {
                                         pRef: eventDescription.pRef,
                                         eventName: eventDescription.eventName,
                                         trackedEntities: eventDescription.trackedEntities,
-                                        location: eventDescription.geolocationInUse
+                                        location: eventDescription.geolocationInUse,
+                                        changeMade: changeMade
                                     }
                                 });
                             }
-                            return uploadEditEvent(url, eventInfo);
+                            if (!changeMade) {
+                                throw { noChange: true }; //no change made so cancel out
+                            }
+                            return uploadEditEvent(url, eventInfo, changeMade);
                         }).catch(function (err) {
                             console.log(err);
                             showProgressBar('createEventPage', false);
@@ -5485,18 +5493,18 @@ ons.ready(function () {
                 // paid entities
                 var paidFor = 0;
                 if (typeof checkOutInfo.eventInfo === 'object') {
-                    paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+                    paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? checkOutInfo.eventInfo.paidTrackedEntities : 0;
                 }
                 if (paidFor === 0) {
                     $('#skipPaymentButton').removeClass('hide').on('click', function () {
                         if (checkOutInfo.newEvent) {
                             return createNewEvent(checkOutInfo.url);
                         }
-                        return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
+                        return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, checkOutInfo.changeMade);
                     });
                 }
                 // geolocation
-                var checkoutGeolocation = checkOutInfo.geolocation ? 'Enabled' : 'Disabled';
+                var checkoutGeolocation = checkOutInfo.location ? 'Enabled' : 'Disabled';
 
                 // general wording
                 $('#checkoutEventName').html(checkOutInfo.eventName);
@@ -5505,7 +5513,7 @@ ons.ready(function () {
                 $('#checkoutTotalTrackedEntities').html(checkOutInfo.trackedEntities);
                 $('#checkoutGeolocationOn').html(checkoutGeolocation);
 
-                if (!checkOutInfo.geolocation) {
+                if (!checkOutInfo.location) {
                     $('#checkoutLocationPin').addClass('disabled');
                 }
 
@@ -5720,9 +5728,9 @@ ons.ready(function () {
                                     eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
                                     return createNewEvent(checkOutInfo.url);
                                 }
-                                
+
                                 eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
-                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
+                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
                             }
                             throw response;
                         })
@@ -5896,14 +5904,19 @@ ons.ready(function () {
 
 
 
-    function uploadEditEvent(url, eventInfo) {
-        var tempdb = new PouchDB(eventInfo.dbName);
-        return tempdb.put(eventDescription)
-            .then(function (doc) {
-                console.log(doc);
-                eventDescription._rev = doc.rev;
-                return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
-
+    function uploadEditEvent(url, eventInfo, changeMade) {
+        return Promise.resolve()
+            .then(function () {
+                if (changeMade === false) {
+                    return { changeMade:changeMade };
+                }
+                var tempdb = new PouchDB(eventInfo.dbName);
+                return tempdb.put(eventDescription)
+                    .then(function (doc) {
+                        console.log(doc);
+                        eventDescription._rev = doc.rev;
+                        return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+                    });
             }).then(function (doc) {
                 console.log(doc);
                 var options = {
@@ -5914,7 +5927,6 @@ ons.ready(function () {
                         eventInfo: eventDescription
                     }
                 };
-
                 return navi.resetToPage('eventSummaryPage.html', options);
             }).then(function () {
                 var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
