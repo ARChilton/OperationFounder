@@ -170,52 +170,10 @@
     </ons-template>
 
     <script>
-      // if ('serviceWorker' in navigator) {
-      //   navigator.serviceWorker
-      //     .register('../sw.js')
-      //     .then(function () { console.log("Service Worker Registered"); });
-      // }
-      ons.forcePlatformStyling('android');
       if ('serviceWorker' in navigator) {
-
-        window.addEventListener('load', function () {
-
-          navigator.serviceWorker.register('../sw.js')
-            .then(function (reg) {
-
-              reg.onupdatefound = function () {
-
-                var installingWorker = reg.installing;
-
-                installingWorker.onstatechange = function () {
-
-                  switch (installingWorker.state) {
-                    case 'installed':
-                      if (navigator.serviceWorker.controller) {
-
-                        ons.notification.alert({
-                          title: 'A new version of Checkpoint Live is available',
-                          messageHTML: "<p>Checkpoint Live has been updated and stored for offline use, please refresh your browser to utilise the latest updates.</p>",
-                          cancelable: true
-                        });
-                        console.log('New or updated content is available.');
-                      } else {
-                        console.log('Content is now available offline!');
-                      }
-                      break;
-
-                    case 'redundant':
-                      console.error('The installing service worker became redundant.');
-                      break;
-                  }
-
-                };
-              };
-            })
-            .catch(function (e) {
-              console.error('Error during service worker registration:', e);
-            });
-        });
+        navigator.serviceWorker
+          .register('../sw.js')
+          .then(function () { console.log("Service Worker Registered"); });
       }
     </script>
   </body>

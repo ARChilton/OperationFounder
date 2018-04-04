@@ -461,7 +461,7 @@ background-color:#efefef;
 }
 
 
-.highlights .col-sm-4{
+.highlights .col-sm-4, .highlights .col-lg-4{
     padding:16px;
 }
 
@@ -604,7 +604,9 @@ background-color: rgba(255, 145, 0,0.3);
     padding: 0px 16px;
     /*background: #ccc;*/
 }
-
+#signInLogo {
+    width:100%;
+}
 .loginLogo {
     max-height: 25vh;
     width: auto;

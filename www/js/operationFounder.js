@@ -307,7 +307,7 @@ function formBubbleMessages(rows, limit, prepend) {
         doc.time = addZero(doc.date.getHours()) + ':' + addZero(doc.date.getMinutes());
         doc.from = parseInt(doc.from);
         doc.to = parseInt(doc.to);
-        doc.msgBaseNo = 'Base ' + doc.from;
+        doc.msgBaseNo = 'Checkpoint ' + doc.from;
         if (doc.from === 0) {
             doc.msgBaseNo = 'Admin HQ';
         }
@@ -3805,7 +3805,7 @@ ons.ready(function () {
                         //change error message
                         noBaseSelectedErrorMessage = 'Please enter both your name and your passcode provided by the event organisers.';
                         //change welcome text
-                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
+                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and passcode below:';
                         baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('keyup', function (e) {
@@ -3883,8 +3883,8 @@ ons.ready(function () {
 
                                     if (!(base > -1)) {
                                         throw {
-                                            message: 'Please try re-entering your base code or contact the event organisers',
-                                            title: 'Incorrect Base Code',
+                                            message: 'Please try re-entering your passcode or contact the event organisers',
+                                            title: 'Incorrect passcode',
                                             cancelable: true
                                         };
                                     }

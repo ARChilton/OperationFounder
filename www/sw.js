@@ -19,4 +19,4 @@ importScripts('/cache-polyfill.js');
 //     return response || fetch(event.request);
 //   }));
 // });
-console.log('service worker test 4');
+console.log('service worker test 6');
