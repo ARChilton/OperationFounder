@@ -33,6 +33,13 @@
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <link rel="stylesheet" href="../css/style.css">
 
+  <!-- Facebook -->
+  <meta property="og:title" content="Checkpoint Live: Pricing">
+  <meta property="og:image" content="https://checkpointlive.com/largeLogo.png">
+  <meta property="og:url" content="https://checkpointlive.com/pricing/">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Pricing for checkpoint live the event management platform to keep track of your participants over time and space.">
+
   <body>
     <ons-splitter>
       <ons-splitter-side id="pricingMenu" side="left" page="pricingMenuPage.html" swipe-target-width="1px" collapse swipeable>
@@ -163,10 +170,52 @@
     </ons-template>
 
     <script>
+      // if ('serviceWorker' in navigator) {
+      //   navigator.serviceWorker
+      //     .register('../sw.js')
+      //     .then(function () { console.log("Service Worker Registered"); });
+      // }
+      ons.forcePlatformStyling('android');
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-          .register('../sw.js')
-          .then(function () { console.log("Service Worker Registered"); });
+
+        window.addEventListener('load', function () {
+
+          navigator.serviceWorker.register('../sw.js')
+            .then(function (reg) {
+
+              reg.onupdatefound = function () {
+
+                var installingWorker = reg.installing;
+
+                installingWorker.onstatechange = function () {
+
+                  switch (installingWorker.state) {
+                    case 'installed':
+                      if (navigator.serviceWorker.controller) {
+
+                        ons.notification.alert({
+                          title: 'A new version of Checkpoint Live is available',
+                          messageHTML: "<p>Checkpoint Live has been updated and stored for offline use, please refresh your browser to utilise the latest updates.</p>",
+                          cancelable: true
+                        });
+                        console.log('New or updated content is available.');
+                      } else {
+                        console.log('Content is now available offline!');
+                      }
+                      break;
+
+                    case 'redundant':
+                      console.error('The installing service worker became redundant.');
+                      break;
+                  }
+
+                };
+              };
+            })
+            .catch(function (e) {
+              console.error('Error during service worker registration:', e);
+            });
+        });
       }
     </script>
   </body>
