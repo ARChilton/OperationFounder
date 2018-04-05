@@ -1506,11 +1506,11 @@ function closeDatabases() {
  * Used by the menu
  */
 function baseLogOut() {
-   return Promise.resolve()
-        .then(function() {
+    return Promise.resolve()
+        .then(function () {
             return document.getElementById('menu').toggle();
         })
-        .then(function() {
+        .then(function () {
             var options;
             if (navi.topPage.data.firstPage) {
                 options = {
@@ -1540,12 +1540,12 @@ function baseLogOut() {
                     doc.timestamp = timestamp;
                     return appdb.put(doc);
                 });
-                
+
         })
         .catch(function (err) {
-                console.warn(err);
-        }); 
-    
+            console.warn(err);
+        });
+
 }
 /**
  * sign out of the session and return to the sign in screen
@@ -1553,16 +1553,16 @@ function baseLogOut() {
  */
 function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
-   return Promise.resolve()
-    .then(function() {
+    return Promise.resolve()
+        .then(function () {
             return document.getElementById('menu').toggle();
         })
-        .then(function() {
+        .then(function () {
             return signOutNoMenuToggle();
         })
-        .catch(function(err) {
+        .catch(function (err) {
             console.log(err);
-        });      
+        });
 }
 
 function signOutNoMenuToggle() {
@@ -1583,7 +1583,7 @@ function signOutNoMenuToggle() {
                 animation: pageChangeAnimation
             });
         })
-        .then(function() {
+        .then(function () {
             return menuController();
         })
         .catch(function (err) {
@@ -1594,9 +1594,9 @@ function signOutNoMenuToggle() {
 function goToEventSummary() {
     var data = navi.topPage.data;
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return document.getElementById('menu').toggle();
-        }).then(function() {
+        }).then(function () {
             return navi.bringPageTop('eventSummaryPage.html', {
                 animation: pageChangeAnimation,
                 data: data
@@ -1614,7 +1614,7 @@ function changeEvent() {
         .then(function () {
             return document.getElementById('menu').toggle();
         })
-        .then(function () {    
+        .then(function () {
             baseNames = [];
             baseCodes = [];
 
@@ -1631,7 +1631,7 @@ function changeEvent() {
             return navi.resetToPage('eventSelectionPage.html', options);
         })
         .catch(function (err) {
-                console.warn(err);
+            console.warn(err);
         });
 }
 /**
@@ -3773,7 +3773,6 @@ ons.ready(function () {
                         var messageOpen = false;
                         evtUpdateCheck = db.replicate.from(tempRemotedb, options)
                             .on('change', function (doc) {
-
                                 if (!messageOpen) {
                                     messageOpen = true;
                                     var pattern = /\W/g;
@@ -3794,7 +3793,6 @@ ons.ready(function () {
                                         evtUpdateCheck.cancel();
                                         messageOpen = false;
                                         //to stop any further code from taking place
-
                                     });
                                 }
                             }).on('paused active denied error', function (info) {
@@ -3823,18 +3821,21 @@ ons.ready(function () {
                     //Event Logo update
                     url = navi.topPage.data.url;
                     imageContainer = $('#loginEventLogo');
-                    Promise.resolve().then(function () {
-                        return eventLogoGetter(eventInfo, url);
-                    }).then(function (src) {
-                        if (src != undefined) {
-                            imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(1500);
-                            url = src;
-                        } else {
-                            imageContainer.hide().removeClass('hide').fadeIn(1500);
-                        }
-                    }).catch(function (err) {
-                        console.warn(err);
-                    });
+                    Promise.resolve()
+                        .then(function () {
+                            return eventLogoGetter(eventInfo, url);
+                        })
+                        .then(function (src) {
+                            if (src != undefined) {
+                                imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(1500);
+                                url = src;
+                            } else {
+                                imageContainer.hide().removeClass('hide').fadeIn(1500);
+                            }
+                        })
+                        .catch(function (err) {
+                            console.warn(err);
+                        });
 
 
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
@@ -3901,12 +3902,23 @@ ons.ready(function () {
                     //Title update
                     console.log('event called ' + eventInfo.eventName);
                     $('#loginTitle .normalTitle,#loginTitle .mainTitle').html(eventInfo.eventName);
+
+                    //Activation message
+                    if (!eventInfo.paidTrackedEntities > 0) {
+                        var activationWarning = "<div class='activationWarning warning txtCenter col-xs-12'><hr><div class='col-xs-12'><ons-icon icon='fa-warning'></ons-icon><p>This event has not been activated by the event organisers yet. Some functionality has been restricted. Once activated all functionality will be unlocked.</p></div>";
+                        if (localStorage.evtOrganiser) {
+                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large">Activate Event</ons-button>';
+                        }
+                        activationWarning += '<hr class="col-xs-12"></div>';
+                        $('#loginForm').before(activationWarning);
+                    }
                 } else {
+                    // If there is no eventInfo
                     ons.notification.alert({
                         title: 'Event information missing',
                         messageHTML: '<p>The data for this event is missing, when this message closes you will be signed out. Please sign back in, this should fix any issues.</p><p>If the problem persists please contact:</p><p>support@checkpointlive.com</p>',
                         cancelable: true
-                    }).then(function() {
+                    }).then(function () {
                         signOutNoMenuToggle();
                     });
                 }
