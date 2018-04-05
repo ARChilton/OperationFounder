@@ -1506,40 +1506,46 @@ function closeDatabases() {
  * Used by the menu
  */
 function baseLogOut() {
-    var options;
-    if (navi.topPage.data.firstPage) {
-        options = {
-            animation: pageChangeAnimation,
-            data: {
-                eventInfo: navi.topPage.data.eventInfo
+   return Promise.resolve()
+        .then(function() {
+            return document.getElementById('menu').toggle();
+        })
+        .then(function() {
+            var options;
+            if (navi.topPage.data.firstPage) {
+                options = {
+                    animation: pageChangeAnimation,
+                    data: {
+                        eventInfo: navi.topPage.data.eventInfo
+                    }
+                };
+                navi.replacePage('loginPage.html', options);
+            } else {
+                options = {
+                    animation: pageChangeAnimation
+                };
+                navi.popPage(options);
             }
-        };
-        navi.replacePage('loginPage.html', options);
-    } else {
-        options = {
-            animation: pageChangeAnimation
-        };
-        navi.popPage(options);
-    }
 
-    closeDatabases();
-    logOutPageChange();
-    document.getElementById('menu').toggle();
-    menuController();
+            closeDatabases();
+            logOutPageChange();
+            menuController();
 
 
-    return appdb.get('login_' + username)
-        .then(function (doc) {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
 
-            var timestamp = new Date().toISOString();
-            doc.base = 'logOut';
-            doc.timestamp = timestamp;
-            return appdb.put(doc);
+                    var timestamp = new Date().toISOString();
+                    doc.base = 'logOut';
+                    doc.timestamp = timestamp;
+                    return appdb.put(doc);
+                });
+                
         })
         .catch(function (err) {
-            console.warn(err);
-            throw err;
-        });
+                console.warn(err);
+        }); 
+    
 }
 /**
  * sign out of the session and return to the sign in screen
@@ -1547,70 +1553,113 @@ function baseLogOut() {
  */
 function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
-    navi.resetToPage('signInPage.html', {
-        animation: pageChangeAnimation
-    });
-    baseNames = [];
-    baseCodes = [];
-    document.getElementById('menu').toggle();
-    closeDatabases();
-    basedb = undefined;
-    admindb = undefined;
-    remotedb = undefined;
-    remotedbConnected = false;
-    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
-    localStorage.verified = 'false';
-    localStorage.evtOrganiser = 'false';
-    localStorage.customerId = 'false';
+   return Promise.resolve()
+    .then(function() {
+            return document.getElementById('menu').toggle();
+        })
+        .then(function() {
+            return signOutNoMenuToggle();
+        })
+        .catch(function(err) {
+            console.log(err);
+        });      
+}
+
+function signOutNoMenuToggle() {
+    return Promise.resolve()
+        .then(function () {
+            baseNames = [];
+            baseCodes = [];
+            closeDatabases();
+            basedb = undefined;
+            admindb = undefined;
+            remotedb = undefined;
+            remotedbConnected = false;
+            localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
+            localStorage.verified = 'false';
+            localStorage.evtOrganiser = 'false';
+            localStorage.customerId = 'false';
+            return navi.resetToPage('signInPage.html', {
+                animation: pageChangeAnimation
+            });
+        })
+        .then(function() {
+            return menuController();
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 }
 
 function goToEventSummary() {
     var data = navi.topPage.data;
-
-    navi.bringPageTop('eventSummaryPage.html', {
-        animation: pageChangeAnimation,
-        data: data
-    }).then(function () {
-        document.getElementById('menu').toggle();
-    });
+    return Promise.resolve()
+        .then(function() {
+            return document.getElementById('menu').toggle();
+        }).then(function() {
+            return navi.bringPageTop('eventSummaryPage.html', {
+                animation: pageChangeAnimation,
+                data: data
+            });
+        })
+        .catch(function (err) {
+            console.warn(err);
+        });
 }
 /**
  * go to the change event page
  */
 function changeEvent() {
-    document.getElementById('menu').toggle();
-    baseNames = [];
-    baseCodes = [];
+    return Promise.resolve()
+        .then(function () {
+            return document.getElementById('menu').toggle();
+        })
+        .then(function () {    
+            baseNames = [];
+            baseCodes = [];
 
-    closeDatabases();
-    basedb = undefined;
-    admindb = undefined;
-    remotedb = undefined;
-    remotedbConnected = false;
-    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
-    var options = {
-        animation: pageChangeAnimation
-    };
+            closeDatabases();
+            basedb = undefined;
+            admindb = undefined;
+            remotedb = undefined;
+            remotedbConnected = false;
+            localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
+            var options = {
+                animation: pageChangeAnimation
+            };
 
-    return navi.resetToPage('eventSelectionPage.html', options);
+            return navi.resetToPage('eventSelectionPage.html', options);
+        })
+        .catch(function (err) {
+                console.warn(err);
+        });
 }
 /**
  * A function to take you from the menu to the edit event page
  */
 function editEvent() {
-    document.getElementById('menu').toggle();
-    closeDatabases();
-    basedb;
-    admindb;
-    var options = {
-        animation: pageChangeAnimation,
-        data: {
-            edit: true,
-            eventInfo: navi.topPage.data.eventInfo
-        }
-    };
 
-    return navi.bringPageTop('createEventPage.html', options);
+    return Promise.resolve()
+        .then(function () {
+            return document.getElementById('menu').toggle();
+        })
+        .then(function () {
+            closeDatabases();
+            basedb;
+            admindb;
+            var options = {
+                animation: pageChangeAnimation,
+                data: {
+                    edit: true,
+                    eventInfo: navi.topPage.data.eventInfo
+                }
+            };
+
+            return navi.bringPageTop('createEventPage.html', options);
+        })
+        .catch(function (err) {
+            console.warn(err);
+        });
 }
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -3708,7 +3757,7 @@ ons.ready(function () {
                 if (typeof personName === 'string' && name !== 'undefined') {
                     $('#userName').val(personName);
                 }
-                if (navi.topPage.data.eventInfo !== undefined) {
+                if (typeof navi.topPage.data.eventInfo === 'object') {
                     eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
                     // if (navi.topPage.data.firstPage === true) {
@@ -3852,6 +3901,14 @@ ons.ready(function () {
                     //Title update
                     console.log('event called ' + eventInfo.eventName);
                     $('#loginTitle .normalTitle,#loginTitle .mainTitle').html(eventInfo.eventName);
+                } else {
+                    ons.notification.alert({
+                        title: 'Event information missing',
+                        messageHTML: '<p>The data for this event is missing, when this message closes you will be signed out. Please sign back in, this should fix any issues.</p><p>If the problem persists please contact:</p><p>support@checkpointlive.com</p>',
+                        cancelable: true
+                    }).then(function() {
+                        signOutNoMenuToggle();
+                    });
                 }
 
                 /*  if (localStorage.evtOrganiser) {
@@ -4141,7 +4198,11 @@ ons.ready(function () {
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
                     $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
-                    $('#quickAddTitle').html('Add new log from checkpoint ' + base);
+                    var quickAddTitle = 'Add new log from checkpoint ' + base;
+                    if (!eventInfo.paidTrackedEntities > 0) {
+                        quickAddTitle = '<span class="warning"><ons-icon icon="fa-warning"></ons-icon> Event activation required to submit logs</span><br>' + quickAddTitle;
+                    }
+                    $('#quickAddTitle').html(quickAddTitle);
                     participantReference(eventInfo.pRef, 'page1', eventInfo.trackedEntities);
 
 
@@ -4416,6 +4477,13 @@ ons.ready(function () {
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
                         // TODO place a block if not paid
+                        if (!eventInfo.paidTrackedEntities > 0) {
+                            return ons.notification.alert({
+                                title: 'Event activation required',
+                                messageHTML: '<p>This event has not been activated</p><p>To activate the event the organisers need to complete the checkout process.</p>',
+                                cancelable: true
+                            });
+                        }
                         base = getBaseNumber();
                         var geolocationOn = eventInfoBase.baseGeolocation && geolocation === 'accepted';
                         var trackingOn = eventInfo.tracking && geolocationOn;
@@ -6122,7 +6190,7 @@ function participantReference(pRef, page, teams) {
         var str = elements[ref].innerHTML;
         elements[ref].innerHTML = str.replace(/team/i, pRef);
     });
-    if (page === 'page1') {
+    if (page === 'page1' && parseInt(teams) > 0) {
         $('#patrolNo').attr('placeholder', pRef + ' No. (1 - ' + teams + ')');
     }
 
