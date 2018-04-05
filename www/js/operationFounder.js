@@ -15,7 +15,7 @@
  * @param {number} dbSeqNumber
  */
 
-/*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false Stripe:false */
+/*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
 /* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
@@ -130,43 +130,43 @@ var pageChangeAnimation = 'none';
  * Device ready event listener
  * @event deviceReady - the device is deemed ready in the cordova lifecycle
  */
-document.addEventListener("deviceready", onDeviceReady, false);
+// document.addEventListener("deviceready", onDeviceReady, false);
 /**
  * handles the deveice ready event on mobile devices
  */
-function onDeviceReady() {
-    // Now safe to use device APIs
-    console.log('deviceready');
-    if (cordova.platformId == 'android') {
-        StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
-    }
-}
+// function onDeviceReady() {
+// Now safe to use device APIs
+// console.log('deviceready');
+// if (cordova.platformId == 'android') {
+// StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
+// }
+// }
 /**
  * Device paused i.e. is no longer the top app on view, this can be used to run functions in the background
  * @event pause - the app has been set to pause in the lifecycle
  */
-document.addEventListener("pause", onPause, false);
+// document.addEventListener("pause", onPause, false);
 /**
  * handles the on pause event in the lifecycle
  */
-function onPause() {
-    // Handle the pause event
-    console.log('devicePaused');
-    // alert('device paused');
-}
+// function onPause() {
+// Handle the pause event
+// console.log('devicePaused');
+// alert('device paused');
+// }
 /**
  * Resume event listener, listens for the app to be brought back into focus
  * @event resume - the app has been resumed in the lifecycle
  */
-document.addEventListener("resume", onResume, false);
+// document.addEventListener("resume", onResume, false);
 /**
  * Handles the on resume event in the lifecycle
  */
-function onResume() {
-    // Handle the resume event
-    console.log('deviceResume');
-    // alert('device resumed');
-}
+// function onResume() {
+// Handle the resume event
+// console.log('deviceResume');
+// alert('device resumed');
+// }
 /**
  * Function to check the number of messages since the last time a base was opened
  * Note: changes output not using include_docs:true doesnt use _id only id
@@ -3071,7 +3071,7 @@ ons.ready(function () {
                         if (typeof pageData.eventInfo === 'object' && typeof eventInfo.geolocationPaid !== 'undefined') {
                             geolocationTurnedOnThisUpdate = eventInfo.geolocationPaid !== true;
                         } else {
-                        geolocationTurnedOnThisUpdate = true;
+                            geolocationTurnedOnThisUpdate = true;
                         }
                     }
                     return passwordsOk;
@@ -5908,7 +5908,7 @@ ons.ready(function () {
         return Promise.resolve()
             .then(function () {
                 if (changeMade === false) {
-                    return { changeMade:changeMade };
+                    return { changeMade: changeMade };
                 }
                 var tempdb = new PouchDB(eventInfo.dbName);
                 return tempdb.put(eventDescription)
