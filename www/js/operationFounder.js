@@ -16,7 +16,7 @@
  */
 
 /*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
-/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
+/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -1666,6 +1666,20 @@ function editEvent() {
             console.warn(err);
         });
 }
+
+function activateEvent() {
+    Promise.resolve()
+    .then(editEvent())
+    .then(function() {
+        var pRef = addPluralS(navi.topPage.data.eventInfo.pRef).toLowerCase();
+        ons.notification.alert({
+        title: 'Activate Event',
+            messageHTML: '<p>Before activating please ensure your event settings are correct.</p><p>When ready, press done in the top right to continue to the checkout. The event will activate after purchase.</p><p>These settings can be changed after activation and more ' + pRef + ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>'
+        });
+    });
+}
+
+
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
  * @returns base variable (the current base number)
@@ -3210,7 +3224,7 @@ ons.ready(function () {
                         logo = document.getElementById('eventBannerImage');
                         ons.notification.confirm({
                             title: 'Update Event',
-                            message: 'Are you sure you want to update ' + eventInfo.eventName,
+                            message: 'Are you sure you want to update ' + eventInfo.eventName + '?',
                             cancelable: true
                         }).then(function (index) {
                             if (!index === 1) {
@@ -3897,8 +3911,8 @@ ons.ready(function () {
                     //Activation message
                     if (!eventInfo.paidTrackedEntities > 0) {
                         var activationWarning = "<div class='activationWarning warning txtCenter col-xs-12'><hr><div class='col-xs-12'><ons-icon icon='fa-warning'></ons-icon><p>This event has not been activated by the event organisers yet. Some functionality has been restricted. Once activated all functionality will be unlocked.</p></div>";
-                        if (localStorage.evtOrganiser) {
-                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large" onClick="editEvent()">Activate Event</ons-button>';
+                        if (localStorage.evtOrganiser === 'true') {
+                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large" onClick="activateEvent()">Activate Event</ons-button>';
                         }
                         activationWarning += '<hr class="col-xs-12"></div>';
                         $('#loginForm').before(activationWarning);
@@ -6337,13 +6351,24 @@ var getPosition = function () {
     });
 };
 
+/**
+ * Works out whether to add an s or not to pluralise
+ * @param {string} word 
+ */
 function addPluralS(word) {
-    if (word === 'children' || 'people') {
+    if (word === 'children' || word === 'people') {
         return word;
     }
     return word.slice(-1) === 's' ? word : word + 's';
 }
 
+/**
+ * Sends an OsmAnd data package to the server
+ * @param {*} trackingOn 
+ * @param {*} pRef 
+ * @param {*} log 
+ * @param {*} trackingUrl 
+ */
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     console.log(trackingOn);
     console.log(log);
