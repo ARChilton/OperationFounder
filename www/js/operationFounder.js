@@ -4212,7 +4212,7 @@ ons.ready(function () {
                     $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
                     var quickAddTitle = 'Add new log from checkpoint ' + base;
                     if (!eventInfo.paidTrackedEntities > 0) {
-                        quickAddTitle = '<span class="warning"><ons-icon icon="fa-warning"></ons-icon> Event activation required to submit logs</span><br>' + quickAddTitle;
+                        quickAddTitle = '<div class="txtCenter"><hr><span class="warning txtCenter"><ons-icon icon="fa-warning"></ons-icon> Event activation required to submit logs</span></div><hr>' + quickAddTitle;
                     }
                     $('#quickAddTitle').html(quickAddTitle);
                     participantReference(eventInfo.pRef, 'page1', eventInfo.trackedEntities);
@@ -5320,7 +5320,7 @@ ons.ready(function () {
                 var newMessages = document.getElementById('newMessages');
                 var messageInputPlaceholder = $('#messageInputPlaceholder');
                 var pouch = basedb;
-
+                var placeholder = true;
                 var messagePageContent = $('#messagesPage .page__content');
 
                 var scrollingOn = true;
@@ -5349,9 +5349,8 @@ ons.ready(function () {
                         .then(function (doc) {
                             if (doc.ok) {
                                 console.log('message sent');
-                                messageInput.html('');
-                                messageInputPlaceholder.removeClass('hide');
-                                placeholder = true;
+
+                                resetPlaceholder();
                                 dbSeqNumber++;
                                 nextSeq = dbSeqNumber;
                                 localStorage.dbSeqNumber = dbSeqNumber;
@@ -5370,10 +5369,15 @@ ons.ready(function () {
                         }).catch(function (err) {
                             console.warn(err);
                         });
-                    if (messageInput.html() === '') {
-                        messageInputPlaceholder.removeClass('hide');
-                        placeholder = true;
-                    }
+                    };
+
+                /**
+                 * resets the placeholder message
+                 */
+                var resetPlaceholder = function () {
+                    messageInput.html('');
+                    messageInputPlaceholder.removeClass('hide');
+                    placeholder = true;
                 };
                 /**
                  * runs the scroll function on the messagesPage
@@ -5444,8 +5448,8 @@ ons.ready(function () {
                     limit: 25
                 };
                 addMessages(pouch, messageWindow, messagePageContent, optionsB, false, true, true);
+                
                 //messageInput
-                var placeholder = true;
                 messageInput
                     .on('keydown', function (e) {
                         if (placeholder) {
@@ -5460,8 +5464,10 @@ ons.ready(function () {
                         console.log('keyup');
                         if (e.which == 13 && !e.shiftKey) {
                             if (messageInput.html().trim() !== '') {
-                                sendMessage();
+                                console.log('sending message');
+                                return sendMessage();
                             }
+                            return resetPlaceholder();
                         }
 
                     });
@@ -5470,11 +5476,14 @@ ons.ready(function () {
                         sendMessage();
                     }
                 });
+                
                 lastSyncHandler();
+                
                 scrollToBottomFab.on('click', function () {
                     var offset = messagePageContent[0].scrollHeight;
                     scrollToElement(messagePageContent, offset, 1);
                 });
+                
                 //update message badge
                 updateMsgBadgeNo(0, true);
 
