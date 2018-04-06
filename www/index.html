@@ -27,7 +27,17 @@
   <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9100">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
-  <!-- <script src="components/loader.js"></script> -->
+
+  <!-- Facebook metadata -->
+  <meta property="og:title" content="Checkpoint Live, event tracking platform">
+  <meta property="og:image" content="https://checkpointlive.com/largeLogo.png">
+  <meta property="og:url" content="https://checkpointlive.com">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="An event management platform for checkpoint based events. Monitor participant traffic to locations in real-time to inform
+  you who has been seen where and more importantly, who hasn't!">
+
+
+  <!-- <script src="components/loader.js">  </script> -->
   <script src="lib/onsenui/js/onsenui.js"></script>
   <!--<script src="js/mdl/material.js"></script>-->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
@@ -58,7 +68,7 @@
   <ons-template id="menu.html">
     <ons-page id="sideMenu">
       <div class="">
-        <img src="img/largeLogo.svg" class="menuTopBoxContent">
+        <img src="img/largeLogo.svg" alt="Checkpoint Live, track together" class="menuTopBoxContent" />
       </div>
       <ons-list id="opFounderMenu">
         <ons-list-item id="baseLogOut" class="hide" onclick="baseLogOut()" tappable>
@@ -103,7 +113,7 @@
       <div class="updateFiller">
         <ons-progress-bar indeterminate class="progressBar"></ons-progress-bar>
       </div>
-      <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
+      <img src="img/largeLogo.svg" alt="Checkpoint Live" class="loginLogo " id="signInLogo"/>
       <div class="updateFiller"></div>
     </ons-page>
 
@@ -129,7 +139,7 @@
         <div class="row txtCenter xsHide">
           <div class="" id="navBarOptions">
             <div class=" col-sm-1" onClick="">
-              <img src="./img/icon.svg">
+              <img src="./img/icon.svg" alt="Checkpoint live icon" />
             </div>
             <div class=" col-sm-2 col-sm-push-7 navActive">
               Home
@@ -147,7 +157,7 @@
 
         <div class="signInFormDiv row">
           <div class="logoBackground">
-            <img src="img/largeLogo.svg" class="loginLogo " id="signInLogo">
+            <img src="img/largeLogo.svg" alt="Checkpoint Live, track together" class="loginLogo" id="signInLogo">
           </div>
           <form id="signInForm" class="txtCenter">
             <p>
@@ -207,11 +217,11 @@
         <div class="row section">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What is Checkpoint Live?</h2>
-            <div class="txtJustify col-md-4 col-md-push-2 xsPadding16">
+            <div class="txtJustify col-sm-4 col-sm-push-1  xsPadding16">
               <p>
                 Checkpoint Live was developed initially for the Scout and Guide communities to enable real time updates on where the teams
-                of young people are as they participate in orienteering activities. Now it can be used by any event with
-                manned checkpoints/bases.
+                of young people are as they participate in orienteering activities such as an incident hike. Now it can be
+                used by any event with manned checkpoints/bases.
               </p>
               <p>
                 Checkpoint Live can be used via the website to record when, where and who visited a specific checkpoint/base. With the added
@@ -221,22 +231,39 @@
                 This replaces the need for radio updates or sending messengers to collect records of team sightings from across the countryside.
               </p>
               <p>Importantly for the organisers it removes the data entry into the HQ system as all logs are entered by the
-                checkpoints. This data can even be copied into Microsoft Excel&trade;</p>
+                checkpoints. This data can even be copied as a table into Microsoft Excel&trade;</p>
             </div>
+            <img src="img/what-is-checkpoint-live.svg" alt="Diagram showing how all the checkpoints communicate with checkpoint live to inform the admins for the event"
+              class="col-xs-12 col-sm-4 col-sm-push-3 " />
           </div>
         </div>
 
         <div class="row section sectionGray">
           <div class="col-xs-12">
             <h2 class="txtCenter bold">What if I have bad mobile reception?</h2>
-            <div class="col-md-4 col-md-push-2 txtJustify xsPadding16">
-              <p>Being out in the county-side means there is no guarantee of mobile reception. While this situation is improving,
-                Checkpoint Live has taken an 'offline first' approach.</p>
-              <p>
-                Offline first means that this website will continue to work even when your mobile internet signal is intermittent. It does
-                this by storing the recorded base logs to your mobile device before synchronising them with other event users
-                when the mobile device re-connects to the network.
+            <div class="col-sm-4 col-md-push-1 txtJustify xsPadding16">
+              <p>Being out in the countyside means there is no guarantee of mobile reception. While this situation is improving,
+                Checkpoint Live utilises the very latest technologies to enable you to use the site despite intermittent
+                data reception.
               </p>
+              <p>
+                All devices maintain a local store of the logs their checkpoint records. If a device ever goes offline you can continue to
+                add to this store before later re-connecting and syncing back up with Checkpoint Live and the other users
+                of the event. The size of the data stored and sent is so small that only the slowest internet speeds are
+                required even fleetingly.
+              </p>
+              <p>
+                Further to this, if you are a Chrome or Firefox user Checkpoint Live will even load when you are offline meaning you only
+                require the internet for signing in and sending or recieving logs and messages and don't get bogged down
+                downloading a website too.
+              </p>
+              <p>All this adds up to Checkpoint Live feeling more like an app than a website but without having to get everyone
+                to download and install anything!</p>
+              <p>
+                <span class="bold">UPDATE:</span> Apple Safari users fortunate enough to be using the very latest IOS 11.3 or MAC 10.13.4 software
+                can also take advantage of using the website offline thanks to new updates that were released on the 29th
+                of March 2018. Safari does impose some restrictions; the websites will automatically delete themselves from
+                the offline cache if they are not used for a few weeks, so please bare this in mind.</p>
             </div>
           </div>
         </div>
@@ -245,26 +272,34 @@
           <h2 class="txtCenter bold">As used by</h2>
           <div class="xsPadding16 col-xs-12">
             <h2>
-              <img src="img/operationFounder.png" class="asUsedByLogo">
+              <img src="img/operationFounder.png" alt="Operation Founder, Tonbridge District Scouts" class="asUsedByLogo" />
             </h2>
           </div>
         </div>
 
         <div class="row section sectionGray highlights">
           <h2 class="txtCenter bold">New features</h2>
-          <div class="col-sm-4">
+          <div class="col-md-6 col-lg-4">
             <h3 class="bold txtCenter">Branding</h3>
             <p class="txtJustify">You can now add your own logos to your event page to give it that personal feel.</p>
+            <p class="txtCenter marginTop">
+              <img src="./img/brand-your-event-landscape.png" alt="Brand your event, image of branding within the event." class="col-xs-12 col-md-10 col-md-push-1"
+              />
+            </p>
           </div>
-          <div class="col-sm-4">
+          <div class="col-md-6 col-lg-4">
             <h3 class="bold txtCenter">Location tracking</h3>
             <p class="txtJustify">Now you can record location in addition to your standard logs.</p>
           </div>
-          <div class="col-sm-4">
+          <div class="col-md-6 col-lg-4">
             <h3 class="bold txtCenter">Improved admin HQ</h3>
-            <p class="txtJustify">Allong with all of the raw logs coming in from checkpoints, checkpoint live will update a last seen (least recent
+            <p class="txtJustify">Along with all of the raw logs coming in from checkpoints, checkpoint live will update a last seen (least recent
               at the top) and leaderboard tabs for admin users.
             </p>
+            <div class="col-xs-12 marginTop">
+              <img src="./img/last-seen-admin-page-900.png" alt="Last seen teams page of the admin section of the event" class="col-xs-6 marginAuto">
+              <img src="./img/leaderboard-admin-page-900.png" alt="Leaderboard page of the admin section of the event" class="col-xs-6 marginAuto">
+            </div>
 
           </div>
 
@@ -355,8 +390,8 @@
           Create Event
         </div>
         <div class="right">
-          <ons-toolbar-button>
-            <ons-icon icon="md-check" id="saveEvent"></ons-icon>
+          <ons-toolbar-button id="saveEvent">
+            Done
           </ons-toolbar-button>
         </div>
       </ons-toolbar>
@@ -366,7 +401,7 @@
         <form id="createEventForm" class="marginTop">
           <input type="file" accept="image/*" id="eventBanner" class="inputFile hide">
           <label id="eventBannerInputLabel" for="eventBanner">
-            <img src="img/largeLogo.svg" class="loginLogo" id="eventBannerImage">
+            <img src="img/largeLogo.svg" alt="Checkpoint Live, track together" class="loginLogo" id="eventBannerImage" />
             <ons-button modifier="large" class="marginTop secondaryColorButton">
               Change banner image
             </ons-button>
@@ -567,8 +602,8 @@
           Event Summary
         </div>
         <div class="right">
-          <ons-toolbar-button>
-            <ons-icon icon="md-check" id="goToEvent"></ons-icon>
+          <ons-toolbar-button id="goToEvent">
+            Done
           </ons-toolbar-button>
         </div>
       </ons-toolbar>
@@ -580,11 +615,11 @@
         <div id="evtSummaryEvtUser">
           <div id="evtSummaryEvtUserContents">
             <div class="">
-              <span class="bold sentanceCase">base user username: </span>
+              <span class="bold sentanceCase">Event user username: </span>
               <span id="evtSummaryUsername" class="copyableArea passwordFont"></span>
             </div>
             <div class="">
-              <span class="bold sentanceCase">base user password: </span>
+              <span class="bold sentanceCase">Event user password: </span>
               <span id="evtSummaryPassword" class="copyableArea passwordFont"></span>
             </div>
             <div class="caption">Other users of your event will use these log in details to sign into the event.</div>
@@ -648,9 +683,9 @@
       </ons-toolbar>
       <div class="pageDiv marginTop32px">
         <div>
-          <img src="img/largeLogo.svg" class="loginLogo hide" id="loginEventLogo">
+          <img src="img/largeLogo.svg" alt="Checkpoint Live, track together" class="loginLogo hide" id="loginEventLogo" />
         </div>
-        <div>
+        <div id="loginForm">
           <p class="marginTop" id="loginWelcome">Please enter your name and passcode below:</p>
           <p>
             <ons-input id="userName" modifier="underbar" placeholder="Name" float class="fullWidthInput"></ons-input>
@@ -659,9 +694,9 @@
           <p id="baseCodeParagraph">
             <ons-input id="baseCode" modifier="underbar" placeholder="Passcode" float class="fullWidthInput marginTop"></ons-input>
           </p>
-          <p class="caption" id="loginCodeCaption">(Each code is individual to each checkpoint/base)</p>
+          <p class="caption" id="loginCodeCaption">(Each code is individual to each checkpoint)</p>
           <p class="txtCenter marginTop">
-            <ons-button modifier="large" id="loginButton" class="loginButton secondaryColorButton">Go to base</ons-button>
+            <ons-button modifier="large" id="loginButton" class="loginButton secondaryColorButton">Go to checkpoint</ons-button>
           </p>
         </div>
         <div>
@@ -1013,6 +1048,9 @@
         <div class="center">
           Checkout
         </div>
+        <div class="right">
+          <ons-toolbar-button id="skipPaymentButton" class="hide">Skip</ons-toolbar-button>
+        </div>
       </ons-toolbar>
       <ons-progress-bar indeterminate class="progressBar hide"></ons-progress-bar>
       <div id="paymentSummary">
@@ -1172,7 +1210,7 @@
           <div class="center offlineMap">Local Map</div>
         </ons-toolbar>
       </div>
-      <img src="./img/bingLogo/bing_maps_logo_gray.png" class="bingLogo" id="bingGrey">
+      <img src="./img/bingLogo/bing_maps_logo_gray.png" alt="Bing Maps" class="bingLogo" id="bingGrey" />
     </ons-page>
   </ons-template> -->
   <ons-template id="updatePage.html">
@@ -1189,11 +1227,13 @@
       navigator.serviceWorker
         .register('/sw.js')
         .then(function () { console.log("Service Worker Registered"); });
-    }
+    }    
   </script>
 </body>
+
 <!-- JQuery -->
 <script src="js/JQuery/jquery-3.1.1.min.js "></script>
+
 <!--<script src="https://code.jquery.com/jquery-1.11.3.min.js "></script>-->
 <!--<script src="js/JQuery/jquery-1.12.4.min.js"></script>-->
 <!-- Script to stop JQuery mobile editing styling -->

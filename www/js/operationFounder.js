@@ -15,8 +15,8 @@
  * @param {number} dbSeqNumber
  */
 
-/*global $:false PouchDB:false ons:false cordova:false StatusBar:false navi:false emit:false Stripe:false */
-/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary copyAllLogs openMessages cleanAll destroyPouchDBs */
+/*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
+/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -43,6 +43,7 @@ var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
 var attemptCount = 0;
+var menu = document.getElementById('menu');
 //message variables
 var nextMessageEndKey;
 var nextMessageEndKey2;
@@ -69,7 +70,7 @@ var remotedbURL = http + username + ':' + password + '@' + couchdb + '/' + lastD
 var lastSync;
 
 //server variables
-var appServer = 'https://checkpointlive.com/app'; 
+var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
@@ -130,43 +131,43 @@ var pageChangeAnimation = 'none';
  * Device ready event listener
  * @event deviceReady - the device is deemed ready in the cordova lifecycle
  */
-document.addEventListener("deviceready", onDeviceReady, false);
+// document.addEventListener("deviceready", onDeviceReady, false);
 /**
  * handles the deveice ready event on mobile devices
  */
-function onDeviceReady() {
-    // Now safe to use device APIs
-    console.log('deviceready');
-    if (cordova.platformId == 'android') {
-        StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
-    }
-}
+// function onDeviceReady() {
+// Now safe to use device APIs
+// console.log('deviceready');
+// if (cordova.platformId == 'android') {
+// StatusBar.backgroundColorByHexString("#283593"); //#333 grey #00796B is 700 color for teal
+// }
+// }
 /**
  * Device paused i.e. is no longer the top app on view, this can be used to run functions in the background
  * @event pause - the app has been set to pause in the lifecycle
  */
-document.addEventListener("pause", onPause, false);
+// document.addEventListener("pause", onPause, false);
 /**
  * handles the on pause event in the lifecycle
  */
-function onPause() {
-    // Handle the pause event
-    console.log('devicePaused');
-    // alert('device paused');
-}
+// function onPause() {
+// Handle the pause event
+// console.log('devicePaused');
+// alert('device paused');
+// }
 /**
  * Resume event listener, listens for the app to be brought back into focus
  * @event resume - the app has been resumed in the lifecycle
  */
-document.addEventListener("resume", onResume, false);
+// document.addEventListener("resume", onResume, false);
 /**
  * Handles the on resume event in the lifecycle
  */
-function onResume() {
-    // Handle the resume event
-    console.log('deviceResume');
-    // alert('device resumed');
-}
+// function onResume() {
+// Handle the resume event
+// console.log('deviceResume');
+// alert('device resumed');
+// }
 /**
  * Function to check the number of messages since the last time a base was opened
  * Note: changes output not using include_docs:true doesnt use _id only id
@@ -307,7 +308,7 @@ function formBubbleMessages(rows, limit, prepend) {
         doc.time = addZero(doc.date.getHours()) + ':' + addZero(doc.date.getMinutes());
         doc.from = parseInt(doc.from);
         doc.to = parseInt(doc.to);
-        doc.msgBaseNo = 'Base ' + doc.from;
+        doc.msgBaseNo = 'Checkpoint ' + doc.from;
         if (doc.from === 0) {
             doc.msgBaseNo = 'Admin HQ';
         }
@@ -327,6 +328,7 @@ function formBubbleMessages(rows, limit, prepend) {
             lastMessage = Object.assign({}, doc);
             doc.from = 'n/a';
             console.log('only message was from ' + lastMessage.from);
+            document.getElementById('topDateMsgBubble').innerHTML = dateString(doc.date, today, yesterday);
             if (doc._id === nextMessageEndKey) {
                 console.log('matched end key, returning');
                 return;
@@ -1501,45 +1503,66 @@ function closeDatabases() {
     deleteIndexes();
 }
 
+// --- MENU CONTROLS ---
+/**
+ * Opens the menu and adds the shadow on the right edge
+ */
+function openMenu() {    
+    menu.open();
+    menu.classList.add('menuShadow');
+}
+/**
+ *  closes the menu
+ */
+function closeMenu() {     
+    return menu.close();    
+}
+
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
  * Used by the menu
  */
 function baseLogOut() {
-    var options;
-    if (navi.topPage.data.firstPage) {
-        options = {
-            animation: pageChangeAnimation,
-            data: {
-                eventInfo: navi.topPage.data.eventInfo
+    return Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            var options;
+            if (navi.topPage.data.firstPage) {
+                options = {
+                    animation: pageChangeAnimation,
+                    data: {
+                        eventInfo: navi.topPage.data.eventInfo
+                    }
+                };
+                navi.replacePage('loginPage.html', options);
+            } else {
+                options = {
+                    animation: pageChangeAnimation
+                };
+                navi.popPage(options);
             }
-        };
-        navi.replacePage('loginPage.html', options);
-    } else {
-        options = {
-            animation: pageChangeAnimation
-        };
-        navi.popPage(options);
-    }
 
-    closeDatabases();
-    logOutPageChange();
-    document.getElementById('menu').toggle();
-    menuController();
+            closeDatabases();
+            logOutPageChange();
+            menuController();
 
 
-    return appdb.get('login_' + username)
-        .then(function (doc) {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
 
-            var timestamp = new Date().toISOString();
-            doc.base = 'logOut';
-            doc.timestamp = timestamp;
-            return appdb.put(doc);
+                    var timestamp = new Date().toISOString();
+                    doc.base = 'logOut';
+                    doc.timestamp = timestamp;
+                    return appdb.put(doc);
+                });
+
         })
         .catch(function (err) {
             console.warn(err);
-            throw err;
         });
+
 }
 /**
  * sign out of the session and return to the sign in screen
@@ -1547,71 +1570,117 @@ function baseLogOut() {
  */
 function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
-    navi.resetToPage('signInPage.html', {
-        animation: pageChangeAnimation
-    });
-    baseNames = [];
-    baseCodes = [];
-    document.getElementById('menu').toggle();
-    closeDatabases();
-    basedb = undefined;
-    admindb = undefined;
-    remotedb = undefined;
-    remotedbConnected = false;
-    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
-    localStorage.verified = 'false';
-    localStorage.evtOrganiser = 'false';
-    localStorage.customerId = 'false';
+    return Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            baseNames = [];
+            baseCodes = [];
+            closeDatabases();
+            basedb = undefined;
+            admindb = undefined;
+            remotedb = undefined;
+            remotedbConnected = false;
+            localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
+            localStorage.verified = 'false';
+            localStorage.evtOrganiser = 'false';
+            localStorage.customerId = 'false';
+            return navi.resetToPage('signInPage.html', {
+                animation: pageChangeAnimation
+            });
+        })
+        .then(function () {
+            return menuController();
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 }
 
 function goToEventSummary() {
     var data = navi.topPage.data;
-
-    navi.bringPageTop('eventSummaryPage.html', {
-        animation: pageChangeAnimation,
-        data: data
-    }).then(function () {
-        document.getElementById('menu').toggle();
-    });
+    return Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        }).then(function () {
+            return navi.bringPageTop('eventSummaryPage.html', {
+                animation: pageChangeAnimation,
+                data: data
+            });
+        })
+        .catch(function (err) {
+            console.warn(err);
+        });
 }
 /**
  * go to the change event page
  */
 function changeEvent() {
-    document.getElementById('menu').toggle();
-    baseNames = [];
-    baseCodes = [];
+    return Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            baseNames = [];
+            baseCodes = [];
 
-    closeDatabases();
-    basedb = undefined;
-    admindb = undefined;
-    remotedb = undefined;
-    remotedbConnected = false;
-    localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
-    var options = {
-        animation: pageChangeAnimation
-    };
+            closeDatabases();
+            basedb = undefined;
+            admindb = undefined;
+            remotedb = undefined;
+            remotedbConnected = false;
+            localStorage.lastDb = 'false'; //{string} because localstorage would convert to a string anyway
+            var options = {
+                animation: pageChangeAnimation
+            };
 
-    return navi.resetToPage('eventSelectionPage.html', options);
+            return navi.resetToPage('eventSelectionPage.html', options);
+        })
+        .catch(function (err) {
+            console.warn(err);
+        });
 }
 /**
  * A function to take you from the menu to the edit event page
  */
 function editEvent() {
-    document.getElementById('menu').toggle();
-    closeDatabases();
-    basedb;
-    admindb;
-    var options = {
-        animation: pageChangeAnimation,
-        data: {
-            edit: true,
-            eventInfo: navi.topPage.data.eventInfo
-        }
-    };
 
-    return navi.bringPageTop('createEventPage.html', options);
+    return Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            closeDatabases();
+            basedb;
+            admindb;
+            var options = {
+                animation: pageChangeAnimation,
+                data: {
+                    edit: true,
+                    eventInfo: navi.topPage.data.eventInfo
+                }
+            };
+            return navi.bringPageTop('createEventPage.html', options);
+        })
+        .catch(function (err) {
+            console.warn(err);
+        });
 }
+
+function activateEvent() {
+    Promise.resolve()
+    .then(editEvent())
+    .then(function() {
+        var pRef = addPluralS(navi.topPage.data.eventInfo.pRef).toLowerCase();
+        ons.notification.alert({
+        title: 'Activate Event',
+            messageHTML: '<p>Before activating please ensure your event settings are correct.</p><p>When ready, press done in the top right to continue to the checkout. The event will activate after purchase.</p><p>These settings can be changed after activation and more ' + pRef + ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>'
+        });
+    });
+}
+
+
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
  * @returns base variable (the current base number)
@@ -1918,7 +1987,7 @@ ons.ready(function () {
 
     console.log('ons-ready function fired');
     var customerId = localStorage.customerId;
-    //make every device and webpage android styled for familiarity
+    // make every device and webpage android styled for familiarity
     if (!ons.platform.isIOS()) {
         ons.forcePlatformStyling('android');
     }
@@ -1930,22 +1999,8 @@ ons.ready(function () {
         orientationUpdates();
     });
 
+    // Menu controls
 
-
-    // --- MENU CONTROLS ---
-    /**
-     * Opens the menu and adds the shadow on the right edge
-     */
-    function openMenu() {
-        document.getElementById('menu').toggle();
-        $('#menu').addClass('menuShadow');
-    }
-    /**
-     *  closes the menu
-     */
-    /* function closeMenu() {
-        document.getElementById('menu').toggle();
-    } */
     $(document).on("click", '.menuButton', function () {
         openMenu();
     });
@@ -1954,7 +2009,7 @@ ons.ready(function () {
     $('#menu').on('postclose', function () {
         console.log('menu closed');
         $('#menu').removeClass('menuShadow');
-    });
+    });    
 
     // --- End of Menu Controls ---
 
@@ -3050,6 +3105,7 @@ ons.ready(function () {
                             geolocationInUse = true;
                             eventDescription.geolocationInUse = true;
                         }
+
                         //Check if password protection is on, then if a base password is not set bring up the error messaging and stop saving the event
                         if (passwordProtectLogs && baseInfo.basePassword === '') {
                             return ons.notification.alert({
@@ -3064,6 +3120,13 @@ ons.ready(function () {
                         } else {
                             eventDescription.bases.push(baseInfo);
                             passwordsOk = true;
+                        }
+                    }
+                    if (geolocationInUse) {
+                        if (typeof pageData.eventInfo === 'object' && typeof eventInfo.geolocationPaid !== 'undefined') {
+                            geolocationTurnedOnThisUpdate = eventInfo.geolocationPaid !== true;
+                        } else {
+                            geolocationTurnedOnThisUpdate = true;
                         }
                     }
                     return passwordsOk;
@@ -3138,7 +3201,8 @@ ons.ready(function () {
                                                     pRef: eventDescription.pRef,
                                                     eventName: eventDescription.eventName,
                                                     trackedEntities: eventDescription.trackedEntities,
-                                                    location: eventDescription.geolocationInUse
+                                                    location: eventDescription.geolocationInUse,
+                                                    changeMade: true
                                                 }
                                             });
                                         }
@@ -3161,7 +3225,7 @@ ons.ready(function () {
                         logo = document.getElementById('eventBannerImage');
                         ons.notification.confirm({
                             title: 'Update Event',
-                            message: 'Are you sure you want to update ' + eventInfo.eventName,
+                            message: 'Are you sure you want to update ' + eventInfo.eventName + '?',
                             cancelable: true
                         }).then(function (index) {
                             if (!index === 1) {
@@ -3244,12 +3308,7 @@ ons.ready(function () {
                             } else if (typeof doc._attachments === 'object') {
                                 eventDescription._attachments = doc._attachments;
                             }
-                            if (!changeMade) {
 
-                                throw {
-                                    noChange: true
-                                }; //no change made so cancel out
-                            }
                             eventDescription._rev = doc._rev;
                             eventDescription.dbName = doc.dbName;
                             eventDescription.evtUserPass = doc.evtUserPass;
@@ -3268,11 +3327,15 @@ ons.ready(function () {
                                         pRef: eventDescription.pRef,
                                         eventName: eventDescription.eventName,
                                         trackedEntities: eventDescription.trackedEntities,
-                                        location: eventDescription.geolocationInUse
+                                        location: eventDescription.geolocationInUse,
+                                        changeMade: changeMade
                                     }
                                 });
                             }
-                            return uploadEditEvent(url, eventInfo);
+                            if (!changeMade) {
+                                throw { noChange: true }; //no change made so cancel out
+                            }
+                            return uploadEditEvent(url, eventInfo, changeMade);
                         }).catch(function (err) {
                             console.log(err);
                             showProgressBar('createEventPage', false);
@@ -3700,7 +3763,7 @@ ons.ready(function () {
                 if (typeof personName === 'string' && name !== 'undefined') {
                     $('#userName').val(personName);
                 }
-                if (navi.topPage.data.eventInfo !== undefined) {
+                if (typeof navi.topPage.data.eventInfo === 'object') {
                     eventInfo = navi.topPage.data.eventInfo;
                     //get the data from the page and update the page
                     // if (navi.topPage.data.firstPage === true) {
@@ -3716,7 +3779,6 @@ ons.ready(function () {
                         var messageOpen = false;
                         evtUpdateCheck = db.replicate.from(tempRemotedb, options)
                             .on('change', function (doc) {
-
                                 if (!messageOpen) {
                                     messageOpen = true;
                                     var pattern = /\W/g;
@@ -3737,7 +3799,6 @@ ons.ready(function () {
                                         evtUpdateCheck.cancel();
                                         messageOpen = false;
                                         //to stop any further code from taking place
-
                                     });
                                 }
                             }).on('paused active denied error', function (info) {
@@ -3766,18 +3827,21 @@ ons.ready(function () {
                     //Event Logo update
                     url = navi.topPage.data.url;
                     imageContainer = $('#loginEventLogo');
-                    Promise.resolve().then(function () {
-                        return eventLogoGetter(eventInfo, url);
-                    }).then(function (src) {
-                        if (src != undefined) {
-                            imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(1500);
-                            url = src;
-                        } else {
-                            imageContainer.hide().removeClass('hide').fadeIn(1500);
-                        }
-                    }).catch(function (err) {
-                        console.warn(err);
-                    });
+                    Promise.resolve()
+                        .then(function () {
+                            return eventLogoGetter(eventInfo, url);
+                        })
+                        .then(function (src) {
+                            if (src != undefined) {
+                                imageContainer.hide().attr('src', src).removeClass('hide').fadeIn(1500);
+                                url = src;
+                            } else {
+                                imageContainer.hide().removeClass('hide').fadeIn(1500);
+                            }
+                        })
+                        .catch(function (err) {
+                            console.warn(err);
+                        });
 
 
                     //Base Password put into array and checks if base passwords are required or a dropdown is added
@@ -3797,7 +3861,7 @@ ons.ready(function () {
                         //change error message
                         noBaseSelectedErrorMessage = 'Please enter both your name and your passcode provided by the event organisers.';
                         //change welcome text
-                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and base code below:';
+                        welcomeMessage = 'Welcome to ' + eventInfo.eventName + ' please enter your name and passcode below:';
                         baseCodeInput = $('#baseCode');
                         if (!(baseCodeInput.hasClass('evtHandler'))) {
                             baseCodeInput.addClass('evtHandler').on('keyup', function (e) {
@@ -3844,6 +3908,25 @@ ons.ready(function () {
                     //Title update
                     console.log('event called ' + eventInfo.eventName);
                     $('#loginTitle .normalTitle,#loginTitle .mainTitle').html(eventInfo.eventName);
+
+                    //Activation message
+                    if (!eventInfo.paidTrackedEntities > 0) {
+                        var activationWarning = "<div class='activationWarning warning txtCenter col-xs-12'><hr><div class='col-xs-12'><ons-icon icon='fa-warning'></ons-icon><p>This event has not been activated by the event organisers yet. Some functionality has been restricted. Once activated all functionality will be unlocked.</p></div>";
+                        if (localStorage.evtOrganiser === 'true') {
+                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large" onClick="activateEvent()">Activate Event</ons-button>';
+                        }
+                        activationWarning += '<hr class="col-xs-12"></div>';
+                        $('#loginForm').before(activationWarning);
+                    }
+                } else {
+                    // If there is no eventInfo
+                    ons.notification.alert({
+                        title: 'Event information missing',
+                        messageHTML: '<p>The data for this event is missing, when this message closes you will be signed out. Please sign back in, this should fix any issues.</p><p>If the problem persists please contact:</p><p>support@checkpointlive.com</p>',
+                        cancelable: true
+                    }).then(function () {
+                        signOut();
+                    });
                 }
 
                 /*  if (localStorage.evtOrganiser) {
@@ -3875,8 +3958,8 @@ ons.ready(function () {
 
                                     if (!(base > -1)) {
                                         throw {
-                                            message: 'Please try re-entering your base code or contact the event organisers',
-                                            title: 'Incorrect Base Code',
+                                            message: 'Please try re-entering your passcode or contact the event organisers',
+                                            title: 'Incorrect passcode',
                                             cancelable: true
                                         };
                                     }
@@ -4133,7 +4216,11 @@ ons.ready(function () {
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
                     $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
-                    $('#quickAddTitle').html('Add new log from checkpoint ' + base);
+                    var quickAddTitle = 'Add new log from checkpoint ' + base;
+                    if (!eventInfo.paidTrackedEntities > 0) {
+                        quickAddTitle = '<div class="txtCenter"><hr><span class="warning txtCenter"><ons-icon icon="fa-warning"></ons-icon> Event activation required to submit logs</span></div><hr>' + quickAddTitle;
+                    }
+                    $('#quickAddTitle').html(quickAddTitle);
                     participantReference(eventInfo.pRef, 'page1', eventInfo.trackedEntities);
 
 
@@ -4407,7 +4494,13 @@ ons.ready(function () {
                     // Add the event handler only once when the page is first loaded.
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
-                        // TODO place a block if not paid
+                        if (!eventInfo.paidTrackedEntities > 0) {
+                            return ons.notification.alert({
+                                title: 'Event activation required',
+                                messageHTML: '<p>This event has not been activated</p><p>To activate the event the organisers need to complete the checkout process.</p>',
+                                cancelable: true
+                            });
+                        }
                         base = getBaseNumber();
                         var geolocationOn = eventInfoBase.baseGeolocation && geolocation === 'accepted';
                         var trackingOn = eventInfo.tracking && geolocationOn;
@@ -5232,7 +5325,7 @@ ons.ready(function () {
                 var newMessages = document.getElementById('newMessages');
                 var messageInputPlaceholder = $('#messageInputPlaceholder');
                 var pouch = basedb;
-
+                var placeholder = true;
                 var messagePageContent = $('#messagesPage .page__content');
 
                 var scrollingOn = true;
@@ -5243,7 +5336,17 @@ ons.ready(function () {
                 localStorage.dbSeqNumber = nextSeq;
 
                 //functions
-
+                var msgActivationCheck = function(paidTrackedEntities) {
+                    if (!paidTrackedEntities > 0) {
+                        ons.notification.alert({
+                            title: 'Messaging unavailable',
+                            messageHTML: "<p>Messaging is currently unavailable.</p><p>This functionality will become available when the event is activated by the event's organisers</p>",
+                            cancelable: true
+                        });
+                        return false;
+                    }
+                    return true;
+                };
                 /**
                  * sends a message by putting the doc into the db then doing an alldocs for the latest messages
                  */
@@ -5261,9 +5364,8 @@ ons.ready(function () {
                         .then(function (doc) {
                             if (doc.ok) {
                                 console.log('message sent');
-                                messageInput.html('');
-                                messageInputPlaceholder.removeClass('hide');
-                                placeholder = true;
+
+                                resetPlaceholder();
                                 dbSeqNumber++;
                                 nextSeq = dbSeqNumber;
                                 localStorage.dbSeqNumber = dbSeqNumber;
@@ -5282,10 +5384,15 @@ ons.ready(function () {
                         }).catch(function (err) {
                             console.warn(err);
                         });
-                    if (messageInput.html() === '') {
-                        messageInputPlaceholder.removeClass('hide');
-                        placeholder = true;
-                    }
+                    };
+
+                /**
+                 * resets the placeholder message
+                 */
+                var resetPlaceholder = function () {
+                    messageInput.html('');
+                    messageInputPlaceholder.removeClass('hide');
+                    placeholder = true;
                 };
                 /**
                  * runs the scroll function on the messagesPage
@@ -5356,8 +5463,8 @@ ons.ready(function () {
                     limit: 25
                 };
                 addMessages(pouch, messageWindow, messagePageContent, optionsB, false, true, true);
+                
                 //messageInput
-                var placeholder = true;
                 messageInput
                     .on('keydown', function (e) {
                         if (placeholder) {
@@ -5371,22 +5478,27 @@ ons.ready(function () {
                     .on('keyup', function (e) {
                         console.log('keyup');
                         if (e.which == 13 && !e.shiftKey) {
-                            if (messageInput.html().trim() !== '') {
-                                sendMessage();
+                            if (messageInput.html().trim() !== '' && msgActivationCheck(eventInfo.paidTrackedEntities)) {
+                                console.log('sending message');
+                                return sendMessage();
                             }
+                            return resetPlaceholder();
                         }
 
                     });
                 $('#sendMessage').on('click', function () {
-                    if (messageInput.html().trim() !== '') {
-                        sendMessage();
-                    }
+                    if (messageInput.html().trim() !== '' && msgActivationCheck(eventInfo.paidTrackedEntities)) {
+                       return sendMessage();
+                    }                    
                 });
+                
                 lastSyncHandler();
+                
                 scrollToBottomFab.on('click', function () {
                     var offset = messagePageContent[0].scrollHeight;
                     scrollToElement(messagePageContent, offset, 1);
                 });
+
                 //update message badge
                 updateMsgBadgeNo(0, true);
 
@@ -5404,6 +5516,11 @@ ons.ready(function () {
                     }
                     return scrollToBottomFab[0].show();
                 });
+
+                if (!eventInfo.paidTrackedEntities > 0) {
+                    var activationMessage = '<div class="txtCenter marginTop"><hr><span class="warning txtCenter"><ons-icon icon="fa-warning"></ons-icon> Event activation required to send messages</span></div><hr>';
+                    $('#topDateMsgDivider').before(activationMessage);
+                }
 
                 //end of messagesPage.html
                 break;
@@ -5482,8 +5599,21 @@ ons.ready(function () {
                 var checkoutPromo = $('#checkoutPromoCode');
                 // tracked entity reference
                 var pRef = checkOutInfo.trackedEntitiesDifference > 1 ? checkOutInfo.pRef.toLowerCase() + 's' : checkOutInfo.pRef.toLowerCase();
+                // paid entities
+                var paidFor = 0;
+                if (typeof checkOutInfo.eventInfo === 'object') {
+                    paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? checkOutInfo.eventInfo.paidTrackedEntities : 0;
+                }
+                if (paidFor === 0) {
+                    $('#skipPaymentButton').removeClass('hide').on('click', function () {
+                        if (checkOutInfo.newEvent) {
+                            return createNewEvent(checkOutInfo.url);
+                        }
+                        return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, checkOutInfo.changeMade);
+                    });
+                }
                 // geolocation
-                var checkoutGeolocation = checkOutInfo.geolocation ? 'Enabled' : 'Disabled';
+                var checkoutGeolocation = checkOutInfo.location ? 'Enabled' : 'Disabled';
 
                 // general wording
                 $('#checkoutEventName').html(checkOutInfo.eventName);
@@ -5492,7 +5622,7 @@ ons.ready(function () {
                 $('#checkoutTotalTrackedEntities').html(checkOutInfo.trackedEntities);
                 $('#checkoutGeolocationOn').html(checkoutGeolocation);
 
-                if (!checkOutInfo.geolocation) {
+                if (!checkOutInfo.location) {
                     $('#checkoutLocationPin').addClass('disabled');
                 }
 
@@ -5707,9 +5837,9 @@ ons.ready(function () {
                                     eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
                                     return createNewEvent(checkOutInfo.url);
                                 }
-                                var paidFor = typeof checkOutInfo.eventInfo.paidTrackedEntities === 'number' ? eventInfo.paidTrackedEntities : 0;
+
                                 eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
-                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo);
+                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
                             }
                             throw response;
                         })
@@ -5883,14 +6013,19 @@ ons.ready(function () {
 
 
 
-    function uploadEditEvent(url, eventInfo) {
-        var tempdb = new PouchDB(eventInfo.dbName);
-        return tempdb.put(eventDescription)
-            .then(function (doc) {
-                console.log(doc);
-                eventDescription._rev = doc.rev;
-                return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
-
+    function uploadEditEvent(url, eventInfo, changeMade) {
+        return Promise.resolve()
+            .then(function () {
+                if (changeMade === false) {
+                    return { changeMade: changeMade };
+                }
+                var tempdb = new PouchDB(eventInfo.dbName);
+                return tempdb.put(eventDescription)
+                    .then(function (doc) {
+                        console.log(doc);
+                        eventDescription._rev = doc.rev;
+                        return replicateOnce(eventInfo.dbName, ['eventDescription'], true);
+                    });
             }).then(function (doc) {
                 console.log(doc);
                 var options = {
@@ -5901,7 +6036,6 @@ ons.ready(function () {
                         eventInfo: eventDescription
                     }
                 };
-
                 return navi.resetToPage('eventSummaryPage.html', options);
             }).then(function () {
                 var tempRemotedb = new PouchDB(http + username + ':' + password + '@' + couchdb + '/' + eventInfo.dbName);
@@ -6097,7 +6231,7 @@ function participantReference(pRef, page, teams) {
         var str = elements[ref].innerHTML;
         elements[ref].innerHTML = str.replace(/team/i, pRef);
     });
-    if (page === 'page1') {
+    if (page === 'page1' && parseInt(teams) > 0) {
         $('#patrolNo').attr('placeholder', pRef + ' No. (1 - ' + teams + ')');
     }
 
@@ -6218,13 +6352,24 @@ var getPosition = function () {
     });
 };
 
+/**
+ * Works out whether to add an s or not to pluralise
+ * @param {string} word 
+ */
 function addPluralS(word) {
-    if (word === 'children' || 'people') {
+    if (word === 'children' || word === 'people') {
         return word;
     }
     return word.slice(-1) === 's' ? word : word + 's';
 }
 
+/**
+ * Sends an OsmAnd data package to the server
+ * @param {*} trackingOn 
+ * @param {*} pRef 
+ * @param {*} log 
+ * @param {*} trackingUrl 
+ */
 function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     console.log(trackingOn);
     console.log(log);
