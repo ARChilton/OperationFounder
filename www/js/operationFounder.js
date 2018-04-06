@@ -4892,7 +4892,7 @@ ons.ready(function () {
                     patrolSearchIcon.on('click', function () {
                         if (!appended) {
                             pageTitle.addClass('adminHide');
-                            var patrolSearchBox = '<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="Patrol No." float class="patrolSearchInput" autofocus></ons-input>';
+                            var patrolSearchBox = '<ons-input id="patrolSearchInput" type="number" modifier="underbar" placeholder="' + eventInfo.pRef + ' No." float class="patrolSearchInput" autofocus></ons-input>';
                             $(this).prepend(patrolSearchBox);
                             appended = true;
                             $(document).ready(function () {
