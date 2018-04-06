@@ -1224,8 +1224,7 @@ function editLog(logs) {
                 switch (doc.editable) {
                     case false:
                         ons.notification.alert({
-                            title: 'No longer editable',
-                            message: 'This record has been locked by the event admins and cannot be edited',
+                            message: 'This record has been locked by the event admins and cannot be edited.',
                             cancelable: true
                         });
                         break;
@@ -2548,14 +2547,14 @@ ons.ready(function () {
                                     case false:
 
                                         return ons.notification.alert({
-                                            title: 'Error',
+                                            
                                             message: "Couldn't connect to server because this device is offline.",
                                             cancelable: true
                                         });
 
                                     default:
                                         return ons.notification.alert({
-                                            title: 'Error',
+                                            
                                             message: "Couldn't connect to server, please try again later.",
                                             cancelable: true
                                         });
@@ -2589,6 +2588,7 @@ ons.ready(function () {
                 var emailSignUpValid = false;
                 var passwordSignUp = false;
                 var confirmPassSignUp = false;
+                var passwordLength = 6;
 
                 if (!$('#signUpEmail').hasClass('evtHandler')) {
                     var lastUsername = '';
@@ -2628,7 +2628,7 @@ ons.ready(function () {
                                                     errorMessageOpen = true;
                                                     ons.notification.alert({
                                                         title: 'error',
-                                                        message: 'issue validating email address is unique',
+                                                        message: 'issue validating email address is unique.',
                                                         cancelable: true
                                                     }).then(function () {
                                                         errorMessageOpen = false;
@@ -2640,8 +2640,8 @@ ons.ready(function () {
                                         if (!errorMessageOpen) {
                                             errorMessageOpen = true;
                                             ons.notification.alert({
-                                                title: 'Error connecting to server',
-                                                message: 'We are very sorry there was an error connecting to the server to validate your email address is unique please try submitting your sign up or come back later.',
+                                                title: 'Issue connecting to server',
+                                                messageHTML: '<p>We are very sorry there was an issue connecting to the server to validate your email address is unique.</p><p>Please try re-submitting your sign up or come back later.</p><p>If the problem persists contact:</p><p class="copyableArea"><a href="mailto:support@checkpointlive.com" class="copyableArea">support@checkpointlive.com</a></a></p>',
                                                 cancelable: true
                                             }).then(function () {
                                                 errorMessageOpen = false;
@@ -2669,7 +2669,8 @@ ons.ready(function () {
                 if (!$('#signUpPassword').hasClass('evtHandler')) {
                     $('#signUpPassword').addClass('evtHandler').on('blur', function () {
                         var pass = $(this).val().trim();
-                        if (pass.length >= 6) {
+                        
+                        if (pass.length >= passwordLength) {
                             //valid
                             if (passwordSignUp != pass) {
                                 passwordSignUp = pass;
@@ -2685,9 +2686,8 @@ ons.ready(function () {
                             passwordSignUp = pass;
                             if (!errorMessageOpen) {
                                 errorMessageOpen = true;
-                                ons.notification.alert({
-                                    title: 'Longer password required',
-                                    message: 'Minimum of 6 characters',
+                                ons.notification.alert({                                    
+                                    message: 'A longer password is required please use a minimum of ' + passwordLength +' characters',
                                     cancelable: true
                                 }).then(function () {
                                     errorMessageOpen = false;
@@ -2701,14 +2701,13 @@ ons.ready(function () {
                         var confirmP = $(this).val().trim();
                         if (confirmP === passwordSignUp && passwordSignUp != '') {
                             //valid
-                            if (passwordSignUp.length >= 6) {
+                            if (passwordSignUp.length >= passwordLength) {
                                 confirmPassSignUp = true;
                             } else {
                                 if (!errorMessageOpen) {
                                     errorMessageOpen = true;
                                     ons.notification.alert({
-                                        title: 'Longer password required',
-                                        message: 'Minimum of 6 characters',
+                                        message: 'A longer password is required please use a minimum of ' + passwordLength + ' characters',
                                         cancelable: true
                                     }).then(function () {
                                         errorMessageOpen = false;
@@ -2719,8 +2718,7 @@ ons.ready(function () {
                             //invalid
                             if (confirmP === '' && passwordSignUp === false) {
                                 errorMessageOpen = true;
-                                ons.notification.alert({
-                                    title: 'Please enter a password',
+                                ons.notification.alert({                                    
                                     messageHTML: 'Please enter a password to confirm',
                                     cancelable: true
                                 }).then(function () {
@@ -2731,8 +2729,7 @@ ons.ready(function () {
                                 if (!errorMessageOpen) {
                                     errorMessageOpen = true;
                                     ons.notification.alert({
-                                        title: 'Password does not match',
-                                        messageHTML: 'Your passwords do not match',
+                                        message: 'Your passwords do not match',
                                         cancelable: true
                                     }).then(function () {
                                         errorMessageOpen = false;
@@ -3210,8 +3207,7 @@ ons.ready(function () {
                                     }
                                 } else {
                                     ons.notification.alert({
-                                        title: 'error',
-                                        message: 'username is not unique, please try a different username',
+                                        message: 'This username is already in use, please try a different username.',
                                         cancelable: true
                                     }).then(function () {
                                         return showProgressBar('createEventPage', false);
@@ -3224,11 +3220,13 @@ ons.ready(function () {
                         var tempdb = new PouchDB(eventInfo.dbName);
                         logo = document.getElementById('eventBannerImage');
                         ons.notification.confirm({
-                            title: 'Update Event',
-                            message: 'Are you sure you want to update ' + eventInfo.eventName + '?',
+                            title: 'Are you sure you want to update ' + eventInfo.eventName + '?',
+                            message: 'Your changes will update the event and be distributed to all users of the event.',
                             cancelable: true
                         }).then(function (index) {
-                            if (!index === 1) {
+                            // must be == to work
+                            if (!index == 1) {
+                                
                                 throw {
                                     canceled: true
                                 };
@@ -3345,7 +3343,7 @@ ons.ready(function () {
                             if (err.noChange) {
                                 return ons.notification.alert({
                                     title: 'No change found',
-                                    message: 'No change has been detected from previous event information. A new version has not been saved.',
+                                    message: 'No changes have been detected from the previous event information. A new version has not been saved.',
                                     cancelable: true
                                 }).then(function () {
                                     throw navi.popPage();
@@ -3553,20 +3551,14 @@ ons.ready(function () {
                                             break;
                                         case 500:
                                         default:
-
-                                            ons.notification.alert({
-                                                title: 'error',
-                                                message: 'issue checking username is unique',
-                                                cancelable: true
-                                            });
-
+                                            throw 'default (evtUsernameToTest)';
                                     }
                                 }).catch(function (err) {
                                     console.log(err);
 
                                     ons.notification.alert({
                                         title: 'error',
-                                        message: 'issue checking username is unique',
+                                        message: 'Issue checking username is unique.',
                                         cancelable: true
                                     });
 
@@ -4548,21 +4540,18 @@ ons.ready(function () {
                                 cancelable: true
                             });
                         } else if (sqPatrol > parseInt(eventInfo.trackedEntities) || sqPatrol < 1) {
-                            ons.notification.alert({
-                                title: eventInfo.pRef + ' number',
+                            ons.notification.alert({                                
                                 message: 'You have entered an invalid ' + eventInfo.pRef + ' number.',
                                 cancelable: true
                             });
 
                         } else if (parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)) {
-                            ons.notification.alert({
-                                title: 'Total score',
-                                message: 'The total score entered is greater than the maximum points available at a base.',
+                            ons.notification.alert({                                
+                                message: 'The total score entered is greater than the maximum points available at this checkpoint.',
                                 cancelable: true
                             });
                         } else if (sqTimeIn > sqTimeOut) {
-                            ons.notification.alert({
-                                title: 'Time input',
+                            ons.notification.alert({                                
                                 message: 'The time out must be after the time in.',
                                 cancelable: true
                             });
@@ -4571,7 +4560,7 @@ ons.ready(function () {
 
                             ons.notification.confirm({
                                 title: 'Confirm off route or log score',
-                                messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the team was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
+                                messageHTML: '<p>You have entered a score of ' + sqTotalScore + ' and that the ' + eventInfo.pRef + ' was off route.</p><p>Select whether you wish to submit an off route log with no score or an on route log with a score of ' + sqTotalScore + '.</p>',
                                 cancelable: true,
                                 buttonLabels: ['Off route - no score', 'On route - score of ' + sqTotalScore]
                             }).then(function (input) {
@@ -4593,18 +4582,9 @@ ons.ready(function () {
                                 });
 
                         }
-                        //else if (Date.parse(sqTimeOut) > Date.parse(sqTimeIn)) {
-                        //     ons.notification.alert({
-                        //         title: 'Incorrect times',
-                        //         message: 'this log entry has the patrol leaving before they arrived',
-                        //         cancelable: true
-                        //     });
-                        // } 
+                        
                         else {
-                            // if (sqPatrol < 10) {
-                            //     sqPatrol = '0' + sqPatrol;
-                            // }
-
+                            
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
@@ -4657,7 +4637,7 @@ ons.ready(function () {
                                                 case true:
                                                     return ons.notification.confirm({
                                                         title: 'Update',
-                                                        message: 'Are you sure you want to update patrol number ' + sqPatrol,
+                                                        message: 'Are you sure you want to update ' + eventInfo.pRef + ' number ' + sqPatrol,
                                                         cancelable: true
                                                     }).then(function (input) {
                                                         if (input === 1) {
@@ -4682,8 +4662,7 @@ ons.ready(function () {
 
                                                 case false:
                                                     return ons.notification.alert({
-                                                        title: 'No longer editable',
-                                                        message: 'This record has been locked by HQ and cannot be edited',
+                                                        message: 'This record has been locked by Admin HQ and cannot be edited.',
                                                         cancelable: true
                                                     });
                                             }
