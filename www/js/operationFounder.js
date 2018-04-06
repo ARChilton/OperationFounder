@@ -328,6 +328,7 @@ function formBubbleMessages(rows, limit, prepend) {
             lastMessage = Object.assign({}, doc);
             doc.from = 'n/a';
             console.log('only message was from ' + lastMessage.from);
+            document.getElementById('topDateMsgBubble').innerHTML = dateString(doc.date, today, yesterday);
             if (doc._id === nextMessageEndKey) {
                 console.log('matched end key, returning');
                 return;
