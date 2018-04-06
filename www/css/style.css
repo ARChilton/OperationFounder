@@ -1801,11 +1801,12 @@ p {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-.dialog {
+.alert-dialog {
     max-height: 80vh;
     overflow-y: auto;
-    max-width: 70vw;
-    overflow-x: hidden;
+    max-width: 80vw;
+    overflow-x: auto;
+    width:fit-content;
 }
 
 
