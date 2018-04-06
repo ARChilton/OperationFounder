@@ -43,6 +43,7 @@ var adminCurrentlySelected;
 var userCurrentlySelected;
 var deleteNotificationCleared = true;
 var attemptCount = 0;
+var menu = document.getElementById('menu');
 //message variables
 var nextMessageEndKey;
 var nextMessageEndKey2;
@@ -1501,6 +1502,21 @@ function closeDatabases() {
     deleteIndexes();
 }
 
+// --- MENU CONTROLS ---
+/**
+ * Opens the menu and adds the shadow on the right edge
+ */
+function openMenu() {    
+    menu.open();
+    menu.classList.add('menuShadow');
+}
+/**
+ *  closes the menu
+ */
+function closeMenu() {     
+    return menu.close();    
+}
+
 /**
  * Function called to log out by emptying all of the tables and returning to the login page, also reset the current login information in the appdb
  * Used by the menu
@@ -1508,7 +1524,7 @@ function closeDatabases() {
 function baseLogOut() {
     return Promise.resolve()
         .then(function () {
-            return document.getElementById('menu').toggle();
+            return closeMenu();
         })
         .then(function () {
             var options;
@@ -1555,18 +1571,8 @@ function signOut() {
     //need to find out why this isn't doing anything on a pushpage event
     return Promise.resolve()
         .then(function () {
-            return document.getElementById('menu').toggle();
+            return closeMenu();
         })
-        .then(function () {
-            return signOutNoMenuToggle();
-        })
-        .catch(function (err) {
-            console.log(err);
-        });
-}
-
-function signOutNoMenuToggle() {
-    return Promise.resolve()
         .then(function () {
             baseNames = [];
             baseCodes = [];
@@ -1595,7 +1601,7 @@ function goToEventSummary() {
     var data = navi.topPage.data;
     return Promise.resolve()
         .then(function () {
-            return document.getElementById('menu').toggle();
+            return closeMenu();
         }).then(function () {
             return navi.bringPageTop('eventSummaryPage.html', {
                 animation: pageChangeAnimation,
@@ -1612,7 +1618,7 @@ function goToEventSummary() {
 function changeEvent() {
     return Promise.resolve()
         .then(function () {
-            return document.getElementById('menu').toggle();
+            return closeMenu();
         })
         .then(function () {
             baseNames = [];
@@ -1641,7 +1647,7 @@ function editEvent() {
 
     return Promise.resolve()
         .then(function () {
-            return document.getElementById('menu').toggle();
+            return closeMenu();
         })
         .then(function () {
             closeDatabases();
@@ -1654,7 +1660,6 @@ function editEvent() {
                     eventInfo: navi.topPage.data.eventInfo
                 }
             };
-
             return navi.bringPageTop('createEventPage.html', options);
         })
         .catch(function (err) {
@@ -1967,7 +1972,7 @@ ons.ready(function () {
 
     console.log('ons-ready function fired');
     var customerId = localStorage.customerId;
-    //make every device and webpage android styled for familiarity
+    // make every device and webpage android styled for familiarity
     if (!ons.platform.isIOS()) {
         ons.forcePlatformStyling('android');
     }
@@ -1979,22 +1984,8 @@ ons.ready(function () {
         orientationUpdates();
     });
 
+    // Menu controls
 
-
-    // --- MENU CONTROLS ---
-    /**
-     * Opens the menu and adds the shadow on the right edge
-     */
-    function openMenu() {
-        document.getElementById('menu').toggle();
-        $('#menu').addClass('menuShadow');
-    }
-    /**
-     *  closes the menu
-     */
-    /* function closeMenu() {
-        document.getElementById('menu').toggle();
-    } */
     $(document).on("click", '.menuButton', function () {
         openMenu();
     });
@@ -2003,7 +1994,7 @@ ons.ready(function () {
     $('#menu').on('postclose', function () {
         console.log('menu closed');
         $('#menu').removeClass('menuShadow');
-    });
+    });    
 
     // --- End of Menu Controls ---
 
@@ -3907,7 +3898,7 @@ ons.ready(function () {
                     if (!eventInfo.paidTrackedEntities > 0) {
                         var activationWarning = "<div class='activationWarning warning txtCenter col-xs-12'><hr><div class='col-xs-12'><ons-icon icon='fa-warning'></ons-icon><p>This event has not been activated by the event organisers yet. Some functionality has been restricted. Once activated all functionality will be unlocked.</p></div>";
                         if (localStorage.evtOrganiser) {
-                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large">Activate Event</ons-button>';
+                            activationWarning += '<ons-button class="primaryColorButton col-xs-12 col-sm-6 col-sm-push-3 col-md-4 col-md-push-4" modifier="large" onClick="editEvent()">Activate Event</ons-button>';
                         }
                         activationWarning += '<hr class="col-xs-12"></div>';
                         $('#loginForm').before(activationWarning);
@@ -3919,7 +3910,7 @@ ons.ready(function () {
                         messageHTML: '<p>The data for this event is missing, when this message closes you will be signed out. Please sign back in, this should fix any issues.</p><p>If the problem persists please contact:</p><p>support@checkpointlive.com</p>',
                         cancelable: true
                     }).then(function () {
-                        signOutNoMenuToggle();
+                        signOut();
                     });
                 }
 
@@ -4488,7 +4479,6 @@ ons.ready(function () {
                     // Add the event handler only once when the page is first loaded.
                     $('#submitQuick').addClass('evtHandler');
                     $('#submitQuick').on('click', function () {
-                        // TODO place a block if not paid
                         if (!eventInfo.paidTrackedEntities > 0) {
                             return ons.notification.alert({
                                 title: 'Event activation required',
@@ -5331,7 +5321,17 @@ ons.ready(function () {
                 localStorage.dbSeqNumber = nextSeq;
 
                 //functions
-
+                var msgActivationCheck = function(paidTrackedEntities) {
+                    if (!paidTrackedEntities > 0) {
+                        ons.notification.alert({
+                            title: 'Messaging unavailable',
+                            messageHTML: "<p>Messaging is currently unavailable.</p><p>This functionality will become available when the event is activated by the event's organisers</p>",
+                            cancelable: true
+                        });
+                        return false;
+                    }
+                    return true;
+                };
                 /**
                  * sends a message by putting the doc into the db then doing an alldocs for the latest messages
                  */
@@ -5463,7 +5463,7 @@ ons.ready(function () {
                     .on('keyup', function (e) {
                         console.log('keyup');
                         if (e.which == 13 && !e.shiftKey) {
-                            if (messageInput.html().trim() !== '') {
+                            if (messageInput.html().trim() !== '' && msgActivationCheck(eventInfo.paidTrackedEntities)) {
                                 console.log('sending message');
                                 return sendMessage();
                             }
@@ -5472,9 +5472,9 @@ ons.ready(function () {
 
                     });
                 $('#sendMessage').on('click', function () {
-                    if (messageInput.html().trim() !== '') {
-                        sendMessage();
-                    }
+                    if (messageInput.html().trim() !== '' && msgActivationCheck(eventInfo.paidTrackedEntities)) {
+                       return sendMessage();
+                    }                    
                 });
                 
                 lastSyncHandler();
@@ -5483,7 +5483,7 @@ ons.ready(function () {
                     var offset = messagePageContent[0].scrollHeight;
                     scrollToElement(messagePageContent, offset, 1);
                 });
-                
+
                 //update message badge
                 updateMsgBadgeNo(0, true);
 
@@ -5501,6 +5501,11 @@ ons.ready(function () {
                     }
                     return scrollToBottomFab[0].show();
                 });
+
+                if (!eventInfo.paidTrackedEntities > 0) {
+                    var activationMessage = '<div class="txtCenter marginTop"><hr><span class="warning txtCenter"><ons-icon icon="fa-warning"></ons-icon> Event activation required to send messages</span></div><hr>';
+                    $('#topDateMsgDivider').before(activationMessage);
+                }
 
                 //end of messagesPage.html
                 break;
