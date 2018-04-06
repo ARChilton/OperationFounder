@@ -1271,10 +1271,12 @@ function deleteRecords(deleteDocs) {
         writeUntilWrittenDelete(id, timestamp);
         $('#' + id).remove();
     }
-
+    var logOrLogs = deletedDocsLength > 1
+    ? 'logs'
+    : 'log';
     ons.notification.alert({
-        title: deletedDocsLength + ' logs deleted',
-        message: 'You have deleted ' + deletedDocsLength + ' logs. This has updated the record in the database to deleted and will sync up with other users now.',
+        title: deletedDocsLength + ' ' + logOrLogs + ' deleted',
+        message: 'You have deleted ' + deletedDocsLength + ' ' + logOrLogs + '. This has updated the ' + logOrLogs + ' in the database to deleted and will sync up with other users now.',
         cancelable: true
     });
 
@@ -2687,7 +2689,7 @@ ons.ready(function () {
                             if (!errorMessageOpen) {
                                 errorMessageOpen = true;
                                 ons.notification.alert({                                    
-                                    message: 'A longer password is required please use a minimum of ' + passwordLength +' characters',
+                                    message: 'A longer password is required please use a minimum of ' + passwordLength + ' characters',
                                     cancelable: true
                                 }).then(function () {
                                     errorMessageOpen = false;
@@ -5168,9 +5170,12 @@ ons.ready(function () {
                                      * @event adminDelete clicked
                                      */
                                     $('#adminDelete').on('click', function () {
+                                        var logOrLogs = adminCurrentlySelected.length > 1 
+                                        ? 'these ' + adminCurrentlySelected.length + ' logs?'
+                                        : 'this log?';
                                         ons.notification.confirm({
                                             title: 'Are you sure?',
-                                            message: 'Are you sure you wish to delete these ' + adminCurrentlySelected.length + ' logs',
+                                            message: 'Are you sure you wish to delete ' + logOrLogs,
                                             cancelable: true
                                         }).then(function (input) {
                                             if (input == 1) {
