@@ -11,7 +11,7 @@ const htmlmin = require('gulp-htmlmin');
 const svgmin = require('gulp-svgmin');
 const autoprefixer = require('gulp-autoprefixer');
 
-const buildFolder = 'dist'
+const buildFolder = 'dist';
 
 gulp.task('build', (cb) => {
   runSequence(
