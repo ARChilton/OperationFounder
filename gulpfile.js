@@ -10,6 +10,7 @@ const cleanCSS = require('gulp-clean-css');
 const htmlmin = require('gulp-htmlmin');
 const svgmin = require('gulp-svgmin');
 const autoprefixer = require('gulp-autoprefixer');
+const sitemap = require('gulp-sitemap');
 
 const buildFolder = 'dist';
 
@@ -74,10 +75,10 @@ gulp.task('minify-css', () => gulp.src('www/**/*.css')
     level: {
       1: {
         all: true,
-        normalizeUrls: true,
+        normalizeUrls: true
       }
     },
-    rebase: false,
+    rebase: false
 
   }))
   .pipe(gulp.dest(buildFolder)));
@@ -102,7 +103,7 @@ gulp.task('minify-onsenui-css', () => gulp.src('www/lib/onsenui/css/*.css')
     level: {
       1: {
         all: true,
-        normalizeUrls: false,
+        normalizeUrls: false
       }
     }
   }))
@@ -114,3 +115,9 @@ gulp.task('move-license', () => {
   gulp.src('license.txt')
     .pipe(gulp.dest(buildFolder));
 });
+
+gulp.task('sitemap', () => gulp.src('www/**/*.html', { read: false })
+  .pipe(sitemap({
+    siteUrl: 'https://checkpointlive.com'
+  }))
+  .pipe(gulp.dest(buildFolder)));

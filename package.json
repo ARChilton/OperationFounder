@@ -10,6 +10,7 @@
     "gulp-autoprefixer": "^4.1.0",
     "gulp-clean-css": "^3.9.2",
     "gulp-htmlmin": "^4.0.0",
+    "gulp-sitemap": "^5.1.0",
     "gulp-svgmin": "^1.2.4",
     "gulp-uglify-es": "^1.0.1",
     "pump": "^3.0.0",

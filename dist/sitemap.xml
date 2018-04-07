@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
-  <url>
-    <loc>https://checkpointlive.com/</loc>
-    <lastmod>2018-07-26T10:03:05+01:00</lastmod>
-  </url>
-  <url>
-    <loc>https://www.checkpointlive.com/</loc>
-    <lastmod>2018-07-26T10:03:05+01:00</lastmod>
-  </url>
-  <url>
-    <loc>https://checkpointlive.com/pricing</loc>
-    <lastmod>2018-07-26T10:03:05+01:00</lastmod>
-  </url>
-  
-
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://checkpointlive.com/</loc>
+        <lastmod>2018-04-06T15:10:24.019Z</lastmod>
+    </url>
+    <url>
+        <loc>https://checkpointlive.com/lost/</loc>
+        <lastmod>2018-02-28T21:29:31.675Z</lastmod>
+    </url>
+    <url>
+        <loc>https://checkpointlive.com/pricing/</loc>
+        <lastmod>2018-04-06T13:58:07.318Z</lastmod>
+    </url>
 </urlset>
