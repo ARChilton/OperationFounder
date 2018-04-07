@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-100559183-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('set', { 'user_id': 'USER_ID' }); // Set the user ID using signed-in user_id.
+    gtag('config', 'UA-100559183-3');
+  </script>
+
+  <title>Checkpoint Live - Pricing</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="404 error page for checkpointlive.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * 'self' data: blob:">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="author" content="Adam Chilton">
+  <meta name="keywords" content="checkpoint live,monitoring, orienteering, bike, hike, cars, checkpoint, scouts, guides, base, bases">
+  <link rel="apple-touch-icon" sizes="180x180" href="/qapple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9100">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <script src="../lib/onsenui/js/onsenui.js"></script>
+  <link rel="stylesheet" href="../lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="../lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Facebook -->
+  <meta property="og:title" content="Checkpoint Live">
+  <meta property="og:image" content="https://checkpointlive.com/largeLogo.png">
+  <meta property="og:url" content="https://checkpointlive.com">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="An event management platform for checkpoint based events such as incident hikes and races. Monitor participant traffic to locations in real-time to inform
+  you who has been seen where and more importantly, who hasn't!">
+
+  <body>
+    <ons-splitter>
+      <ons-splitter-side id="menu" side="left" page="404Menu.html" swipe-target-width="1px" collapse swipeable>
+      </ons-splitter-side>
+      <ons-splitter-content id="content" page="404.html"></ons-splitter-content>
+      <!-- <ons-navigator id="navi"></ons-navigator> -->
+    </ons-splitter>
+    <ons-template id="404Menu.html">
+      <ons-page id="404Menu" modifier="material">
+        <div class="">
+          <img src="../img/largeLogo.svg" alt="checkpoint live full logo" class="menuTopBoxContent">
+        </div>
+        <ons-list>
+          <a href="/">
+            <ons-list-item id="goHome" class="" tappable>
+              Home
+            </ons-list-item>
+          </a>
+          <a href="/pricing">
+            <ons-list-item id="pricingPage" tappable>
+              Pricing
+            </ons-list-item>
+          </a>
+
+        </ons-list>
+      </ons-page>
+    </ons-template>
+
+    <ons-template id="404.html">
+      <ons-page id="404" modifier="material">
+
+        <div id="navBar" class="">
+          <div class=" col-xs-2 xsShow txtCenter">
+            <ons-toolbar-button class="menuButton" onClick="openMenu()">
+              <ons-icon class="orangeMenuButton" icon="md-menu"></ons-icon>
+            </ons-toolbar-button>
+          </div>
+
+          <div class="row txtCenter">
+            <div class="xsHide" id="navBarOptions">
+              <a href="../">
+                <div class="col-sm-1" onClick="">
+                  <img src="../img/icon.svg" alt="checkpoint live icon">
+                </div>
+              </a>
+              <a href="../">
+                <div class="col-sm-2 col-sm-push-7">
+                  Home
+                </div>
+              </a>
+              <a href="../pricing">
+                <div class="col-sm-2 col-sm-push-7">
+                  Pricing
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pageDiv">
+
+          <div class="jumbotron pricingPageTitleBackground">
+            <div class="col-xs-12 col-sm-8 col-sm-push-2">
+              <img id="signInLogo" class="loginLogo" src="../img/largeLogo.svg" alt="checkpoints and map pin">
+              <h1>404 Not Found</h1>
+              <h2>We appear to have lost track of each other.</h2>
+              <h2>Lets meet back at a familiar place.</h2>
+              <a href="https://checkpointlive.com">
+                <ons-button modifier="large" style="max-width:500px;" class="secondaryColorButton marginAuto">Checkpoint Live Home Page</ons-button>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div style="position:absolute;left:0px;right:0px;bottom:0px;" class="caption txtRight bottomDiv row">© 2018 Adam Chilton</div>
+      </ons-page>
+    </ons-template>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('../sw.js')
+          .then(function () { console.log("Service Worker Registered"); });
+      }
+    </script>
+  </body>
+  <!-- <script src="../js/JQuery/jquery-3.1.1.min.js "></script> -->
+  <script src="./404.js"></script>
+
+</html>

@@ -24,6 +24,7 @@ gulp.task('build', (cb) => {
     'move-static',
     'move-license',
     'delete-monaca-components',
+    'sitemap',
     'generate-service-worker',
     'minify-service-worker',
     cb
