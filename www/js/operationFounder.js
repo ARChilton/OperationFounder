@@ -1272,8 +1272,8 @@ function deleteRecords(deleteDocs) {
         $('#' + id).remove();
     }
     var logOrLogs = deletedDocsLength > 1
-    ? 'logs'
-    : 'log';
+        ? 'logs'
+        : 'log';
     ons.notification.alert({
         title: deletedDocsLength + ' ' + logOrLogs + ' deleted',
         message: 'You have deleted ' + deletedDocsLength + ' ' + logOrLogs + '. This has updated the ' + logOrLogs + ' in the database to deleted and will sync up with other users now.',
@@ -1508,15 +1508,15 @@ function closeDatabases() {
 /**
  * Opens the menu and adds the shadow on the right edge
  */
-function openMenu() {    
+function openMenu() {
     menu.open();
     menu.classList.add('menuShadow');
 }
 /**
  *  closes the menu
  */
-function closeMenu() {     
-    return menu.close();    
+function closeMenu() {
+    return menu.close();
 }
 
 /**
@@ -1671,14 +1671,14 @@ function editEvent() {
 
 function activateEvent() {
     Promise.resolve()
-    .then(editEvent())
-    .then(function() {
-        var pRef = addPluralS(navi.topPage.data.eventInfo.pRef).toLowerCase();
-        ons.notification.alert({
-        title: 'Activate Event',
-            messageHTML: '<p>Before activating please ensure your event settings are correct.</p><p>When ready, press done in the top right to continue to the checkout. The event will activate after purchase.</p><p>These settings can be changed after activation and more ' + pRef + ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>'
+        .then(editEvent())
+        .then(function () {
+            var pRef = addPluralS(navi.topPage.data.eventInfo.pRef).toLowerCase();
+            ons.notification.alert({
+                title: 'Activate Event',
+                messageHTML: '<p>Before activating please ensure your event settings are correct.</p><p>When ready, press done in the top right to continue to the checkout. The event will activate after purchase.</p><p>These settings can be changed after activation and more ' + pRef + ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>'
+            });
         });
-    });
 }
 
 
@@ -2010,7 +2010,7 @@ ons.ready(function () {
     $('#menu').on('postclose', function () {
         console.log('menu closed');
         $('#menu').removeClass('menuShadow');
-    });    
+    });
 
     // --- End of Menu Controls ---
 
@@ -2549,14 +2549,14 @@ ons.ready(function () {
                                     case false:
 
                                         return ons.notification.alert({
-                                            
+
                                             message: "Couldn't connect to server because this device is offline.",
                                             cancelable: true
                                         });
 
                                     default:
                                         return ons.notification.alert({
-                                            
+
                                             message: "Couldn't connect to server, please try again later.",
                                             cancelable: true
                                         });
@@ -2671,7 +2671,7 @@ ons.ready(function () {
                 if (!$('#signUpPassword').hasClass('evtHandler')) {
                     $('#signUpPassword').addClass('evtHandler').on('blur', function () {
                         var pass = $(this).val().trim();
-                        
+
                         if (pass.length >= passwordLength) {
                             //valid
                             if (passwordSignUp != pass) {
@@ -2688,7 +2688,7 @@ ons.ready(function () {
                             passwordSignUp = pass;
                             if (!errorMessageOpen) {
                                 errorMessageOpen = true;
-                                ons.notification.alert({                                    
+                                ons.notification.alert({
                                     message: 'A longer password is required please use a minimum of ' + passwordLength + ' characters',
                                     cancelable: true
                                 }).then(function () {
@@ -2720,7 +2720,7 @@ ons.ready(function () {
                             //invalid
                             if (confirmP === '' && passwordSignUp === false) {
                                 errorMessageOpen = true;
-                                ons.notification.alert({                                    
+                                ons.notification.alert({
                                     messageHTML: 'Please enter a password to confirm',
                                     cancelable: true
                                 }).then(function () {
@@ -3228,7 +3228,7 @@ ons.ready(function () {
                         }).then(function (index) {
                             // must be == to work
                             if (!index == 1) {
-                                
+
                                 throw {
                                     canceled: true
                                 };
@@ -4542,18 +4542,18 @@ ons.ready(function () {
                                 cancelable: true
                             });
                         } else if (sqPatrol > parseInt(eventInfo.trackedEntities) || sqPatrol < 1) {
-                            ons.notification.alert({                                
+                            ons.notification.alert({
                                 message: 'You have entered an invalid ' + eventInfo.pRef + ' number.',
                                 cancelable: true
                             });
 
                         } else if (parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)) {
-                            ons.notification.alert({                                
+                            ons.notification.alert({
                                 message: 'The total score entered is greater than the maximum points available at this checkpoint.',
                                 cancelable: true
                             });
                         } else if (sqTimeIn > sqTimeOut) {
-                            ons.notification.alert({                                
+                            ons.notification.alert({
                                 message: 'The time out must be after the time in.',
                                 cancelable: true
                             });
@@ -4584,9 +4584,9 @@ ons.ready(function () {
                                 });
 
                         }
-                        
+
                         else {
-                            
+
                             if (sqWait == "") {
                                 sqWait = 0;
                             }
@@ -5170,9 +5170,9 @@ ons.ready(function () {
                                      * @event adminDelete clicked
                                      */
                                     $('#adminDelete').on('click', function () {
-                                        var logOrLogs = adminCurrentlySelected.length > 1 
-                                        ? 'these ' + adminCurrentlySelected.length + ' logs?'
-                                        : 'this log?';
+                                        var logOrLogs = adminCurrentlySelected.length > 1
+                                            ? 'these ' + adminCurrentlySelected.length + ' logs?'
+                                            : 'this log?';
                                         ons.notification.confirm({
                                             title: 'Are you sure?',
                                             message: 'Are you sure you wish to delete ' + logOrLogs,
@@ -5320,7 +5320,7 @@ ons.ready(function () {
                 localStorage.dbSeqNumber = nextSeq;
 
                 //functions
-                var msgActivationCheck = function(paidTrackedEntities) {
+                var msgActivationCheck = function (paidTrackedEntities) {
                     if (!paidTrackedEntities > 0) {
                         ons.notification.alert({
                             title: 'Messaging unavailable',
@@ -5368,7 +5368,7 @@ ons.ready(function () {
                         }).catch(function (err) {
                             console.warn(err);
                         });
-                    };
+                };
 
                 /**
                  * resets the placeholder message
@@ -5447,7 +5447,7 @@ ons.ready(function () {
                     limit: 25
                 };
                 addMessages(pouch, messageWindow, messagePageContent, optionsB, false, true, true);
-                
+
                 //messageInput
                 messageInput
                     .on('keydown', function (e) {
@@ -5472,12 +5472,12 @@ ons.ready(function () {
                     });
                 $('#sendMessage').on('click', function () {
                     if (messageInput.html().trim() !== '' && msgActivationCheck(eventInfo.paidTrackedEntities)) {
-                       return sendMessage();
-                    }                    
+                        return sendMessage();
+                    }
                 });
-                
+
                 lastSyncHandler();
-                
+
                 scrollToBottomFab.on('click', function () {
                     var offset = messagePageContent[0].scrollHeight;
                     scrollToElement(messagePageContent, offset, 1);
@@ -6176,7 +6176,7 @@ function menuController() {
             $('#eventSignOut').removeClass('hide');
             break;
         case 'signInPage.html':
-            $('#eventSignOut').addClass('hide');
+            $('#eventSignOut, #baseLogOut, #eventChanger, #eventEditor, #copyAllLogs, #goToEventSummary').addClass('hide');
             $('#pricingPage').removeClass('hide');
             break;
         default:
