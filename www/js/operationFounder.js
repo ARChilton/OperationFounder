@@ -4209,7 +4209,7 @@ ons.ready(function () {
                 //Also work out how to downscale the images saved
                 // --- Page 1 for normal bases ---
                 if (base > 0) {
-                    $('#page1 .normalTitle, #page1 .mainTitle').html('Base ' + base + ' @ ' + eventInfo.bases[getBaseNumber()].baseName);
+                    $('#page1 .normalTitle, #page1 .mainTitle').html('ChkPt ' + base + ': ' + eventInfo.bases[getBaseNumber()].baseName);
                     var quickAddTitle = 'Add new log from checkpoint ' + base;
                     if (!eventInfo.paidTrackedEntities > 0) {
                         quickAddTitle = '<div class="txtCenter"><hr><span class="warning txtCenter"><ons-icon icon="fa-warning"></ons-icon> Event activation required to submit logs</span></div><hr>' + quickAddTitle;
@@ -4220,8 +4220,8 @@ ons.ready(function () {
 
                 } else if (base === 'noBase') {
                     $('#page1 .normalTitle,#page1 .mainTitle').html('On the look out');
-                    $('#quickAddTitle').html('Record the teams you see');
-                    $('#tableTitle').html('Teams seen');
+                    $('#quickAddTitle').html('Record the' + addPluralS(eventInfo.pRef) + ' you see');
+                    $('#tableTitle').html(addPluralS(eventInfo.pRef) + ' seen');
 
                 }
                 $('#logsTable').empty();
@@ -4347,7 +4347,7 @@ ons.ready(function () {
                 if (eventInfoBase.baseGeolocation && typeof geolocation === 'undefined') {
                     var settings = {
                         title: 'Location',
-                        messageHTML: '<p class="">The event organiser has set this base to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
+                        messageHTML: '<p class="">The event organiser has set this checkpoint to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
                         cancelable: true
                     };
                     ons.notification.alert(settings)

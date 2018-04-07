@@ -38,7 +38,8 @@ gulp.task('generate-service-worker', (callback) => {
   const rootDir = buildFolder;
 
   swPrecache.write(path.join(rootDir, 'sw.js'), {
-    staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,svg,jpg,gif,woff2,woff,ttf,eot,otf}'],
+    staticFileGlobs: [rootDir + '/**/!(404*).{js,html,css,png,svg,jpg,gif,woff2,woff,ttf,eot,otf}'],
+    // staticFileGlobs: [rootDir + '*/*!(404**)/**/*.{js,html,css,png,svg,jpg,gif,woff2,woff,ttf,eot,otf}'],
     stripPrefix: rootDir
   }, callback);
 });

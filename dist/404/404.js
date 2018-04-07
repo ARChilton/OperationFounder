@@ -1,1 +1,0 @@
-var menu=document.getElementById("menu");function openMenu(){menu.open(),menu.classList.add("menuShadow")}menu.addEventListener("postclose",function(){menu.classList.remove("menuShadow")});
