@@ -465,6 +465,14 @@ input:checked + .switch__toggle{
 background-color:#efefef;
 }
 
+@media(min-width:768px){
+.centerContentBoxes{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+}
+}
 
 .highlights .col-sm-4, .highlights .col-lg-4{
     padding:16px;
