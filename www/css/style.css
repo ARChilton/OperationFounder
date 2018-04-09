@@ -2055,31 +2055,6 @@ ons-splitter-mask {
     }
 }
 
-
-/* @keyframes dash {
-    0% {
-        stroke-dasharray: 5, 95;
-        stroke-dashoffset: 5;
-    }
-    50% {
-        stroke-dasharray: 85, 95;
-        stroke-dashoffset: -30;
-    }
-    100% {
-        stroke-dasharray: 85, 95;
-        stroke-dashoffset: -47;
-    }
-}
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-} */
-
 .circle-loader-container {
     position: absolute;
     width: 100%;
@@ -2494,4 +2469,70 @@ select option:checked {
 }
 #country.us::before {
   background-position: -475px -135px;
+}
+
+/* What is checkpoint live diagram animation */
+
+@-webkit-keyframes chkpt{
+    10% {
+        fill:#7BC82C;
+    }
+    20% {
+        fill:#000;
+    }
+}
+
+@keyframes chkpt{
+    10% {
+        fill:#7BC82C;
+    }
+    20% {
+        fill:#000;
+    }
+
+}
+
+@-webkit-keyframes admin{
+    12%, 42% {
+        fill:#7BC82C;
+    }
+    32%, 62% {
+        fill:#000;
+    }
+}
+
+@keyframes admin{
+    10%, 25%,  40%{
+        fill:#7BC82C;
+    }
+    15%,  30%, 50% {
+        fill:#000;
+    }
+
+}
+
+#whatIsCheckpointLive .chkptAnimation{
+    animation-name:chkpt;
+    animation-duration: 10s;
+    animation-delay: 8s;    
+    animation-iteration-count: infinite;
+}
+
+#whatIsCheckpointLive #chkpt1-in, #whatIsCheckpointLive #chkpt1-device{
+animation-delay: 2s;
+}
+#whatIsCheckpointLive #chkpt2-in, #whatIsCheckpointLive #chkpt2-device{
+animation-delay: 3.5s;
+}
+#whatIsCheckpointLive #chkpt3-in, #whatIsCheckpointLive #chkpt3-device{
+animation-delay: 5s;
+}
+#whatIsCheckpointLive #admin-out{
+animation-name:admin;
+animation-delay: 2.1s;
+}
+
+.largeFont{
+    font-size:22px;
+    font-weight: bold;
 }
