@@ -1719,6 +1719,10 @@ hr {
     margin: 5vh 5vw;
 }
 
+hr .noMarginTopOrBottom{
+    margin: 0vh 5vw;
+}
+
 /*element styles*/
 
 .marginAuto {
