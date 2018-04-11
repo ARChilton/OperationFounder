@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://checkpointlive.com/</loc>
-        <lastmod>2018-04-09T19:33:25.859Z</lastmod>
+        <lastmod>2018-04-11T20:55:06.240Z</lastmod>
     </url>
     <url>
         <loc>https://checkpointlive.com/lost/</loc>
@@ -10,6 +10,10 @@
     </url>
     <url>
         <loc>https://checkpointlive.com/pricing/</loc>
-        <lastmod>2018-04-07T11:07:26.339Z</lastmod>
+        <lastmod>2018-04-11T20:52:41.342Z</lastmod>
+    </url>
+    <url>
+        <loc>https://checkpointlive.com/terms/</loc>
+        <lastmod>2018-04-11T21:42:50.173Z</lastmod>
     </url>
 </urlset>

@@ -37,8 +37,8 @@
     <ons-splitter>
       <ons-splitter-side id="menu" side="left" page="pricingMenuPage.html" swipe-target-width="1px" collapse swipeable>
       </ons-splitter-side>
-      <ons-splitter-content id="content" page="pricingPage.html"></ons-splitter-content>
-      <!-- <ons-navigator id="navi"></ons-navigator> -->
+      <ons-splitter-content id="content"></ons-splitter-content>
+      <ons-navigator id="navi" page="pricingPage.html"></ons-navigator>
     </ons-splitter>
     <ons-template id="pricingMenuPage.html">
       <ons-page id="pricingMenuPage">
@@ -57,7 +57,7 @@
     </ons-template>
 
     <ons-template id="pricingPage.html">
-      <ons-page modifier="material">
+      <ons-page id="pricingPage" modifier="material">
 
         <div id="navBar" class="">
           <div class=" col-xs-2 xsShow txtCenter">
@@ -97,7 +97,7 @@
             <p>That's it, as simple as joining the dots.</p>
 
           </div>
-          <div class="row section sectionGray highlights" id="optionalExtras">
+          <div class="row section sectionGray sectionBorderTop highlights" id="optionalExtras">
             <h2 class="txtCenter">Optional extras</h2>
             <div class="col-sm-4 pricingDivs">
               <ons-icon icon="md-pin" class="secondaryColor"></ons-icon>
@@ -158,7 +158,33 @@
           </div>
 
         </div>
-        <div class="caption txtRight bottomDiv row">© 2018 Adam Chilton</div>
+        <div class="caption txtCenter  sectionBorderTop row">
+          <div class="col-xs-12 col-sm-5 col-sm-push-1">
+            <h4>Links</h4>
+            <p>
+              <a href="/">Home</a>
+            </p>
+            <p>
+              <a href="#pricingPage">Pricing</a>
+            </p>
+            <p onClick="goToTermsOfUse()" class="cursor">
+              <a>Terms of Use</a>
+            </p>
+          </div>
+          <div class="col-xs-12 col-sm-5 col-sm-offset-1">
+            <h4>Contact Us</h4>
+            <p>
+              <a href="mailto:contact@checkpointlive.com">contact@checkpointlive.com</a>
+            </p>
+            <h4>For support</h4>
+            <p>
+              <a href="mailto:support@checkpointlive.com">support@checkpointlive.com</a>
+            </p>
+          </div>
+
+          <div class="col-xs-12 txtRight paddingRight"> © 2018 Adam Chilton</div>
+
+        </div>
       </ons-page>
     </ons-template>
 

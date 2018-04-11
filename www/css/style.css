@@ -95,7 +95,7 @@ a:visited{
 .navigation-bar--material + .page__background + .page__content{
     top:56px;
 }
-.toolbar-button, .back-button{
+.toolbar-button, .back-button, .cursor{
    cursor: pointer; 
 }
 .toolbar-button, :checked + .tab-bar__button, .back-button{
@@ -154,6 +154,10 @@ input:checked + .switch__toggle{
 .list__item__right{
     margin:0px;
     min-height:52px;
+}
+.page__background, .list__item {
+    background-color:rgb(252, 252, 252);
+    
 }
 
 /*
@@ -458,11 +462,18 @@ input:checked + .switch__toggle{
 
 /*signIn page*/
 .section{
- padding:32px 16px;
- border-top:3px solid #EF6C00;
+ padding:8vh 16px;
+ 
 }
 .sectionGray{
 background-color:#efefef;
+}
+
+.sectionBorderTop{
+border-top:3px solid #EF6C00;    
+}
+.sectionBorderBottom{
+ border-bottom: 3px solid #EF6C00;   
 }
 
 @media(min-width:768px){
@@ -493,30 +504,15 @@ background-color:#efefef;
     max-width:50%;
 }
 
-.bottomDiv {
-    background-color: #000;
-    color: #fff;
-    padding-right: 16px;
-}
 
 .maxWidth {
     max-width: 400px;
 }
 
-.asUsedByLogo {
-    width: 100%;
-    max-width: 300px;
-    display: block;
-    margin: auto;
-}
-
 .logoBackground {
-    padding: 32px 16px 0px
+    padding: 0px 16px;
 }
 
-.signInFormDiv{
-    padding:5% 16px;
-}
 .packageOfferings{
     height:500px;
 }
@@ -619,6 +615,8 @@ background-color: rgba(255, 145, 0,0.3);
 }
 #signInLogo {
     width:100%;
+    max-width:75vw;
+    max-height: 34vh;
 }
 .loginLogo {
     max-height: 25vh;
@@ -1525,7 +1523,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .color-1 {
-    color: #35cd96 !important
+    color: #7BC82C !important
 }
 
 .color-2 {
@@ -1717,6 +1715,9 @@ p {
     font-size: medium;
 }
 
+hr {
+    margin: 5vh 5vw;
+}
 
 /*element styles*/
 
@@ -1739,6 +1740,9 @@ p {
 .marginTop32px {
     margin-top: 32px;
 }
+.marginTop64px {
+    margin-top:64px;
+}
 
 .marginBottom {
     margin-bottom: 16px;
@@ -1754,6 +1758,9 @@ p {
 
 .paddingBottom{
     padding-bottom: 16px;
+}
+.paddingRight{
+    padding-right:16px;
 }
 
 .floatLeft {
@@ -2297,8 +2304,8 @@ ons-splitter-mask {
     padding-right:8px;
 }
 
-#checkoutPage .caption{
-    color:rgba(0,0,0,0.4);
+#checkoutPage .caption, #signUpPage .caption{
+    color:rgba(0,0,0,0.5);
 }
 
 #eventPaymentSummary .bold{
@@ -2536,3 +2543,9 @@ animation-delay: 2.1s;
     font-size:22px;
     font-weight: bold;
 }
+
+#signInPage h2{
+    color:#EF6C00;
+}
+
+

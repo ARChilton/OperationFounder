@@ -16,7 +16,7 @@
  */
 
 /*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
-/* exported baseLogOut signOut changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
+/* exported baseLogOut signOut goToTermsOfUse changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -1565,6 +1565,10 @@ function baseLogOut() {
         });
 
 }
+function goToTermsOfUse() {
+    return navi.bringPageTop('./terms', { animation: pageChangeAnimation });
+}
+
 /**
  * sign out of the session and return to the sign in screen
  * Used by the menu
@@ -2594,16 +2598,21 @@ ons.ready(function () {
                 var passwordSignUp = false;
                 var confirmPassSignUp = false;
                 var passwordLength = 6;
+                var signUpEmailEl = $('#signUpEmail');
+                var signUpPasswordEl = $('#signUpPassword');
+                var signUpPasswordConfirmEl = $('#signUpPasswordConfirm');
+                var signUpButtonEl = $('#signUpInputButton');
+                var termsOfUseCheckbox = $('#termsOfUse');
 
-                if (!$('#signUpEmail').hasClass('evtHandler')) {
+                if (!signUpEmailEl.hasClass('evtHandler')) {
                     var lastUsername = '';
-                    $('#signUpEmail').addClass('evtHandler').on('blur', function () {
+                    signUpEmailEl.addClass('evtHandler').on('blur', function () {
                         // finds the input from within the ons-input element
                         var inpObj = document.getElementById('signUpEmail').getElementsByTagName('input');
                         //checks if the input is currently valid before checking if it is unique in the db
                         if (inpObj[0].checkValidity()) {
                             var checkUsernameApi = appServer + '/api/user/checkusername';
-                            var usernameToTest = changeAtSymbol($('#signUpEmail').val().trim());
+                            var usernameToTest = changeAtSymbol(signUpEmailEl.val().trim());
                             var usernameDataPackage = {
                                 "username": usernameToTest
                             };
@@ -2671,15 +2680,15 @@ ons.ready(function () {
                     });
 
                 }
-                if (!$('#signUpPassword').hasClass('evtHandler')) {
-                    $('#signUpPassword').addClass('evtHandler').on('blur', function () {
+                if (!signUpPasswordEl.hasClass('evtHandler')) {
+                    signUpPasswordEl.addClass('evtHandler').on('blur', function () {
                         var pass = $(this).val().trim();
 
                         if (pass.length >= passwordLength) {
                             //valid
                             if (passwordSignUp != pass) {
                                 passwordSignUp = pass;
-                                if (pass === $('#signUpPasswordConfirm').val()) {
+                                if (pass === signUpPasswordConfirmEl.val()) {
                                     confirmPassSignUp = true;
                                 } else {
                                     confirmPassSignUp = false;
@@ -2701,8 +2710,8 @@ ons.ready(function () {
                         }
                     });
                 }
-                if (!$('#signUpPasswordConfirm').hasClass('evtHandler')) {
-                    $('#signUpPasswordConfirm').addClass('evtHandler').on('blur', function () {
+                if (!signUpPasswordConfirmEl.hasClass('evtHandler')) {
+                    signUpPasswordConfirmEl.addClass('evtHandler').on('blur', function () {
                         var confirmP = $(this).val().trim();
                         if (confirmP === passwordSignUp && passwordSignUp != '') {
                             //valid
@@ -2747,13 +2756,13 @@ ons.ready(function () {
                         // enter key is 13
                         if (key === 13) {
                             e.preventDefault();
-                            $('.signUpInputButton').click();
+                            signUpButtonEl.click();
                         }
                     });
                 }
-                if (!$('.signUpInputButton').hasClass('evtHandler')) {
-                    $('.signUpInputButton').addClass('evtHandler').on('click', function () {
-                        switch (emailSignUpValid && confirmPassSignUp) {
+                if (!signUpButtonEl.hasClass('evtHandler')) {
+                    signUpButtonEl.addClass('evtHandler').on('click', function () {
+                        switch (emailSignUpValid && confirmPassSignUp && termsOfUseCheckbox.prop("checked")) {
                             case true:
                                 var apiAddress = appServer + '/api/user/new';
                                 var createUserDataPackage = {
@@ -2805,15 +2814,18 @@ ons.ready(function () {
                                     });
                                 break;
                             case false:
-                                var signUpErrorMessage = '<p>Please complete the following:</p>';
+                                var signUpErrorMessage = '';
                                 if (emailSignUpValid === false) {
-                                    signUpErrorMessage = signUpErrorMessage + '<p>Enter a email</p>';
+                                    signUpErrorMessage += '<p>Enter an email address.</p>';
                                 }
                                 if (confirmPassSignUp === false) {
-                                    signUpErrorMessage = signUpErrorMessage + '<p>Enter and confirm your password</p>';
+                                    signUpErrorMessage += '<p>Enter and confirm your password.</p>';
+                                }
+                                if (termsOfUseCheckbox.prop('checked') === false) {
+                                    signUpErrorMessage += '<p>Read and confirm you accept the terms of use.</p>';
                                 }
                                 ons.notification.alert({
-                                    title: 'Missing fields',
+                                    title: 'Please complete the following:',
                                     messageHTML: signUpErrorMessage,
                                     cancelable: true
                                 });
