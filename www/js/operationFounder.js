@@ -2306,7 +2306,7 @@ ons.ready(function () {
         switch (navi.topPage.name) {
             //--- Create Event Page ---
             case 'signInPage.html':
-                if (username != undefined) {
+                if (typeof username === 'string') {
                     $('#signInUserName').val(changeAtSymbolBack(username));
                 }
 
@@ -2516,6 +2516,9 @@ ons.ready(function () {
                                             animation: pageChangeAnimation,
                                             data: data
                                         };
+                                    if (page === 'loginPage.html' || page === 'eventSelectionPage.html') {
+                                        return navi.resetToPage(page, options);
+                                    }
                                     return navi.bringPageTop(page, options);
                                 }).catch(function (err) {
                                     console.log(err);
