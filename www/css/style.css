@@ -1071,6 +1071,9 @@ input[type=number]::-webkit-outer-spin-button {
     }
 }
 
+.adminSummaryIcons ons-icon:first-child{
+    padding-right:4px;
+}
 .adminActiveIcon{
     /* color:rgba(255, 184, 77, 0.9); */
     color:rgba(123, 200, 44,0.9);

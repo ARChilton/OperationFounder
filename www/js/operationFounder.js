@@ -933,7 +933,7 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
         : 'adminNotActive';
 
     //without checkboxes
-    $('#' + trId).html("<td class='lockImage baseSummaryIcons'><ons-icon icon='fa-trophy' class='" + scoreClass + "'></ons-icon>" + locationInfo + "</td><td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
+    $('#' + trId).html("<td class='lockImage adminSummaryIcons'><ons-icon icon='fa-trophy' class='" + scoreClass + "'></ons-icon>" + locationInfo + "</td><td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
     //with checkboxes
     //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 
@@ -996,7 +996,7 @@ function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, total
         ? 'adminActiveIcon'
         : 'adminNotActive';
     // without checkboxes
-    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="baseSummaryIcons ' + tdClasses + '"><ons-icon icon="fa-trophy" class="' + scoreClass + '"></ons-icon>' + locationInfo + '</td><td class="">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
+    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="adminSummaryIcons ' + tdClasses + '"><ons-icon icon="fa-trophy" class="' + scoreClass + '"></ons-icon>' + locationInfo + '</td><td class="">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
     return log;
     //with checkboxes
 
