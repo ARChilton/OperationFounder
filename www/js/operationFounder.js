@@ -925,8 +925,15 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
  */
 function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy) {
     var trId = dbId;
+    var locationInfo = typeof geolocation === 'object'
+        ? '<ons-icon icon="md-pin" class="adminActiveIcon"></ons-icon>'
+        : '<ons-icon icon="md-pin-off" class="adminNotActive"></ons-icon>';
+    var scoreClass = totalScore > 0
+        ? 'adminActiveIcon'
+        : 'adminNotActive';
+
     //without checkboxes
-    $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
+    $('#' + trId).html("<td class='lockImage baseSummaryIcons'><ons-icon icon='fa-trophy' class='" + scoreClass + "'></ons-icon>" + locationInfo + "</td><td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
     //with checkboxes
     //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 
@@ -947,7 +954,7 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
  * @param {string} tableId - base table or admin table
  * @param {string} tableLogId - the class of the row
  */
-function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
+function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId, geolocation) {
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
     var editableStyle = editableStyling(editable);
@@ -976,14 +983,20 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
  * @param {string} tableId - base table or admin table
  * @param {string} tableLogId - the class of the row
  */
-function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableLogId) {
+function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableLogId, geolocation) {
     console.log(dbId);
     var trId = dbId;
     var editableStyle = editableStyling(editable);
     var trClasses = tableLogId + ' ' + editableStyle.tr;
     var tdClasses = 'lockImage' + editableStyle.td;
+    var locationInfo = typeof geolocation === 'object'
+        ? '<ons-icon icon="md-pin" class="adminActiveIcon"></ons-icon>'
+        : '<ons-icon icon="md-pin-off" class="adminNotActive"></ons-icon>';
+    var scoreClass = totalScore > 0
+        ? 'adminActiveIcon'
+        : 'adminNotActive';
     // without checkboxes
-    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="' + tdClasses + '">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
+    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="baseSummaryIcons ' + tdClasses + '"><ons-icon icon="fa-trophy" class="' + scoreClass + '"></ons-icon>' + locationInfo + '</td><td class="">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
     return log;
     //with checkboxes
 
@@ -1019,9 +1032,9 @@ function tableUpdateFunction(path, admin, array) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username);
+            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, path.geolocation);
         } else {
-            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, tableLogId));
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, tableLogId, path.geolocation));
         }
 
     } else if (path.base === getBaseNumber()) {
@@ -1096,9 +1109,9 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                     }
                 }
 
-            } else if (path.patrol != undefined) {
+            } else if (typeof path.patrol === 'string') {
                 if (path.patrol.length > 0) {
-                    if (path.patrol === patrolToSearch || !patrolToSearch || patrolToSearch === undefined) {
+                    if (path.patrol === patrolToSearch || !patrolToSearch || typeof patrolToSearch === 'undefined') {
                         tableUpdateFunction(path, admin, tableUpdate);
 
                     }
@@ -3510,7 +3523,13 @@ ons.ready(function () {
                         hideElement(!$('#trackingSwitch').prop("checked"), '.trackingShowHide');
                     });
                 }
-
+                // if (!($('.geoLocationSwitch').hasClass('evtHandler'))) {
+                //     $('.geoLocationSwitch').addClass('evtHandler').on('click', function () {
+                //         var elSwitch = $('#geolocationSwitch');
+                //         console.log('switching');
+                //         toggleProp(elSwitch, 'checked', !elSwitch.prop('checked'));
+                //     });
+                // }
                 if (!($('#createEventForm').hasClass('evtHandlerPassword'))) {
                     $('#createEventForm').addClass('evtHandlerPassword').find('.eventPassword').on('blur', function () {
                         passwordCheck(this);
@@ -3608,7 +3627,6 @@ ons.ready(function () {
 
                 if (!$('#saveEvent').hasClass('evtHandler')) {
                     $('#saveEvent').addClass('evtHandler').on('click', function () {
-
                         createOrUpdateEvent();
                     });
                 }
@@ -5752,12 +5770,13 @@ ons.ready(function () {
 
                 // Create a token or display an error when the form is submitted.
                 paymentSubmitButton.on('click', function () {
-                    // event.preventDefault();
+                    if (checkoutTotal === 0) {
+                        return updateEventHandler(checkOutInfo, eventDescription);
+                    }
                     showProgressBar('checkoutPage', true);
 
                     Promise.resolve()
                         .then(function () {
-
                             return collectPaymentInfo();
                         })
                         .then(function (metadata) {
@@ -5821,6 +5840,16 @@ ons.ready(function () {
                     return metadata;
                 };
 
+                var updateEventHandler = function (checkOutInfo, eventDescription) {
+                    if (checkOutInfo.newEvent) {
+                        eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
+                        return createNewEvent(checkOutInfo.url);
+                    }
+
+                    eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
+                    return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
+                }
+
                 var stripeTokenHandler = function (source, customer, amount, metadata, name) {
                     var paymentObject = {
                         name: name,
@@ -5832,13 +5861,7 @@ ons.ready(function () {
                     return $.ajax(apiAjax(appServer + '/api/payment', paymentObject))
                         .then(function (response) {
                             if (response.status === 200) {
-                                if (checkOutInfo.newEvent) {
-                                    eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
-                                    return createNewEvent(checkOutInfo.url);
-                                }
-
-                                eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
-                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
+                                return updateEventHandler(checkOutInfo, eventDescription);
                             }
                             throw response;
                         })
