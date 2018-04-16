@@ -923,7 +923,7 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
  */
-function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy) {
+function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, geolocation) {
     var trId = dbId;
     var locationInfo = typeof geolocation === 'object'
         ? '<ons-icon icon="md-pin" class="adminActiveIcon"></ons-icon>'
@@ -954,7 +954,7 @@ function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, to
  * @param {string} tableId - base table or admin table
  * @param {string} tableLogId - the class of the row
  */
-function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId, geolocation) {
+function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, tableId, tableLogId) {
     // console.log(tableId + ' ' + tableLogId);
     var trId = dbId;
     var editableStyle = editableStyling(editable);
