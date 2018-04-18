@@ -97,7 +97,7 @@ gulp.task('minify-svg', () => gulp.src('www/**/*.svg')
   .pipe(svgmin())
   .pipe(gulp.dest(buildFolder)));
 
-gulp.task('move-static', () => gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf,xml,webmanifest,ico,md}')
+gulp.task('move-static', () => gulp.src('www/**/*.{png,jpeg,gif,woff2,woff,ttf,eot,otf,xml,webmanifest,ico,md,txt}')
   .pipe(gulp.dest(buildFolder)));
 
 gulp.task('minify-onsenui-css', () => gulp.src('www/lib/onsenui/css/*.css')
