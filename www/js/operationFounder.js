@@ -5848,7 +5848,7 @@ ons.ready(function () {
 
                     eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
                     return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
-                }
+                };
 
                 var stripeTokenHandler = function (source, customer, amount, metadata, name) {
                     var paymentObject = {
