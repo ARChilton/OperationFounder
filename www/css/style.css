@@ -155,7 +155,7 @@ input:checked + .switch__toggle{
     margin:0px;
     min-height:52px;
 }
-.page__background, .list__item {
+.page__background, .list__item, .list__header, .list__header--material, .data-table {
     background-color:rgb(252, 252, 252);
     
 }
@@ -1632,9 +1632,14 @@ input[type=number]::-webkit-outer-spin-button {
     user-select: text;
 }
 
-/* *::-webkit-scrollbar {
-    width: 4px !important;
-    height: 6px !important;
+*::-webkit-scrollbar {
+    width: 4px ;
+    height: 6px ;
+}
+@media(min-width:768px){
+   *::-webkit-scrollbar{
+    width:8px;
+   } 
 }
 
 *::-webkit-scrollbar-thumb {
@@ -1643,7 +1648,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 *::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.08);
-} */
+    /* background-color:transparent; */
+}
 
 
 /* Text styles */
