@@ -15,8 +15,8 @@
  * @param {number} dbSeqNumber
  */
 
-/*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
-/* exported baseLogOut signOut goToTermsOfUse changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
+/*global $:false L:false PouchDB:false ons:false navi:false emit:false Stripe:false */
+/* exported baseLogOut showMap hideMap signOut goToTermsOfUse changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -74,21 +74,21 @@ var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
-/* var marker;
+var marker;
 var accuracyCircle;
 var locationFoundCount = 0;
-var followGPS;
-var mapMarkers = L.featureGroup()
-L.LayerGroup.include({
-    customGetLayer: function (id) {
-        for (var i in this._layers) {
-            if (this._layers[i].id == id) {
-                return this._layers[i];
-            }
-        }
-    }
-});
-var mapMade = false;
+var followGPS = false;
+var tab0MapMarkerClusters;
+// Not sure this is required to find the layer anymore
+// L.LayerGroup.include({
+//     customGetLayer: function (id) {
+//         for (var i in this._layers) {
+//             if (this._layers[i].id == id) {
+//                 return this._layers[i];
+//             }
+//         }
+//     }
+// });
 var map;
 var BING_KEY = 'AqVat8HR9TsQF1uwWckLU_1Dv_wrrDR3ThriJUmZyDhPcHRGwpeTDA9NVhKaS5RX';
 var turnCachingOn = true;
@@ -102,7 +102,8 @@ var bingOS = L.tileLayer.bing({
     useCache: turnCachingOn,
     crossOrigin: true,
     cacheMaxAge: reCacheAfter
-}); */
+});
+// var followGPS = false;
 // var currentLocation;
 // var location;
 
@@ -566,205 +567,245 @@ function cleanAll() {
             break;
     }
 } */
+function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
+    var marker = L.marker([lat, lon]);
+    marker.id = id;
+    marker.data = data;
+    layerAddedTo.addLayer(marker);
+}
+
+function zoomToLayer(layer) {
+    followGPS = false;
+    return map.fitBounds(layer.getBounds());
+}
+
+function removeLayerFrom(idToRemove, fromLayer) {
+    fromLayer.removeLayer(
+        fromLayer.getLayers().filter(function (layer) {
+            return layer.id === idToRemove;
+        })[0]);
+}
+
 /**
  * Creates the map on the map page behind the scenes
  */
-// function createMap() {
-//     if (!(mapMade)) {
-//         //map centred on Hadlow // pick up here   
-//         try {
-//             setTimeout(function () {
-//                 map = L.map('map', {
-//                     center: [
-//                         51.22435656415686, 0.3305253983853618
-//                     ],
-//                     zoom: 16,
-//                     layers: [bingOS],
-//                     zoomControl: false
-//                 });
-//                 // Adds a marker to the centre of the map before the GPS changes it's location
-//                 var currentLatLon = map.getCenter();
-//                 var currentLat = currentLatLon.lat;
-//                 var currentLng = currentLatLon.lng;
-//                 var startRadius = 3;
-//                 if (locationFoundCount == 0) {
-//                     accuracyCircle = L.circle(currentLatLon, {
-//                         radius: startRadius,
-//                         fillColor: '#aaf29f',
-//                         fillOpacity: 0.4,
-//                         stroke: true,
-//                         color: '#37e21d',
-//                         weight: 1
+function createMap(mapContainer) {
+    // if (!(mapMade)) {
+    //map centred on Hadlow // pick up here
+    var selected = $('.tableSelected');
+    var selectedLength = selected.length;
+    // tab0MapMarkerClusters = L.featureGroup()
+    tab0MapMarkerClusters = L.markerClusterGroup({
+        showCoverageOnHover: true,
+        spiderfyOnMaxZoom: true,
+        removeOutsideVisibleBounds: true
+    });
+    // http://leafletjs.com/reference-1.3.0.html#layergroup
+    // This function adds a custom function to get an id that can be set by me.
 
-//                     }).addTo(map);
-//                     marker = L.circleMarker(currentLatLon, {
-//                         radius: 8,
-//                         fill: true,
-//                         fillOpacity: 1,
-//                         fillColor: '#009688',
-//                         stroke: true,
-//                         color: '#ffffff',
-//                         weight: 3
-//                     }).addTo(map);
-//                     locationFoundCount++;
-//                 }
-//                 var followGPS = false;
-
-
-//                 /**
-//                  * On the success of the location function, this will locate you on the map and add a marker to show where you are
-//                  * @param {*} e - location passed by the location function
-//                  * @param {*} e.accuracy - the accuracy of the location
-//                  * @param {any[]} e.latlng - the lat lng array of the location
-//                  */
-//                 function onLocationFound(e) {
-
-
-//                     accRadius = e.accuracy / 2;
-
-//                     //L.marker(e.latlng).addTo(map)
-//                     //.bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-//                     marker.setLatLng(e.latlng);
-//                     accuracyCircle.setLatLng(e.latlng);
-//                     accuracyCircle.setRadius(accRadius);
-
-//                     // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
-//                     //console.log('followGPS = ' + followGPS);
-//                     currentLatLon = e.latlng;
-
-//                     if (followGPS) {
-//                         //map.setView(marker.getLatLng(),map.getZoom());
-//                         map.flyTo(marker.getLatLng(), map.getZoom());
-//                         console.log('I have moved because followGPS = ' + followGPS);
-//                     }
-//                 }
-//                 /**
-//                  * 
-//                  * @param {*} e - error message passed by the location function
-//                  */
-//                 function onLocationError(e) {
-//                     //alert(e.message);
-//                     $('#fabLocate').hide();
-
-//                     // Raven.captureException(e);
-//                 }
-
-//                 map.on('locationfound', onLocationFound);
-//                 map.on('locationerror', onLocationError);
-
-//                 /**
-//                  * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
-//                  * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
-//                  */
-//                 function locateButton(press) {
-//                     switch (press) {
-//                         case 1:
-
-//                             /*This updates the map to the current GPS location*/
-//                             map.setView(marker.getLatLng(), map.getZoom());
-//                             /* This will update the variable which defines if the map follows the GPS marker */
-//                             followGPS = true;
-//                             /* This will change the styling of the fabLocate button */
-//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-//                             /*For testing*/
-//                             console.log('following marker');
-
-//                             break;
-
-//                         case 2:
-
-//                             /* This updates whether the map follows the marker's GPS movements */
-//                             followGPS = false;
-//                             /*This will change the styling of the fabLocate button*/
-//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-//                             /* For testing */
-//                             console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
-
-//                             break;
-//                     }
-//                 }
+    map = L.map(mapContainer, {
+        center: [
+            51.22435656415686, 0.3305253983853618
+        ],
+        zoom: 16,
+        layers: [bingOS, tab0MapMarkerClusters],
+        zoomControl: true
+    });
+    map.locate({
+        setView: false,
+        maxZoom: map.getZoom(),
+        watch: true,
+        enableHighAccuracy:true
+    });
+    followGPS = true;
+    Promise.resolve()
+        .then(function () {
+            if (selectedLength === 0) {
+                throw 'none selected';
+            }
+            return Promise.all(selected.map(function (i, row) {
+                return admindb.get(row.id);
+            }));
+        }).then(function (docsArray) {
+            return docsArray.filter(function (doc) {
+                return doc.geolocation;
+            });
+        }).then(function (docsArray) {
+            console.log(docsArray);
+            return docsArray.forEach(function (doc) {
+                addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon);
+            });
+        }).then(function () {
+             zoomToLayer(tab0MapMarkerClusters);          
+        }).catch(function (err) {
+            console.log(err);
+        });
 
 
-//                 /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
-//                 if (!($('.locOn').hasClass('evtHandler'))) {
-//                     $('.locOn').addClass('evtHandler');
-//                     $('.locOn').on("click", function (e) {
+    try {
 
-//                         /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
-//                         if (followGPS) {
-//                             locateButton(2);
-//                         } else {
-//                             locateButton(1);
-//                         }
+        // map = L.map(mapContainer, {
+        //     center: [
+        //         51.22435656415686, 0.3305253983853618
+        //     ],
+        //     zoom: 16,
+        //     layers: [bingOS, featureGroup],
+        //     zoomControl: true,
+        // });
+        // map.locate({ setView: true, maxZoom: 16 });
+        
+        // Adds a marker to the centre of the map before the GPS changes it's location
+        var currentLatLon = map.getCenter();
+        var currentLat = currentLatLon.lat;
+        var currentLng = currentLatLon.lng;
+        var startRadius = 3;
+        if (locationFoundCount === 0) {
+            accuracyCircle = L.circle(currentLatLon, {
+                radius: startRadius,
+                fillColor: '#aaf29f',
+                fillOpacity: 0.4,
+                stroke: true,
+                color: '#37e21d',
+                weight: 1
 
-//                     })
+            }).addTo(map);
+            marker = L.circleMarker(currentLatLon, {
+                radius: 8,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: '#009688',
+                stroke: true,
+                color: '#ffffff',
+                weight: 3
+            }).addTo(map);
+            locationFoundCount++;
+        }
 
-//                     /*On any movement of the map:
-//                     - the follow GPS setting and locate button is turned off
-//                     - the autocomplete options are updated*/
-//                     /**
-//                      * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
-//                      * utilised followGPS as a global variable
-//                      */
-//                     function mapMove() {
-//                         /*This updates the fab icon*/
-//                         if (followGPS) {
-//                             /*This updates the locate button by passing in the second switch option that turns the button off*/
-//                             locateButton(2);
-//                             /*For testing*/
-//                             // console.log('toggling locate button');
-//                         }
-//                     }
+        /**
+         * On the success of the location function, this will locate you on the map and add a marker to show where you are
+         * @param {*} e - location passed by the location function
+         * @param {*} e.accuracy - the accuracy of the location
+         * @param {any[]} e.latlng - the lat lng array of the location
+         */
+        var onLocationFound = function (e) {
 
-//                     $('#map').on("swipe tap click taphold", function () {
-//                         //console.log('map touched in some way');
-//                         mapMove();
-//                     })
-//                     //This does the same but when the map is scrolled
-//                     map.on('dragstart', function () {
-//                         // console.log('map dragged');
-//                         mapMove();
+            var accRadius = e.accuracy / 2;
 
-//                     });
-//                 }
+            //L.marker(e.latlng).addTo(map)
+            //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-//             }, 500);
+            marker.setLatLng(e.latlng);
+            accuracyCircle.setLatLng(e.latlng);
+            accuracyCircle.setRadius(accRadius);
 
-//             mapMade = true;
-//         } catch (err) {
-//             console.log(err);
-//             createMap();
-//         }
-//     }
-// }
+            // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+            //console.log('followGPS = ' + followGPS);
+            currentLatLon = e.latlng;
 
-// GPS location
-// function getGeolocation() {
-//     var geolocationOptions = {
-//         enableHighAccuracy: true,
-//         maximumAge: 1000 * 20
-//     }
-//     navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError, geolocationOptions);
-// }
+            if (followGPS) {
+                //map.setView(marker.getLatLng(),map.getZoom());
+                map.setView(marker.getLatLng(), map.getZoom());
+                console.log('I have moved because followGPS = ' + followGPS);
+            }
+        };
+        /**
+         * 
+         * @param {*} e - error message passed by the location function
+         */
+        var onLocationError = function (e) {
+            console.log(e.message);
+            $('#fabLocate').hide();
 
-// function geolocationSuccess(position) {
-//     console.log('geolocationSuccess');
-//     console.log(position);
-//     console.log(position.coords.latitude)
-//     location = {
-//         lat: position.coords.latitude,
-//         lon: position.coords.longitude
-//         //acc: position.coords.accuracy
-//     };
-//     console.log(location);
+            // Raven.captureException(e);
+        };
 
-// }
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
 
-// function geolocationError(err) {
-//     console.log('geolocationError');
-//     console.log(err);
-// }
+        /**
+         * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
+         * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
+         */
+        var locateButton = function (press) {
+            switch (press) {
+                case 1:
+
+                    /*This updates the map to the current GPS location*/
+                    map.setView(marker.getLatLng(), map.getZoom());
+                    /* This will update the variable which defines if the map follows the GPS marker */
+                    followGPS = true;
+                    /* This will change the styling of the fabLocate button */
+                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                    /*For testing*/
+                    console.log('following marker');
+
+                    break;
+
+                case 2:
+
+                    /* This updates whether the map follows the marker's GPS movements */
+                    followGPS = false;
+                    /*This will change the styling of the fabLocate button*/
+                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
+                    /* For testing */
+                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
+
+                    break;
+            }
+        };
+
+
+        /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
+        if (!($('.locOn').hasClass('evtHandler'))) {
+            $('.locOn').addClass('evtHandler');
+            $('.locOn').on("click", function (e) {
+
+                /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
+                if (followGPS) {
+                    locateButton(2);
+                } else {
+                    locateButton(1);
+                }
+
+            });
+
+            /*On any movement of the map:
+            - the follow GPS setting and locate button is turned off
+            - the autocomplete options are updated*/
+            /**
+             * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
+             * utilised followGPS as a global variable
+             */
+            var mapMove = function () {
+                /*This updates the fab icon*/
+                if (followGPS) {
+                    /*This updates the locate button by passing in the second switch option that turns the button off*/
+                    locateButton(2);
+                    /*For testing*/
+                    // console.log('toggling locate button');
+                }
+            };
+
+            $('#map').on("swipe tap click taphold", function () {
+                //console.log('map touched in some way');
+                mapMove();
+            });
+            //This does the same but when the map is scrolled
+            map.on('dragstart', function () {
+                // console.log('map dragged');
+                mapMove();
+
+            });
+        }
+
+
+    } catch (err) {
+        console.log(err);
+        createMap();
+    }
+
+}
+
 
 
 /**
@@ -1698,6 +1739,50 @@ function activateEvent() {
         });
 }
 
+/**
+ * function to show a map in the admin section
+ */
+function showMap() {
+    Promise.resolve()
+    .then(function() {
+        return closeMenu();
+    })
+    .then(function() {
+        var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+        var tabRef = 'tab' + currentTab;
+        var container = tabRef + 'Container';
+        var map = tabRef + 'Map';
+        $('#' + container).addClass('col-md-6 mapShow');
+        $('#' + map).addClass('adminMapContainer col-md-6');
+
+        return createMap(map);
+    })
+    .then(function() {
+        $('#showMap').addClass('hide');
+        $('#hideMap').removeClass('hide');
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+}
+
+function hideMap() {
+    Promise.resolve()
+    .then(function() {
+        return closeMenu();
+    })
+    .then(function() {
+        map.remove();
+        locationFoundCount=0;
+    })
+    .then(function() {
+        $('#hideMap').addClass('hide');
+        $('#showMap').removeClass('hide');
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+}
 
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -5155,15 +5240,51 @@ ons.ready(function () {
                                     console.warn(err);
                                 });
                                 // end of longinandrunfunction
+                                var addToAdminCurrentlySelected = function (row, dataInfo, reset) {                                
+                                    if (reset) {
+                                        adminCurrentlySelected = [];
+                                    }
+                                    row.addClass('tableSelected');
+                                    adminSpeedDial.show();                                   
+                                    adminCurrentlySelected.push(dataInfo);
+                                    return ifMapShowAddToMap(dataInfo,reset);
+                                };
+
+                                var ifMapShowAddToMap = function (dataInfo, shiftNotHeld) {
+                                    if (typeof tab0MapMarkerClusters !== 'object') {
+                                        return false;
+                                    }
+                                    if (shiftNotHeld) {
+                                        tab0MapMarkerClusters.clearLayers();
+                                    }
+                                    Promise.resolve()
+                                    .then(function() {
+                                        return admindb.get(dataInfo);
+                                    })
+                                    .then(function(doc) {
+                                        if (typeof doc.geolocation !== 'object') {
+                                            throw 'no location';
+                                        }
+                                        return addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
+                                    })
+                                    .then(function() {
+                                        zoomToLayer(tab0MapMarkerClusters);
+                                    })
+                                    .catch(function(err) {
+                                        console.log(err);
+                                    });
+                                    
+                                };
 
                                 $('#adminSpeedDial').removeClass('hide');
                                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-                                    $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
-                                        var dataInfo;
-                                        if ($(this).hasClass('tableSelected')) {
-                                            $(this).removeClass('tableSelected');
-
-                                            dataInfo = $(this).attr('id');
+                                    $('#adminLogsTable')
+                                    .addClass('evtHandler')
+                                    .on('click', 'tr', function (e) {
+                                        var row = $(this);
+                                        var dataInfo = row.attr('id');
+                                        if (row.hasClass('tableSelected')) {
+                                            row.removeClass('tableSelected');                                            
                                             var index = adminCurrentlySelected.indexOf(dataInfo);
                                             if (index > -1) {
                                                 adminCurrentlySelected.splice(index, 1);
@@ -5172,26 +5293,15 @@ ons.ready(function () {
                                             if (!($('tr').hasClass('tableSelected'))) {
                                                 adminSpeedDial.hide();
                                             }
+                                            if (typeof tab0MapMarkerClusters === 'object') {
+                                                removeLayerFrom(dataInfo,tab0MapMarkerClusters);
+                                            }
                                         } else if (e.shiftKey == true) {
-                                            $(this).addClass('tableSelected');
-                                            // $('#adminSpeedDial').removeClass('hide');
-                                            adminSpeedDial.show();
-                                            dataInfo = $(this).attr('id');
-                                            adminCurrentlySelected.push(dataInfo);
-                                            console.log(adminCurrentlySelected);
-
+                                            addToAdminCurrentlySelected(row, dataInfo, false);
                                         } else {
-                                            $('tr').removeClass('tableSelected');
-                                            $(this).addClass('tableSelected');
-                                            // $('#adminSpeedDial').removeClass('hide');
-                                            adminSpeedDial.show();
+                                            $('tr').removeClass('tableSelected');                                          
                                             //clear all previously selected items from the array
-                                            adminCurrentlySelected = [];
-                                            // to get the dbId's off the element
-                                            dataInfo = $(this).attr('id');
-                                            console.log(dataInfo);
-                                            adminCurrentlySelected.push(dataInfo);
-                                            console.log(adminCurrentlySelected);
+                                            addToAdminCurrentlySelected(row, dataInfo, true);
                                         }
                                     });
                                 }
