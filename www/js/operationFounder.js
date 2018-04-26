@@ -103,6 +103,13 @@ var bingOS = L.tileLayer.bing({
     crossOrigin: true,
     cacheMaxAge: reCacheAfter
 });
+var chkPtLiveIcon = L.icon({
+    iconUrl: './img/map-pin.svg',
+    iconSize: [25, 40],
+    iconAnchor: [12.5, 40],
+    tooltipAnchor: [0, -44],
+    shadowUrl: './img/marker-shadow.png'
+});
 // var followGPS = false;
 // var currentLocation;
 // var location;
@@ -568,10 +575,14 @@ function cleanAll() {
     }
 } */
 function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
-    var marker = L.marker([lat, lon]);
+    var marker = L.marker([lat, lon], { icon: chkPtLiveIcon });
     marker.id = id;
     marker.data = data;
     layerAddedTo.addLayer(marker);
+    marker.bindTooltip(navi.topPage.data.eventInfo.pRef + ' ' + data.patrol, {
+        permanent: false,
+        direction: 'top'
+    });
 }
 
 function zoomToLayer(layer) {
@@ -580,8 +591,8 @@ function zoomToLayer(layer) {
 }
 
 function removeLayerFrom(idToRemove, fromLayer) {
-    fromLayer.removeLayer(
-        fromLayer.getLayers().filter(function (layer) {
+    fromLayer.removeLayer(fromLayer.getLayers()
+        .filter(function (layer) {
             return layer.id === idToRemove;
         })[0]);
 }
@@ -608,14 +619,16 @@ function createMap(mapContainer) {
             51.22435656415686, 0.3305253983853618
         ],
         zoom: 16,
+        preferCanvas: true,
         layers: [bingOS, tab0MapMarkerClusters],
         zoomControl: true
     });
+    L.control.scale().addTo(map);
     map.locate({
         setView: false,
         maxZoom: map.getZoom(),
         watch: true,
-        enableHighAccuracy:true
+        enableHighAccuracy: true
     });
     followGPS = true;
     Promise.resolve()
@@ -636,7 +649,7 @@ function createMap(mapContainer) {
                 addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon);
             });
         }).then(function () {
-             zoomToLayer(tab0MapMarkerClusters);          
+            zoomToLayer(tab0MapMarkerClusters);
         }).catch(function (err) {
             console.log(err);
         });
@@ -653,7 +666,7 @@ function createMap(mapContainer) {
         //     zoomControl: true,
         // });
         // map.locate({ setView: true, maxZoom: 16 });
-        
+
         // Adds a marker to the centre of the map before the GPS changes it's location
         var currentLatLon = map.getCenter();
         var currentLat = currentLatLon.lat;
@@ -748,7 +761,7 @@ function createMap(mapContainer) {
                     /*This will change the styling of the fabLocate button*/
                     $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
                     /* For testing */
-                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
+                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS);
 
                     break;
             }
@@ -1744,44 +1757,44 @@ function activateEvent() {
  */
 function showMap() {
     Promise.resolve()
-    .then(function() {
-        return closeMenu();
-    })
-    .then(function() {
-        var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
-        var tabRef = 'tab' + currentTab;
-        var container = tabRef + 'Container';
-        var map = tabRef + 'Map';
-        $('#' + container).addClass('col-md-6 mapShow');
-        $('#' + map).addClass('adminMapContainer col-md-6');
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+            var tabRef = 'tab' + currentTab;
+            var container = tabRef + 'Container';
+            var map = tabRef + 'Map';
+            $('#' + container).addClass('col-md-6 mapShow');
+            $('#' + map).addClass('adminMapContainer col-md-6');
 
-        return createMap(map);
-    })
-    .then(function() {
-        $('#showMap').addClass('hide');
-        $('#hideMap').removeClass('hide');
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
+            return createMap(map);
+        })
+        .then(function () {
+            $('#showMap').addClass('hide');
+            $('#hideMap').removeClass('hide');
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 }
 
 function hideMap() {
     Promise.resolve()
-    .then(function() {
-        return closeMenu();
-    })
-    .then(function() {
-        map.remove();
-        locationFoundCount=0;
-    })
-    .then(function() {
-        $('#hideMap').addClass('hide');
-        $('#showMap').removeClass('hide');
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            map.remove();
+            locationFoundCount = 0;
+        })
+        .then(function () {
+            $('#hideMap').addClass('hide');
+            $('#showMap').removeClass('hide');
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 }
 
 /**
@@ -5240,14 +5253,14 @@ ons.ready(function () {
                                     console.warn(err);
                                 });
                                 // end of longinandrunfunction
-                                var addToAdminCurrentlySelected = function (row, dataInfo, reset) {                                
+                                var addToAdminCurrentlySelected = function (row, dataInfo, reset) {
                                     if (reset) {
                                         adminCurrentlySelected = [];
                                     }
                                     row.addClass('tableSelected');
-                                    adminSpeedDial.show();                                   
+                                    adminSpeedDial.show();
                                     adminCurrentlySelected.push(dataInfo);
-                                    return ifMapShowAddToMap(dataInfo,reset);
+                                    return ifMapShowAddToMap(dataInfo, reset);
                                 };
 
                                 var ifMapShowAddToMap = function (dataInfo, shiftNotHeld) {
@@ -5258,52 +5271,52 @@ ons.ready(function () {
                                         tab0MapMarkerClusters.clearLayers();
                                     }
                                     Promise.resolve()
-                                    .then(function() {
-                                        return admindb.get(dataInfo);
-                                    })
-                                    .then(function(doc) {
-                                        if (typeof doc.geolocation !== 'object') {
-                                            throw 'no location';
-                                        }
-                                        return addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
-                                    })
-                                    .then(function() {
-                                        zoomToLayer(tab0MapMarkerClusters);
-                                    })
-                                    .catch(function(err) {
-                                        console.log(err);
-                                    });
-                                    
+                                        .then(function () {
+                                            return admindb.get(dataInfo);
+                                        })
+                                        .then(function (doc) {
+                                            if (typeof doc.geolocation !== 'object') {
+                                                throw 'no location';
+                                            }
+                                            return addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
+                                        })
+                                        .then(function () {
+                                            zoomToLayer(tab0MapMarkerClusters);
+                                        })
+                                        .catch(function (err) {
+                                            console.log(err);
+                                        });
+
                                 };
 
                                 $('#adminSpeedDial').removeClass('hide');
                                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
                                     $('#adminLogsTable')
-                                    .addClass('evtHandler')
-                                    .on('click', 'tr', function (e) {
-                                        var row = $(this);
-                                        var dataInfo = row.attr('id');
-                                        if (row.hasClass('tableSelected')) {
-                                            row.removeClass('tableSelected');                                            
-                                            var index = adminCurrentlySelected.indexOf(dataInfo);
-                                            if (index > -1) {
-                                                adminCurrentlySelected.splice(index, 1);
+                                        .addClass('evtHandler')
+                                        .on('click', 'tr', function (e) {
+                                            var row = $(this);
+                                            var dataInfo = row.attr('id');
+                                            if (row.hasClass('tableSelected')) {
+                                                row.removeClass('tableSelected');
+                                                var index = adminCurrentlySelected.indexOf(dataInfo);
+                                                if (index > -1) {
+                                                    adminCurrentlySelected.splice(index, 1);
+                                                }
+                                                console.log(adminCurrentlySelected);
+                                                if (!($('tr').hasClass('tableSelected'))) {
+                                                    adminSpeedDial.hide();
+                                                }
+                                                if (typeof tab0MapMarkerClusters === 'object') {
+                                                    removeLayerFrom(dataInfo, tab0MapMarkerClusters);
+                                                }
+                                            } else if (e.shiftKey == true) {
+                                                addToAdminCurrentlySelected(row, dataInfo, false);
+                                            } else {
+                                                $('tr').removeClass('tableSelected');
+                                                //clear all previously selected items from the array
+                                                addToAdminCurrentlySelected(row, dataInfo, true);
                                             }
-                                            console.log(adminCurrentlySelected);
-                                            if (!($('tr').hasClass('tableSelected'))) {
-                                                adminSpeedDial.hide();
-                                            }
-                                            if (typeof tab0MapMarkerClusters === 'object') {
-                                                removeLayerFrom(dataInfo,tab0MapMarkerClusters);
-                                            }
-                                        } else if (e.shiftKey == true) {
-                                            addToAdminCurrentlySelected(row, dataInfo, false);
-                                        } else {
-                                            $('tr').removeClass('tableSelected');                                          
-                                            //clear all previously selected items from the array
-                                            addToAdminCurrentlySelected(row, dataInfo, true);
-                                        }
-                                    });
+                                        });
                                 }
                                 // button for deleting logs
                                 if (!($('#adminDelete').hasClass('evtHandler'))) {
