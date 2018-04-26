@@ -210,7 +210,7 @@ var chkPtLiveIcon = L.icon({
     iconUrl: './img/map-pin.svg',
     iconSize: [25, 40],
     iconAnchor: [12.5, 40],
-    tooltipAnchor: [0, -44],
+    tooltipAnchor: [0, -36],
     shadowUrl: './img/marker-shadow.png'
 });
 // var followGPS = false;
@@ -799,7 +799,7 @@ function createMap(mapContainer) {
         }).then(function (docsArray) {
             console.log(docsArray);
             return docsArray.forEach(function (doc) {
-                addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon);
+                addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon,doc);
             });
         }).then(function () {
             zoomToLayer(tab0MapMarkerClusters);
@@ -828,22 +828,24 @@ function createMap(mapContainer) {
         if (locationFoundCount === 0) {
             accuracyCircle = L.circle(currentLatLon, {
                 radius: startRadius,
-                fillColor: '#aaf29f',
-                fillOpacity: 0.4,
-                stroke: true,
-                color: '#37e21d',
-                weight: 1
+                // fillColor: '#aaf29f',
+                fillColor: '#4285F4',
+                fillOpacity: 0.2,
+                stroke: false,
+                // color: '#37e21d',
+                // weight: 1
 
             }).addTo(map);
             marker = L.circleMarker(currentLatLon, {
                 radius: 8,
                 fill: true,
                 fillOpacity: 1,
-                fillColor: '#009688',
+                // fillColor: '#009688',
+                fillColor: '#4285F4',
                 stroke: true,
                 color: '#ffffff',
                 weight: 3
-            }).addTo(map);
+            }).bindTooltip('You', { direction: 'top'}).addTo(map);
             locationFoundCount++;
         }
 

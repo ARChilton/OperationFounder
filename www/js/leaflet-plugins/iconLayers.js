@@ -1,12 +1,12 @@
 /*eslint-env commonjs, browser */
-(function(factory) {
+(function (factory) {
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = factory(require('leaflet'));
     } else {
         window.L.control.iconLayers = factory(window.L);
         window.L.Control.IconLayers = window.L.control.iconLayers.Constructor;
     }
-})(function(L) {
+})(function (L) {
     function each(o, cb) {
         for (var p in o) {
             if (o.hasOwnProperty(p)) {
@@ -58,8 +58,8 @@
     }
 
     var IconLayers = L.Control.extend({
-		includes: L.Evented ? L.Evented.prototype : L.Mixin.Events,
-        _getActiveLayer: function() {
+        includes: L.Evented ? L.Evented.prototype : L.Mixin.Events,
+        _getActiveLayer: function () {
             if (this._activeLayerId) {
                 return this._layers[this._activeLayerId];
             } else if (length(this._layers)) {
@@ -68,32 +68,32 @@
                 return null;
             }
         },
-        _getPreviousLayer: function() {
+        _getPreviousLayer: function () {
             var activeLayer = this._getActiveLayer();
             if (!activeLayer) {
                 return null;
             } else if (this._previousLayerId) {
                 return this._layers[this._previousLayerId];
             } else {
-                return find(this._layers, function(l) {
+                return find(this._layers, function (l) {
                     return l.id !== activeLayer.id;
                 }.bind(this)) || null;
             }
         },
-        _getInactiveLayers: function() {
+        _getInactiveLayers: function () {
             var ar = [];
             var activeLayerId = this._getActiveLayer() ? this._getActiveLayer().id : null;
             var previousLayerId = this._getPreviousLayer() ? this._getPreviousLayer().id : null;
-            each(this._layers, function(l) {
+            each(this._layers, function (l) {
                 if ((l.id !== activeLayerId) && (l.id !== previousLayerId)) {
                     ar.push(l);
                 }
             });
             return ar;
         },
-        _arrangeLayers: function() {
+        _arrangeLayers: function () {
             var behaviors = {};
-            behaviors.previous = function() {
+            behaviors.previous = function () {
                 var layers = this._getInactiveLayers();
                 if (this._getActiveLayer()) {
                     layers.unshift(this._getActiveLayer());
@@ -105,7 +105,7 @@
             };
             return behaviors[this.options.behavior].apply(this, arguments);
         },
-        _getLayerCellByLayerId: function(id) {
+        _getLayerCellByLayerId: function (id) {
             var els = this._container.getElementsByClassName('leaflet-iconLayers-layerCell');
             for (var i = 0; i < els.length; i++) {
                 if (els[i].getAttribute('data-layerid') == id) {
@@ -113,23 +113,23 @@
                 }
             }
         },
-        _createLayerElement: function(layerObj) {
+        _createLayerElement: function (layerObj) {
             var el = L.DomUtil.create('div', 'leaflet-iconLayers-layer');
             if (layerObj.title) {
                 var titleContainerEl = L.DomUtil.create('div', 'leaflet-iconLayers-layerTitleContainer');
                 var titleEl = L.DomUtil.create('div', 'leaflet-iconLayers-layerTitle');
-                var checkIconEl = L.DomUtil.create('div', 'leaflet-iconLayers-layerCheckIcon');
+                // var checkIconEl = L.DomUtil.create('div', 'leaflet-iconLayers-layerCheckIcon');
                 titleEl.innerHTML = layerObj.title;
                 titleContainerEl.appendChild(titleEl);
                 el.appendChild(titleContainerEl);
-                el.appendChild(checkIconEl);
+                // el.appendChild(checkIconEl);
             }
             if (layerObj.icon) {
                 el.setAttribute('style', 'background-image: url(\'' + layerObj.icon + '\')');
             }
             return el;
         },
-        _createLayerElements: function() {
+        _createLayerElements: function () {
             var currentRow, layerCell;
             var layers = this._arrangeLayers();
             var activeLayerId = this._getActiveLayer() && this._getActiveLayer().id;
@@ -165,15 +165,15 @@
                 }
             }
         },
-        _onLayerClick: function(e) {
+        _onLayerClick: function (e) {
             e.stopPropagation();
             var layerId = e.currentTarget.getAttribute('data-layerid');
             var layer = this._layers[layerId];
             this.setActiveLayer(layer.layer);
             this.expand();
         },
-        _attachEvents: function() {
-            each(this._layers, function(l) {
+        _attachEvents: function () {
+            each(this._layers, function (l) {
                 var e = this._getLayerCellByLayerId(l.id);
                 if (e) {
                     e.addEventListener('click', this._onLayerClick.bind(this));
@@ -181,17 +181,17 @@
             }.bind(this));
             var layersRowCollection = this._container.getElementsByClassName('leaflet-iconLayers-layersRow');
 
-            var onMouseEnter = function(e) {
+            var onMouseEnter = function (e) {
                 e.stopPropagation();
                 this.expand();
             }.bind(this);
 
-            var onMouseLeave = function(e) {
+            var onMouseLeave = function (e) {
                 e.stopPropagation();
                 this.collapse();
             }.bind(this);
 
-            var stopPropagation = function(e) {
+            var stopPropagation = function (e) {
                 e.stopPropagation();
             };
 
@@ -203,12 +203,12 @@
                 el.addEventListener('mousemove', stopPropagation);
             }
         },
-        _render: function() {
+        _render: function () {
             this._container.innerHTML = '';
             this._createLayerElements();
             this._attachEvents();
         },
-        _switchMapLayers: function() {
+        _switchMapLayers: function () {
             if (!this._map) {
                 return;
             }
@@ -217,7 +217,7 @@
             if (previousLayer) {
                 this._map.removeLayer(previousLayer.layer);
             } else {
-                each(this._layers, function(layerObject) {
+                each(this._layers, function (layerObject) {
                     var layer = layerObject.layer;
                     this._map.removeLayer(layer);
                 }.bind(this));
@@ -234,7 +234,7 @@
             maxLayersInRow: 5,
             manageLayers: true
         },
-        initialize: function(layers, options) {
+        initialize: function (layers, options) {
             if (!L.Util.isArray(arguments[0])) {
                 // first argument is options
                 options = layers;
@@ -247,7 +247,7 @@
             }
             this.setLayers(layers);
         },
-        onAdd: function(map) {
+        onAdd: function (map) {
             this._container = L.DomUtil.create('div', 'leaflet-iconLayers');
             L.DomUtil.addClass(this._container, 'leaflet-iconLayers_' + this.options.position);
             this._render();
@@ -257,12 +257,12 @@
             }
             return this._container;
         },
-        onRemove: function(map) {
+        onRemove: function (map) {
             map.off('click', this.collapse, this);
         },
-        setLayers: function(layers) {
+        setLayers: function (layers) {
             this._layers = {};
-            layers.map(function(layer) {
+            layers.map(function (layer) {
                 var id = L.stamp(layer.layer);
                 this._layers[id] = L.extend(layer, {
                     id: id
@@ -272,7 +272,7 @@
                 this._render();
             }
         },
-        setActiveLayer: function(layer) {
+        setActiveLayer: function (layer) {
             var l = layer && this._layers[L.stamp(layer)];
             if (!l || l.id === this._activeLayerId) {
                 return;
@@ -286,21 +286,21 @@
                 layer: layer
             });
         },
-        expand: function() {
-            this._arrangeLayers().slice(1).map(function(l) {
+        expand: function () {
+            this._arrangeLayers().slice(1).map(function (l) {
                 var el = this._getLayerCellByLayerId(l.id);
                 L.DomUtil.removeClass(el, 'leaflet-iconLayers-layerCell_hidden');
             }.bind(this));
         },
-        collapse: function() {
-            this._arrangeLayers().slice(1).map(function(l) {
+        collapse: function () {
+            this._arrangeLayers().slice(1).map(function (l) {
                 var el = this._getLayerCellByLayerId(l.id);
                 L.DomUtil.addClass(el, 'leaflet-iconLayers-layerCell_hidden');
             }.bind(this));
         }
     });
 
-    var iconLayers = function(layers, options) {
+    var iconLayers = function (layers, options) {
         return new IconLayers(layers, options);
     };
 
