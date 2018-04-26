@@ -91,18 +91,121 @@ var tab0MapMarkerClusters;
 // });
 var map;
 var BING_KEY = 'AqVat8HR9TsQF1uwWckLU_1Dv_wrrDR3ThriJUmZyDhPcHRGwpeTDA9NVhKaS5RX';
+var mapboxTkn = 'pk.eyJ1IjoiYXJjaGlsdG9uIiwiYSI6ImNpdm1mdGk4NjA3eDUyenBveTgwejB2dWIifQ.ehb0-8mRLEpQ9R89H0HlvQ';
 var turnCachingOn = true;
-var reCacheAfter = 30 * 24 * 3600 * 1000;
+var reCacheAfter = 30 * 24 * 3600 * 1000; // 30 days * 24 hours * 3600 seconds in an hour * 1000 milliseconds in a second
 var bingOS = L.tileLayer.bing({
     bingMapsKey: BING_KEY,
     imagerySet: 'ordnanceSurvey',
     maxNativeZoom: 17,
-    maxZoom: 17,
+    maxZoom: 19,
     minZoom: 10,
+    useCache: turnCachingOn,
+    crossOrigin: true,
+    cacheMaxAge: reCacheAfter,
+    attribution: '<img class="bingLogo" src="./img/bingLogo/bing_maps_logo_gray.png">'
+});
+//Copyright info for mapbox
+var mapboxAttributes = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>';
+
+//URL for mapbox where the style is inserted     
+var mapboxURL = 'https://api.mapbox.com/styles/v1/{source}/{style}/tiles/256/{z}/{x}/{y}?access_token=' + mapboxTkn;
+
+//mapbox background layers with style information   
+// var greyscale = L.tileLayer(mapboxURL, {
+//     style: 'light-v9',
+//     source:'mapbox',
+//     attribution: mapboxAttributes,
+//     useCache: turnCachingOn,
+//     crossOrigin: true,
+//     cacheMaxAge: reCacheAfter
+// }),
+   var streets = L.tileLayer(mapboxURL, {
+        style: 'streets-v10',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    }),
+    // outdoor = L.tileLayer(mapboxURL, {
+    //     style: 'outdoors-v10',
+    //     source: 'mapbox',
+    //     attribution: mapboxAttributes,
+    //     useCache: turnCachingOn,
+    //     crossOrigin: true,
+    //     cacheMaxAge: reCacheAfter
+    // }),
+    dark = L.tileLayer(mapboxURL, {
+        style: 'dark-v9',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    }),
+    satellite = L.tileLayer(mapboxURL, {
+        style: 'satellite-v9',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    }),
+    sat_streets = L.tileLayer(mapboxURL, {
+        style: 'satellite-streets-v10',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    });
+
+// My map styles
+var highlightFootpath = L.tileLayer(mapboxURL, {
+    style: 'cjggxt9wq00462sme3kihy7cd',
+    source:'archilton',
+    attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
     cacheMaxAge: reCacheAfter
 });
+
+//Bing Maps attributes
+
+//Bing Map Layers
+// var bingRoads = L.tileLayer.bing({
+//     bingMapsKey: BING_KEY,
+//     imagerySet: 'Road',
+//     useCache: turnCachingOn,
+//     crossOrigin: true,
+//     cacheMaxAge: reCacheAfter
+// }),
+//     bingSatellite = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'Aerial',
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     }),
+//     bingSatLabel = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'AerialWithLabels',
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     }),
+//     bingCollins = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'collinsBart',
+//         maxZoom: 17,
+//         minZoom: 10,
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     });
+
+
 var chkPtLiveIcon = L.icon({
     iconUrl: './img/map-pin.svg',
     iconSize: [25, 40],
@@ -587,7 +690,9 @@ function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
 
 function zoomToLayer(layer) {
     followGPS = false;
-    return map.fitBounds(layer.getBounds());
+    return map.fitBounds(layer.getBounds(), {
+        maxZoom: map.getZoom()
+    });
 }
 
 function removeLayerFrom(idToRemove, fromLayer) {
@@ -616,20 +721,68 @@ function createMap(mapContainer) {
 
     map = L.map(mapContainer, {
         center: [
-            51.22435656415686, 0.3305253983853618
+            54.52743260123856, -3.0248451206716713
         ],
         zoom: 16,
         preferCanvas: true,
-        layers: [bingOS, tab0MapMarkerClusters],
-        zoomControl: true
+        attributionControl: false,
+        // layers: [bingOS, tab0MapMarkerClusters],
+        zoomControl: false
     });
-    L.control.scale().addTo(map);
+    L.control.scale({
+        position: 'bottomright'
+    }).addTo(map);
+    L.control.attribution({
+        position: 'bottomleft',
+        prefix: false
+    }).addTo(map);
     map.locate({
         setView: false,
         maxZoom: map.getZoom(),
         watch: true,
         enableHighAccuracy: true
     });
+    var iconLayersControl = L.control.iconLayers(
+    [
+        {
+            title: 'Default',
+            layer: highlightFootpath,
+            icon: './img/bgmap-img/ac-highlight-footpath.png'
+        },
+         {
+            title: 'Ordnance Survey (UK)',
+            layer: bingOS,
+            icon: './img/bgmap-img/os.png'
+        },
+        
+        {
+            title: 'Streets',
+            layer: streets,
+            icon: './img/bgmap-img/mb-streets.png'
+        },
+        {
+            title: 'Satellite',
+            layer:satellite,
+            icon: './img/bgmap-img/mb-sat.png'
+        },
+        {
+            title:'Satellite-hybrid',
+            layer:sat_streets,
+            icon: './img/bgmap-img/mb-sat-hybrid.png'
+        },
+        {
+            title:'dark',
+            layer:dark,
+            icon: './img/bgmap-img/mb-dark.png'
+        }
+    ], 
+    { 
+        position: 'topleft',
+        maxLayersInRow: 3
+    }
+);
+    iconLayersControl.addTo(map);
+    tab0MapMarkerClusters.addTo(map);
     followGPS = true;
     Promise.resolve()
         .then(function () {
@@ -771,7 +924,7 @@ function createMap(mapContainer) {
         /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
         if (!($('.locOn').hasClass('evtHandler'))) {
             $('.locOn').addClass('evtHandler');
-            $('.locOn').on("click", function (e) {
+            $('.locOn').on("click", function () {
 
                 /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
                 if (followGPS) {
@@ -1791,6 +1944,12 @@ function hideMap() {
         .then(function () {
             $('#hideMap').addClass('hide');
             $('#showMap').removeClass('hide');
+            var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+            var tabRef = 'tab' + currentTab;
+            var container = tabRef + 'Container';
+            var map = tabRef + 'Map';
+            $('#' + container).removeClass('col-md-6 mapShow');
+            $('#' + map).removeClass('adminMapContainer col-md-6');
         })
         .catch(function (err) {
             console.log(err);
@@ -6318,7 +6477,7 @@ function menuController() {
             //allow for baseLogOut to be shown in the menu
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Checkpoint');
             $('#goToMap, #eventSignOut').removeClass('hide');
-            $('#pricingPage').addClass('hide');
+            $('#pricingPage, #showMap').addClass('hide');
             menuEvtOrganiser();
             break;
         case 'admin.html':
@@ -6326,23 +6485,26 @@ function menuController() {
             menuEvtOrganiser();
             $('#copyAllLogs, #goToEventSummary, #eventSignOut').removeClass('hide');
             $('#pricingPage').addClass('hide');
+            if (navi.topPage.data.eventInfo.geolocationInUse) {
+                $('#showMap').removeClass('hide');
+            }
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage, #showMap').addClass('hide');
             $('#goToMap, #eventSignOut').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage, #goToEventSummary').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage, #goToEventSummary, #showMap').addClass('hide');
             $('#eventSignOut').removeClass('hide');
             break;
         case 'signInPage.html':
-            $('#eventSignOut, #baseLogOut, #eventChanger, #eventEditor, #copyAllLogs, #goToEventSummary').addClass('hide');
+            $('#eventSignOut, #baseLogOut, #eventChanger, #eventEditor, #copyAllLogs, #goToEventSummary, #showMap').addClass('hide');
             $('#pricingPage').removeClass('hide');
             break;
         default:
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage, #showMap').addClass('hide');
             break;
 
     }
