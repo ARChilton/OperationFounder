@@ -62,7 +62,7 @@ a:visited{
 a:focus{
     text-decoration: none;
 }
-}
+
 
 /* General OnsenUI CSS */
 
@@ -1993,7 +1993,10 @@ ons-splitter-mask {
 
 /* --- FAB BUTTONS --- */
 
-#fabLocate {
+.fabLocate {
+    position: absolute;
+    bottom:50px;
+    right:16px;
     background-color: #fff;
     border: 0px solid currentColor;
     z-index: 99999;

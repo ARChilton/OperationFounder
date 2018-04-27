@@ -6,7 +6,7 @@
         window.L.control.iconLayers = factory(window.L);
         window.L.Control.IconLayers = window.L.control.iconLayers.Constructor;
     }
-})(function (L) {
+}(function (L) {
     function each(o, cb) {
         for (var p in o) {
             if (o.hasOwnProperty(p)) {
@@ -307,4 +307,4 @@
     iconLayers.Constructor = IconLayers;
 
     return iconLayers;
-});
+}));

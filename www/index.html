@@ -1106,7 +1106,12 @@
   <ons-template id="allLogsPage.html">
     <ons-page id="allLogsPage">
       <!-- <div class="adminFlexContainer"> -->
-      <div id="tab0Map"></div>
+      <div id="tab0Map" class="hide">
+        <ons-fab class="fab locOn fabLocate" id="fabLocateTab0" href="#">
+          <ons-icon icon="md-gps-dot" class="locateAlign locateSelected" id="fabLocateIcon">
+          </ons-icon>
+        </ons-fab>
+      </div>
       <div id="tab0Container" class="adminContainer col-xs-12">
         <div id="allLogsCopy">
           <table class="data-table logTable">

@@ -74,11 +74,9 @@ var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
-var marker;
-var accuracyCircle;
-var locationFoundCount = 0;
+
+
 var followGPS = false;
-var tab0MapMarkerClusters;
 // Not sure this is required to find the layer anymore
 // L.LayerGroup.include({
 //     customGetLayer: function (id) {
@@ -89,7 +87,9 @@ var tab0MapMarkerClusters;
 //         }
 //     }
 // });
-var map;
+var maps = {};
+var mapLayers = {};
+var adminShowMap;
 var BING_KEY = 'AqVat8HR9TsQF1uwWckLU_1Dv_wrrDR3ThriJUmZyDhPcHRGwpeTDA9NVhKaS5RX';
 var mapboxTkn = 'pk.eyJ1IjoiYXJjaGlsdG9uIiwiYSI6ImNpdm1mdGk4NjA3eDUyenBveTgwejB2dWIifQ.ehb0-8mRLEpQ9R89H0HlvQ';
 var turnCachingOn = true;
@@ -120,14 +120,14 @@ var mapboxURL = 'https://api.mapbox.com/styles/v1/{source}/{style}/tiles/256/{z}
 //     crossOrigin: true,
 //     cacheMaxAge: reCacheAfter
 // }),
-   var streets = L.tileLayer(mapboxURL, {
-        style: 'streets-v10',
-        source: 'mapbox',
-        attribution: mapboxAttributes,
-        useCache: turnCachingOn,
-        crossOrigin: true,
-        cacheMaxAge: reCacheAfter
-    }),
+var streets = L.tileLayer(mapboxURL, {
+    style: 'streets-v10',
+    source: 'mapbox',
+    attribution: mapboxAttributes,
+    useCache: turnCachingOn,
+    crossOrigin: true,
+    cacheMaxAge: reCacheAfter
+}),
     // outdoor = L.tileLayer(mapboxURL, {
     //     style: 'outdoors-v10',
     //     source: 'mapbox',
@@ -164,7 +164,7 @@ var mapboxURL = 'https://api.mapbox.com/styles/v1/{source}/{style}/tiles/256/{z}
 // My map styles
 var highlightFootpath = L.tileLayer(mapboxURL, {
     style: 'cjggxt9wq00462sme3kihy7cd',
-    source:'archilton',
+    source: 'archilton',
     attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
@@ -621,62 +621,6 @@ function cleanAll() {
     });
 }
 
-/**
- * show map page
- */
-/* function goToMap() {
-    navi.bringPageTop('map.html', {
-        animation: pageChangeAnimation
-    }).then(function () {
-        return map.invalidateSize();
-    }).catch(function (err) {
-        createMap();
-        setTimeout(function () {
-            return map.invalidateSize()
-        }, 1000);
-    });
-
-
-    document.getElementById('menu').toggle();
-    map.locate({
-        setView: false,
-        // maxZoom: map.getZoom(),
-        watch: true,
-        enableHighAccuracy: true
-    });
-
-} */
-/**
- * A function that runs on the map page when the map back button is pressed. This stops the map page being taken out of the page stack and therefore breaking leaflet
- */
-/* function mapBackButton() {
-    map.stopLocate();
-    ons.enableDeviceBackButtonHandler();
-    var index = getBaseNumber();
-    switch (index) {
-        case 0:
-            return navi.bringPageTop('admin.html', {
-                animation: pageChangeAnimation
-            });
-            break;
-        default:
-            if (index === 'logout') {
-                throw navi.resetToPage('loginPage.html', {
-                    animation: pageChangeAnimation
-                }).then(function (doc) {;
-                    ons.notification.alert({
-                        title: 'error',
-                        message: 'An error has occured and have returned to the login screen, please log in again',
-                        cancelable: true
-                    });
-                });
-            }
-            return navi.bringPageTop('page1.html', {
-                animation: pageChangeAnimation
-            });
-            break;
-    }
-} */
 function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
     var marker = L.marker([lat, lon], { icon: chkPtLiveIcon });
     marker.id = id;
@@ -687,11 +631,42 @@ function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
         direction: 'top'
     });
 }
+/**
+         * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
+         * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
+         */
+var locateButton = function (press, marker, mapContainer) {
+    switch (press) {
+        case 1:
 
-function zoomToLayer(layer) {
+            /*This updates the map to the current GPS location*/
+            maps[mapContainer].setView(marker.getLatLng(), maps[mapContainer].getZoom());
+            /* This will update the variable which defines if the map follows the GPS marker */
+            followGPS = true;
+            /* This will change the styling of the fabLocate button */
+            $('#fabLocateIcon').replaceWith('<ons-icon icon="md-gps-dot" class="locateAlign locateSelected" id="fabLocateIcon"><ons-icon>');
+            /*For testing*/
+            console.log('following marker');
+
+            break;
+
+        case 2:
+
+            /* This updates whether the map follows the marker's GPS movements */
+            followGPS = false;
+            /*This will change the styling of the fabLocate button*/
+            $('#fabLocateIcon').replaceWith('<ons-icon icon="md-gps" class="locateAlign locateNotSelected" id="fabLocateIcon"><ons-icon>');
+            /* For testing */
+            console.log('I have cancelled movements due to toggling followGPS now =' + followGPS);
+
+            break;
+    }
+};
+function zoomToLayer(layer, mapContainer) {
     followGPS = false;
-    return map.fitBounds(layer.getBounds(), {
-        maxZoom: map.getZoom()
+    locateButton(2);
+    return maps[mapContainer].fitBounds(layer.getBounds(), {
+        maxZoom: maps[mapContainer].getZoom()
     });
 }
 
@@ -710,79 +685,79 @@ function createMap(mapContainer) {
     //map centred on Hadlow // pick up here
     var selected = $('.tableSelected');
     var selectedLength = selected.length;
-    // tab0MapMarkerClusters = L.featureGroup()
-    tab0MapMarkerClusters = L.markerClusterGroup({
+    mapLayers[mapContainer] = L.markerClusterGroup({
         showCoverageOnHover: true,
         spiderfyOnMaxZoom: true,
         removeOutsideVisibleBounds: true
     });
     // http://leafletjs.com/reference-1.3.0.html#layergroup
     // This function adds a custom function to get an id that can be set by me.
-
-    map = L.map(mapContainer, {
+    
+    
+    maps[mapContainer] = L.map(mapContainer, {
         center: [
             54.52743260123856, -3.0248451206716713
         ],
         zoom: 16,
         preferCanvas: true,
         attributionControl: false,
-        // layers: [bingOS, tab0MapMarkerClusters],
         zoomControl: false
     });
     L.control.scale({
         position: 'bottomright'
-    }).addTo(map);
+    }).addTo(maps[mapContainer]);
     L.control.attribution({
         position: 'bottomleft',
         prefix: false
-    }).addTo(map);
-    map.locate({
+    }).addTo(maps[mapContainer]);
+    maps[mapContainer].locate({
         setView: false,
-        maxZoom: map.getZoom(),
+        maxZoom: maps[mapContainer].getZoom(),
         watch: true,
         enableHighAccuracy: true
     });
     var iconLayersControl = L.control.iconLayers(
-    [
+        [
+            {
+                title: 'Default',
+                layer: highlightFootpath,
+                icon: './img/bgmap-img/ac-highlight-footpath.png'
+            },
+            {
+                title: 'Ordnance Survey (UK)',
+                layer: bingOS,
+                icon: './img/bgmap-img/os.png'
+            },
+
+            {
+                title: 'Streets',
+                layer: streets,
+                icon: './img/bgmap-img/mb-streets.png'
+            },
+            {
+                title: 'Satellite',
+                layer: satellite,
+                icon: './img/bgmap-img/mb-sat.png'
+            },
+            {
+                title: 'Satellite-hybrid',
+                layer: sat_streets,
+                icon: './img/bgmap-img/mb-sat-hybrid.png'
+            },
+            {
+                title: 'dark',
+                layer: dark,
+                icon: './img/bgmap-img/mb-dark.png'
+            }
+        ],
         {
-            title: 'Default',
-            layer: highlightFootpath,
-            icon: './img/bgmap-img/ac-highlight-footpath.png'
-        },
-         {
-            title: 'Ordnance Survey (UK)',
-            layer: bingOS,
-            icon: './img/bgmap-img/os.png'
-        },
-        
-        {
-            title: 'Streets',
-            layer: streets,
-            icon: './img/bgmap-img/mb-streets.png'
-        },
-        {
-            title: 'Satellite',
-            layer:satellite,
-            icon: './img/bgmap-img/mb-sat.png'
-        },
-        {
-            title:'Satellite-hybrid',
-            layer:sat_streets,
-            icon: './img/bgmap-img/mb-sat-hybrid.png'
-        },
-        {
-            title:'dark',
-            layer:dark,
-            icon: './img/bgmap-img/mb-dark.png'
+            position: 'topleft',
+            maxLayersInRow: 3
         }
-    ], 
-    { 
-        position: 'topleft',
-        maxLayersInRow: 3
-    }
-);
-    iconLayersControl.addTo(map);
-    tab0MapMarkerClusters.addTo(map);
+    );
+    iconLayersControl.addTo(maps[mapContainer]);
+    mapLayers[mapContainer].addTo(maps[mapContainer]);
+
     followGPS = true;
     Promise.resolve()
         .then(function () {
@@ -799,44 +774,31 @@ function createMap(mapContainer) {
         }).then(function (docsArray) {
             console.log(docsArray);
             return docsArray.forEach(function (doc) {
-                addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon,doc);
+                addMarkerToLayer(mapLayers[mapContainer], doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
             });
         }).then(function () {
-            zoomToLayer(tab0MapMarkerClusters);
+            zoomToLayer(mapLayers[mapContainer], mapContainer);
         }).catch(function (err) {
             console.log(err);
-        });
-
-
-    try {
-
-        // map = L.map(mapContainer, {
-        //     center: [
-        //         51.22435656415686, 0.3305253983853618
-        //     ],
-        //     zoom: 16,
-        //     layers: [bingOS, featureGroup],
-        //     zoomControl: true,
-        // });
-        // map.locate({ setView: true, maxZoom: 16 });
+        });        
 
         // Adds a marker to the centre of the map before the GPS changes it's location
-        var currentLatLon = map.getCenter();
-        var currentLat = currentLatLon.lat;
-        var currentLng = currentLatLon.lng;
+    var currentLatLon = maps[mapContainer].getCenter();
+        // var currentLat = currentLatLon.lat;
+        // var currentLng = currentLatLon.lng;
         var startRadius = 3;
-        if (locationFoundCount === 0) {
-            accuracyCircle = L.circle(currentLatLon, {
+        
+            var accuracyCircle = L.circle(currentLatLon, {
                 radius: startRadius,
                 // fillColor: '#aaf29f',
                 fillColor: '#4285F4',
                 fillOpacity: 0.2,
-                stroke: false,
+                stroke: false
                 // color: '#37e21d',
                 // weight: 1
 
-            }).addTo(map);
-            marker = L.circleMarker(currentLatLon, {
+            }).addTo(maps[mapContainer]);
+           var gpsMarker = L.circleMarker(currentLatLon, {
                 radius: 8,
                 fill: true,
                 fillOpacity: 1,
@@ -845,9 +807,9 @@ function createMap(mapContainer) {
                 stroke: true,
                 color: '#ffffff',
                 weight: 3
-            }).bindTooltip('You', { direction: 'top'}).addTo(map);
-            locationFoundCount++;
-        }
+           }).bindTooltip('You', { direction: 'top' }).addTo(maps[mapContainer]);
+            
+        
 
         /**
          * On the success of the location function, this will locate you on the map and add a marker to show where you are
@@ -862,7 +824,7 @@ function createMap(mapContainer) {
             //L.marker(e.latlng).addTo(map)
             //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-            marker.setLatLng(e.latlng);
+            gpsMarker.setLatLng(e.latlng);
             accuracyCircle.setLatLng(e.latlng);
             accuracyCircle.setRadius(accRadius);
 
@@ -872,7 +834,7 @@ function createMap(mapContainer) {
 
             if (followGPS) {
                 //map.setView(marker.getLatLng(),map.getZoom());
-                map.setView(marker.getLatLng(), map.getZoom());
+                maps[mapContainer].setView(gpsMarker.getLatLng(), maps[mapContainer].getZoom());
                 console.log('I have moved because followGPS = ' + followGPS);
             }
         };
@@ -887,54 +849,20 @@ function createMap(mapContainer) {
             // Raven.captureException(e);
         };
 
-        map.on('locationfound', onLocationFound);
-        map.on('locationerror', onLocationError);
-
-        /**
-         * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
-         * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
-         */
-        var locateButton = function (press) {
-            switch (press) {
-                case 1:
-
-                    /*This updates the map to the current GPS location*/
-                    map.setView(marker.getLatLng(), map.getZoom());
-                    /* This will update the variable which defines if the map follows the GPS marker */
-                    followGPS = true;
-                    /* This will change the styling of the fabLocate button */
-                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-                    /*For testing*/
-                    console.log('following marker');
-
-                    break;
-
-                case 2:
-
-                    /* This updates whether the map follows the marker's GPS movements */
-                    followGPS = false;
-                    /*This will change the styling of the fabLocate button*/
-                    $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-                    /* For testing */
-                    console.log('I have cancelled movements due to toggling followGPS now =' + followGPS);
-
-                    break;
-            }
-        };
+    maps[mapContainer].on('locationfound', onLocationFound);
+    maps[mapContainer].on('locationerror', onLocationError);
 
 
+
+        var locationFab = $('#' + mapContainer + ' .locOn');
         /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
-        if (!($('.locOn').hasClass('evtHandler'))) {
-            $('.locOn').addClass('evtHandler');
-            $('.locOn').on("click", function () {
-
+        if (!(locationFab.hasClass('evtHandler'))) {
+            locationFab.addClass('evtHandler')
+            .on("click", function () {
                 /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
-                if (followGPS) {
-                    locateButton(2);
-                } else {
-                    locateButton(1);
-                }
-
+                return followGPS
+                ? locateButton(2, gpsMarker, mapContainer)
+                    : locateButton(1, gpsMarker, mapContainer);
             });
 
             /*On any movement of the map:
@@ -948,7 +876,7 @@ function createMap(mapContainer) {
                 /*This updates the fab icon*/
                 if (followGPS) {
                     /*This updates the locate button by passing in the second switch option that turns the button off*/
-                    locateButton(2);
+                    locateButton(2, gpsMarker, mapContainer);
                     /*For testing*/
                     // console.log('toggling locate button');
                 }
@@ -959,18 +887,11 @@ function createMap(mapContainer) {
                 mapMove();
             });
             //This does the same but when the map is scrolled
-            map.on('dragstart', function () {
-                // console.log('map dragged');
+            maps[mapContainer].on('dragstart zoomend', function () {
+                console.log('map dragged');
                 mapMove();
-
             });
         }
-
-
-    } catch (err) {
-        console.log(err);
-        createMap();
-    }
 
 }
 
@@ -1723,7 +1644,8 @@ function closeDatabases() {
     if (evtUpdateCheck != undefined && !evtUpdateCheck.canceled) {
         evtUpdateCheck.cancel();
     }
-    deleteIndexes();
+    deleteIndexes();    
+    closeMaps();
 }
 
 // --- MENU CONTROLS ---
@@ -1769,17 +1691,7 @@ function baseLogOut() {
 
             closeDatabases();
             logOutPageChange();
-            menuController();
-
-
-            return appdb.get('login_' + username)
-                .then(function (doc) {
-
-                    var timestamp = new Date().toISOString();
-                    doc.base = 'logOut';
-                    doc.timestamp = timestamp;
-                    return appdb.put(doc);
-                });
+            menuController();         
 
         })
         .catch(function (err) {
@@ -1789,6 +1701,16 @@ function baseLogOut() {
 }
 function goToTermsOfUse() {
     return navi.bringPageTop('./terms', { animation: pageChangeAnimation });
+}
+
+function closeMaps() {
+    Object.keys(maps).forEach(function(map) {
+        console.log(map);
+        maps[map].off();
+        maps[map].remove();
+        
+    });
+    maps = {};
 }
 
 /**
@@ -1911,23 +1833,33 @@ function activateEvent() {
  * function to show a map in the admin section
  */
 function showMap() {
+    var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
     Promise.resolve()
         .then(function () {
             return closeMenu();
         })
         .then(function () {
-            var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+            
             var tabRef = 'tab' + currentTab;
             var container = tabRef + 'Container';
             var map = tabRef + 'Map';
-            $('#' + container).addClass('col-md-6 mapShow');
-            $('#' + map).addClass('adminMapContainer col-md-6');
+            $('#' + container).addClass('col-md-8 col-lg-6 mapShow');
+            $('#' + map).addClass('adminMapContainer col-md-4 col-lg-6').removeClass('hide');
 
             return createMap(map);
         })
         .then(function () {
             $('#showMap').addClass('hide');
             $('#hideMap').removeClass('hide');
+            adminShowMap = true;
+        })
+        .then(function() {
+           return appdb.get('login_' + username)
+            .then(function(doc) {
+                doc.adminShowMap = true;
+                doc.timestamp = new Date().toISOString();                
+                return appdb.put(doc);
+            });
         })
         .catch(function (err) {
             console.log(err);
@@ -1940,8 +1872,8 @@ function hideMap() {
             return closeMenu();
         })
         .then(function () {
-            map.remove();
-            locationFoundCount = 0;
+            closeMaps();
+            adminShowMap = false;
         })
         .then(function () {
             $('#hideMap').addClass('hide');
@@ -1950,8 +1882,16 @@ function hideMap() {
             var tabRef = 'tab' + currentTab;
             var container = tabRef + 'Container';
             var map = tabRef + 'Map';
-            $('#' + container).removeClass('col-md-6 mapShow');
-            $('#' + map).removeClass('adminMapContainer col-md-6');
+            $('#' + container).removeClass('col-md-8 col-lg-6 mapShow');
+            $('#' + map).removeClass('adminMapContainer col-md-4 col-lg-6').addClass('hide');
+        })
+        .then(function () {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
+                    doc.adminShowMap = false;
+                    doc.timestamp = new Date().toISOString();
+                    return appdb.put(doc);
+                });
         })
         .catch(function (err) {
             console.log(err);
@@ -2309,6 +2249,7 @@ ons.ready(function () {
                 base = doc.base; //last base used
                 personName = doc.name; //the name used for the logs
                 appdbConnected = true;
+                adminShowMap = doc.adminShowMap || false;
                 var signInUrl = appServer + '/api/signin';
                 var dataPackage = {
                     username: username,
@@ -5271,7 +5212,7 @@ ons.ready(function () {
                 document.getElementById('adminTabbar').addEventListener('postchange', function (event) {
                     console.log('tab changed code will be run');
                     console.log(event.tabItem.getAttribute('page'));
-
+                    
                     switch (event.tabItem.getAttribute('page')) {
                         case 'allLogsPage.html':
                             var allLogsPage = $('#allLogsPage');
@@ -5423,13 +5364,17 @@ ons.ready(function () {
                                     adminCurrentlySelected.push(dataInfo);
                                     return ifMapShowAddToMap(dataInfo, reset);
                                 };
-
+                                var tab0Map = $('#tab0Map');
+                                if (adminShowMap && !tab0Map.hasClass('mapLoaded')) {
+                                    showMap();
+                                    tab0Map.addClass('mapLoaded');
+                                }
                                 var ifMapShowAddToMap = function (dataInfo, shiftNotHeld) {
-                                    if (typeof tab0MapMarkerClusters !== 'object') {
+                                    if (typeof mapLayers.tab0Map !== 'object') {
                                         return false;
                                     }
                                     if (shiftNotHeld) {
-                                        tab0MapMarkerClusters.clearLayers();
+                                        mapLayers.tab0Map.clearLayers();
                                     }
                                     Promise.resolve()
                                         .then(function () {
@@ -5439,10 +5384,10 @@ ons.ready(function () {
                                             if (typeof doc.geolocation !== 'object') {
                                                 throw 'no location';
                                             }
-                                            return addMarkerToLayer(tab0MapMarkerClusters, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
+                                            return addMarkerToLayer(mapLayers.tab0Map, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
                                         })
                                         .then(function () {
-                                            zoomToLayer(tab0MapMarkerClusters);
+                                            zoomToLayer(mapLayers.tab0Map, 'tab0Map');
                                         })
                                         .catch(function (err) {
                                             console.log(err);
@@ -5467,8 +5412,8 @@ ons.ready(function () {
                                                 if (!($('tr').hasClass('tableSelected'))) {
                                                     adminSpeedDial.hide();
                                                 }
-                                                if (typeof tab0MapMarkerClusters === 'object') {
-                                                    removeLayerFrom(dataInfo, tab0MapMarkerClusters);
+                                                if (typeof mapLayers.tab0Map === 'object') {
+                                                    removeLayerFrom(dataInfo, mapLayers.tab0Map);
                                                 }
                                             } else if (e.shiftKey == true) {
                                                 addToAdminCurrentlySelected(row, dataInfo, false);
