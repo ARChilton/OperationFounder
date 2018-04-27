@@ -2009,6 +2009,9 @@ ons-splitter-mask {
     border: 0px solid currentColor;
     z-index: 99999;
 }
+.fabLocate:active{
+    background-color:#fff;
+}
 
 .secondaryFab {
     background-color: rgba(255, 255, 255, 0.7);
