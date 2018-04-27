@@ -1139,13 +1139,21 @@ input[type=number]::-webkit-outer-spin-button {
     padding-left: 16px;
     padding-right: 16px;
     text-align: right;
-}
+    }
 
 .data-table th:last-of-type,
 .data-table td:last-of-type,
 .data-table th:first-of-type,
 .data-table td:first-of-type {
     padding-right: 16px;
+}
+
+.data-table thead  th{
+    position:sticky;
+    top:0;
+    background-color:#fff;
+    z-index:1;
+    box-shadow: 0 2px rgba(0, 0, 0, 0.14);
 }
 
 
