@@ -692,8 +692,8 @@ function createMap(mapContainer) {
     });
     // http://leafletjs.com/reference-1.3.0.html#layergroup
     // This function adds a custom function to get an id that can be set by me.
-    
-    
+
+
     maps[mapContainer] = L.map(mapContainer, {
         center: [
             54.52743260123856, -3.0248451206716713
@@ -780,118 +780,118 @@ function createMap(mapContainer) {
             zoomToLayer(mapLayers[mapContainer], mapContainer);
         }).catch(function (err) {
             console.log(err);
-        });        
+        });
 
-        // Adds a marker to the centre of the map before the GPS changes it's location
+    // Adds a marker to the centre of the map before the GPS changes it's location
     var currentLatLon = maps[mapContainer].getCenter();
-        // var currentLat = currentLatLon.lat;
-        // var currentLng = currentLatLon.lng;
-        var startRadius = 3;
-        
-            var accuracyCircle = L.circle(currentLatLon, {
-                radius: startRadius,
-                // fillColor: '#aaf29f',
-                fillColor: '#4285F4',
-                fillOpacity: 0.2,
-                stroke: false
-                // color: '#37e21d',
-                // weight: 1
+    // var currentLat = currentLatLon.lat;
+    // var currentLng = currentLatLon.lng;
+    var startRadius = 3;
 
-            }).addTo(maps[mapContainer]);
-           var gpsMarker = L.circleMarker(currentLatLon, {
-                radius: 8,
-                fill: true,
-                fillOpacity: 1,
-                // fillColor: '#009688',
-                fillColor: '#4285F4',
-                stroke: true,
-                color: '#ffffff',
-                weight: 3
-           }).bindTooltip('You', { direction: 'top' }).addTo(maps[mapContainer]);
-            
-        
+    var accuracyCircle = L.circle(currentLatLon, {
+        radius: startRadius,
+        // fillColor: '#aaf29f',
+        fillColor: '#4285F4',
+        fillOpacity: 0.2,
+        stroke: false
+        // color: '#37e21d',
+        // weight: 1
 
-        /**
-         * On the success of the location function, this will locate you on the map and add a marker to show where you are
-         * @param {*} e - location passed by the location function
-         * @param {*} e.accuracy - the accuracy of the location
-         * @param {any[]} e.latlng - the lat lng array of the location
-         */
-        var onLocationFound = function (e) {
+    }).addTo(maps[mapContainer]);
+    var gpsMarker = L.circleMarker(currentLatLon, {
+        radius: 8,
+        fill: true,
+        fillOpacity: 1,
+        // fillColor: '#009688',
+        fillColor: '#4285F4',
+        stroke: true,
+        color: '#ffffff',
+        weight: 3
+    }).bindTooltip('You', { direction: 'top' }).addTo(maps[mapContainer]);
 
-            var accRadius = e.accuracy / 2;
 
-            //L.marker(e.latlng).addTo(map)
-            //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-            gpsMarker.setLatLng(e.latlng);
-            accuracyCircle.setLatLng(e.latlng);
-            accuracyCircle.setRadius(accRadius);
+    /**
+     * On the success of the location function, this will locate you on the map and add a marker to show where you are
+     * @param {*} e - location passed by the location function
+     * @param {*} e.accuracy - the accuracy of the location
+     * @param {any[]} e.latlng - the lat lng array of the location
+     */
+    var onLocationFound = function (e) {
 
-            // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
-            //console.log('followGPS = ' + followGPS);
-            currentLatLon = e.latlng;
+        var accRadius = e.accuracy / 2;
 
-            if (followGPS) {
-                //map.setView(marker.getLatLng(),map.getZoom());
-                maps[mapContainer].setView(gpsMarker.getLatLng(), maps[mapContainer].getZoom());
-                console.log('I have moved because followGPS = ' + followGPS);
-            }
-        };
-        /**
-         * 
-         * @param {*} e - error message passed by the location function
-         */
-        var onLocationError = function (e) {
-            console.log(e.message);
-            $('#fabLocate').hide();
+        //L.marker(e.latlng).addTo(map)
+        //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-            // Raven.captureException(e);
-        };
+        gpsMarker.setLatLng(e.latlng);
+        accuracyCircle.setLatLng(e.latlng);
+        accuracyCircle.setRadius(accRadius);
+
+        // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+        //console.log('followGPS = ' + followGPS);
+        currentLatLon = e.latlng;
+
+        if (followGPS) {
+            //map.setView(marker.getLatLng(),map.getZoom());
+            maps[mapContainer].setView(gpsMarker.getLatLng(), maps[mapContainer].getZoom());
+            console.log('I have moved because followGPS = ' + followGPS);
+        }
+    };
+    /**
+     * 
+     * @param {*} e - error message passed by the location function
+     */
+    var onLocationError = function (e) {
+        console.log(e.message);
+        $('#fabLocate').hide();
+
+        // Raven.captureException(e);
+    };
 
     maps[mapContainer].on('locationfound', onLocationFound);
     maps[mapContainer].on('locationerror', onLocationError);
 
 
 
-        var locationFab = $('#' + mapContainer + ' .locOn');
-        /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
-        if (!(locationFab.hasClass('evtHandler'))) {
-            locationFab.addClass('evtHandler')
+    var locationFab = $('#' + mapContainer + ' .locOn');
+    /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
+    if (!(locationFab.hasClass('evtHandler'))) {
+        locationFab.addClass('evtHandler')
             .on("click", function () {
                 /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
                 return followGPS
-                ? locateButton(2, gpsMarker, mapContainer)
+                    ? locateButton(2, gpsMarker, mapContainer)
                     : locateButton(1, gpsMarker, mapContainer);
             });
 
-            /*On any movement of the map:
-            - the follow GPS setting and locate button is turned off
-            - the autocomplete options are updated*/
-            /**
-             * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
-             * utilised followGPS as a global variable
-             */
-            var mapMove = function () {
-                /*This updates the fab icon*/
-                if (followGPS) {
-                    /*This updates the locate button by passing in the second switch option that turns the button off*/
-                    locateButton(2, gpsMarker, mapContainer);
-                    /*For testing*/
-                    // console.log('toggling locate button');
-                }
-            };
+        /*On any movement of the map:
+        - the follow GPS setting and locate button is turned off
+        - the autocomplete options are updated*/
+        /**
+         * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
+         * utilised followGPS as a global variable
+         */
+        var mapMove = function () {
+            /*This updates the fab icon*/
+            if (followGPS) {
+                /*This updates the locate button by passing in the second switch option that turns the button off*/
+                locateButton(2, gpsMarker, mapContainer);
+                /*For testing*/
+                // console.log('toggling locate button');
+            }
+        };
 
-            $('#map').on("swipe tap click taphold", function () {
-                //console.log('map touched in some way');
-                mapMove();
-            });
-            //This does the same but when the map is scrolled
-            maps[mapContainer].on('dragstart zoomend', function () {
-                console.log('map dragged');
-                mapMove();
-            });
-        }
+        $('#map').on("swipe tap click taphold", function () {
+            //console.log('map touched in some way');
+            mapMove();
+        });
+        //This does the same but when the map is scrolled
+        maps[mapContainer].on('dragstart zoomend', function () {
+            console.log('map dragged');
+            mapMove();
+        });
+    }
 
 }
 
@@ -1644,7 +1644,7 @@ function closeDatabases() {
     if (evtUpdateCheck != undefined && !evtUpdateCheck.canceled) {
         evtUpdateCheck.cancel();
     }
-    deleteIndexes();    
+    deleteIndexes();
     closeMaps();
 }
 
@@ -1691,7 +1691,7 @@ function baseLogOut() {
 
             closeDatabases();
             logOutPageChange();
-            menuController();         
+            menuController();
 
         })
         .catch(function (err) {
@@ -1704,11 +1704,11 @@ function goToTermsOfUse() {
 }
 
 function closeMaps() {
-    Object.keys(maps).forEach(function(map) {
+    Object.keys(maps).forEach(function (map) {
         console.log(map);
         maps[map].off();
         maps[map].remove();
-        
+
     });
     maps = {};
 }
@@ -1839,7 +1839,7 @@ function showMap() {
             return closeMenu();
         })
         .then(function () {
-            
+
             var tabRef = 'tab' + currentTab;
             var container = tabRef + 'Container';
             var map = tabRef + 'Map';
@@ -1853,13 +1853,13 @@ function showMap() {
             $('#hideMap').removeClass('hide');
             adminShowMap = true;
         })
-        .then(function() {
-           return appdb.get('login_' + username)
-            .then(function(doc) {
-                doc.adminShowMap = true;
-                doc.timestamp = new Date().toISOString();                
-                return appdb.put(doc);
-            });
+        .then(function () {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
+                    doc.adminShowMap = true;
+                    doc.timestamp = new Date().toISOString();
+                    return appdb.put(doc);
+                });
         })
         .catch(function (err) {
             console.log(err);
@@ -5212,7 +5212,7 @@ ons.ready(function () {
                 document.getElementById('adminTabbar').addEventListener('postchange', function (event) {
                     console.log('tab changed code will be run');
                     console.log(event.tabItem.getAttribute('page'));
-                    
+
                     switch (event.tabItem.getAttribute('page')) {
                         case 'allLogsPage.html':
                             var allLogsPage = $('#allLogsPage');
