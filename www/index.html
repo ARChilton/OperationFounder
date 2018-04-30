@@ -29,8 +29,11 @@
   <meta name="theme-color" content="#ffffff">
 
   <!-- Facebook metadata -->
+  <meta property="fb:app_id" content="223113445127689">
   <meta property="og:title" content="Checkpoint Live, event tracking platform">
-  <meta property="og:image" content="https://checkpointlive.com/largeLogo.png">
+  <meta property="og:image" content="https://checkpointlive.com/social-media-logos/largeLogo-1200x627.png">
+  <meta property="og:image:height" content="144">
+  <meta property="og:image:width" content="360">
   <meta property="og:url" content="https://checkpointlive.com">
   <meta property="og:type" content="website">
   <meta property="og:description" content="An event management platform for checkpoint based events such as incident hikes and races. Monitor participant traffic to locations in real-time to inform
@@ -46,7 +49,7 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <!-- <link rel="stylesheet" href="js/mdl/material.css"> -->
   <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
-  <!-- <link rel="stylesheet" href="js/leaflet/leaflet.css"> -->
+  <link rel="stylesheet" href="css/leaflet.css">
   <!--<link rel="stylesheet" href="js/leaflet/leaflet-routing-machine.css">-->
   <!--<link rel="stylesheet" href="js/leaflet/lrm-mapzen.css">-->
   <!-- <link rel="stylesheet" href="js/JQuery/jquery.mobile-1.4.5.min.css">-->
@@ -74,6 +77,12 @@
       <ons-list id="opFounderMenu">
         <ons-list-item id="baseLogOut" class="hide" onclick="baseLogOut()" tappable>
           Leave Base
+        </ons-list-item>
+        <ons-list-item onclick="showMap()" id="showMap" class="hide" tappable>
+          Show Map
+        </ons-list-item>
+        <ons-list-item onclick="hideMap()" id="hideMap" class="hide" tappable>
+          Hide Map
         </ons-list-item>
         <ons-list-item onclick="copyAllLogs()" id="copyAllLogs" class="hide" tappable>
           Copy All Logs Table
@@ -219,26 +228,38 @@
           <div class="col-xs-12 ">
 
             <div class="centerContentBoxes">
-              <div class="txtJustify col-sm-6 col-sm-offset-1  xsPadding16">
+              <div class="txtJustify col-sm-5 col-sm-offset-1  xsPadding16">
                 <h2 class="txtCenter bold">What is Checkpoint Live?</h2>
                 <p class="bold">
                   Checkpoint Live is a real time management platform for events with checkpoints or bases.
                 </p>
                 <p>
-                  Initially developed for the Scout and Guide communities to enable real time updates on where the teams of young people are
-                  as they participate in orienteering activities such as an incident hike. Now it can be used by any event
+                  Initially developed for the Scout and Guide communities we created Checkpoint Live to make our event's safer and easier to
+                  administrate. Those beginnings formed into the Checkpoint Live service and now it can be used by any event
                   with manned checkpoints/bases.
                 </p>
                 <p>
                   Checkpoint Live is for the leaders or marshals, not the participants themselves. It connects event staff via the website
-                  to collect and collate sightings of participants so you know who has been seen when and where. With the
-                  added ability to record any scores taken at that location.
+                  to collect and collate sightings of participants in real time so you know who has been seen when and where.
+                  With the added ability to record any scores taken at that location.
                 </p>
                 <p>Importantly it removes the data entry by the event's admin team and allows them monitor the event on their
-                  mobile devices, to go see the event they enabled! But if you do rely on spreadsheets, data can even be
-                  copied as a table into Microsoft Excel&trade;.
+                  mobile devices, allowing them to go see the event they enabled! But if you do rely on spreadsheets, data
+                  can even be copied as a table into Microsoft Excel&trade;.
                 </p>
               </div>
+              <img src="img/admin-showing-locations-of-teams-on-laptop.png" alt="Admin screen showing logs collated and a map showing the location a log was recorded"
+                class="col-xs-12 col-sm-4 col-sm-offset-1" />
+
+            </div>
+
+
+          </div>
+        </div>
+        <hr style="margin: 0px 5vw">
+        <div class="row section">
+          <div class="col-xs-12">
+            <div class="centerContentBoxes">
               <svg id="whatIsCheckpointLive" class="col-xs-12 col-sm-3 col-sm-offset-1" version="1.1" viewBox="0 0 361.41 307.72" xmlns="http://www.w3.org/2000/svg">
                 <title>Diagram of Checkpoint Live communications</title>
                 <desc>Diagram showing how checkpoints communicate with checkpoint live to inform the admins for the event which
@@ -323,12 +344,22 @@
                   </g>
                 </g>
               </svg>
-              <!-- <img src="img/what-is-checkpoint-live.svg" alt="Diagram showing how all the checkpoints communicate with checkpoint live to inform the admins for the event"
-                class="col-xs-12 col-sm-4 col-sm-push-3 " /> -->
-
+              <div class="txtJustify col-sm-6 col-sm-offset-1  xsPadding16">
+                <h2 class="txtCenter bold">How does it work?</h2>
+                <p class="bold">
+                  Checkpoint Live utilises mobile devices and the cloud to connect you to your event staff.
+                </p>
+                <p>
+                  Utilising the smallest amount of internet bandwidth Checkpoint Live keeps all of your event staff in sync with the admin
+                  team co-ordinating the event.
+                </p>
+                <p>
+                  Collecting and collating information via the website your event staff provide you and the admin team with all of the information
+                  clearly, concisely and on time. Not only when someone goes to collect the information or when a radio signal
+                  gets through.
+                </p>
+              </div>
             </div>
-
-
           </div>
         </div>
         <hr style="margin: 0px 5vw">
@@ -384,7 +415,7 @@
           <h2 class="txtCenter bold">As used by</h2>
           <div class="xsPadding16 col-xs-12">
             <img src="img/operationFounder.png" title="Operation Founder, Tonbridge District Scouts" alt="As used by Operation Founder, Tonbridge District Scouts"
-              class="col-xs-8 col-xs-push-2 marginAuto" />
+              class="col-xs-12 col-sm-8 col-sm-push-2 marginAuto" />
 
           </div>
           <div class="marginTop64px col-xs-12">
@@ -1097,28 +1128,39 @@
   <!-- Start of allLogsPage.html -->
   <ons-template id="allLogsPage.html">
     <ons-page id="allLogsPage">
-      <div id="allLogsCopy">
-        <table class="data-table logTable">
-          <thead>
-            <tr>
-              <!--<th class="hide landscapeShow">
+      <!-- <div class="adminFlexContainer"> -->
+      <div id="tab0Map" class="hide">
+        <ons-fab class="fab locOn fabLocate" id="fabLocateTab0" href="#">
+          <ons-icon icon="md-gps-dot" class="locateAlign locateSelected" id="fabLocateIcon">
+          </ons-icon>
+        </ons-fab>
+      </div>
+      <div id="tab0Container" class="adminContainer col-xs-12">
+        <div id="allLogsCopy">
+          <table class="data-table logTable">
+            <thead>
+              <tr>
+                <!--<th class="hide landscapeShow">
               <ons-input type='checkbox' id="selectAll"></ons-input>
             </th>-->
-              <th>ChkPt</th>
-              <th class="participantRef">Team</th>
-              <th>Time in</th>
-              <th>Time out</th>
-              <th>Wait</th>
-              <th>Off route</th>
-              <th>Score</th>
-              <th>Recorded by</th>
-              <th>edit</th>
-            </tr>
-          </thead>
-          <tbody id="adminLogsTable">
-          </tbody>
-        </table>
+                <th>Info</th>
+                <th>ChkPt</th>
+                <th class="participantRef">Team</th>
+                <th>Time in</th>
+                <th>Time out</th>
+                <th>Wait</th>
+                <th>Off route</th>
+                <th>Score</th>
+                <th>Recorded by</th>
+                <th>edit</th>
+              </tr>
+            </thead>
+            <tbody id="adminLogsTable">
+            </tbody>
+          </table>
+        </div>
       </div>
+      <!-- </div> -->
       <ons-speed-dial position="bottom right" direction="up" id="adminSpeedDial" class="hide">
         <ons-fab>
           <ons-icon icon="md-edit"></ons-icon>
@@ -1139,6 +1181,7 @@
           <ons-icon icon="md-map"></ons-icon>
         </ons-speed-dial-item>-->
       </ons-speed-dial>
+
     </ons-page>
   </ons-template>
   <!-- end of allLogsPage.html -->
@@ -1444,7 +1487,7 @@
 <!-- JQuery cookie plugin to manage cookies -->
 <!--<script src="js/JQuery/js.cookie.js"></script>-->
 <!-- Leaflet JS and Leaflet WMS extension -->
-<!-- <script src="js/leaflet/leaflet.js"></script> -->
+<script src="js/leaflet-1.3.1/leaflet-src.js"></script>
 <!-- JavaScript database  -->
 <script src="js/pouchdb/pouchdb-6.3.4.min.js"></script>
 <script src="js/pouchdb/pouchdb.find.min.js"></script>
@@ -1454,9 +1497,13 @@
 <!--<script src="js/leaflet/leaflet-routing-machine.js"></script>-->
 <!--<script src="js/leaflet/lrm-mapzen.js "></script>-->
 <!--<script src="js/leaflet/Control.Geocoder.js"></script>-->
-<!-- <script src="js/leaflet/leaflet-bing-layer.js"></script> -->
-<!-- <script src="js/leaflet/L.TileLayer.PouchDBCached.js"></script> -->
-<!-- <script src="js/leaflet/leaflet.edgebuffer.js"></script> -->
+<script src="js/leaflet-plugins/leaflet-bing-layer.js"></script>
+<!-- <script src="js/leaflet-plugins/L.TileLayer.ServiceWorker.js"></script> -->
+<!-- <script src="js/leaflet-plugins/L.TileLayer.PouchDBCached.js"></script> -->
+<script src="js/leaflet-plugins/leaflet.edgebuffer.js"></script>
+<script src="js/leaflet-plugins/leaflet.markercluster-src.js"></script>
+<script src="js/leaflet-plugins/iconLayers.js"></script>
+<!-- <script src="js/leaflet-plugins/L.Control.Basemaps-min.js"></script> -->
 <!-- Error tracking -->
 <!--<script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>-->
 <!-- My leaflet control file -->

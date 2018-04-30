@@ -43,12 +43,12 @@ Accent Darker color: Orange 800: #EF6C00
     color:#ef6c00;
 }
 
-a {
+a, .leaflet-bar a{
     color:#FF9100;
     text-decoration: none;
 }
 
-a:hover{
+a:hover, .leaflet-bar a:hover{
     color:#EF6C00;
     /* font-weight: bold; */
     text-decoration: none;
@@ -58,6 +58,11 @@ a:visited{
    color:#FF9100;
     text-decoration: none; 
 }
+
+a:focus{
+    text-decoration: none;
+}
+
 
 /* General OnsenUI CSS */
 
@@ -155,7 +160,7 @@ input:checked + .switch__toggle{
     margin:0px;
     min-height:52px;
 }
-.page__background, .list__item {
+.page__background, .list__item, .list__header, .list__header--material, .data-table {
     background-color:rgb(252, 252, 252);
     
 }
@@ -462,7 +467,7 @@ input:checked + .switch__toggle{
 
 /*signIn page*/
 .section{
- padding:8vh 16px;
+ padding:11vh 16px;
  
 }
 .sectionGray{
@@ -615,9 +620,9 @@ background-color: rgba(255, 145, 0,0.3);
 }
 #signInLogo {
     width:100%;
-    max-width:75vw;
     max-height: 34vh;
 }
+
 .loginLogo {
     max-height: 25vh;
     width: auto;
@@ -1071,6 +1076,58 @@ input[type=number]::-webkit-outer-spin-button {
     }
 }
 
+.adminSummaryIcons ons-icon:first-child{
+    padding-right:4px;
+}
+.adminActiveIcon{
+    /* color:rgba(255, 184, 77, 0.9); */
+    color:rgba(123, 200, 44,0.9);
+}
+.lockedLog .adminActiveIcon{
+    color:rgba(123, 200, 44, 0.6);
+}
+.adminNotActive{
+    color:rgba(0, 0, 0, 0.15);
+}
+.lockedLog .adminNotActive{
+    color:rgba(0,0,0,0.075);
+}
+
+.adminContainer.mapShow{
+    height:100%;
+    overflow: auto;
+}
+
+.adminMapContainer{
+    height:100%;
+    border-right: 1px solid #3a3a3a;
+}
+@media(max-width:992px){
+    .adminMapContainer{
+        height:50%;
+        border-right:none;
+        border-bottom: 1px solid #3a3a3a;
+    }
+    .adminContainer.mapShow{
+        height:50%;
+        overflow:scroll;
+    }
+}
+
+/* .adminFlexContainer{
+    display:flex;
+    flex-direction: column;
+
+}
+
+@media(min-width:992px){
+    .adminFlexContainer{
+        flex-direction: row;
+    }
+    .adminContainer{
+        order:1;
+    }
+} */
 
 /*.data-table th:first-of-type,
 .data-table td:first-of-type {
@@ -1082,13 +1139,21 @@ input[type=number]::-webkit-outer-spin-button {
     padding-left: 16px;
     padding-right: 16px;
     text-align: right;
-}
+    }
 
 .data-table th:last-of-type,
 .data-table td:last-of-type,
 .data-table th:first-of-type,
 .data-table td:first-of-type {
     padding-right: 16px;
+}
+
+.data-table thead  th{
+    position:sticky;
+    top:0;
+    background-color:#fff;
+    z-index:1;
+    box-shadow: 0 2px rgba(0, 0, 0, 0.14);
 }
 
 
@@ -1617,8 +1682,14 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 *::-webkit-scrollbar {
-    width: 4px !important;
-    height: 6px !important;
+    width: 4px ;
+    height: 4px ;
+}
+@media(min-width:768px){
+   *::-webkit-scrollbar{
+    width:8px;
+    height:8px;
+   } 
 }
 
 *::-webkit-scrollbar-thumb {
@@ -1627,6 +1698,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 *::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.08);
+    /* background-color:transparent; */
 }
 
 
@@ -1929,10 +2001,16 @@ ons-splitter-mask {
 
 /* --- FAB BUTTONS --- */
 
-#fabLocate {
+.fabLocate {
+    position: absolute;
+    bottom:50px;
+    right:16px;
     background-color: #fff;
     border: 0px solid currentColor;
     z-index: 99999;
+}
+.fabLocate:active{
+    background-color:#fff;
 }
 
 .secondaryFab {
@@ -2133,11 +2211,17 @@ ons-splitter-mask {
 
 .bingLogo {
     z-index: 9999999;
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
+    padding:5px;
+    min-width:50px;
+    background-color:rgba(255,255,255,0.4);
+    border-radius: 3px;
 }
-
+.leaflet-container .leaflet-control-attribution{
+    background-color:transparent;
+}
+.leaflet-bottom.leaflet-left{
+    max-width: 80%;
+}
 
 /* Map pin CSS */
 
@@ -2549,3 +2633,137 @@ animation-delay: 2.1s;
 }
 
 
+/* Leaflet cluster markers */
+.leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
+	-webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
+	-moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
+	-o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
+	transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+}
+
+.leaflet-cluster-spider-leg {
+	/* stroke-dashoffset (duration and function) should match with leaflet-marker-icon transform in order to track it exactly */
+	-webkit-transition: -webkit-stroke-dashoffset 0.3s ease-out, -webkit-stroke-opacity 0.3s ease-in;
+	-moz-transition: -moz-stroke-dashoffset 0.3s ease-out, -moz-stroke-opacity 0.3s ease-in;
+	-o-transition: -o-stroke-dashoffset 0.3s ease-out, -o-stroke-opacity 0.3s ease-in;
+	transition: stroke-dashoffset 0.3s ease-out, stroke-opacity 0.3s ease-in;
+}
+
+.marker-cluster-small {
+	background-color: rgba(181, 226, 140, 0.6);
+	}
+.marker-cluster-small div {
+    background-color: rgba(110, 204, 57, 0.6);
+	}
+
+.marker-cluster-medium {
+	background-color: rgba(241, 211, 87, 0.6);
+	}
+.marker-cluster-medium div {
+	background-color: rgba(240, 194, 12, 0.6);
+	}
+
+.marker-cluster-large {
+	background-color: rgba(253, 156, 115, 0.6);
+	}
+.marker-cluster-large div {
+	background-color: rgba(241, 128, 23, 0.6);
+	}
+
+	/* IE 6-8 fallback colors */
+.leaflet-oldie .marker-cluster-small {
+	background-color: rgb(181, 226, 140);
+	}
+.leaflet-oldie .marker-cluster-small div {
+	background-color: rgb(110, 204, 57);
+	}
+
+.leaflet-oldie .marker-cluster-medium {
+	background-color: rgb(241, 211, 87);
+	}
+.leaflet-oldie .marker-cluster-medium div {
+	background-color: rgb(240, 194, 12);
+	}
+
+.leaflet-oldie .marker-cluster-large {
+	background-color: rgb(253, 156, 115);
+	}
+.leaflet-oldie .marker-cluster-large div {
+	background-color: rgb(241, 128, 23);
+}
+
+.marker-cluster {
+	background-clip: padding-box;
+	border-radius: 20px;
+	}
+.marker-cluster div {
+	width: 30px;
+	height: 30px;
+	margin-left: 5px;
+	margin-top: 5px;
+    font-weight:700;
+	text-align: center;
+    border-radius: 15px;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    font-size: 16px;
+    color:#000;
+	/* font: 16px "Helvetica Neue", Arial, Helvetica, sans-serif; */
+	}
+.marker-cluster span {
+	line-height: 30px;
+	}
+/* leaflet layer control */
+ .leaflet-iconLayers {
+    pointer-events: none;
+}
+
+.leaflet-iconLayers-layersRow { display: table; pointer-events: auto; }
+.leaflet-iconLayers-layerCell { display: table-cell; } 
+
+.leaflet-iconLayers_topleft .leaflet-iconLayers-layerCell, .leaflet-iconLayers_bottomleft .leaflet-iconLayers-layerCell { padding-right: 5px; }
+.leaflet-iconLayers_topright .leaflet-iconLayers-layerCell, .leaflet-iconLayers_bottomright .leaflet-iconLayers-layerCell { padding-left: 5px; }
+
+.leaflet-iconLayers_topleft .leaflet-iconLayers-layerCell, .leaflet-iconLayers_topright .leaflet-iconLayers-layerCell { padding-bottom: 5px; }
+.leaflet-iconLayers_bottomleft .leaflet-iconLayers-layerCell, .leaflet-iconLayers_bottomright .leaflet-iconLayers-layerCell { padding-top: 5px; }
+.leaflet-iconLayers-layerCell_active .leaflet-iconLayers-layer{
+    border:3px solid rgba(255, 145, 0,0.5);
+}
+.leaflet-iconLayers-layer {
+    cursor: pointer;
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-align: center;
+    box-sizing: border-box;
+    box-shadow: 0 0 5px #000;
+    border-radius:3px;
+}
+
+.leaflet-iconLayers-layer:hover{
+    border: 3px solid #ff9100;
+}
+
+.leaflet-iconLayers-layerTitleContainer {
+    display: table;
+    width: 100%;
+    background: rgba(255,255,255,0.6);
+    height: 25%;
+    padding: 0;
+    border: 0;
+    position: absolute;
+    bottom: 0%;
+    transition: bottom .35s ease;
+}
+
+.leaflet-iconLayers-layerTitle {
+    display: table-cell;
+    vertical-align: middle;
+    font-weight:bold;
+}
+
+.leaflet-iconLayers-layerCell_hidden { display: none; }
+.leaflet-iconLayers-layerCell_active .leaflet-iconLayers-layer { cursor: default; }
+/* .leaflet-iconLayers-layerCell_active .leaflet-iconLayers-layerCheckIcon { display: block; } */

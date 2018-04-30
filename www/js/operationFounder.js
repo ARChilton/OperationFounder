@@ -15,8 +15,8 @@
  * @param {number} dbSeqNumber
  */
 
-/*global $:false PouchDB:false ons:false navi:false emit:false Stripe:false */
-/* exported baseLogOut signOut goToTermsOfUse changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
+/*global $:false L:false PouchDB:false ons:false navi:false emit:false Stripe:false */
+/* exported baseLogOut showMap hideMap signOut goToTermsOfUse changeEvent editEvent baseSelectValue goToEventSummary activateEvent copyAllLogs openMessages cleanAll destroyPouchDBs */
 
 //dev variables
 // var arcGlobal = {};
@@ -74,35 +74,146 @@ var appServer = 'https://checkpointlive.com/app';
 
 // map variables
 //commented out to remove map from app
-/* var marker;
-var accuracyCircle;
-var locationFoundCount = 0;
-var followGPS;
-var mapMarkers = L.featureGroup()
-L.LayerGroup.include({
-    customGetLayer: function (id) {
-        for (var i in this._layers) {
-            if (this._layers[i].id == id) {
-                return this._layers[i];
-            }
-        }
-    }
-});
-var mapMade = false;
-var map;
+
+
+var followGPS = false;
+// Not sure this is required to find the layer anymore
+// L.LayerGroup.include({
+//     customGetLayer: function (id) {
+//         for (var i in this._layers) {
+//             if (this._layers[i].id == id) {
+//                 return this._layers[i];
+//             }
+//         }
+//     }
+// });
+var maps = {};
+var mapLayers = {};
+var adminShowMap;
 var BING_KEY = 'AqVat8HR9TsQF1uwWckLU_1Dv_wrrDR3ThriJUmZyDhPcHRGwpeTDA9NVhKaS5RX';
+var mapboxTkn = 'pk.eyJ1IjoiYXJjaGlsdG9uIiwiYSI6ImNpdm1mdGk4NjA3eDUyenBveTgwejB2dWIifQ.ehb0-8mRLEpQ9R89H0HlvQ';
 var turnCachingOn = true;
-var reCacheAfter = 30 * 24 * 3600 * 1000;
+var reCacheAfter = 30 * 24 * 3600 * 1000; // 30 days * 24 hours * 3600 seconds in an hour * 1000 milliseconds in a second
 var bingOS = L.tileLayer.bing({
     bingMapsKey: BING_KEY,
     imagerySet: 'ordnanceSurvey',
     maxNativeZoom: 17,
-    maxZoom: 17,
+    maxZoom: 19,
     minZoom: 10,
     useCache: turnCachingOn,
     crossOrigin: true,
+    cacheMaxAge: reCacheAfter,
+    attribution: '<img class="bingLogo" src="./img/bingLogo/bing_maps_logo_gray.png">'
+});
+//Copyright info for mapbox
+var mapboxAttributes = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>';
+
+//URL for mapbox where the style is inserted     
+var mapboxURL = 'https://api.mapbox.com/styles/v1/{source}/{style}/tiles/256/{z}/{x}/{y}?access_token=' + mapboxTkn;
+
+//mapbox background layers with style information   
+// var greyscale = L.tileLayer(mapboxURL, {
+//     style: 'light-v9',
+//     source:'mapbox',
+//     attribution: mapboxAttributes,
+//     useCache: turnCachingOn,
+//     crossOrigin: true,
+//     cacheMaxAge: reCacheAfter
+// }),
+var streets = L.tileLayer(mapboxURL, {
+    style: 'streets-v10',
+    source: 'mapbox',
+    attribution: mapboxAttributes,
+    useCache: turnCachingOn,
+    crossOrigin: true,
     cacheMaxAge: reCacheAfter
-}); */
+}),
+    // outdoor = L.tileLayer(mapboxURL, {
+    //     style: 'outdoors-v10',
+    //     source: 'mapbox',
+    //     attribution: mapboxAttributes,
+    //     useCache: turnCachingOn,
+    //     crossOrigin: true,
+    //     cacheMaxAge: reCacheAfter
+    // }),
+    dark = L.tileLayer(mapboxURL, {
+        style: 'dark-v9',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    }),
+    satellite = L.tileLayer(mapboxURL, {
+        style: 'satellite-v9',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    }),
+    sat_streets = L.tileLayer(mapboxURL, {
+        style: 'satellite-streets-v10',
+        source: 'mapbox',
+        attribution: mapboxAttributes,
+        useCache: turnCachingOn,
+        crossOrigin: true,
+        cacheMaxAge: reCacheAfter
+    });
+
+// My map styles
+var highlightFootpath = L.tileLayer(mapboxURL, {
+    style: 'cjggxt9wq00462sme3kihy7cd',
+    source: 'archilton',
+    attribution: mapboxAttributes,
+    useCache: turnCachingOn,
+    crossOrigin: true,
+    cacheMaxAge: reCacheAfter
+});
+
+//Bing Maps attributes
+
+//Bing Map Layers
+// var bingRoads = L.tileLayer.bing({
+//     bingMapsKey: BING_KEY,
+//     imagerySet: 'Road',
+//     useCache: turnCachingOn,
+//     crossOrigin: true,
+//     cacheMaxAge: reCacheAfter
+// }),
+//     bingSatellite = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'Aerial',
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     }),
+//     bingSatLabel = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'AerialWithLabels',
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     }),
+//     bingCollins = L.tileLayer.bing({
+//         bingMapsKey: BING_KEY,
+//         imagerySet: 'collinsBart',
+//         maxZoom: 17,
+//         minZoom: 10,
+//         useCache: turnCachingOn,
+//         crossOrigin: true,
+//         cacheMaxAge: reCacheAfter
+//     });
+
+
+var chkPtLiveIcon = L.icon({
+    iconUrl: './img/map-pin.svg',
+    iconSize: [25, 40],
+    iconAnchor: [12.5, 40],
+    tooltipAnchor: [0, -36],
+    shadowUrl: './img/marker-shadow.png'
+});
+// var followGPS = false;
 // var currentLocation;
 // var location;
 
@@ -510,261 +621,280 @@ function cleanAll() {
     });
 }
 
-/**
- * show map page
- */
-/* function goToMap() {
-    navi.bringPageTop('map.html', {
-        animation: pageChangeAnimation
-    }).then(function () {
-        return map.invalidateSize();
-    }).catch(function (err) {
-        createMap();
-        setTimeout(function () {
-            return map.invalidateSize()
-        }, 1000);
+function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
+    var marker = L.marker([lat, lon], { icon: chkPtLiveIcon });
+    marker.id = id;
+    marker.data = data;
+    layerAddedTo.addLayer(marker);
+    marker.bindTooltip(navi.topPage.data.eventInfo.pRef + ' ' + data.patrol, {
+        permanent: false,
+        direction: 'top'
     });
-
-
-    document.getElementById('menu').toggle();
-    map.locate({
-        setView: false,
-        // maxZoom: map.getZoom(),
-        watch: true,
-        enableHighAccuracy: true
-    });
-
-} */
+}
 /**
- * A function that runs on the map page when the map back button is pressed. This stops the map page being taken out of the page stack and therefore breaking leaflet
- */
-/* function mapBackButton() {
-    map.stopLocate();
-    ons.enableDeviceBackButtonHandler();
-    var index = getBaseNumber();
-    switch (index) {
-        case 0:
-            return navi.bringPageTop('admin.html', {
-                animation: pageChangeAnimation
-            });
+         * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
+         * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
+         */
+var locateButton = function (press, marker, mapContainer) {
+    switch (press) {
+        case 1:
+
+            /*This updates the map to the current GPS location*/
+            maps[mapContainer].setView(marker.getLatLng(), maps[mapContainer].getZoom());
+            /* This will update the variable which defines if the map follows the GPS marker */
+            followGPS = true;
+            /* This will change the styling of the fabLocate button */
+            $('#fabLocateIcon').replaceWith('<ons-icon icon="md-gps-dot" class="locateAlign locateSelected" id="fabLocateIcon"><ons-icon>');
+            /*For testing*/
+            console.log('following marker');
+
             break;
-        default:
-            if (index === 'logout') {
-                throw navi.resetToPage('loginPage.html', {
-                    animation: pageChangeAnimation
-                }).then(function (doc) {;
-                    ons.notification.alert({
-                        title: 'error',
-                        message: 'An error has occured and have returned to the login screen, please log in again',
-                        cancelable: true
-                    });
-                });
-            }
-            return navi.bringPageTop('page1.html', {
-                animation: pageChangeAnimation
-            });
+
+        case 2:
+
+            /* This updates whether the map follows the marker's GPS movements */
+            followGPS = false;
+            /*This will change the styling of the fabLocate button*/
+            $('#fabLocateIcon').replaceWith('<ons-icon icon="md-gps" class="locateAlign locateNotSelected" id="fabLocateIcon"><ons-icon>');
+            /* For testing */
+            console.log('I have cancelled movements due to toggling followGPS now =' + followGPS);
+
             break;
     }
-} */
+};
+function zoomToLayer(layer, mapContainer) {
+    followGPS = false;
+    locateButton(2);
+    return maps[mapContainer].fitBounds(layer.getBounds(), {
+        maxZoom: maps[mapContainer].getZoom()
+    });
+}
+
+function removeLayerFrom(idToRemove, fromLayer) {
+    fromLayer.removeLayer(fromLayer.getLayers()
+        .filter(function (layer) {
+            return layer.id === idToRemove;
+        })[0]);
+}
+
 /**
  * Creates the map on the map page behind the scenes
  */
-// function createMap() {
-//     if (!(mapMade)) {
-//         //map centred on Hadlow // pick up here   
-//         try {
-//             setTimeout(function () {
-//                 map = L.map('map', {
-//                     center: [
-//                         51.22435656415686, 0.3305253983853618
-//                     ],
-//                     zoom: 16,
-//                     layers: [bingOS],
-//                     zoomControl: false
-//                 });
-//                 // Adds a marker to the centre of the map before the GPS changes it's location
-//                 var currentLatLon = map.getCenter();
-//                 var currentLat = currentLatLon.lat;
-//                 var currentLng = currentLatLon.lng;
-//                 var startRadius = 3;
-//                 if (locationFoundCount == 0) {
-//                     accuracyCircle = L.circle(currentLatLon, {
-//                         radius: startRadius,
-//                         fillColor: '#aaf29f',
-//                         fillOpacity: 0.4,
-//                         stroke: true,
-//                         color: '#37e21d',
-//                         weight: 1
-
-//                     }).addTo(map);
-//                     marker = L.circleMarker(currentLatLon, {
-//                         radius: 8,
-//                         fill: true,
-//                         fillOpacity: 1,
-//                         fillColor: '#009688',
-//                         stroke: true,
-//                         color: '#ffffff',
-//                         weight: 3
-//                     }).addTo(map);
-//                     locationFoundCount++;
-//                 }
-//                 var followGPS = false;
+function createMap(mapContainer) {
+    // if (!(mapMade)) {
+    //map centred on Hadlow // pick up here
+    var selected = $('.tableSelected');
+    var selectedLength = selected.length;
+    mapLayers[mapContainer] = L.markerClusterGroup({
+        showCoverageOnHover: true,
+        spiderfyOnMaxZoom: true,
+        removeOutsideVisibleBounds: true
+    });
+    // http://leafletjs.com/reference-1.3.0.html#layergroup
+    // This function adds a custom function to get an id that can be set by me.
 
 
-//                 /**
-//                  * On the success of the location function, this will locate you on the map and add a marker to show where you are
-//                  * @param {*} e - location passed by the location function
-//                  * @param {*} e.accuracy - the accuracy of the location
-//                  * @param {any[]} e.latlng - the lat lng array of the location
-//                  */
-//                 function onLocationFound(e) {
+    maps[mapContainer] = L.map(mapContainer, {
+        center: [
+            54.52743260123856, -3.0248451206716713
+        ],
+        zoom: 16,
+        preferCanvas: true,
+        attributionControl: false,
+        zoomControl: false
+    });
+    L.control.scale({
+        position: 'bottomright'
+    }).addTo(maps[mapContainer]);
+    L.control.attribution({
+        position: 'bottomleft',
+        prefix: false
+    }).addTo(maps[mapContainer]);
+    maps[mapContainer].locate({
+        setView: false,
+        maxZoom: maps[mapContainer].getZoom(),
+        watch: true,
+        enableHighAccuracy: true
+    });
+    var iconLayersControl = L.control.iconLayers(
+        [
+            {
+                title: 'Default',
+                layer: highlightFootpath,
+                icon: './img/bgmap-img/ac-highlight-footpath.png'
+            },
+            {
+                title: 'Ordnance Survey (UK)',
+                layer: bingOS,
+                icon: './img/bgmap-img/os.png'
+            },
+
+            {
+                title: 'Streets',
+                layer: streets,
+                icon: './img/bgmap-img/mb-streets.png'
+            },
+            {
+                title: 'Satellite',
+                layer: satellite,
+                icon: './img/bgmap-img/mb-sat.png'
+            },
+            {
+                title: 'Satellite-hybrid',
+                layer: sat_streets,
+                icon: './img/bgmap-img/mb-sat-hybrid.png'
+            },
+            {
+                title: 'dark',
+                layer: dark,
+                icon: './img/bgmap-img/mb-dark.png'
+            }
+        ],
+        {
+            position: 'topleft',
+            maxLayersInRow: 3
+        }
+    );
+    iconLayersControl.addTo(maps[mapContainer]);
+    mapLayers[mapContainer].addTo(maps[mapContainer]);
+
+    followGPS = true;
+    Promise.resolve()
+        .then(function () {
+            if (selectedLength === 0) {
+                throw 'none selected';
+            }
+            return Promise.all(selected.map(function (i, row) {
+                return admindb.get(row.id);
+            }));
+        }).then(function (docsArray) {
+            return docsArray.filter(function (doc) {
+                return doc.geolocation;
+            });
+        }).then(function (docsArray) {
+            console.log(docsArray);
+            return docsArray.forEach(function (doc) {
+                addMarkerToLayer(mapLayers[mapContainer], doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
+            });
+        }).then(function () {
+            zoomToLayer(mapLayers[mapContainer], mapContainer);
+        }).catch(function (err) {
+            console.log(err);
+        });
+
+    // Adds a marker to the centre of the map before the GPS changes it's location
+    var currentLatLon = maps[mapContainer].getCenter();
+    // var currentLat = currentLatLon.lat;
+    // var currentLng = currentLatLon.lng;
+    var startRadius = 3;
+
+    var accuracyCircle = L.circle(currentLatLon, {
+        radius: startRadius,
+        // fillColor: '#aaf29f',
+        fillColor: '#4285F4',
+        fillOpacity: 0.2,
+        stroke: false
+        // color: '#37e21d',
+        // weight: 1
+
+    }).addTo(maps[mapContainer]);
+    var gpsMarker = L.circleMarker(currentLatLon, {
+        radius: 8,
+        fill: true,
+        fillOpacity: 1,
+        // fillColor: '#009688',
+        fillColor: '#4285F4',
+        stroke: true,
+        color: '#ffffff',
+        weight: 3
+    }).bindTooltip('You', { direction: 'top' }).addTo(maps[mapContainer]);
 
 
-//                     accRadius = e.accuracy / 2;
 
-//                     //L.marker(e.latlng).addTo(map)
-//                     //.bindPopup("You are within " + radius + " meters from this point").openPopup();
+    /**
+     * On the success of the location function, this will locate you on the map and add a marker to show where you are
+     * @param {*} e - location passed by the location function
+     * @param {*} e.accuracy - the accuracy of the location
+     * @param {any[]} e.latlng - the lat lng array of the location
+     */
+    var onLocationFound = function (e) {
 
-//                     marker.setLatLng(e.latlng);
-//                     accuracyCircle.setLatLng(e.latlng);
-//                     accuracyCircle.setRadius(accRadius);
+        var accRadius = e.accuracy / 2;
 
-//                     // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
-//                     //console.log('followGPS = ' + followGPS);
-//                     currentLatLon = e.latlng;
+        //L.marker(e.latlng).addTo(map)
+        //.bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-//                     if (followGPS) {
-//                         //map.setView(marker.getLatLng(),map.getZoom());
-//                         map.flyTo(marker.getLatLng(), map.getZoom());
-//                         console.log('I have moved because followGPS = ' + followGPS);
-//                     }
-//                 }
-//                 /**
-//                  * 
-//                  * @param {*} e - error message passed by the location function
-//                  */
-//                 function onLocationError(e) {
-//                     //alert(e.message);
-//                     $('#fabLocate').hide();
+        gpsMarker.setLatLng(e.latlng);
+        accuracyCircle.setLatLng(e.latlng);
+        accuracyCircle.setRadius(accRadius);
 
-//                     // Raven.captureException(e);
-//                 }
+        // console.log('marker changed location to: ' + e.latlng + ' accurate to ' + e.accuracy + ' meters');
+        //console.log('followGPS = ' + followGPS);
+        currentLatLon = e.latlng;
 
-//                 map.on('locationfound', onLocationFound);
-//                 map.on('locationerror', onLocationError);
+        if (followGPS) {
+            //map.setView(marker.getLatLng(),map.getZoom());
+            maps[mapContainer].setView(gpsMarker.getLatLng(), maps[mapContainer].getZoom());
+            console.log('I have moved because followGPS = ' + followGPS);
+        }
+    };
+    /**
+     * 
+     * @param {*} e - error message passed by the location function
+     */
+    var onLocationError = function (e) {
+        console.log(e.message);
+        $('#fabLocate').hide();
 
-//                 /**
-//                  * This function controls the locate button's ability to follow the GPS marker or not - 2 = off 1 = on
-//                  * @param {number} press - value is either 1 or 2 depending on whether you wish to follow the gps locations as they are found or not
-//                  */
-//                 function locateButton(press) {
-//                     switch (press) {
-//                         case 1:
+        // Raven.captureException(e);
+    };
 
-//                             /*This updates the map to the current GPS location*/
-//                             map.setView(marker.getLatLng(), map.getZoom());
-//                             /* This will update the variable which defines if the map follows the GPS marker */
-//                             followGPS = true;
-//                             /* This will change the styling of the fabLocate button */
-//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps-dot\" class=\"locateAlign locateSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-//                             /*For testing*/
-//                             console.log('following marker');
-
-//                             break;
-
-//                         case 2:
-
-//                             /* This updates whether the map follows the marker's GPS movements */
-//                             followGPS = false;
-//                             /*This will change the styling of the fabLocate button*/
-//                             $('#fabLocateIcon').replaceWith("<ons-icon icon=\"md-gps\" class=\"locateAlign locateNotSelected\" id=\"fabLocateIcon\"><\/ons-icon>");
-//                             /* For testing */
-//                             console.log('I have cancelled movements due to toggling followGPS now =' + followGPS)
-
-//                             break;
-//                     }
-//                 }
+    maps[mapContainer].on('locationfound', onLocationFound);
+    maps[mapContainer].on('locationerror', onLocationError);
 
 
-//                 /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
-//                 if (!($('.locOn').hasClass('evtHandler'))) {
-//                     $('.locOn').addClass('evtHandler');
-//                     $('.locOn').on("click", function (e) {
 
-//                         /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
-//                         if (followGPS) {
-//                             locateButton(2);
-//                         } else {
-//                             locateButton(1);
-//                         }
+    var locationFab = $('#' + mapContainer + ' .locOn');
+    /* On the click of the #fabLocate which is the location button in the bottom right the following actions will occur */
+    if (!(locationFab.hasClass('evtHandler'))) {
+        locationFab.addClass('evtHandler')
+            .on("click", function () {
+                /*If follow GPS is on then turn it off else turn it on - 2 is off 1 is on*/
+                return followGPS
+                    ? locateButton(2, gpsMarker, mapContainer)
+                    : locateButton(1, gpsMarker, mapContainer);
+            });
 
-//                     })
+        /*On any movement of the map:
+        - the follow GPS setting and locate button is turned off
+        - the autocomplete options are updated*/
+        /**
+         * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
+         * utilised followGPS as a global variable
+         */
+        var mapMove = function () {
+            /*This updates the fab icon*/
+            if (followGPS) {
+                /*This updates the locate button by passing in the second switch option that turns the button off*/
+                locateButton(2, gpsMarker, mapContainer);
+                /*For testing*/
+                // console.log('toggling locate button');
+            }
+        };
 
-//                     /*On any movement of the map:
-//                     - the follow GPS setting and locate button is turned off
-//                     - the autocomplete options are updated*/
-//                     /**
-//                      * On any movement of the map: - the follow GPS setting and locate button is turned off - the autocomplete options are updated
-//                      * utilised followGPS as a global variable
-//                      */
-//                     function mapMove() {
-//                         /*This updates the fab icon*/
-//                         if (followGPS) {
-//                             /*This updates the locate button by passing in the second switch option that turns the button off*/
-//                             locateButton(2);
-//                             /*For testing*/
-//                             // console.log('toggling locate button');
-//                         }
-//                     }
+        $('#map').on("swipe tap click taphold", function () {
+            //console.log('map touched in some way');
+            mapMove();
+        });
+        //This does the same but when the map is scrolled
+        maps[mapContainer].on('dragstart zoomend', function () {
+            console.log('map dragged');
+            mapMove();
+        });
+    }
 
-//                     $('#map').on("swipe tap click taphold", function () {
-//                         //console.log('map touched in some way');
-//                         mapMove();
-//                     })
-//                     //This does the same but when the map is scrolled
-//                     map.on('dragstart', function () {
-//                         // console.log('map dragged');
-//                         mapMove();
+}
 
-//                     });
-//                 }
-
-//             }, 500);
-
-//             mapMade = true;
-//         } catch (err) {
-//             console.log(err);
-//             createMap();
-//         }
-//     }
-// }
-
-// GPS location
-// function getGeolocation() {
-//     var geolocationOptions = {
-//         enableHighAccuracy: true,
-//         maximumAge: 1000 * 20
-//     }
-//     navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError, geolocationOptions);
-// }
-
-// function geolocationSuccess(position) {
-//     console.log('geolocationSuccess');
-//     console.log(position);
-//     console.log(position.coords.latitude)
-//     location = {
-//         lat: position.coords.latitude,
-//         lon: position.coords.longitude
-//         //acc: position.coords.accuracy
-//     };
-//     console.log(location);
-
-// }
-
-// function geolocationError(err) {
-//     console.log('geolocationError');
-//     console.log(err);
-// }
 
 
 /**
@@ -923,10 +1053,17 @@ function updateExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalSc
  * @param {string|number} totalScore - score recorded on the base
  * @param {boolean} editable - can the record be edited by the base or not
  */
-function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy) {
+function updateAdminExisting(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, geolocation) {
     var trId = dbId;
+    var locationInfo = typeof geolocation === 'object'
+        ? '<ons-icon icon="md-pin" class="adminActiveIcon"></ons-icon>'
+        : '<ons-icon icon="md-pin-off" class="adminNotActive"></ons-icon>';
+    var scoreClass = totalScore > 0
+        ? 'adminActiveIcon'
+        : 'adminNotActive';
+
     //without checkboxes
-    $('#' + trId).html("<td class='lockImage'>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
+    $('#' + trId).html("<td class='lockImage adminSummaryIcons'><ons-icon icon='fa-trophy' class='" + scoreClass + "'></ons-icon>" + locationInfo + "</td><td>" + base + "</td><td class='bold'>" + patrolNo + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>" + wait + "</td><td>" + offRoute + "</td><td>" + totalScore + "</td><td>" + recordedBy + "</td><td class='editable'>" + editable + "</td>");
     //with checkboxes
     //$('#' + tableLogId + patrolNo + '-' + base).html("<td class='hide landscapeShow'><ons-input type='checkbox'></ons-input></td><td class='bold'>" + patrolNo + "</td><td>" + base + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td class='hide landscapeShow'>" + wait + "</td><td class='hide landscapeShow'>" + offRoute + "</td><td class='hide landscapeShow'>" + totalScore + "</td><td class='hide landscapeShow'>" + recordedBy + "</td><td class='hide landscapeShow editable'>" + editable + "</td>");
 
@@ -976,14 +1113,20 @@ function updateTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore
  * @param {string} tableId - base table or admin table
  * @param {string} tableLogId - the class of the row
  */
-function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableLogId) {
+function updateAdminTable(dbId, patrolNo, timeIn, timeOut, wait, offRoute, totalScore, editable, base, recordedBy, tableLogId, geolocation) {
     console.log(dbId);
     var trId = dbId;
     var editableStyle = editableStyling(editable);
     var trClasses = tableLogId + ' ' + editableStyle.tr;
     var tdClasses = 'lockImage' + editableStyle.td;
+    var locationInfo = typeof geolocation === 'object'
+        ? '<ons-icon icon="md-pin" class="adminActiveIcon"></ons-icon>'
+        : '<ons-icon icon="md-pin-off" class="adminNotActive"></ons-icon>';
+    var scoreClass = totalScore > 0
+        ? 'adminActiveIcon'
+        : 'adminNotActive';
     // without checkboxes
-    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="' + tdClasses + '">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
+    var log = '<tr id="' + trId + '" class="' + trClasses + '"><td class="adminSummaryIcons ' + tdClasses + '"><ons-icon icon="fa-trophy" class="' + scoreClass + '"></ons-icon>' + locationInfo + '</td><td class="">' + base + '</td><td class="bold">' + patrolNo + '</td><td>' + timeIn + '</td><td>' + timeOut + '</td><td>' + wait + '</td><td>' + offRoute + '</td><td>' + totalScore + '</td><td>' + recordedBy + '</td><td class="editable">' + editable + '</td></tr>';
     return log;
     //with checkboxes
 
@@ -1019,9 +1162,9 @@ function tableUpdateFunction(path, admin, array) {
     }
     if (admin) {
         if (patrolRecordUpdate(path._id, path.offRoute, true)) {
-            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username);
+            return updateAdminExisting(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, path.geolocation);
         } else {
-            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, tableLogId));
+            return array.push(updateAdminTable(path._id, path.patrol, timeIn, timeOut, path.timeWait, path.offRoute, path.totalScore, path.editable, path.base, path.username, tableLogId, path.geolocation));
         }
 
     } else if (path.base === getBaseNumber()) {
@@ -1096,9 +1239,9 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                     }
                 }
 
-            } else if (path.patrol != undefined) {
+            } else if (typeof path.patrol === 'string') {
                 if (path.patrol.length > 0) {
-                    if (path.patrol === patrolToSearch || !patrolToSearch || patrolToSearch === undefined) {
+                    if (path.patrol === patrolToSearch || !patrolToSearch || typeof patrolToSearch === 'undefined') {
                         tableUpdateFunction(path, admin, tableUpdate);
 
                     }
@@ -1502,6 +1645,7 @@ function closeDatabases() {
         evtUpdateCheck.cancel();
     }
     deleteIndexes();
+    closeMaps();
 }
 
 // --- MENU CONTROLS ---
@@ -1549,16 +1693,6 @@ function baseLogOut() {
             logOutPageChange();
             menuController();
 
-
-            return appdb.get('login_' + username)
-                .then(function (doc) {
-
-                    var timestamp = new Date().toISOString();
-                    doc.base = 'logOut';
-                    doc.timestamp = timestamp;
-                    return appdb.put(doc);
-                });
-
         })
         .catch(function (err) {
             console.warn(err);
@@ -1567,6 +1701,16 @@ function baseLogOut() {
 }
 function goToTermsOfUse() {
     return navi.bringPageTop('./terms', { animation: pageChangeAnimation });
+}
+
+function closeMaps() {
+    Object.keys(maps).forEach(function (map) {
+        console.log(map);
+        maps[map].off();
+        maps[map].remove();
+
+    });
+    maps = {};
 }
 
 /**
@@ -1685,6 +1829,74 @@ function activateEvent() {
         });
 }
 
+/**
+ * function to show a map in the admin section
+ */
+function showMap() {
+    var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+    Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+
+            var tabRef = 'tab' + currentTab;
+            var container = tabRef + 'Container';
+            var map = tabRef + 'Map';
+            $('#' + container).addClass('col-md-8 col-lg-6 mapShow');
+            $('#' + map).addClass('adminMapContainer col-md-4 col-lg-6').removeClass('hide');
+
+            return createMap(map);
+        })
+        .then(function () {
+            $('#showMap').addClass('hide');
+            $('#hideMap').removeClass('hide');
+            adminShowMap = true;
+        })
+        .then(function () {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
+                    doc.adminShowMap = true;
+                    doc.timestamp = new Date().toISOString();
+                    return appdb.put(doc);
+                });
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+}
+
+function hideMap() {
+    Promise.resolve()
+        .then(function () {
+            return closeMenu();
+        })
+        .then(function () {
+            closeMaps();
+            adminShowMap = false;
+        })
+        .then(function () {
+            $('#hideMap').addClass('hide');
+            $('#showMap').removeClass('hide');
+            var currentTab = document.getElementById('adminTabbar').getActiveTabIndex();
+            var tabRef = 'tab' + currentTab;
+            var container = tabRef + 'Container';
+            var map = tabRef + 'Map';
+            $('#' + container).removeClass('col-md-8 col-lg-6 mapShow');
+            $('#' + map).removeClass('adminMapContainer col-md-4 col-lg-6').addClass('hide');
+        })
+        .then(function () {
+            return appdb.get('login_' + username)
+                .then(function (doc) {
+                    doc.adminShowMap = false;
+                    doc.timestamp = new Date().toISOString();
+                    return appdb.put(doc);
+                });
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+}
 
 /**
  * Function to ensure that the base number is up to date. Had some issues with the base number being worked out previously as code isn't always repeated so use this function to return the base number
@@ -2037,6 +2249,7 @@ ons.ready(function () {
                 base = doc.base; //last base used
                 personName = doc.name; //the name used for the logs
                 appdbConnected = true;
+                adminShowMap = doc.adminShowMap || false;
                 var signInUrl = appServer + '/api/signin';
                 var dataPackage = {
                     username: username,
@@ -3510,7 +3723,13 @@ ons.ready(function () {
                         hideElement(!$('#trackingSwitch').prop("checked"), '.trackingShowHide');
                     });
                 }
-
+                // if (!($('.geoLocationSwitch').hasClass('evtHandler'))) {
+                //     $('.geoLocationSwitch').addClass('evtHandler').on('click', function () {
+                //         var elSwitch = $('#geolocationSwitch');
+                //         console.log('switching');
+                //         toggleProp(elSwitch, 'checked', !elSwitch.prop('checked'));
+                //     });
+                // }
                 if (!($('#createEventForm').hasClass('evtHandlerPassword'))) {
                     $('#createEventForm').addClass('evtHandlerPassword').find('.eventPassword').on('blur', function () {
                         passwordCheck(this);
@@ -3608,7 +3827,6 @@ ons.ready(function () {
 
                 if (!$('#saveEvent').hasClass('evtHandler')) {
                     $('#saveEvent').addClass('evtHandler').on('click', function () {
-
                         createOrUpdateEvent();
                     });
                 }
@@ -5137,45 +5355,74 @@ ons.ready(function () {
                                     console.warn(err);
                                 });
                                 // end of longinandrunfunction
+                                var addToAdminCurrentlySelected = function (row, dataInfo, reset) {
+                                    if (reset) {
+                                        adminCurrentlySelected = [];
+                                    }
+                                    row.addClass('tableSelected');
+                                    adminSpeedDial.show();
+                                    adminCurrentlySelected.push(dataInfo);
+                                    return ifMapShowAddToMap(dataInfo, reset);
+                                };
+                                var tab0Map = $('#tab0Map');
+                                if (adminShowMap && !tab0Map.hasClass('mapLoaded')) {
+                                    showMap();
+                                    tab0Map.addClass('mapLoaded');
+                                }
+                                var ifMapShowAddToMap = function (dataInfo, shiftNotHeld) {
+                                    if (typeof mapLayers.tab0Map !== 'object') {
+                                        return false;
+                                    }
+                                    if (shiftNotHeld) {
+                                        mapLayers.tab0Map.clearLayers();
+                                    }
+                                    Promise.resolve()
+                                        .then(function () {
+                                            return admindb.get(dataInfo);
+                                        })
+                                        .then(function (doc) {
+                                            if (typeof doc.geolocation !== 'object') {
+                                                throw 'no location';
+                                            }
+                                            return addMarkerToLayer(mapLayers.tab0Map, doc._id, doc.geolocation.lat, doc.geolocation.lon, doc);
+                                        })
+                                        .then(function () {
+                                            zoomToLayer(mapLayers.tab0Map, 'tab0Map');
+                                        })
+                                        .catch(function (err) {
+                                            console.log(err);
+                                        });
+
+                                };
 
                                 $('#adminSpeedDial').removeClass('hide');
                                 if (!($('#adminLogsTable').hasClass('evtHandler'))) {
-                                    $('#adminLogsTable').addClass('evtHandler').on('click', 'tr', function (e) {
-                                        var dataInfo;
-                                        if ($(this).hasClass('tableSelected')) {
-                                            $(this).removeClass('tableSelected');
-
-                                            dataInfo = $(this).attr('id');
-                                            var index = adminCurrentlySelected.indexOf(dataInfo);
-                                            if (index > -1) {
-                                                adminCurrentlySelected.splice(index, 1);
+                                    $('#adminLogsTable')
+                                        .addClass('evtHandler')
+                                        .on('click', 'tr', function (e) {
+                                            var row = $(this);
+                                            var dataInfo = row.attr('id');
+                                            if (row.hasClass('tableSelected')) {
+                                                row.removeClass('tableSelected');
+                                                var index = adminCurrentlySelected.indexOf(dataInfo);
+                                                if (index > -1) {
+                                                    adminCurrentlySelected.splice(index, 1);
+                                                }
+                                                console.log(adminCurrentlySelected);
+                                                if (!($('tr').hasClass('tableSelected'))) {
+                                                    adminSpeedDial.hide();
+                                                }
+                                                if (typeof mapLayers.tab0Map === 'object') {
+                                                    removeLayerFrom(dataInfo, mapLayers.tab0Map);
+                                                }
+                                            } else if (e.shiftKey == true) {
+                                                addToAdminCurrentlySelected(row, dataInfo, false);
+                                            } else {
+                                                $('tr').removeClass('tableSelected');
+                                                //clear all previously selected items from the array
+                                                addToAdminCurrentlySelected(row, dataInfo, true);
                                             }
-                                            console.log(adminCurrentlySelected);
-                                            if (!($('tr').hasClass('tableSelected'))) {
-                                                adminSpeedDial.hide();
-                                            }
-                                        } else if (e.shiftKey == true) {
-                                            $(this).addClass('tableSelected');
-                                            // $('#adminSpeedDial').removeClass('hide');
-                                            adminSpeedDial.show();
-                                            dataInfo = $(this).attr('id');
-                                            adminCurrentlySelected.push(dataInfo);
-                                            console.log(adminCurrentlySelected);
-
-                                        } else {
-                                            $('tr').removeClass('tableSelected');
-                                            $(this).addClass('tableSelected');
-                                            // $('#adminSpeedDial').removeClass('hide');
-                                            adminSpeedDial.show();
-                                            //clear all previously selected items from the array
-                                            adminCurrentlySelected = [];
-                                            // to get the dbId's off the element
-                                            dataInfo = $(this).attr('id');
-                                            console.log(dataInfo);
-                                            adminCurrentlySelected.push(dataInfo);
-                                            console.log(adminCurrentlySelected);
-                                        }
-                                    });
+                                        });
                                 }
                                 // button for deleting logs
                                 if (!($('#adminDelete').hasClass('evtHandler'))) {
@@ -5752,12 +5999,13 @@ ons.ready(function () {
 
                 // Create a token or display an error when the form is submitted.
                 paymentSubmitButton.on('click', function () {
-                    // event.preventDefault();
+                    if (checkoutTotal === 0) {
+                        return updateEventHandler(checkOutInfo, eventDescription);
+                    }
                     showProgressBar('checkoutPage', true);
 
                     Promise.resolve()
                         .then(function () {
-
                             return collectPaymentInfo();
                         })
                         .then(function (metadata) {
@@ -5821,6 +6069,16 @@ ons.ready(function () {
                     return metadata;
                 };
 
+                var updateEventHandler = function (checkOutInfo, eventDescription) {
+                    if (checkOutInfo.newEvent) {
+                        eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
+                        return createNewEvent(checkOutInfo.url);
+                    }
+
+                    eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
+                    return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
+                };
+
                 var stripeTokenHandler = function (source, customer, amount, metadata, name) {
                     var paymentObject = {
                         name: name,
@@ -5832,13 +6090,7 @@ ons.ready(function () {
                     return $.ajax(apiAjax(appServer + '/api/payment', paymentObject))
                         .then(function (response) {
                             if (response.status === 200) {
-                                if (checkOutInfo.newEvent) {
-                                    eventDescription.paidTrackedEntities = checkOutInfo.trackedEntitiesDifference;
-                                    return createNewEvent(checkOutInfo.url);
-                                }
-
-                                eventDescription.paidTrackedEntities = (checkOutInfo.trackedEntitiesDifference + paidFor);
-                                return uploadEditEvent(checkOutInfo.url, checkOutInfo.eventInfo, true); //change made is true because a payment has been made
+                                return updateEventHandler(checkOutInfo, eventDescription);
                             }
                             throw response;
                         })
@@ -6172,7 +6424,7 @@ function menuController() {
             //allow for baseLogOut to be shown in the menu
             $('#baseLogOut').removeClass('hide').find('div.center').html('Leave Checkpoint');
             $('#goToMap, #eventSignOut').removeClass('hide');
-            $('#pricingPage').addClass('hide');
+            $('#pricingPage, #showMap').addClass('hide');
             menuEvtOrganiser();
             break;
         case 'admin.html':
@@ -6180,23 +6432,26 @@ function menuController() {
             menuEvtOrganiser();
             $('#copyAllLogs, #goToEventSummary, #eventSignOut').removeClass('hide');
             $('#pricingPage').addClass('hide');
+            if (navi.topPage.data.eventInfo.geolocationInUse) {
+                $('#showMap').removeClass('hide');
+            }
             break;
         case 'loginPage.html':
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage, #showMap').addClass('hide');
             $('#goToMap, #eventSignOut').removeClass('hide');
             break;
         case 'eventSelectionPage.html':
-            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage, #goToEventSummary').addClass('hide');
+            $('#baseLogOut , #eventChanger , #eventEditor, #copyAllLogs, #pricingPage, #goToEventSummary, #showMap').addClass('hide');
             $('#eventSignOut').removeClass('hide');
             break;
         case 'signInPage.html':
-            $('#eventSignOut, #baseLogOut, #eventChanger, #eventEditor, #copyAllLogs, #goToEventSummary').addClass('hide');
+            $('#eventSignOut, #baseLogOut, #eventChanger, #eventEditor, #copyAllLogs, #goToEventSummary, #showMap').addClass('hide');
             $('#pricingPage').removeClass('hide');
             break;
         default:
             menuEvtOrganiser();
-            $('#baseLogOut, #copyAllLogs, #pricingPage').addClass('hide');
+            $('#baseLogOut, #copyAllLogs, #pricingPage, #showMap').addClass('hide');
             break;
 
     }
