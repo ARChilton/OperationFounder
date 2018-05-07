@@ -2609,6 +2609,12 @@ select option:checked {
     animation-iteration-count: infinite;
 }
 
+
+#whatIsCheckpointLive{
+    order:-1;
+}
+
+
 #whatIsCheckpointLive #chkpt1-in, #whatIsCheckpointLive #chkpt1-device{
 animation-delay: 2s;
 }
