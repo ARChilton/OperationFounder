@@ -55,5 +55,6 @@ config
 #jsdocs
 docs
 
+dist
 #www
 GitIgnore
