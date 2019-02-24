@@ -2257,9 +2257,9 @@ ons.ready(function () {
                 };
                 return $.ajax(apiAjax(signInUrl, dataPackage))
                     .then(function (user) {
-                        console.log(user)
+                        console.log(user);
                         if (user.error && user.status === 401) {
-                            throw user
+                            throw user;
                         }
                         var usrRolesSorted = user.user.roles.sort();
                         var loginEvtsSorted = doc.db.sort();
