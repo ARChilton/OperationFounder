@@ -2304,7 +2304,6 @@ ons.ready(function () {
                         }
                     })
                     .catch(function (err) {
-                        console.log(err.status)
                         if (err.status === 307) {
                             throw err;
                         } else if (err.status === 401 && err.error === 'unauthorized') {
