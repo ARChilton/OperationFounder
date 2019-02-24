@@ -2257,6 +2257,10 @@ ons.ready(function () {
                 };
                 return $.ajax(apiAjax(signInUrl, dataPackage))
                     .then(function (user) {
+                        console.log(user)
+                        if (user.error && user.status === 401) {
+                            throw user
+                        }
                         var usrRolesSorted = user.user.roles.sort();
                         var loginEvtsSorted = doc.db.sort();
                         console.log(loginEvtsSorted);
@@ -2300,6 +2304,7 @@ ons.ready(function () {
                         }
                     })
                     .catch(function (err) {
+                        console.log(err.status)
                         if (err.status === 307) {
                             throw err;
                         } else if (err.status === 401 && err.error === 'unauthorized') {
