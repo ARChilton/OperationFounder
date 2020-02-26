@@ -3169,18 +3169,6 @@ ons.ready(function() {
             })
         }
         menuController('signInPage.html')
-        // TODO: remove this
-        // navi.bringPageTop('checkoutPage.html', {
-        //     data: {
-        //         newEvent: true,
-        //         pRef: 'Team',
-        //         geolocationTurnedOnThisUpdate: true,
-        //         storageTimeAdded: 2,
-        //         trackedEntitiesDifference: 15,
-        //         eventName: 'Operation Founder'
-
-        //     }
-        // });
 
         break
 
@@ -3767,10 +3755,14 @@ ons.ready(function() {
           if (typeof eventInfo === 'object') {
             paidTrackedEntities = parseInt(eventInfo.paidTrackedEntities) || 0
             eventDescription.paidTrackedEntities = paidTrackedEntities
+            eventDescription.geolocationPaid =
+              eventInfo.geolocationPaid || eventInfo.geolocationInUse
           }
           if (paidTrackedEntities < numberOfTrackedEntities) {
             trackedEntitiesDifference =
               numberOfTrackedEntities - paidTrackedEntities
+          } else {
+            trackedEntitiesDifference = 0
           }
         }
         /**
@@ -3806,7 +3798,7 @@ ons.ready(function() {
             }
             baseInfo.baseName = bName
             passwordsOk = false
-            if (baseInfo.baseGeolocation || geolocationInUse) {
+            if (baseInfo.baseGeolocation) {
               geolocationInUse = true
               eventDescription.geolocationInUse = true
             }
