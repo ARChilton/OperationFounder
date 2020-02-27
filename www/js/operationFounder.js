@@ -4160,9 +4160,34 @@ ons.ready(function() {
                   //add password to password array for checking against
                   passwordArray.push(password)
                 }
-                if (baseNo > 0) {
-                  //normal base
-                  // if (baseNo > 1) {
+                if (baseNo === 0) {
+                  // admin base
+                  passwordObject.adminPassword = password
+                  return
+                }
+                //normal base
+                /**
+                 * function to add password, name, score and location settings to already created bases
+                 */
+                function updateBaseInfo() {
+                  if (password != '') {
+                    passwordObject[id + 'Password'] = password
+                    $('#' + id + 'Password').val(password)
+                  }
+                  $('#' + id + 'Name').val(base.baseName)
+                  $('#' + id + 'MaxScore').val(base.baseMaxScore)
+                  $('#' + id + 'GeolocationSwitch').prop(
+                    'checked',
+                    base.baseGeolocation
+                  )
+                  $('#' + id + 'Instructions').val(base.baseInstructions)
+                }
+
+                if (baseNo === 1) {
+                  // base 1 is already on the page
+                  return updateBaseInfo()
+                }
+                if (baseNo > 1) {
                   //first add base if not already included
                   console.log(baseNo, base)
                   return Promise.resolve()
@@ -4171,22 +4196,8 @@ ons.ready(function() {
                     })
                     .then(function() {
                       baseCount = baseNo
-                      if (password != '') {
-                        passwordObject[id + 'Password'] = password
-                        $('#' + id + 'Password').val(password)
-                      }
-                      $('#' + id + 'Name').val(base.baseName)
-                      $('#' + id + 'MaxScore').val(base.baseMaxScore)
-                      $('#' + id + 'GeolocationSwitch').prop(
-                        'checked',
-                        base.baseGeolocation
-                      )
-                      $('#' + id + 'Instructions').val(base.baseInstructions)
+                      updateBaseInfo()
                     })
-                  // }
-                } else {
-                  //admin base
-                  passwordObject.adminPassword = password
                 }
               })
             )
