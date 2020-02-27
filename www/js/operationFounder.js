@@ -5031,9 +5031,9 @@ ons.ready(function() {
                 var edShowHide = $('#' + event + ' .evtInstructionsShow')
                 edShowHide.on('click', function() {
                   edShowHide.toggleClass('rotate90')
-                  $(
-                    '#' + event + ' .material-card__supporting-text'
-                  ).slideToggle(500)
+                  $('#' + event + ' .material-card__supporting-text')
+                    .slideToggle(200)
+                    .removeClass('hide')
                 })
                 var goToSummary = $('#' + event + ' .goToSummary')
                 goToSummary.on('click', function() {
