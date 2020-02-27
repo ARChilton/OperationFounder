@@ -4320,14 +4320,10 @@ ons.ready(function() {
         }
         if (!$('#automateTimeEntry').hasClass('evtHandler')) {
           $('#automateTimeEntry').addClass('evtHandler')
-          $('#automateTimeEntry .autoTime').on('click', function() {
-            switch ($('#autoTimeSwitch').prop('checked')) {
-              case true:
-                $('#autoTimeSwitch').prop('checked', false)
-                break
-              case false:
-                $('#autoTimeSwitch').prop('checked', true)
-            }
+
+          $('.autoTime').on('click', function() {
+            var elSwitch = $('#autoTimeSwitch')
+            toggleProp(elSwitch, 'checked', !elSwitch.prop('checked'))
           })
         }
 
