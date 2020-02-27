@@ -4946,11 +4946,10 @@ ons.ready(function() {
 
       case 'eventSelectionPage.html':
         var ongoingEvents = $('#ongoingEvents')
-        var todaysEvents = $('todaysEvents')
+        var todaysEvents = $('#todaysEvents')
         var upcomingEvents = $('#upcomingEvents')
         var pastEvents = $('#pastEvents')
         var databases = JSON.parse(localStorage.db)
-        console.log(databases)
 
         Promise.all(
           databases.map(function(event) {
@@ -4958,6 +4957,7 @@ ons.ready(function() {
             return tempdb
               .get('eventDescription')
               .then(function(doc) {
+                console.log(doc)
                 var dateNow = new Date()
                 var today = dateNow.getDay()
                 var month = dateNow.getMonth()
@@ -4998,7 +4998,6 @@ ons.ready(function() {
                   '</div><div class="material-card__actions material-card--border"><ons-button modifier="quiet" class="goToEventButton secondaryColor">Enter event</ons-button><ons-button modifier="quiet" class="goToSummary secondaryColor">Info</ons-button><ons-button modifier="quiet" ripple class="cardIconButton rotate270 evtInstructionsShow button--material button--material--flat"><i class="zmdi zmdi-chevron-left chevron"></i></ons-button></div><div class="material-card__supporting-text hide">' +
                   doc.eventDescription.replace(/\n/g, '<br>') +
                   '</div><div class="cardTRButton"><ons-button modifier="quiet" ripple class="cardIconButton hide"><i class="zmdi zmdi-share"></i></ons-button></div></div><br>'
-
                 eventTimeline.append(cardToAppend)
                 //shows the title of the event timeline grouping
                 eventTimeline.find('.eventTitle').removeClass('hide')
@@ -5009,7 +5008,6 @@ ons.ready(function() {
                 var goToEvents = $('#' + event + ' .goToEventButton')
                 goToEvents.on('click', function() {
                   var eventInfo = eventId.data('eventInfo')
-                  console.log(eventInfo)
                   lastDb = eventInfo.dbName
                   localStorage.lastDb = lastDb
                   remotedbURL =
@@ -5065,13 +5063,16 @@ ons.ready(function() {
                   return true
                 } else {
                   console.log('no url')
+                  return false
                 }
               })
               .catch(function(err) {
                 console.warn(err)
               })
           })
-        )
+        ).then(function(arr) {
+          console.log(arr)
+        })
         /*  var goToEvents = $('.goToEventButton');
                  goToEvents.on('click', function () {
                      console.log($(this).parents('.card').data('eventInfo'));
