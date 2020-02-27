@@ -118,15 +118,8 @@ const sitemapGenerator = () =>
 
 exports.build = series(
   buildClean,
-  parallel(
-    minifyJs,
-    minifyCSS,
-    minifySvg,
-    minifyHtml,
-    moveStatic,
-    moveLicense,
-    deleteMonacaComponents
-  ),
+  parallel(minifyJs, minifyCSS, minifySvg, minifyHtml, moveStatic, moveLicense),
+  deleteMonacaComponents,
   sitemapGenerator,
   generateServiceWorker,
   minifyServiceWorker
