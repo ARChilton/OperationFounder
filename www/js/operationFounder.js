@@ -106,7 +106,7 @@ var bingOS = L.tileLayer.bing({
   crossOrigin: true,
   cacheMaxAge: reCacheAfter,
   attribution:
-    '<img class="bingLogo" src="./img/bingLogo/bing_maps_logo_gray.png">'
+    '<img class="bingLogo" src="./img/bingLogo/bing_maps_logo_gray.png">',
 })
 //Copyright info for mapbox
 var mapboxAttributes =
@@ -132,7 +132,7 @@ var streets = L.tileLayer(mapboxURL, {
     attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
-    cacheMaxAge: reCacheAfter
+    cacheMaxAge: reCacheAfter,
   }),
   // outdoor = L.tileLayer(mapboxURL, {
   //     style: 'outdoors-v10',
@@ -148,7 +148,7 @@ var streets = L.tileLayer(mapboxURL, {
     attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
-    cacheMaxAge: reCacheAfter
+    cacheMaxAge: reCacheAfter,
   }),
   satellite = L.tileLayer(mapboxURL, {
     style: 'satellite-v9',
@@ -156,7 +156,7 @@ var streets = L.tileLayer(mapboxURL, {
     attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
-    cacheMaxAge: reCacheAfter
+    cacheMaxAge: reCacheAfter,
   }),
   sat_streets = L.tileLayer(mapboxURL, {
     style: 'satellite-streets-v10',
@@ -164,7 +164,7 @@ var streets = L.tileLayer(mapboxURL, {
     attribution: mapboxAttributes,
     useCache: turnCachingOn,
     crossOrigin: true,
-    cacheMaxAge: reCacheAfter
+    cacheMaxAge: reCacheAfter,
   })
 
 // My map styles
@@ -174,7 +174,7 @@ var highlightFootpath = L.tileLayer(mapboxURL, {
   attribution: mapboxAttributes,
   useCache: turnCachingOn,
   crossOrigin: true,
-  cacheMaxAge: reCacheAfter
+  cacheMaxAge: reCacheAfter,
 })
 
 //Bing Maps attributes
@@ -216,7 +216,7 @@ var chkPtLiveIcon = L.icon({
   iconSize: [25, 40],
   iconAnchor: [12.5, 40],
   tooltipAnchor: [0, -36],
-  shadowUrl: './img/marker-shadow.png'
+  shadowUrl: './img/marker-shadow.png',
 })
 // var followGPS = false;
 // var currentLocation;
@@ -292,7 +292,7 @@ var pageChangeAnimation = 'none'
  */
 function checkForMessagesSinceSeqNo(db, seqNo) {
   var options = {
-    since: seqNo
+    since: seqNo,
   }
   var messageChk = /message/i
   return db.changes(options).then(function(doc) {
@@ -660,7 +660,7 @@ function cleanAll() {
       messageHTML:
         '<p>You are about to delete all items from the central database, this will propagate out to all other devices, are you sure you want to do this?</p><p>If yes please enter the admin passcode used to access the admin portion of the app</p>',
       cancelable: true,
-      placeholder: 'Enter admin code here'
+      placeholder: 'Enter admin code here',
     })
     .then(function(input) {
       if (input.toLowerCase() === baseCodes[0]) {
@@ -676,7 +676,7 @@ function cleanAll() {
                 var deletedRecord = {
                   _id: path.id,
                   _rev: path.value.rev,
-                  _deleted: true
+                  _deleted: true,
                 }
 
                 admindb.put(deletedRecord).catch(function(err) {
@@ -706,7 +706,7 @@ function addMarkerToLayer(layerAddedTo, id, lat, lon, data) {
   layerAddedTo.addLayer(marker)
   marker.bindTooltip(navi.topPage.data.eventInfo.pRef + ' ' + data.patrol, {
     permanent: false,
-    direction: 'top'
+    direction: 'top',
   })
 }
 /**
@@ -751,7 +751,7 @@ function zoomToLayer(layer, mapContainer) {
   followGPS = false
   locateButton(2)
   return maps[mapContainer].fitBounds(layer.getBounds(), {
-    maxZoom: maps[mapContainer].getZoom()
+    maxZoom: maps[mapContainer].getZoom(),
   })
 }
 
@@ -774,7 +774,7 @@ function createMap(mapContainer) {
   mapLayers[mapContainer] = L.markerClusterGroup({
     showCoverageOnHover: true,
     spiderfyOnMaxZoom: true,
-    removeOutsideVisibleBounds: true
+    removeOutsideVisibleBounds: true,
   })
   // http://leafletjs.com/reference-1.3.0.html#layergroup
   // This function adds a custom function to get an id that can be set by me.
@@ -784,62 +784,62 @@ function createMap(mapContainer) {
     zoom: 16,
     preferCanvas: true,
     attributionControl: false,
-    zoomControl: false
+    zoomControl: false,
   })
   L.control
     .scale({
-      position: 'bottomright'
+      position: 'bottomright',
     })
     .addTo(maps[mapContainer])
   L.control
     .attribution({
       position: 'bottomleft',
-      prefix: false
+      prefix: false,
     })
     .addTo(maps[mapContainer])
   maps[mapContainer].locate({
     setView: false,
     maxZoom: maps[mapContainer].getZoom(),
     watch: true,
-    enableHighAccuracy: true
+    enableHighAccuracy: true,
   })
   var iconLayersControl = L.control.iconLayers(
     [
       {
         title: 'Default',
         layer: highlightFootpath,
-        icon: './img/bgmap-img/ac-highlight-footpath.png'
+        icon: './img/bgmap-img/ac-highlight-footpath.png',
       },
       {
         title: 'Ordnance Survey (UK)',
         layer: bingOS,
-        icon: './img/bgmap-img/os.png'
+        icon: './img/bgmap-img/os.png',
       },
 
       {
         title: 'Streets',
         layer: streets,
-        icon: './img/bgmap-img/mb-streets.png'
+        icon: './img/bgmap-img/mb-streets.png',
       },
       {
         title: 'Satellite',
         layer: satellite,
-        icon: './img/bgmap-img/mb-sat.png'
+        icon: './img/bgmap-img/mb-sat.png',
       },
       {
         title: 'Satellite-hybrid',
         layer: sat_streets,
-        icon: './img/bgmap-img/mb-sat-hybrid.png'
+        icon: './img/bgmap-img/mb-sat-hybrid.png',
       },
       {
         title: 'dark',
         layer: dark,
-        icon: './img/bgmap-img/mb-dark.png'
-      }
+        icon: './img/bgmap-img/mb-dark.png',
+      },
     ],
     {
       position: 'topleft',
-      maxLayersInRow: 3
+      maxLayersInRow: 3,
     }
   )
   iconLayersControl.addTo(maps[mapContainer])
@@ -892,7 +892,7 @@ function createMap(mapContainer) {
     // fillColor: '#aaf29f',
     fillColor: '#4285F4',
     fillOpacity: 0.2,
-    stroke: false
+    stroke: false,
     // color: '#37e21d',
     // weight: 1
   }).addTo(maps[mapContainer])
@@ -904,7 +904,7 @@ function createMap(mapContainer) {
     fillColor: '#4285F4',
     stroke: true,
     color: '#ffffff',
-    weight: 3
+    weight: 3,
   })
     .bindTooltip('You', { direction: 'top' })
     .addTo(maps[mapContainer])
@@ -1097,12 +1097,12 @@ function editableStyling(editable, trId) {
     if (editable) {
       return {
         tr: '',
-        td: ''
+        td: '',
       }
     }
     return {
       tr: ' lockedLog',
-      td: ' padlockLocked'
+      td: ' padlockLocked',
     }
   } else {
     //easiest way to handle simple updates
@@ -1511,7 +1511,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
                 title: 'HQ deleted some logs',
                 messageHTML:
                   'For your awareness HQ have deleted logs and they will be removed from your log list',
-                cancelable: true
+                cancelable: true,
               })
               .then(function() {
                 deleteNotificationCleared = true
@@ -1546,7 +1546,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
               '<p>This event has been updated by the event organisers to version: ' +
               version +
               '.</p><p>Your device will update once this message closes.</p>',
-            cancelable: true
+            cancelable: true,
           })
           .then(function() {
             var lastPage
@@ -1561,8 +1561,8 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
               animation: pageChangeAnimation,
               data: {
                 eventInfo: path,
-                lastPage: lastPage
-              }
+                lastPage: lastPage,
+              },
             })
           })
           .catch(function(err) {
@@ -1586,7 +1586,7 @@ function dbUpdateFromFindOrChange(doc, admin, patrolToSearch) {
         endkey: newestMessage,
         startkey: 'message\ufff0',
         descending: true,
-        limit: undefined
+        limit: undefined,
       }
       var db = basedb
       if (admin) {
@@ -1667,7 +1667,7 @@ function editLog(logs) {
           ons.notification.alert({
             message:
               'This record has been locked by the event admins and cannot be edited.',
-            cancelable: true
+            cancelable: true,
           })
           break
         case true:
@@ -1727,7 +1727,7 @@ function deleteRecords(deleteDocs) {
       '. This has updated the ' +
       logOrLogs +
       ' in the database to deleted and will sync up with other users now.',
-    cancelable: true
+    cancelable: true,
   })
 }
 /**
@@ -1746,7 +1746,7 @@ function writeUntilWrittenDelete(id, timestamp) {
         _rev: doc._rev,
         username: personName,
         timestamp: timestamp,
-        _deleted: true
+        _deleted: true,
       })
     })
     .then(function(doc) {
@@ -1761,7 +1761,7 @@ function writeUntilWrittenDelete(id, timestamp) {
             _id: id,
             username: personName,
             timestamp: timestamp,
-            _deleted: true
+            _deleted: true,
           })
           .then(function() {
             return true
@@ -1853,7 +1853,7 @@ function lockOrUnlockLogFromEdits(lockDocs, lock) {
       '. This will propagate to other users to ' +
       message2 +
       ' them the ability to update the log.',
-    cancelable: true
+    cancelable: true,
   })
 }
 
@@ -1914,7 +1914,7 @@ function changeAtSymbolBack(email) {
 function logOutPageChange() {
   return navi
     .bringPageTop('loginPage.html', {
-      animation: pageChangeAnimation
+      animation: pageChangeAnimation,
     })
     .then(function(doc) {
       $('#userName').val(personName)
@@ -1992,13 +1992,13 @@ function baseLogOut() {
         options = {
           animation: pageChangeAnimation,
           data: {
-            eventInfo: navi.topPage.data.eventInfo
-          }
+            eventInfo: navi.topPage.data.eventInfo,
+          },
         }
         navi.replacePage('loginPage.html', options)
       } else {
         options = {
-          animation: pageChangeAnimation
+          animation: pageChangeAnimation,
         }
         navi.popPage(options)
       }
@@ -2047,7 +2047,7 @@ function signOut() {
       localStorage.evtOrganiser = 'false'
       localStorage.customerId = 'false'
       return navi.resetToPage('signInPage.html', {
-        animation: pageChangeAnimation
+        animation: pageChangeAnimation,
       })
     })
     .then(function() {
@@ -2067,7 +2067,7 @@ function goToEventSummary() {
     .then(function() {
       return navi.bringPageTop('eventSummaryPage.html', {
         animation: pageChangeAnimation,
-        data: data
+        data: data,
       })
     })
     .catch(function(err) {
@@ -2093,7 +2093,7 @@ function changeEvent() {
       remotedbConnected = false
       localStorage.lastDb = 'false' //{string} because localstorage would convert to a string anyway
       var options = {
-        animation: pageChangeAnimation
+        animation: pageChangeAnimation,
       }
 
       return navi.resetToPage('eventSelectionPage.html', options)
@@ -2118,8 +2118,8 @@ function editEvent() {
         animation: pageChangeAnimation,
         data: {
           edit: true,
-          eventInfo: navi.topPage.data.eventInfo
-        }
+          eventInfo: navi.topPage.data.eventInfo,
+        },
       }
       return navi.bringPageTop('createEventPage.html', options)
     })
@@ -2138,7 +2138,7 @@ function activateEvent() {
         messageHTML:
           '<p>Before activating please ensure your event settings are correct.</p><p>When ready, press done in the top right to continue to the checkout. The event will activate after purchase.</p><p>These settings can be changed after activation and more ' +
           pRef +
-          ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>'
+          ' can be purchased by visiting the menu and selecting "Edit Event Set-up".</p>',
       })
     })
 }
@@ -2235,12 +2235,12 @@ function apiAjax(apiAddress, dataPackage) {
     method: 'POST',
     dataType: 'json',
     xhrFields: {
-      withCredentials: false
+      withCredentials: false,
     },
     headers: {
-      'content-type': 'application/x-www-form-urlencoded'
+      'content-type': 'application/x-www-form-urlencoded',
     },
-    data: dataPackage
+    data: dataPackage,
   }
 }
 
@@ -2265,11 +2265,11 @@ function loginAndRunFunction(base, data) {
   if (data != undefined) {
     options = {
       animation: pageChangeAnimation,
-      data: data
+      data: data,
     }
   } else {
     options = {
-      animation: pageChangeAnimation
+      animation: pageChangeAnimation,
     }
   }
   switch (base) {
@@ -2334,7 +2334,7 @@ function addAppdbLoginDb(dbName) {
           _id: 'login_' + username,
           db: [dbName],
           currentDb: dbName,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         })
       }
       console.warn(err)
@@ -2554,7 +2554,7 @@ ons.ready(function() {
   // --- login function ---
   if (appdbConnected === false) {
     appdb = new PouchDB(appDatabaseName, {
-      auto_compaction: true
+      auto_compaction: true,
     })
     appdbConnected = true
   }
@@ -2570,7 +2570,7 @@ ons.ready(function() {
         var signInUrl = appServer + '/api/signin'
         var dataPackage = {
           username: username,
-          password: password
+          password: password,
         }
         return $.ajax(apiAjax(signInUrl, dataPackage))
           .then(function(user) {
@@ -2622,7 +2622,7 @@ ons.ready(function() {
                 var error = {
                   status: 307,
                   message:
-                    "last database does not match current user's databases"
+                    "last database does not match current user's databases",
                 }
                 console.log(error.message)
                 throw error
@@ -2664,7 +2664,7 @@ ons.ready(function() {
       .then(function(doc) {
         var data = {
           eventInfo: doc,
-          firstPage: true
+          firstPage: true,
         }
         var pageDestination
         if (typeof doc.lastBase === 'number') {
@@ -2679,7 +2679,7 @@ ons.ready(function() {
 
         return navi.bringPageTop(pageDestination, {
           animation: pageChangeAnimation,
-          data: data
+          data: data,
         })
       })
       .catch(function(err) {
@@ -2687,7 +2687,7 @@ ons.ready(function() {
         console.log('going to sign in screen')
         console.log(err)
         return navi.bringPageTop('signInPage.html', {
-          animation: pageChangeAnimation
+          animation: pageChangeAnimation,
         })
       })
 
@@ -2707,7 +2707,7 @@ ons.ready(function() {
     //TODO put in else if for not verified and for a verified account that didnt create an event
     console.log('no previous sign in information')
     navi.bringPageTop('signInPage.html', {
-      animation: pageChangeAnimation
+      animation: pageChangeAnimation,
     })
   }
 
@@ -2771,7 +2771,7 @@ ons.ready(function() {
       ) //remote
     }
     var options = {
-      doc_ids: doc_ids
+      doc_ids: doc_ids,
     }
 
     return db1.replicate
@@ -2869,7 +2869,7 @@ ons.ready(function() {
             .addClass('evtHandler')
             .on('click', function() {
               navi.bringPageTop('signUpPage.html', {
-                animation: pageChangeAnimation
+                animation: pageChangeAnimation,
               })
             })
         }
@@ -2903,7 +2903,7 @@ ons.ready(function() {
               var signInUrl = appServer + '/api/signin'
               var dataPackage = {
                 username: username,
-                password: password
+                password: password,
               }
               $.ajax(apiAjax(signInUrl, dataPackage))
                 .then(function(doc) {
@@ -2965,7 +2965,7 @@ ons.ready(function() {
                             timestamp: timestamp,
                             http: http,
                             couchdb: couchdb,
-                            customerId: customerId
+                            customerId: customerId,
                           }
                           //create a 'login' doc
                           return appdb
@@ -3034,7 +3034,7 @@ ons.ready(function() {
                                   '/' +
                                   lastDb
                                 return {
-                                  eventInfo: event
+                                  eventInfo: event,
                                 }
                               })
                               .catch(function(err) {
@@ -3050,7 +3050,7 @@ ons.ready(function() {
                                 title: 'This event has finished',
                                 message:
                                   'The events associated with these log in details have finished',
-                                cancelable: true
+                                cancelable: true,
                               })
                               page = 'signInPage.html'
                               return false
@@ -3076,7 +3076,7 @@ ons.ready(function() {
                                       '/' +
                                       lastDb
                                     return {
-                                      eventInfo: event
+                                      eventInfo: event,
                                     }
                                   })
                                   .catch(function(err) {
@@ -3087,7 +3087,7 @@ ons.ready(function() {
                             } else {
                               page = 'eventSelectionPage.html'
                               return {
-                                db: db
+                                db: db,
                               }
                             }
                             break
@@ -3102,11 +3102,11 @@ ons.ready(function() {
                       showProgressBar('signInPage', false)
                       var options = !data
                         ? {
-                            animation: pageChangeAnimation
+                            animation: pageChangeAnimation,
                           }
                         : {
                             animation: pageChangeAnimation,
-                            data: data
+                            data: data,
                           }
                       if (
                         page === 'loginPage.html' ||
@@ -3131,7 +3131,7 @@ ons.ready(function() {
                         '<p>' +
                         err.message +
                         "</p><p>Be aware that both your username and password are case sensitive.</p><p>If you haven't signed up but would like to, click the big orange button below.</p>",
-                      cancelable: true
+                      cancelable: true,
                     })
                   } else {
                     console.log('no response from sign in')
@@ -3155,14 +3155,14 @@ ons.ready(function() {
                       return ons.notification.alert({
                         message:
                           "Couldn't connect to server because this device is offline.",
-                        cancelable: true
+                        cancelable: true,
                       })
 
                     default:
                       return ons.notification.alert({
                         message:
                           "Couldn't connect to server, please try again later.",
-                        cancelable: true
+                        cancelable: true,
                       })
                   }
                 })
@@ -3198,7 +3198,7 @@ ons.ready(function() {
               var checkUsernameApi = appServer + '/api/user/checkusername'
               var usernameToTest = changeAtSymbol(signUpEmailEl.val().trim())
               var usernameDataPackage = {
-                username: usernameToTest
+                username: usernameToTest,
               }
               if (usernameToTest != lastUsername && usernameToTest != '') {
                 $.ajax(apiAjax(checkUsernameApi, usernameDataPackage))
@@ -3215,7 +3215,7 @@ ons.ready(function() {
                             .alert({
                               title: response.message,
                               message: response.reason,
-                              cancelable: true
+                              cancelable: true,
                             })
                             .then(function() {
                               errorMessageOpen = false
@@ -3231,7 +3231,7 @@ ons.ready(function() {
                               title: 'error',
                               message:
                                 'issue validating email address is unique.',
-                              cancelable: true
+                              cancelable: true,
                             })
                             .then(function() {
                               errorMessageOpen = false
@@ -3248,7 +3248,7 @@ ons.ready(function() {
                           title: 'Issue connecting to server',
                           messageHTML:
                             '<p>We are very sorry there was an issue connecting to the server to validate your email address is unique.</p><p>Please try re-submitting your sign up or come back later.</p><p>If the problem persists contact:</p><p class="copyableArea"><a href="mailto:support@checkpointlive.com" class="copyableArea">support@checkpointlive.com</a></a></p>',
-                          cancelable: true
+                          cancelable: true,
                         })
                         .then(function() {
                           errorMessageOpen = false
@@ -3266,7 +3266,7 @@ ons.ready(function() {
                     title: 'Invalid email',
                     messageHTML:
                       '<p>Please enter a valid email address like:</p><p>event@checkpointlive.com</p>',
-                    cancelable: true
+                    cancelable: true,
                   })
                   .then(function() {
                     errorMessageOpen = false
@@ -3302,7 +3302,7 @@ ons.ready(function() {
                       'A longer password is required please use a minimum of ' +
                       passwordLength +
                       ' characters',
-                    cancelable: true
+                    cancelable: true,
                   })
                   .then(function() {
                     errorMessageOpen = false
@@ -3331,7 +3331,7 @@ ons.ready(function() {
                           'A longer password is required please use a minimum of ' +
                           passwordLength +
                           ' characters',
-                        cancelable: true
+                        cancelable: true,
                       })
                       .then(function() {
                         errorMessageOpen = false
@@ -3345,7 +3345,7 @@ ons.ready(function() {
                   ons.notification
                     .alert({
                       messageHTML: 'Please enter a password to confirm',
-                      cancelable: true
+                      cancelable: true,
                     })
                     .then(function() {
                       errorMessageOpen = false
@@ -3357,7 +3357,7 @@ ons.ready(function() {
                     ons.notification
                       .alert({
                         message: 'Your passwords do not match',
-                        cancelable: true
+                        cancelable: true,
                       })
                       .then(function() {
                         errorMessageOpen = false
@@ -3387,7 +3387,7 @@ ons.ready(function() {
                 var createUserDataPackage = {
                   username: emailSignUp,
                   password: passwordSignUp,
-                  evtOrganiser: true
+                  evtOrganiser: true,
                 }
                 $.ajax(apiAjax(apiAddress, createUserDataPackage))
                   .then(function(doc) {
@@ -3410,7 +3410,7 @@ ons.ready(function() {
                         }
                         var newLoginDoc = {
                           _id: 'login_' + username,
-                          customerId: customerId
+                          customerId: customerId,
                         }
                         appdb.put(newLoginDoc)
                         break
@@ -3420,7 +3420,7 @@ ons.ready(function() {
                           title: 'error',
                           message:
                             "Something has gone wrong that isn't your fault please contact support",
-                          cancelable: true
+                          cancelable: true,
                         }
                     }
                   })
@@ -3429,7 +3429,7 @@ ons.ready(function() {
                     ons.notification.alert({
                       title: err.title || 'error',
                       message: err.message || 'error: ' + err.toString(),
-                      cancelable: true
+                      cancelable: true,
                     })
                   })
                 break
@@ -3449,7 +3449,7 @@ ons.ready(function() {
                 ons.notification.alert({
                   title: 'Please complete the following:',
                   messageHTML: signUpErrorMessage,
-                  cancelable: true
+                  cancelable: true,
                 })
                 break
             }
@@ -3478,7 +3478,7 @@ ons.ready(function() {
                 username: localStorage.username,
                 token: $('#verificationCode')
                   .val()
-                  .trim()
+                  .trim(),
               }
               if (verificationDataPackage.token != '') {
                 $.ajax(apiAjax(verificationCheckAPI, verificationDataPackage))
@@ -3495,13 +3495,13 @@ ons.ready(function() {
                         throw {
                           title: 'Incorrect code',
                           message:
-                            'This code does not match your user account, please check you entered it correctly.'
+                            'This code does not match your user account, please check you entered it correctly.',
                         }
 
                       case 500:
                         throw {
                           title: 'Error',
-                          message: doc.message.toString()
+                          message: doc.message.toString(),
                         }
                     }
                   })
@@ -3513,7 +3513,7 @@ ons.ready(function() {
                         err.message ||
                         'failed to send verification code because of: ' +
                           err.toString(),
-                      cancelable: true
+                      cancelable: true,
                     })
                   })
               }
@@ -3525,7 +3525,7 @@ ons.ready(function() {
             .on('click', function() {
               var url = appServer + '/api/user/resendverification'
               var dataPackage = {
-                username: username
+                username: username,
               }
               $.ajax(apiAjax(url, dataPackage))
                 .then(function() {
@@ -3533,7 +3533,7 @@ ons.ready(function() {
                     title: 'Email sent',
                     message:
                       'Your new verification code has been sent to the email address you signed up with.',
-                    cancelable: true
+                    cancelable: true,
                   })
                 })
                 .catch(function() {
@@ -3541,7 +3541,7 @@ ons.ready(function() {
                     title: 'Error',
                     message:
                       'There was an issue re-sending your verification email, please try again',
-                    cancelable: true
+                    cancelable: true,
                   })
                 })
             })
@@ -3607,7 +3607,7 @@ ons.ready(function() {
                   .alert({
                     title: 'Password Error',
                     message: 'The admin and base passwords must be unique.',
-                    cancelable: true
+                    cancelable: true,
                   })
                   .then(function() {
                     passElement.val('')
@@ -3745,9 +3745,9 @@ ons.ready(function() {
                 baseName: 'admin HQ',
                 basePassword: $('#adminPassword')
                   .val()
-                  .trim()
-              }
-            ]
+                  .trim(),
+              },
+            ],
           }
           var numberOfTrackedEntities = parseInt(trackedEntities.val())
           eventDescription.trackedEntities = numberOfTrackedEntities
@@ -3788,7 +3788,7 @@ ons.ready(function() {
               ),
               baseInstructions: $('#base' + i + 'Instructions')
                 .val()
-                .trim()
+                .trim(),
             }
             var bName = $('#base' + i + 'Name')
               .val()
@@ -3810,7 +3810,7 @@ ons.ready(function() {
                   title: 'Missing Password',
                   message:
                     "Check each base has a password and that the admin password is set, else if passwords are not required turn off the 'Password protect base logs' switch.",
-                  cancelable: true
+                  cancelable: true,
                 })
                 .then(function() {
                   showProgressBar('createEventPage', false)
@@ -3845,7 +3845,7 @@ ons.ready(function() {
               return ons.notification.alert({
                 title: 'Check event dates',
                 message: 'Event set to end before it starts.',
-                cancelable: true
+                cancelable: true,
               })
             }
             if (getFile != false) {
@@ -3871,8 +3871,8 @@ ons.ready(function() {
                   return (eventDescription._attachments = {
                     evtLogo: {
                       data: img,
-                      content_type: img.type
-                    }
+                      content_type: img.type,
+                    },
                   })
                 })
                 .catch(function(err) {
@@ -3895,7 +3895,7 @@ ons.ready(function() {
                     messageHTML:
                       '<p>An event requires the following information:</p><p>A name</p></p><p>Start and end date</p></p><p>An admin password</p><p>An event username</p><p>The number of ' +
                       eventDescription.pRef +
-                      's</p>'
+                      's</p>',
                   })
                   .then(function() {
                     return showProgressBar('createEventPage', false)
@@ -3928,8 +3928,8 @@ ons.ready(function() {
                           eventName: eventDescription.eventName,
                           trackedEntities: eventDescription.trackedEntities,
                           location: eventDescription.geolocationInUse,
-                          changeMade: true
-                        }
+                          changeMade: true,
+                        },
                       })
                     }
                     return createNewEvent(url)
@@ -3939,7 +3939,7 @@ ons.ready(function() {
                     .alert({
                       message:
                         'This username is already in use, please try a different username.',
-                      cancelable: true
+                      cancelable: true,
                     })
                     .then(function() {
                       return showProgressBar('createEventPage', false)
@@ -3959,13 +3959,13 @@ ons.ready(function() {
                   '?',
                 message:
                   'Your changes will update the event and be distributed to all users of the event.',
-                cancelable: true
+                cancelable: true,
               })
               .then(function(index) {
                 // must be == to work
                 if (!index == 1) {
                   throw {
-                    canceled: true
+                    canceled: true,
                   }
                 }
                 showProgressBar('createEventPage', true)
@@ -4047,8 +4047,8 @@ ons.ready(function() {
                   eventDescription._attachments = {
                     evtLogo: {
                       data: getFile,
-                      content_type: getFile.type
-                    }
+                      content_type: getFile.type,
+                    },
                   }
                   changeMade = true
                 } else if (typeof doc._attachments === 'object') {
@@ -4077,8 +4077,8 @@ ons.ready(function() {
                       eventName: eventDescription.eventName,
                       trackedEntities: eventDescription.trackedEntities,
                       location: eventDescription.geolocationInUse,
-                      changeMade: changeMade
-                    }
+                      changeMade: changeMade,
+                    },
                   })
                 }
                 if (!changeMade) {
@@ -4098,7 +4098,7 @@ ons.ready(function() {
                       title: 'No change found',
                       message:
                         'No changes have been detected from the previous event information. A new version has not been saved.',
-                      cancelable: true
+                      cancelable: true,
                     })
                     .then(function() {
                       throw navi.popPage()
@@ -4107,7 +4107,7 @@ ons.ready(function() {
                 var options = {
                   title: 'Input Error',
                   message: err,
-                  cancelable: true
+                  cancelable: true,
                 }
                 ons.notification.alert(options)
               })
@@ -4348,7 +4348,7 @@ ons.ready(function() {
               if (evtUsername != '') {
                 var apiAddress = appServer + '/api/user/checkusername'
                 var evtUsernameToTest = {
-                  username: evtUsername
+                  username: evtUsername,
                 }
                 $.ajax(apiAjax(apiAddress, evtUsernameToTest))
                   .then(function(doc) {
@@ -4360,7 +4360,7 @@ ons.ready(function() {
                         ons.notification.alert({
                           title: doc.message,
                           message: doc.reason,
-                          cancelable: true
+                          cancelable: true,
                         })
 
                         break
@@ -4375,7 +4375,7 @@ ons.ready(function() {
                     ons.notification.alert({
                       title: 'error',
                       message: 'Issue checking username is unique.',
-                      cancelable: true
+                      cancelable: true,
                     })
                   })
               }
@@ -4556,7 +4556,7 @@ ons.ready(function() {
               http + username + ':' + password + '@' + couchdb + '/' + lastDb
             var options = {
               animation: pageChangeAnimation,
-              data: navi.topPage.data
+              data: navi.topPage.data,
             }
 
             var originPage = navi.pages[0].name
@@ -4577,7 +4577,7 @@ ons.ready(function() {
               var dataPackage = {
                 username: username,
                 password: password,
-                db: eventInfo.dbName
+                db: eventInfo.dbName,
               }
               return $.ajax(apiAjax(eDUrl, dataPackage))
                 .then(function(response) {
@@ -4586,7 +4586,7 @@ ons.ready(function() {
                       title: 'Error',
                       message:
                         'There was an issue sending you an email with the event details, please try again later.',
-                      cancelable: true
+                      cancelable: true,
                     })
                   }
                   return (options = {
@@ -4595,7 +4595,7 @@ ons.ready(function() {
                       '<p>An email has been sent to you at the email address you use to sign in:</p><p class="secondaryColor">' +
                       changeAtSymbolBack(username) +
                       '</p><p>Please check your inbox it should be with you shortly.</p><p>This will contain instructions you can distribute to your users on how start using the website.</p>',
-                    cancelable: true
+                    cancelable: true,
                   })
                 })
                 .then(function(options) {
@@ -4654,7 +4654,7 @@ ons.ready(function() {
             var options = {
               doc_ids: ['eventDescription'],
               live: true,
-              retry: true
+              retry: true,
             }
             var messageOpen = false
             evtUpdateCheck = db.replicate
@@ -4671,15 +4671,15 @@ ons.ready(function() {
                         '<p>This event has been updated by the event organisers to version: ' +
                         version +
                         '.</p><p>Your device will update once this message closes.</p>',
-                      cancelable: true
+                      cancelable: true,
                     })
                     .then(function() {
                       var options = {
                         animation: pageChangeAnimation,
                         data: {
                           event: eventInfo.dbName,
-                          lastPage: 'loginPage.html'
-                        }
+                          lastPage: 'loginPage.html',
+                        },
                       }
                       navi.resetToPage('updatePage.html', options)
                       evtUpdateCheck.cancel()
@@ -4848,7 +4848,7 @@ ons.ready(function() {
               title: 'Event information missing',
               messageHTML:
                 '<p>The data for this event is missing, when this message closes you will be signed out. Please sign back in, this should fix any issues.</p><p>If the problem persists please contact:</p><p>support@checkpointlive.com</p>',
-              cancelable: true
+              cancelable: true,
             })
             .then(function() {
               signOut()
@@ -4874,7 +4874,7 @@ ons.ready(function() {
                   throw {
                     message: noBaseSelectedErrorMessage,
                     title: 'Missing inputs',
-                    cancelable: true
+                    cancelable: true,
                   }
                 }
                 var baseCodeInput = baseCodeEl
@@ -4889,7 +4889,7 @@ ons.ready(function() {
                     message:
                       'Please try re-entering your passcode or contact the event organisers',
                     title: 'Incorrect passcode',
-                    cancelable: true
+                    cancelable: true,
                   }
                 }
                 return base
@@ -4902,7 +4902,7 @@ ons.ready(function() {
                       messageHTML:
                         'To enter the admin area please enter the admin code provided to you by the event organisers:',
                       cancelable: true,
-                      placeholder: 'Enter admin code here'
+                      placeholder: 'Enter admin code here',
                     })
                     .then(function(input) {
                       if (input.trim() !== eventInfo.adminPassword) {
@@ -4910,7 +4910,7 @@ ons.ready(function() {
                           title: 'Admin code Error',
                           messageHTML:
                             '<p>Please try re-entering your admin code, the code you entered was incorrect.</p><p>Admin codes are case sensitive.</p>',
-                          cancelable: true
+                          cancelable: true,
                         }
                       }
                       return baseNumber
@@ -4935,13 +4935,13 @@ ons.ready(function() {
                       title: 'Error saving user',
                       message:
                         'You have logged in but there was an error saving your user credentials, the app will require you to log in again if you close it.',
-                      cancelable: true
+                      cancelable: true,
                     })
                   })
               })
               .then(function() {
                 loginAndRunFunction(base, {
-                  eventInfo: eventInfo
+                  eventInfo: eventInfo,
                 })
                 evtUpdateCheck.cancel()
               })
@@ -5033,8 +5033,8 @@ ons.ready(function() {
                   var options = {
                     animation: pageChangeAnimation,
                     data: {
-                      eventInfo: eventInfo
-                    }
+                      eventInfo: eventInfo,
+                    },
                   }
                   navi.resetToPage('loginPage.html', options)
                 })
@@ -5052,8 +5052,8 @@ ons.ready(function() {
                   var options = {
                     animation: pageChangeAnimation,
                     data: {
-                      eventInfo: eventInfo
-                    }
+                      eventInfo: eventInfo,
+                    },
                   }
                   navi.bringPageTop('eventSummaryPage.html', options)
                 })
@@ -5069,7 +5069,7 @@ ons.ready(function() {
                     'background-position': 'center top',
                     'background-size': 'cover',
                     height: 240,
-                    'min-height': 100
+                    'min-height': 100,
                   })
                   return true
                 } else {
@@ -5094,8 +5094,8 @@ ons.ready(function() {
             var options = {
               animation: pageChangeAnimation,
               data: {
-                edit: false
-              }
+                edit: false,
+              },
             }
             navi.bringPageTop('createEventPage.html', options)
           })
@@ -5122,7 +5122,7 @@ ons.ready(function() {
                 log.geolocation = {
                   lat: position.coords.latitude,
                   lon: position.coords.longitude,
-                  accuracy: position.coords.accuracy
+                  accuracy: position.coords.accuracy,
                 }
                 return log
               })
@@ -5225,8 +5225,8 @@ ons.ready(function() {
               fields: ['timeOut'],
               name: 'timeOutIndex',
               ddoc: 'timeOutIndex',
-              type: 'json'
-            }
+              type: 'json',
+            },
           })
           .then(function(doc) {
             console.log(doc)
@@ -5235,8 +5235,8 @@ ons.ready(function() {
                 fields: ['base', 'timeOut'],
                 name: 'baseTimeOutIndex',
                 ddoc: 'baseTimeOutIndex',
-                type: 'json'
-              }
+                type: 'json',
+              },
             })
           })
           .then(function() {
@@ -5245,8 +5245,8 @@ ons.ready(function() {
                 fields: ['patrol'],
                 name: 'patrolIndex',
                 ddoc: 'patrolIndex',
-                type: 'json'
-              }
+                type: 'json',
+              },
             })
           })
           .then(function(doc) {
@@ -5255,13 +5255,13 @@ ons.ready(function() {
             return basedb.find({
               selector: {
                 timeOut: {
-                  $gt: 0
+                  $gt: 0,
                 },
                 base: {
-                  $eq: base
-                }
+                  $eq: base,
+                },
               },
-              sort: ['timeOut']
+              sort: ['timeOut'],
             })
           })
           .then(function(doc) {
@@ -5274,8 +5274,8 @@ ons.ready(function() {
                 fields: ['base'],
                 name: 'baseIndex',
                 ddoc: 'baseIndex',
-                type: 'json'
-              }
+                type: 'json',
+              },
             })
           })
           .then(function() {
@@ -5293,7 +5293,7 @@ ons.ready(function() {
             if (baseSyncInProgress === false) {
               var syncOptions = {
                 live: true,
-                retry: true
+                retry: true,
               }
               baseSyncInProgress = true
               return (syncBasedb = basedb
@@ -5327,7 +5327,7 @@ ons.ready(function() {
                       '<p>An error has occured with the following message</p><p>' +
                       err.message +
                       '</p>',
-                    cancelable: true
+                    cancelable: true,
                   })
                   if (err.status === 409) {
                     console.log('conflict in doc upload')
@@ -5354,7 +5354,7 @@ ons.ready(function() {
             title: 'Location',
             messageHTML:
               '<p class="">The event organiser has set this checkpoint to include a location with each log.</p><p>After closing this message a location check will be performed, select whether you would be happy to allow checkpointlive.com to use your location.</p>',
-            cancelable: true
+            cancelable: true,
           }
           ons.notification
             .alert(settings)
@@ -5373,7 +5373,7 @@ ons.ready(function() {
                   '</p><p class="txtCenter">Accuracy: ' +
                   location.coords.accuracy +
                   'm</p></div>',
-                cancelable: true
+                cancelable: true,
               }
               if (location.coords.accuracy > 100) {
                 options.messageHTML +=
@@ -5387,7 +5387,7 @@ ons.ready(function() {
                 title: 'Location Failed',
                 message:
                   'If you did not accept to allow for locations, if you change your mind you can do so from your browser settings. If not then it seems your browser cannot utilise geolocation.',
-                cancelable: true
+                cancelable: true,
               })
             })
             .then(function(options) {
@@ -5467,7 +5467,7 @@ ons.ready(function() {
                 title: 'No longer editable',
                 message:
                   'This record has been locked by HQ and cannot be edited',
-                cancelable: true
+                cancelable: true,
               })
             }
           })
@@ -5487,7 +5487,7 @@ ons.ready(function() {
             ons.notification
               .confirm({
                 message: 'Are you sure you want to clear this entry?',
-                cancelable: true
+                cancelable: true,
               })
               .then(function(input) {
                 if (input == 1) {
@@ -5515,7 +5515,7 @@ ons.ready(function() {
                 title: 'Event activation required',
                 messageHTML:
                   '<p>This event has not been activated</p><p>To activate the event the organisers need to complete the checkout process.</p>',
-                cancelable: true
+                cancelable: true,
               })
             }
             base = getBaseNumber()
@@ -5573,7 +5573,7 @@ ons.ready(function() {
                 messageHTML:
                   '<p>This log entry is missing the following fields:</p>' +
                   missingInformationMessage,
-                cancelable: true
+                cancelable: true,
               })
             } else if (
               sqPatrol > parseInt(eventInfo.trackedEntities) ||
@@ -5582,7 +5582,7 @@ ons.ready(function() {
               ons.notification.alert({
                 message:
                   'You have entered an invalid ' + eventInfo.pRef + ' number.',
-                cancelable: true
+                cancelable: true,
               })
             } else if (
               parseInt(sqTotalScore) > parseInt(eventInfoBase.baseMaxScore)
@@ -5590,12 +5590,12 @@ ons.ready(function() {
               ons.notification.alert({
                 message:
                   'The total score entered is greater than the maximum points available at this checkpoint.',
-                cancelable: true
+                cancelable: true,
               })
             } else if (sqTimeIn > sqTimeOut) {
               ons.notification.alert({
                 message: 'The time out must be after the time in.',
-                cancelable: true
+                cancelable: true,
               })
             } else if (sqOffRoute && sqTotalScore != '') {
               ons.notification
@@ -5612,8 +5612,8 @@ ons.ready(function() {
                   cancelable: true,
                   buttonLabels: [
                     'Off route - no score',
-                    'On route - score of ' + sqTotalScore
-                  ]
+                    'On route - score of ' + sqTotalScore,
+                  ],
                 })
                 .then(function(input) {
                   //button index
@@ -5655,7 +5655,7 @@ ons.ready(function() {
                 offRoute: '',
                 totalScore: sqTotalScore,
                 editable: true,
-                timestamp: timestamp
+                timestamp: timestamp,
               }
 
               // -- important if off route it is just added to the db
@@ -5699,7 +5699,7 @@ ons.ready(function() {
                                 eventInfo.pRef +
                                 ' number ' +
                                 sqPatrol,
-                              cancelable: true
+                              cancelable: true,
                             })
                             .then(function(input) {
                               if (input === 1) {
@@ -5734,7 +5734,7 @@ ons.ready(function() {
                           return ons.notification.alert({
                             message:
                               'This record has been locked by Admin HQ and cannot be edited.',
-                            cancelable: true
+                            cancelable: true,
                           })
                       }
                     })
@@ -5911,8 +5911,8 @@ ons.ready(function() {
             .find({
               selector: {
                 timeOut: {
-                  $gt: 0
-                }
+                  $gt: 0,
+                },
               },
               fields: [
                 '_id',
@@ -5920,13 +5920,13 @@ ons.ready(function() {
                 'patrol',
                 'timeOut',
                 'offRoute',
-                'username'
+                'username',
               ],
               sort: [
                 {
-                  timeOut: 'desc'
-                }
-              ]
+                  timeOut: 'desc',
+                },
+              ],
             })
             .then(function(doc) {
               return lastSeenUpdate(doc, updateTable, lastSeenTable)
@@ -5957,7 +5957,7 @@ ons.ready(function() {
           admindb
             .query('leaderboardIndex', {
               reduce: true,
-              group: true
+              group: true,
             })
             .then(function(doc) {
               return doc.rows.sort(sort_by('value', true))
@@ -6038,14 +6038,14 @@ ons.ready(function() {
                           .find({
                             selector: {
                               timeOut: {
-                                $gt: 0
+                                $gt: 0,
                               },
                               patrol: {
-                                $eq: patrolToSearch
-                              }
+                                $eq: patrolToSearch,
+                              },
                             },
 
-                            sort: ['timeOut']
+                            sort: ['timeOut'],
                           })
                           .then(function(doc) {
                             console.log(doc)
@@ -6078,10 +6078,10 @@ ons.ready(function() {
                           .find({
                             selector: {
                               timeOut: {
-                                $gt: 0
-                              }
+                                $gt: 0,
+                              },
                             },
-                            sort: ['timeOut']
+                            sort: ['timeOut'],
                           })
                           .then(function(doc) {
                             //console.log(doc);
@@ -6143,8 +6143,8 @@ ons.ready(function() {
                         fields: ['timeOut'],
                         name: 'timeOutIndex',
                         ddoc: 'timeOutIndex',
-                        type: 'json'
-                      }
+                        type: 'json',
+                      },
                     })
                     .then(function(doc) {
                       console.log(doc)
@@ -6153,8 +6153,8 @@ ons.ready(function() {
                           fields: ['base', 'timeOut'],
                           name: 'baseTimeOutIndex',
                           ddoc: 'baseTimeOutIndex',
-                          type: 'json'
-                        }
+                          type: 'json',
+                        },
                       })
                     })
                     .then(function() {
@@ -6163,8 +6163,8 @@ ons.ready(function() {
                           fields: ['patrol'],
                           name: 'patrolIndex',
                           ddoc: 'patrolIndex',
-                          type: 'json'
-                        }
+                          type: 'json',
+                        },
                       })
                     })
                     .then(function() {
@@ -6173,8 +6173,8 @@ ons.ready(function() {
                           fields: ['base'],
                           name: 'baseIndex',
                           ddoc: 'baseIndex',
-                          type: 'json'
-                        }
+                          type: 'json',
+                        },
                       })
                     })
                     .then(function() {
@@ -6194,9 +6194,9 @@ ons.ready(function() {
                                     )
                                   }
                                 }.toString(),
-                                reduce: '_sum'
-                              }
-                            }
+                                reduce: '_sum',
+                              },
+                            },
                           }
                           return admindb.put(leaderboardIndex)
                         })
@@ -6205,10 +6205,10 @@ ons.ready(function() {
                       return admindb.find({
                         selector: {
                           timeOut: {
-                            $gt: 0
-                          }
+                            $gt: 0,
+                          },
                         },
-                        sort: ['timeOut']
+                        sort: ['timeOut'],
                       })
                     })
                     .then(function(doc) {
@@ -6224,7 +6224,7 @@ ons.ready(function() {
                       if (adminSyncInProgress === false) {
                         var syncOptions = {
                           live: true,
-                          retry: true
+                          retry: true,
                         }
                         adminSyncInProgress = true
                         return (adminSync = admindb
@@ -6268,7 +6268,7 @@ ons.ready(function() {
                               title: 'Error',
                               message:
                                 'A connection error has occured please, refresh the app or web page',
-                              cancelable: true
+                              cancelable: true,
                             })
                           })
                           .on('complete', function() {
@@ -6376,7 +6376,7 @@ ons.ready(function() {
                           title: 'Are you sure?',
                           message:
                             'Are you sure you wish to delete ' + logOrLogs,
-                          cancelable: true
+                          cancelable: true,
                         })
                         .then(function(input) {
                           if (input == 1) {
@@ -6516,7 +6516,7 @@ ons.ready(function() {
               title: 'Messaging unavailable',
               messageHTML:
                 "<p>Messaging is currently unavailable.</p><p>This functionality will become available when the event is activated by the event's organisers</p>",
-              cancelable: true
+              cancelable: true,
             })
             return false
           }
@@ -6533,7 +6533,7 @@ ons.ready(function() {
             message: messageInput.html().trim(),
             from: currentBase,
             time: isoDate,
-            username: personName
+            username: personName,
           }
           pouch
             .put(message)
@@ -6555,7 +6555,7 @@ ons.ready(function() {
                 endkey: newestMessage,
                 startkey: 'message\ufff0',
                 descending: true,
-                limit: undefined
+                limit: undefined,
               }
               return addMessages(
                 pouch,
@@ -6600,7 +6600,7 @@ ons.ready(function() {
                   endkey: 'message',
                   startkey: nextMessageEndKey,
                   descending: true,
-                  limit: 10
+                  limit: 10,
                 }
                 return addMessages(
                   pouch,
@@ -6655,7 +6655,7 @@ ons.ready(function() {
           endkey: 'message',
           startkey: 'message\ufff0',
           descending: true,
-          limit: 25
+          limit: 25,
         }
         addMessages(
           pouch,
@@ -6745,8 +6745,8 @@ ons.ready(function() {
         optionsUpdate = {
           animation: pageChangeAnimation,
           data: {
-            firstPage: true
-          }
+            firstPage: true,
+          },
         }
         closeDatabases()
         Promise.resolve()
@@ -6780,7 +6780,7 @@ ons.ready(function() {
                 title: 'Issue Updating',
                 message:
                   'There was an issue updating, please sign in again to solve the issue.',
-                cancelable: true
+                cancelable: true,
               })
               .then(function() {
                 pageChange = 'signInPage.html'
@@ -6802,8 +6802,8 @@ ons.ready(function() {
           base: {
             // Add your base input styles here. For example:
             fontSize: '16px',
-            color: '#32325d'
-          }
+            color: '#32325d',
+          },
         }
         // Create an instance of the card Element.
         var card = elements.create('card', { style: style })
@@ -7114,7 +7114,7 @@ ons.ready(function() {
               return ons.notification.alert({
                 title: err.title || 'Error',
                 messageHTML: err.message,
-                cancelable: true
+                cancelable: true,
               })
             })
         })
@@ -7127,7 +7127,7 @@ ons.ready(function() {
             city: $('#checkoutCity').val(),
             county: $('#checkoutCounty').val(),
             postcode: $('#checkoutPostCode').val(),
-            country: $('#checkoutCountry').val()
+            country: $('#checkoutCountry').val(),
           }
           var inpObj = document
             .getElementById('checkoutEmail')
@@ -7143,14 +7143,14 @@ ons.ready(function() {
               title: 'Missing inputs',
               message:
                 '<p>Please enter the following information:</p>' +
-                check.join().replace(/,/g, '')
+                check.join().replace(/,/g, ''),
             }
           }
           if (!inpObj[0].checkValidity()) {
             throw {
               title: 'Invalid email',
               message:
-                '<p>Please enter a valid email address like:</p><p>event@checkpointlive.com</p>'
+                '<p>Please enter a valid email address like:</p><p>event@checkpointlive.com</p>',
             }
           }
           return metadata
@@ -7180,7 +7180,7 @@ ons.ready(function() {
             source: source,
             amount: amount,
             customer: customer,
-            metadata: metadata
+            metadata: metadata,
           }
           return $.ajax(apiAjax(appServer + '/api/payment', paymentObject))
             .then(function(response) {
@@ -7196,7 +7196,7 @@ ons.ready(function() {
                   '£' +
                   (amount / 100).toFixed(2) +
                   ' has been charged to your card.',
-                cancelable: true
+                cancelable: true,
               })
             })
             .catch(function(err) {
@@ -7221,12 +7221,12 @@ ons.ready(function() {
                 promo: checkoutPromo
                   .val()
                   .trim()
-                  .toLowerCase()
+                  .toLowerCase(),
               }
               if (promoObject.promo === '') {
                 throw {
                   title: 'No promo code',
-                  message: 'Please enter a promo code'
+                  message: 'Please enter a promo code',
                 }
               }
               return $.ajax(apiAjax(appServer + '/api/promocode', promoObject))
@@ -7246,7 +7246,7 @@ ons.ready(function() {
               ons.notification.alert({
                 title: err.title || 'Promo invalid',
                 message: err.message || 'Promo code is not valid',
-                cancelable: true
+                cancelable: true,
               })
             })
         })
@@ -7271,7 +7271,7 @@ ons.ready(function() {
       username: username,
       password: password,
       eventName: eventDescription.eventName,
-      eventUsername: eventDescription.evtUsername
+      eventUsername: eventDescription.evtUsername,
     }
 
     return $.ajax(apiAjax(apiAddress, eventCreationData))
@@ -7372,8 +7372,8 @@ ons.ready(function() {
           data: {
             eventName: eventDescription.eventName,
             url: url,
-            eventInfo: eventDescription
-          }
+            eventInfo: eventDescription,
+          },
         }
         return navi.resetToPage('eventSummaryPage.html', options)
       })
@@ -7386,7 +7386,7 @@ ons.ready(function() {
           .alert({
             title: 'error',
             message: err.message,
-            cancelable: true
+            cancelable: true,
           })
           .then(function() {
             return showProgressBar('createEventPage', false)
@@ -7414,8 +7414,8 @@ ons.ready(function() {
           data: {
             eventName: eventDescription.eventName,
             url: url,
-            eventInfo: eventDescription
-          }
+            eventInfo: eventDescription,
+          },
         }
         return navi.resetToPage('eventSummaryPage.html', options)
       })
@@ -7453,7 +7453,7 @@ function downscaleImg(imgEl, maxWidth, maxHeight) {
   }
   var dimensions = {
     width: Math.floor(maxWidth),
-    height: Math.floor(maxHeight)
+    height: Math.floor(maxHeight),
   }
   return dimensions
 }
@@ -7479,7 +7479,7 @@ function imgStats(imgEl) {
     height: imgHeight,
     width: imgWidth,
     ratio: imgRatio,
-    landscape: imgLandscape
+    landscape: imgLandscape,
   }
   return imgStats
 }
@@ -7506,7 +7506,7 @@ function stepped_scale(img, width, step) {
         var mul = 1 / step
         var cur = {
           width: Math.floor(img.width * step),
-          height: Math.floor(img.height * step)
+          height: Math.floor(img.height * step),
         }
 
         oc.width = cur.width
@@ -7517,7 +7517,7 @@ function stepped_scale(img, width, step) {
         while (cur.width * step > width) {
           cur = {
             width: Math.floor(cur.width * step),
-            height: Math.floor(cur.height * step)
+            height: Math.floor(cur.height * step),
           }
           octx.drawImage(
             oc,
@@ -7678,7 +7678,7 @@ function copyAllLogs() {
     title: 'All logs table added to clipboard',
     messageHTML:
       '<p>You have just added the whole admin logs table to your clipboard.</p><p>This is in the form of an html table, paste into Microsoft Excel or HTML file to view.</p>',
-    cancelable: true
+    cancelable: true,
   })
 }
 
@@ -7691,7 +7691,7 @@ function copyAllLogs() {
 function scrollToElement(elementToScroll, offset, speed) {
   elementToScroll.animate(
     {
-      scrollTop: offset
+      scrollTop: offset,
     },
     speed
   )
@@ -7705,8 +7705,8 @@ function openMessages() {
     animation: pageChangeAnimation,
     data: {
       currentBase: getBaseNumber(),
-      eventInfo: navi.topPage.data.eventInfo
-    }
+      eventInfo: navi.topPage.data.eventInfo,
+    },
   }
   navi.bringPageTop('messagesPage.html', options)
 }
@@ -7774,7 +7774,7 @@ var getPosition = function() {
   return new Promise(function(resolve, reject) {
     var options = {
       // timeout: 10,
-      enableHighAccuracy: true
+      enableHighAccuracy: true,
       // maximumAge: Infinity
     }
     navigator.geolocation.getCurrentPosition(resolve, reject, options)
@@ -7816,7 +7816,7 @@ function sendviaOsmAnd(trackingOn, pRef, log, trackingUrl) {
     loggedBy: log.username,
     checkpoint: log.base,
     score: log.totalScore,
-    offRoute: log.offRoute
+    offRoute: log.offRoute,
   }
   var settings = apiAjax(appServer + 'api/event/tracking', dataPackage)
 

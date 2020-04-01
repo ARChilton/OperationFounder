@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "checkpoint monitoring",
   "main": "www",
-  "dependencies": {},
+  "dependencies": {
+    "eslint": "^6.8.0"
+  },
   "devDependencies": {
     "del": "5.1.0",
+    "eslint-plugin-prettier": "3.1.0",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
     "gulp-clean-css": "4.2.0",
@@ -13,13 +16,16 @@
     "gulp-sitemap": "7.6.0",
     "gulp-svgmin": "2.2.0",
     "gulp-uglify-es": "2.0.0",
+    "prettier": "1.18.2",
     "pump": "3.0.0",
+    "eslint-config-prettier": "6.3.0",
     "sw-precache": "5.2.1"
   },
   "scripts": {
     "start": "monaca preview",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp build"
+    "build": "gulp build",
+    "eslint-check": "eslint --print-config .eslint.json | eslint-config-prettier-check"
   },
   "repository": {
     "type": "git",
